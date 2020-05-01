@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -24,6 +24,7 @@ Wick.Path = class extends Wick.Base {
     /**
      * Create a Wick Path.
      * @param {array} json - Path data exported from paper.js using exportJSON({asString:false}).
+     * @param {Paper.Path} path - A Paper.js Path object to use as this Path's svg data. Optional if json was not passed in.
      */
     constructor(args) {
         if (!args) args = {};
@@ -31,8 +32,12 @@ Wick.Path = class extends Wick.Base {
 
         this._fontStyle = 'normal';
         this._fontWeight = 400;
+        this._isPlaceholder = args.isPlaceholder;
+        this._originalStyle = null;
 
-        if (args.json) {
+        if(args.path) {
+            this.json = args.path.exportJSON({asString:false});
+        } else if(args.json) {
             this.json = args.json;
         } else {
             this.json = new paper.Path({ insert: false }).exportJSON({ asString: false });
@@ -95,6 +100,7 @@ Wick.Path = class extends Wick.Base {
 
         data.fontStyle = this._fontStyle;
         data.fontWeight = this._fontWeight;
+        data.isPlaceholder = this._isPlaceholder;
 
         return data;
     }
@@ -104,10 +110,11 @@ Wick.Path = class extends Wick.Base {
         this.json = data.json;
         this._fontStyle = data.fontStyle || 'normal';
         this._fontWeight = data.fontWeight || 400;
+        this._isPlaceholder = data.isPlaceholder;
     }
 
     /**
-     *
+     * Determines if this Path is visible in the project.
      */
     get onScreen() {
         return this.parent.onScreen;
@@ -295,6 +302,18 @@ Wick.Path = class extends Wick.Base {
     }
 
     /**
+     * The original style of the path (used to recover the path's style if it was changed by a custom onion skin style)
+     * @type {object}
+     */
+    get originalStyle () {
+        return this._originalStyle;
+    }
+
+    set originalStyle (originalStyle) {
+        this._originalStyle = originalStyle;
+    }
+
+    /**
      * The content of the text.
      * @type {string}
      */
@@ -434,5 +453,17 @@ Wick.Path = class extends Wick.Base {
         flatPath.fillColor = this.strokeColor;
 
         return flatPath;
+    }
+
+    /**
+     * Is this path used as a placeholder for preventing empty clips?
+     * @type {bool}
+     */
+    set isPlaceholder (isPlaceholder) {
+        this._isPlaceholder = isPlaceholder;
+    }
+
+    get isPlaceholder () {
+        return this._isPlaceholder;
     }
 }

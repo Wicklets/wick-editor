@@ -12,6 +12,7 @@
 /build
 /build-ios/WebViewExample/local_html
 /build-electron
+/dist
 
 # misc
 .DS_Store
@@ -19,16 +20,11 @@
 .env.development.local
 .env.test.local
 .env.production.local
+.env
 
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-
-#dist is the compliled engine so shouldn't really be under source control as it is a product of the source
-/dist/*
-
-/engine/dist/*
-
-/public/corelibs/wick-engine
-/engine/dist
+# docs
+engine/docs/*

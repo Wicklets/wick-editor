@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -357,7 +357,18 @@ Wick.Tools.Brush = class extends Wick.Tool {
             potracePath.closed = true;
             potracePath.children[0].closed = true;
             potracePath.children[0].applyMatrix = true;
-            this.addPathToProject(potracePath.children[0], this._currentDrawingFrame);
+            var result = potracePath.children[0];
+
+            // Do special brush mode action
+            var brushMode = this.getSetting('brushMode');
+            if(this._currentDrawingFrame && this._currentDrawingFrame.view) {
+                // Don't apply brush mode if there is no frame to draw on
+                // (the frame is added during addPathToProject)
+                result = this._applyBrushMode(brushMode, result, this._currentDrawingFrame.view.pathsLayer);
+            }
+
+            // Done! Add the path to the project
+            this.addPathToProject(result, this._currentDrawingFrame);
 
             // We're done potracing using the current croquis canvas, reset the stroke bounds
             this._resetStrokeBounds(point);
@@ -366,5 +377,50 @@ Wick.Tools.Brush = class extends Wick.Tool {
             this.croquis.clearLayer();
             this.fireEvent('canvasModified');
         }, Wick.Tools.Brush.CROQUIS_WAIT_AMT_MS);
+    }
+
+    _applyBrushMode (mode, path, layer) {
+        if(!mode) {
+            console.warn('_applyBrushMode: Invalid brush mode: ' + mode);
+            console.warn('Valid brush modes are "inside" and "outside".')
+            return;
+        }
+
+        if(mode === 'none') {
+            return path;
+        }
+
+        var booleanOpName = {
+            'inside': 'intersect',
+            'outside': 'subtract',
+        }[mode];
+
+        var mask = null;
+        layer.children.forEach(otherPath => {
+            if(otherPath === mask) return;
+            if(mask) {
+                var newMask = mask.unite(otherPath);
+
+                if((newMask.children && newMask.children.length === 0) ||
+                   (newMask.segments && newMask.segments.length === 0)) {
+                    // Ignore boolean ops that result in empty paths
+                } else {
+                    mask = newMask;
+                }
+
+                newMask.remove();
+            } else {
+                mask = otherPath;
+            }
+        });
+        if(!mask) {
+            // Nothing to mask with
+            return path;
+        }
+
+        var result = path.clone({insert:false});
+        result = result[booleanOpName](mask);
+        result.remove();
+        return result;
     }
 }

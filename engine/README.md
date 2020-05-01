@@ -19,9 +19,8 @@ This will create `dist/wickengine.js`.
 
 Generating the docs also requires [npm](https://www.npmjs.com/).
 
-1. Install [jsdoc](https://github.com/jsdoc3/jsdoc): `npm install -g jsdoc`
-3. Install other dependencies for the build process: `npm install`
-2. Build the docs!: `jsdoc -r src/ -d docs/`
+1. Install dependencies for the build process: `npm install`
+2. Build the docs with: `npm run generate-docs`
 
 # Running Tests
 

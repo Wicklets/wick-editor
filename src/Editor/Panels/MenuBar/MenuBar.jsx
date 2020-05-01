@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Editor.
  *
@@ -20,7 +20,7 @@
 import React, { Component } from 'react';
 import './_menubar.scss';
 import MenuBarButton from './MenuBarButton/MenuBarButton';
-import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
+import MenuBarIconButton from './MenuBarIconButton/MenuBarIconButton';
 
 class MenuBar extends Component {
 
@@ -31,32 +31,43 @@ class MenuBar extends Component {
   render() {
     return(
       <div className="docked-pane menu-bar">
+        <MenuBarIconButton
+          id="tool-information-button"
+          tooltip="Editor Information"
+          action={() => this.props.openModal('EditorInfo')}
+          icon="mascotmark"
+          />
         <div className="menu-bar-project-name" onClick={() => this.props.openModal('ProjectSettings')}>
           {this.props.projectName}
         </div>
         <div className="menu-bar-actions-container">
+
           <MenuBarButton
             text="new"
             action={this.props.openNewProjectConfirmation}
           />
+
           <MenuBarButton
             text="open"
             action={this.props.openProjectFileDialog}
           />
+
           <MenuBarButton
             text="export"
-            action={this.props.openExportOptions}
+            action={() => {this.props.exporting ? this.props.openExportMedia() : this.props.openExportOptions()}}
           />
+
           <MenuBarButton
             text="save"
             action={this.props.exportProjectAsWickFile}
             color='save'
           />
-          <div
-            className="project-settings-preview"
-            onClick={() => this.props.openModal('SettingsModal')}>
-            <ToolIcon name='gear' />
-          </div>
+          
+          <MenuBarIconButton
+            icon="gear"
+            action={() => this.props.openModal('SettingsModal')}
+            tooltip="Editor Settings"
+            id="editor-settings-button" />
         </div>
       </div>
     )

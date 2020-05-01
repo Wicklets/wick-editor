@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Editor.
  *
@@ -28,6 +28,8 @@ import GeneralWarning from '../GeneralWarning/GeneralWarning';
 import ExportMedia from '../ExportMedia/ExportMedia';
 import SettingsModal from '../SettingsModal/SettingsModal';
 import BuiltinLibrary from '../BuiltinLibrary/BuiltinLibrary';
+import EditorInfo from '../EditorInfo/EditorInfo';
+import OpenSourceNotices from '../OpenSourceNotices/OpenSourceNotices';
 
 class ModalHandler extends Component {
   render() {
@@ -57,6 +59,7 @@ class ModalHandler extends Component {
           openModal={this.props.openModal}
           toggle={this.props.closeActiveModal}
           open={this.props.activeModalName === 'WelcomeMessage'}
+          editorVersion={this.props.editorVersion}
         />
         <ExportOptions
           openModal={this.props.openModal}
@@ -68,6 +71,7 @@ class ModalHandler extends Component {
           exportProjectAsStandaloneHTML={this.props.exportProjectAsStandaloneHTML}
           exportProjectAsVideo={this.props.exportProjectAsVideo}
           exportProjectAsImageSequence={this.props.exportProjectAsImageSequence}
+          exportProjectAsAudioTrack={this.props.exportProjectAsAudioTrack}
           exportProjectAsImageSVG={this.props.exportProjectAsImageSVG}
           open={this.props.activeModalName === 'ExportOptions'}
           projectName={this.props.project.name}
@@ -103,6 +107,11 @@ class ModalHandler extends Component {
           changeColorPickerType={this.props.changeColorPickerType}
           updateLastColors={this.props.updateLastColors}
           lastColorsUsed={this.props.lastColorsUsed}
+          toast={this.props.toast}
+          createCombinedHotKeyMap={this.props.createCombinedHotKeyMap}
+          getToolSetting={this.props.getToolSetting}
+          setToolSetting={this.props.setToolSetting}
+          getToolSettingRestrictions={this.props.getToolSettingRestrictions}
         />
         <BuiltinLibrary
           openModal={this.props.openModal}
@@ -111,6 +120,17 @@ class ModalHandler extends Component {
           project={this.props.project}
           importFileAsAsset={this.props.importFileAsAsset}
         />
+        <EditorInfo
+          openModal={this.props.openModal}
+          toggle={this.props.closeActiveModal}
+          open={this.props.activeModalName === 'EditorInfo'}
+          editorVersion={this.props.editorVersion}
+        />
+        <OpenSourceNotices
+          openModal={this.props.openModal}
+          toggle={this.props.closeActiveModal}
+          open={this.props.activeModalName === 'OpenSourceNotices'}
+          />
       </div>
     );
   }

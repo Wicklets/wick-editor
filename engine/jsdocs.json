@@ -1,0 +1,23 @@
+{
+    "plugins": [],
+    "recurseDepth": 10,
+    "source": {
+        "includePattern": ".+\\.js(doc|x)?$",
+        "excludePattern": "(^|\\/|\\\\)_",
+        "exclude": [
+            "src/export/project.html" ,
+            "src/export/zip/index.html",
+            "src/export/zip/preloadjs.min.js",
+            "src/export/zip/wickengine.js"
+        ]
+    },
+    "sourceType": "module",
+    "tags": {
+        "allowUnknownTags": true,
+        "dictionaries": ["jsdoc","closure"]
+    },
+    "templates": {
+        "cleverLinks": false,
+        "monospaceLinks": false
+    }
+}

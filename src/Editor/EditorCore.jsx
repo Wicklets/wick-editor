@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Editor.
  *
@@ -23,6 +23,8 @@ import queryString from 'query-string';
 import { saveAs } from 'file-saver';
 import VideoExport from './export/VideoExport';
 import GIFExport from './export/GIFExport';
+import GIFImport from './import/GIFImport';
+import AudioExport from './export/AudioExport';
 import timeStamp from './Util/DataFunctions/timestamp';
 
 class EditorCore extends Component {
@@ -47,6 +49,12 @@ class EditorCore extends Component {
       this._onEyedropperPickedColor = (color) => {
         this.project.toolSettings.setSetting('fillColor', new window.Wick.Color(color));
       };
+
+      // We must manually close the brush modes popup here, because otherwise the page
+      // will crash because the popup can no longer find the brush modes toggle button
+      // on the page.
+      // See: https://github.com/reactstrap/reactstrap/issues/894
+      this.toggleBrushModes(false);
 
       this.projectDidChange();
     }
@@ -136,6 +144,18 @@ class EditorCore extends Component {
    */
   getToolSettingRestrictions = (name) => {
       return this.project.toolSettings.getSettingRestrictions(name);
+  }
+
+  /**
+   * Returns all animation types available
+   * @returns {Object[]} - Animation types listed as objects with label and value keys.
+   */
+  getClipAnimationTypes = () => {
+    let outputTypes = [];
+    Object.keys(window.Wick.Clip.animationTypes).forEach(key => {
+      outputTypes.push({label: window.Wick.Clip.animationTypes[key], value: key});
+    });
+    return outputTypes;
   }
 
   /**
@@ -494,8 +514,23 @@ class EditorCore extends Component {
    * @returns {object[]} The objects that were deleted.
    */
   deleteSelectedObjects = () => {
-    this.project.deleteSelectedObjects();
-    this.projectDidChange();
+    if(this.project.selection.location === 'AssetLibrary') {
+      this.openWarningModal({
+        description: "Any objects in the project that are using this asset will also be deleted.",
+        title: "Delete this asset?",
+        acceptAction: (() => {
+          this.project.deleteSelectedObjects();
+          this.projectDidChange();
+        }),
+        cancelAction: (() => {}),
+        finalAction: (() => {}),
+        acceptText: "Delete",
+        cancelText: "Cancel",
+      });
+    } else {
+      this.project.deleteSelectedObjects();
+      this.projectDidChange();
+    }
   }
 
   /**
@@ -655,7 +690,6 @@ class EditorCore extends Component {
    * Finish the current nudging operation
    */
   finishNudgingObject = () => {
-    console.log('finishNudgingObject');
     this.projectDidChange();
   }
 
@@ -724,17 +758,23 @@ class EditorCore extends Component {
 
   /**
    * Creates an image from an asset's uuid and places it on the canvas.
-   * @param {string} uuid The UUID of the desired asset.
-   * @param {number} x    The x location of the image after creation in relation to the window.
-   * @param {number} y    The y location of the image after creation in relation to the window.
+   * @param {string} uuid - The UUID of the desired asset.
+   * @param {number} x - The x location of the image after creation in relation to the window.
+   * @param {number} y - The y location of the image after creation in relation to the window.
+   * @param {boolean} isCanvasSpace - If not set to true, x and y will be converted from screen space to canvas space
    */
-  createImageFromAsset = (uuid, x, y) => {
+  createImageFromAsset = (uuid, x, y, isCanvasSpace) => {
     // convert screen position to wick project position
     let paper = this.project.view.paper;
-    let canvasPosition = paper.project.view.element.getBoundingClientRect();
-    x -= canvasPosition.x;
-    y -= canvasPosition.y;
-    let dropPoint = paper.view.viewToProject(new window.paper.Point(x,y));
+    let dropPoint = new paper.Point();
+    if(isCanvasSpace) {
+      dropPoint = new paper.Point(x,y);
+    } else {
+      let canvasPosition = paper.project.view.element.getBoundingClientRect();
+      x -= canvasPosition.x;
+      y -= canvasPosition.y;
+      dropPoint = paper.view.viewToProject(new window.paper.Point(x,y));
+    }
 
     let obj = window.Wick.ObjectCache.getObjectByUUID(uuid);
 
@@ -753,6 +793,14 @@ class EditorCore extends Component {
     }else {
       console.error('object is not an ImageAsset or a ClipAsset')
     }
+  }
+
+ /**
+  * Creates an instance of the selected asset at the center of the canvas
+  */
+  createInstanceOfSelectedAsset = () => {
+    let uuid = this.project.selection.getSelectedObject().uuid;
+    this.createImageFromAsset(uuid, this.project.width/2, this.project.height/2, true);
   }
 
  /**
@@ -803,8 +851,23 @@ class EditorCore extends Component {
 
     // Add all successfully uploaded assets
     for(var i = 0; i < acceptedFiles.length; i++) {
-      var file = acceptedFiles[i];
-      this.importFileAsAsset(file);
+      if(acceptedFiles[i].type === 'image/gif') {
+        GIFImport.importGIFIntoProject({
+            gifFile: acceptedFiles[i],
+            project: this.project,
+            onProgress: (percent) => {
+                console.log('GIFImport onProgress: ' + percent);
+            },
+            onFinish: (gifAsset) => {
+                console.log('GIFImport onFinish:')
+                console.log(gifAsset)
+                this.project.addAsset(gifAsset);
+                this.projectDidChange();
+            }});
+      } else {
+        var file = acceptedFiles[i];
+        this.importFileAsAsset(file);
+      }
     }
   }
 
@@ -830,10 +893,10 @@ class EditorCore extends Component {
     window.Wick.HTMLPreview.previewProject(this.project, previewWindow => {
       this.hideWaitOverlay();
       if (previewWindow) {
-        let toastID = this.toast('Project preview window opened.', 'info', {autoClose: false});
+        this.toast('Project preview window opened.', 'info', {autoClose: false});
       } else {
         // If pop ups are disabled, previewWindow will be null.
-        let toastID = this.toast('Could not open a preview window. Try disabling your popup blocker!', 'error', {autoClose: false});
+        this.toast('Could not open a preview window. Try disabling your popup blocker!', 'error', {autoClose: false});
       }
     });
   }
@@ -865,7 +928,7 @@ class EditorCore extends Component {
   /**
    * Export the current project as an animated GIF.
    */
-  exportProjectAsAnimatedGIF = (name) => {
+  exportProjectAsAnimatedGIF = (args) => {
     // Open export media loading bar modal.
     this.openModal('ExportMedia');
     this.setState({
@@ -875,7 +938,7 @@ class EditorCore extends Component {
     });
 
     // this.showWaitOverlay();
-    let outputName = name || this.project.name;
+    let outputName = args.name || this.project.name;
     let toastID = this.toast('Exporting animated GIF...', 'info');
 
     let onProgress = (message, progress) => {
@@ -890,13 +953,19 @@ class EditorCore extends Component {
     }
 
     let onFinish = (gifBlob) => {
+      saveAs(gifBlob, outputName + '.gif');
       this.updateToast(toastID, {
         type: 'success',
         text: "Successfully created .gif file." });
-      saveAs(gifBlob, outputName + '.gif');
+      this.setState({
+        renderStatusMessage: 'Finished exporting GIF.',
+        renderProgress: 100
+      });
     }
 
     GIFExport.createAnimatedGIFFromProject({
+      width: args.width,
+      height: args.height,
       project: this.project,
       onFinish: onFinish,
       onError: onError,
@@ -908,12 +977,13 @@ class EditorCore extends Component {
   /**
    * Export the current project as an image sequence
    */
-  exportProjectAsImageSequence = () => {
+  exportProjectAsImageSequence = (args) => {
     this.openModal('ExportMedia');
     this.setState({
       renderProgress: 0,
-      renderType: "video",
+      renderType: "image sequence",
       renderStatusMessage: "Creating image sequence.",
+      exporting: true,
     });
 
     let toastID = this.toast('Exporting image sequence...', 'info');
@@ -928,19 +998,23 @@ class EditorCore extends Component {
     }
 
     let onError = (message) => {
-      console.error("Video Render had an error with message: ", message);
+      console.error("Image Render had an error with message: ", message);
     }
 
     let onFinish = (sequenceBlobZip) => {
       this.updateToast(toastID, {
         type: 'success',
-        text: "Successfully created .mp4 file." });
-      console.log(sequenceBlobZip);
+        text: "Successfully created image sequence." });
       saveAs(sequenceBlobZip, this.project.name +'_imageSequence.zip');
+      this.setState({
+        exporting: false,
+      })
     }
 
     window.Wick.ImageSequence.toPNGSequence({
       project: this.project,
+      width: args.width,
+      height: args.height,
       onProgress: onProgress,
       onError: () => {
         this.hideWaitOverlay();
@@ -956,13 +1030,14 @@ class EditorCore extends Component {
   /**
    * Export the current project as a video.
    */
-  exportProjectAsVideo = () => {
+  exportProjectAsVideo = (args) => {
     // Open export media loading bar modal.
     this.openModal('ExportMedia');
     this.setState({
       renderProgress: 0,
       renderType: "video",
       renderStatusMessage: "Creating video.",
+      exporting: true,
     });
 
     let toastID = this.toast('Exporting video...', 'info');
@@ -983,12 +1058,16 @@ class EditorCore extends Component {
         type: 'success',
         text: "Successfully created .mp4 file." });
       console.log("Video Render Complete: ", message);
+
+      this.setState({
+        exporting: false,
+      });
     }
   }
     /**
    * Export the current project as a video.
    */
-  
+
   exportProjectAsImageSVG = () => {
     // Open export media loading bar modal.
     this.openModal('ExportMedia');
@@ -1011,7 +1090,7 @@ class EditorCore extends Component {
         saveAs(file, this.project.name + timeStamp() + '.svg');
         this.hideWaitOverlay();
     }
-    
+
     // this.showWaitOverlay('Rendering video...');
     window.Wick.SVGFile.toSVGFile(this.project.activeTimeline,
        onError,file => {
@@ -1023,9 +1102,9 @@ class EditorCore extends Component {
   /**
    * Export the current project as a bundled standalone ZIP that can be uploaded to itch/newgrounds/etc.
    */
-  exportProjectAsStandaloneZip = (name) => {
+  exportProjectAsStandaloneZip = (args) => {
     let toastID = this.toast('Exporting project as ZIP...', 'info');
-    let outputName = name || this.project.name;
+    let outputName = args.name || this.project.name;
     window.Wick.ZIPExport.bundleProject(this.project, blob => {
       this.updateToast(toastID, {
         type: 'success',
@@ -1037,14 +1116,25 @@ class EditorCore extends Component {
   /**
    * Export the current project as a bundled standalone HTML file.
    */
-  exportProjectAsStandaloneHTML = (name) => {
+  exportProjectAsStandaloneHTML = (args) => {
     let toastID = this.toast('Exporting project as HTML...', 'info');
-    let outputName = name || this.project.name;
+    let outputName = args.name || this.project.name;
     window.Wick.HTMLExport.bundleProject(this.project, html => {
       this.updateToast(toastID, {
         type: 'success',
         text: "Successfully created .html file." });
       saveAs(new Blob([html], {type: "text/plain"}), outputName + '.html');
+    });
+  }
+
+  /**
+   * Exports the audio of a Wick project's audio as a single track in an audio file.
+   */
+  exportProjectAsAudioTrack = (args) => {
+    AudioExport.generateAudioFile({
+      project: this.project,
+    }).then((result) => {
+      saveAs(new Blob([result]), 'audiotrack.wav');
     });
   }
 
@@ -1075,6 +1165,9 @@ class EditorCore extends Component {
     this.project = project || new window.Wick.Project();
     this.project.selection.clear();
 
+    // Attach error handling messages
+    this.attachErrorHandlers();
+
     this.projectDidChange();
     this.hideWaitOverlay();
     this.project.view.prerender();
@@ -1082,24 +1175,21 @@ class EditorCore extends Component {
   }
 
   openNewProjectConfirmation = () => {
-      this.setState({
-        warningModalInfo: {
-          description: "You will lose any unsaved changes to the current project.",
-          title: "Open a New Project?",
-          acceptText: "Accept",
-          cancelText: "Cancel",
-          acceptAction: (() => {
-            setTimeout(() => {
-              this.setupNewProject();
-            }, 100)
-          }),
-          cancelAction: (() => {}),
-          finalAction: (() => {
+    this.openWarningModal({
+      description: "You will lose any unsaved changes to the current project.",
+      title: "Open a New Project?",
+      acceptAction: (() => {
+        setTimeout(() => {
+          this.setupNewProject();
+        }, 100)
+      }),
+      cancelAction: (() => {}),
+      finalAction: (() => {
 
-          })
-        }
-      });
-      this.openModal('GeneralWarning');
+      }),
+      acceptText: "Accept",
+      cancelText: "Cancel",
+    });
   }
 
   showAutosavedProjects = () => {
@@ -1149,6 +1239,28 @@ class EditorCore extends Component {
       });
 
     return true;
+  }
+
+  /**
+   * Attach toast messages to the engine error handler.
+   */
+  attachErrorHandlers = () => {
+    this.project.onError(message => {
+      console.log(message)
+      if(message === 'OUT_OF_BOUNDS' || message === 'LEAKY_HOLE') {
+        this.toast('The shape you are trying to fill has a gap.', 'warning');
+      } else if (message === 'NO_PATHS') {
+        this.toast('There is no hole to fill.', 'warning');
+      } else if (message === 'CLICK_NOT_ALLOWED_LAYER_LOCKED') {
+        this.toast('The layer you are trying to draw onto is locked.', 'warning');
+      } else if (message === 'CLICK_NOT_ALLOWED_LAYER_HIDDEN') {
+        this.toast('The layer you are trying to draw onto is hidden.', 'warning');
+      } else if (message === 'CLICK_NOT_ALLOWED_NO_FRAME') {
+        this.toast('There is no frame to draw onto.', 'warning');
+      } else {
+        this.toast(message, 'warning');
+      }
+    });
   }
 
   /**
@@ -1235,6 +1347,13 @@ class EditorCore extends Component {
    */
   togglePreviewPlaying = () => {
     if(this.processingAction) return;
+
+    let onionSkinningWasOn = false;
+    if (!this.state.previewPlaying && this.project.onionSkinEnabled) {
+      this.toggleOnionSkin();
+      onionSkinningWasOn = true;
+    }
+
     this.showWaitOverlay();
     this.processingAction = true;
 
@@ -1244,10 +1363,17 @@ class EditorCore extends Component {
       this.project.selection.clear();
     }
 
+    // Turn onion skinning back on if it was turned off.
+    if (this.state.previewPlaying && this.state.onionSkinningWasOn && !this.project.onionSkinEnabled) {
+      this.toggleOnionSkin();
+    }
+
     this.setState({
       previewPlaying: !this.state.previewPlaying,
       showCodeErrors: false,
+      onionSkinningWasOn: onionSkinningWasOn,
     });
+
     this.hideWaitOverlay();
     this.processingAction = false;
   }

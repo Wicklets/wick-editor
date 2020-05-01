@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -102,8 +102,11 @@ Wick.Selection = class extends Wick.Base {
             "soundStart",
             "identifier",
             "easingType",
+            "fullRotations",
             "scaleX",
             "scaleY",
+            "animationType",
+            "singleFrameNumber",
         ];
     }
 
@@ -354,6 +357,46 @@ Wick.Selection = class extends Wick.Base {
 
     set pivotPoint(pivotPoint) {
         this._pivotPoint = pivotPoint;
+    }
+
+    /**
+     * The animation type of a clip.
+     * @type {string}
+     */
+    get animationType () {
+        if (this.getSelectedObject() && this.selectionType === 'clip') {
+            return this.getSelectedObject().animationType;
+        } else {
+            return null;
+        }
+    }
+
+    set animationType (newType) {
+        if (this.getSelectedObject()) {
+            this.getSelectedObject().animationType = newType;
+        } else {
+            console.error("Cannot set the animation type of multiple objects...");
+        }
+    }
+
+    /**
+     * If a clip is set to singleFrame, this number will be used to determine that frame.
+     */
+    get singleFrameNumber () {
+        if (this.getSelectedObject() && this.selectionType === 'clip') {
+            return this.getSelectedObject().singleFrameNumber;
+        } else {
+            return null;
+        }
+    }
+
+    set singleFrameNumber (frame) {
+        if (this.getSelectedObject()) {
+            this.getSelectedObject().singleFrameNumber = frame;
+        } else {
+            console.error("Cannot set singleFrameNumber of multiple objects...");
+        }
+
     }
 
     /**
@@ -764,7 +807,19 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
-     * The filename of the selected asset.
+     * The amount of rotations to perform during a tween. Positive value = clockwise rotation.
+     * @type {Number}
+     */
+    get fullRotations () {
+        return this._getSingleAttribute('fullRotations');
+    }
+
+    set fullRotations (fullRotations) {
+        return this._setSingleAttribute('fullRotations', fullRotations);
+    }
+
+    /**
+     * The filename of the selected asset. Read only.
      * @type {string}
      */
     get filename() {
@@ -772,11 +827,19 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
-     * True if the selection is scriptable.
+     * True if the selection is scriptable. Read only.
      * @type {boolean}
      */
     get isScriptable() {
         return this.numObjects === 1 && this.getSelectedObjects()[0].isScriptable;
+    }
+
+    /**
+     * The source (dataURL) of the selected ImageAsset or SoundAsset. Read only.
+     * @type {string}
+     */
+    get src () {
+        return this.numObjects === 1 && this.getSelectedObjects()[0].src;
     }
 
     /**

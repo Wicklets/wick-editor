@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -41,8 +41,9 @@ Wick.Project = class extends Wick.Base {
 
         this.pan = { x: 0, y: 0 };
         this.zoom = 1.0;
+        this.rotation = 0.0;
 
-        this.onionSkinEnabled = false;
+        this._onionSkinEnabled = false;
         this.onionSkinSeekBackwards = 1;
         this.onionSkinSeekForwards = 1;
 
@@ -59,6 +60,8 @@ Wick.Project = class extends Wick.Base {
         this._lastMousePosition = { x: 0, y: 0 };
         this._isMouseDown = false;
 
+        this.soundsPlayed = []; // List of all sounds that have been played during this play through of the project.
+
         this._mouseTargets = [];
 
         this._keysDown = [];
@@ -69,8 +72,10 @@ Wick.Project = class extends Wick.Base {
 
         this._hideCursor = false;
         this._muted = false;
-        this._publishedMode = false;
+        this._publishedMode = false; // Review the publishedMode setter for rules.
         this._showClipBorders = true;
+
+        this._userErrorCallback = () => {};
 
         this._tools = {
             brush: new Wick.Tools.Brush(),
@@ -98,7 +103,7 @@ Wick.Project = class extends Wick.Base {
         this._toolSettings.onSettingsChanged((name, value) => {
             if (name === 'fillColor') {
                 this.selection.fillColor = value.rgba;
-            } else if (name === 'strokeColor') {
+            } else if (name === 'strokeColor') {f
                 this.selection.strokeColor = value.rgba;
             }
         });
@@ -112,7 +117,18 @@ Wick.Project = class extends Wick.Base {
         this.history.pushState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
     }
 
-    _deserialize(data) {
+    /**
+     * Used to initialize the state of elements within the project. Should only be called after
+     * deserialization of project and all objects within the project.
+     */
+    initialize () {
+        // Fixing all clip positions... This should be done in an internal method when the project is done loading...
+        this.activeFrame.clips.forEach(clip => {
+            clip.applySingleFramePosition();
+        });
+    }
+
+    _deserialize (data) {
         super._deserialize(data);
 
         this.name = data.name;
@@ -125,6 +141,11 @@ Wick.Project = class extends Wick.Base {
 
         this._hideCursor = false;
         this._muted = false;
+        this._renderBlackBars = true;
+
+        // reset rotation, but not pan/zoom.
+        // not resetting pan/zoom is convenient when preview playing.
+        this.rotation = 0;
     }
 
     _serialize(args) {
@@ -150,6 +171,23 @@ Wick.Project = class extends Wick.Base {
 
     get classname() {
         return 'Project';
+    }
+
+    /**
+     * Assign a function to be called when a user error happens (not script
+     * errors - errors such as drawing tool errors, invalid selection props, etc)
+     * @param {Function} fn - the function to call when errors happen
+     */
+    onError (fn) {
+        this._userErrorCallback = fn;
+    }
+
+    /**
+     * Called when an error occurs to forward to the onError function
+     * @param {String} message - the message to display for the error
+     */
+    errorOccured (message) {
+        this._userErrorCallback(message);
     }
 
     /**
@@ -374,7 +412,7 @@ Wick.Project = class extends Wick.Base {
 
     /**
      * A list of all "fontFamily" in the asset library.
-     * @returns {[string]}
+     * @returns {string[]}
      */
     getFonts() {
         return this.getAssets('Font').map(asset => {
@@ -426,12 +464,20 @@ Wick.Project = class extends Wick.Base {
 
             // Reset timelines of subclips of the newly focused clip
             focus.timeline.clips.forEach(subclip => {
-                subclip.timeline.playheadPosition = 1;
+                subclip.timeline.playheadPosition =  1;
+                subclip.applySingleFramePosition(); // Make sure to visualize single frame clips properly.
             });
 
             // Reset pan and zoom and clear selection on focus change
-            this.recenter();
+            this.resetZoomAndPan();
+        } else {
+            // Make sure the single frame
+            focus.timeline.clips.forEach(subclip => {
+                subclip.applySingleFramePosition();
+            });
         }
+
+
     }
 
     /**
@@ -591,6 +637,45 @@ Wick.Project = class extends Wick.Base {
         }
 
         reader.readAsDataURL(file);
+    }
+
+    /**
+     * True if onion skinning is on. False otherwise.
+     */
+    get onionSkinEnabled () {
+        return this._onionSkinEnabled;
+    }
+
+    set onionSkinEnabled (bool) {
+        if (typeof bool !== "boolean") return;
+
+        // Get all onion skinned frames, if we're turning off onion skinning.
+        let onionSkinnedFrames = [];
+        if (!bool) onionSkinnedFrames = this.getAllOnionSkinnedFrames();
+
+        this._onionSkinEnabled = bool;
+
+        // Rerender any onion skinned frames.
+        onionSkinnedFrames.forEach(frame => {
+            frame.view.render();
+        });
+    }
+
+    /**
+     * Returns all frames that should currently be onion skinned.
+     * @returns {Wick.Frame[]} Array of Wick frames that sould be onion skinned.
+     */
+    getAllOnionSkinnedFrames () {
+        let onionSkinnedFrames = [];
+        this.activeTimeline.layers.forEach(layer => {
+            let frames = layer.frames.filter(frame => {
+                return frame.onionSkinned;
+            });
+
+            onionSkinnedFrames = onionSkinnedFrames.concat(frames);
+        });
+
+        return onionSkinnedFrames;
     }
 
     /**
@@ -884,7 +969,7 @@ Wick.Project = class extends Wick.Base {
             clip.x = x;
             clip.y = y;
             callback(clip);
-        });
+        }, this);
     }
 
     /**
@@ -976,13 +1061,62 @@ Wick.Project = class extends Wick.Base {
      */
     playSound(assetName, options) {
         var asset = this.getAssetByName(assetName);
-        if (!asset) {
+
+        if(!asset) {
             console.warn('playSound(): No asset with name: "' + assetName + '"');
         } else if (!(asset instanceof Wick.SoundAsset)) {
             console.warn('playSound(): Asset is not a sound: "' + assetName + '"');
         } else {
-            return asset.play(options);
+            return this.playSoundFromAsset(asset, options);
         }
+
+    }
+
+    /**
+     * Generates information for a single sound that is being played.
+     * @param {Wick.Asset} asset - Asset to be played.
+     * @param {Object} options - Options including start (ms), end (ms), offset (ms), src (sound source), filetype (string).
+     */
+    generateSoundInfo (asset, options) {
+        if (!asset) return {};
+        if (!options) options = {};
+
+        let playheadPosition = this.focus.timeline.playheadPosition;
+
+        let soundStartMS = (1000/this.framerate) * (playheadPosition - 1); // Adjust by one to account for sounds on frame 1 starting at 0ms.
+        let soundEndMS = 0;
+        let seekMS = options.seekMS || 0;
+
+        if (options.frame) {
+            let soundLengthInFrames = options.frame.end - (options.frame.start - 1);
+            soundEndMS = soundStartMS +  (1000/this.framerate) * soundLengthInFrames;
+        } else {
+            soundEndMS = soundStartMS + asset.duration * 1000;
+        }
+
+        let soundInfo = {
+            playheadPosition: playheadPosition,
+            start: soundStartMS,
+            end: soundEndMS,
+            offset: seekMS,
+            src: asset.src,
+            filetype: asset.fileExtension,
+            name: asset.name,
+            volume: options.volume || 1,
+            playedFrom: options.playedFrom || undefined, // uuid of object that played the sound.
+        }
+
+        return soundInfo
+    }
+
+    /**
+     * Plays a sound from a presented asset.
+     * @param {Wick.SoundAsset} asset - Name of the sound asset to play.
+     */
+    playSoundFromAsset (asset, options) {
+        let soundInfo = this.generateSoundInfo(asset, options);
+        this.soundsPlayed.push(soundInfo);
+        return asset.play(options);
     }
 
     /**
@@ -1032,9 +1166,24 @@ Wick.Project = class extends Wick.Base {
 
     /**
      * Is the project currently muted?
+     * @type {boolean}
      */
     get muted() {
         return this._muted;
+    }
+
+    /**
+     * Should the project render black bars around the canvas area?
+     * (These only show up if the size of the window/element that the project
+     * is inside is a different size than the project dimensions).
+     * @type {boolean}
+     */
+    get renderBlackBars () {
+        return this._renderBlackBars;
+    }
+
+    set renderBlackBars (renderBlackBars) {
+        this._renderBlackBars = renderBlackBars;
     }
 
     /**
@@ -1046,8 +1195,21 @@ Wick.Project = class extends Wick.Base {
         return this._publishedMode;
     }
 
-    set publishedMode(publishedMode) {
+    set publishedMode (publishedMode) {
+        let validModes = [false, "interactive", "imageSequence", "audioSequence"];
+
+        if (validModes.indexOf(publishedMode) === -1) {
+            throw new Error("Published Mode: " + publishedMode + " is invalid. Must be one of type: " + validModes);
+        }
+
         this._publishedMode = publishedMode;
+    }
+
+    /**
+     * Returns true if the project is published, false otherwise.
+     */
+    get isPublished () {
+        return this.publishedMode !== false;
     }
 
     /**
@@ -1070,43 +1232,37 @@ Wick.Project = class extends Wick.Base {
         return this._error;
     }
 
-    set error(error) {
+    set error (error) {
+        // Don't replace an existing error with a new error
+        // (The error can only be cleared, by setting it to null)
+        if(this._error && error) {
+            return;
+        }
         this._error = error;
     }
 
     /**
-     * Ticks the project.
-     * @returns {object} An object containing information about an error, if one occured while running scripts. Null otherwise.
+     * Schedules a script to be run at the end of the current tick.
+     * @param {string} uuid - the UUID of the object running the script.
+     * @param {string} name - the name of the script to run, see Tickable.possibleScripts.
+     * @param {Object} parameters - An object of key,value pairs to send as parameters to the script which runs.
      */
-    tick() {
-        this.root._identifier = 'Project';
+    scheduleScript (uuid, name, parameters) {
+        this._scriptSchedule.push({
+            uuid: uuid,
+            name: name,
+            parameters: parameters,
+        });
+    }
 
-        // Process input
-        this._mousePosition = this.tools.interact.mousePosition;
-        this._isMouseDown = this.tools.interact.mouseIsDown;
-
-        this._keysDown = this.tools.interact.keysDown;
-        this._currentKey = this.tools.interact.lastKeyDown;
-
-        this._mouseTargets = this.tools.interact.mouseTargets;
-
-        // Reset scripts before ticking
-        this._scriptSchedule = [];
-
-        // Tick the focused clip
-        this.focus._attachChildClipReferences();
-        this.focus.tick();
-
-        // Run scripts in schedule, in order based on Tickable.possibleScripts.
+    /**
+     * Run scripts in schedule, in order based on Tickable.possibleScripts.
+     */
+    runScheduledScripts () {
         this._error = null;
         Wick.Tickable.possibleScripts.forEach(scriptOrderName => {
             this._scriptSchedule.forEach(scheduledScript => {
-                // Stop early if an error was thrown in the last script ran.
-                if (this._error) {
-                    return;
-                }
-
-                var { uuid, name, parameters } = scheduledScript;
+                var {uuid, name, parameters} = scheduledScript;
 
                 // Make sure we only run the script based on the current iteration through possibleScripts
                 if (name !== scriptOrderName) {
@@ -1116,32 +1272,6 @@ Wick.Project = class extends Wick.Base {
                 // Run the script on the corresponding object!
                 Wick.ObjectCache.getObjectByUUID(uuid).runScript(name, parameters);
             });
-        });
-
-        // Save the current keysDown
-        this._lastMousePosition = { x: this._mousePosition.x, y: this._mousePosition.y };
-        this._keysLastDown = [].concat(this._keysDown);
-
-        this.view.render();
-
-        if (this._error) {
-            return this._error;
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Schedules a script to be run at the end of the current tick.
-     * @param {string} uuid - the UUID of the object running the script.
-     * @param {string} name - the name of the script to run, see Tickable.possibleScripts.
-     * @param {Object} parameters - An object of key,value pairs to send as parameters to the script which runs.
-     */
-    scheduleScript(uuid, name, parameters) {
-        this._scriptSchedule.push({
-            uuid: uuid,
-            name: name,
-            parameters: parameters,
         });
     }
 
@@ -1166,6 +1296,8 @@ Wick.Project = class extends Wick.Base {
         if (!args.onBeforeTick) args.onBeforeTick = () => {};
         if (!args.onAfterTick) args.onAfterTick = () => {};
 
+        window._scriptOnErrorCallback = args.onError;
+
         this._playing = true;
         this.view.paper.view.autoUpdate = false;
 
@@ -1184,14 +1316,51 @@ Wick.Project = class extends Wick.Base {
             this.tools.interact.determineMouseTargets();
             var error = this.tick();
             this.view.paper.view.update();
-            if (error) {
-                args.onError(error);
+            if(error) {
                 this.stop();
                 return;
             }
 
             args.onAfterTick();
         }, 1000 / this.framerate);
+    }
+
+    /**
+     * Ticks the project.
+     * @returns {object} An object containing information about an error, if one occured while running scripts. Null otherwise.
+     */
+    tick () {
+        this.root._identifier = 'Project';
+
+        // Process input
+        this._mousePosition = this.tools.interact.mousePosition;
+        this._isMouseDown = this.tools.interact.mouseIsDown;
+
+        this._keysDown = this.tools.interact.keysDown;
+        this._currentKey = this.tools.interact.lastKeyDown;
+
+        this._mouseTargets = this.tools.interact.mouseTargets;
+
+        // Reset scripts before ticking
+        this._scriptSchedule = [];
+
+        // Tick the focused clip
+        this.focus._attachChildClipReferences();
+        this.focus.tick();
+
+        this.runScheduledScripts();
+
+        // Save the current keysDown
+        this._lastMousePosition = {x: this._mousePosition.x, y: this._mousePosition.y};
+        this._keysLastDown = [].concat(this._keysDown);
+
+        this.view.render();
+
+        if(this._error) {
+            return this._error;
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -1204,9 +1373,10 @@ Wick.Project = class extends Wick.Base {
         // Run unload scripts on all objects
         this.getAllFrames().forEach(frame => {
             frame.clips.forEach(clip => {
-                clip.runScript('unload');
+                clip.scheduleScript('unload');
             });
         });
+        this.runScheduledScripts();
 
         this.stopAllSounds();
 
@@ -1231,9 +1401,13 @@ Wick.Project = class extends Wick.Base {
             // Select the object that caused the error
             this.selection.clear();
             this.selection.select(errorObj);
+
+            window._scriptOnErrorCallback(this.error);
         } else {
             this.focus.timeline.playheadPosition = currentPlayhead;
         }
+
+        delete window._scriptOnErrorCallback;
     }
 
     /**
@@ -1243,7 +1417,7 @@ Wick.Project = class extends Wick.Base {
     inject(element) {
         this.view.canvasContainer = element;
         this.view.fitMode = 'fill';
-        this.view.canvasBGColor = '#000000';
+        this.view.canvasBGColor = this.backgroundColor.hex;
 
         window.onresize = function() {
             project.view.resize();
@@ -1254,7 +1428,7 @@ Wick.Project = class extends Wick.Base {
         this.focus = this.root;
         this.focus.timeline.playheadPosition = 1;
 
-        this.publishedMode = true;
+        this.publishedMode = "interactive";
         this.play({
             onAfterTick: (() => {
                 this.view.render();
@@ -1267,10 +1441,21 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
-     * Resets zoom and pan.
+     * Sets zoom and pan such that the canvas fits in the window, with some padding.
      */
-    recenter() {
-        this.pan = { x: 0, y: 0 };
+    recenter () {
+        this.pan = {x: 0, y: 0};
+
+        var paddingResize = 0.96;
+        this.zoom = this.view.calculateFitZoom();
+        this.zoom *= paddingResize;
+    }
+
+    /**
+     * Resets zoom and pan (zoom resets to 1.0, pan resets to (0,0)).
+     */
+    resetZoomAndPan () {
+        this.pan = {x: 0, y: 0};
         this.zoom = 1;
     }
 
@@ -1359,6 +1544,7 @@ Wick.Project = class extends Wick.Base {
         return true;
     }
 
+
     /**
      * Create a sequence of images from every frame in the project.
      * @param {object} args - Options for generating the image sequence
@@ -1366,11 +1552,13 @@ Wick.Project = class extends Wick.Base {
      * @param {function} onProgress - Function to call for each image loaded, useful for progress bars
      * @param {function} onFinish - Function to call when the images are all loaded.
      */
-    generateImageSequence(args) {
-        if (!args) args = {};
-        if (!args.imageType) args.imageType = 'image/png';
-        if (!args.onProgress) args.onProgress = () => {};
-        if (!args.onFinish) args.onFinish = () => {};
+    generateImageSequence (args) {
+        if(!args) args = {};
+        if(!args.imageType) args.imageType = 'image/png';
+        if(!args.onProgress) args.onProgress = () => {};
+        if(!args.onFinish) args.onFinish = () => {};
+        if(!args.width) args.width = this.width;
+        if(!args.height) args.height = this.height;
 
         var renderCopy = this;
 
@@ -1379,25 +1567,33 @@ Wick.Project = class extends Wick.Base {
         this.history.saveSnapshot('before-gif-render');
         this.mute();
         this.selection.clear();
-        this.publishedMode = true;
-        this.tick();
+        this.publishedMode = "imageSequence";
+        // this.tick();
 
         // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
         let container = window.document.createElement('div');
-        container.style.width = (renderCopy.width / window.devicePixelRatio) + 'px';
-        container.style.height = (renderCopy.height / window.devicePixelRatio) + 'px';
+        container.style.width  = (args.width /window.devicePixelRatio)+'px';
+        container.style.height = (args.height/window.devicePixelRatio)+'px';
         window.document.body.appendChild(container);
         renderCopy.view.canvasContainer = container;
         renderCopy.view.resize();
+
+        // Calculate the zoom needed to fit the project into the requested container width/height
+        var zoom = 1;
+        if (args.height < args.width) {
+            zoom = args.height / this.height;
+        } else {
+            zoom = args.width / this.width;
+        }
 
         // Set the initial state of the project.
         renderCopy.focus = renderCopy.root;
         renderCopy.focus.timeline.playheadPosition = 1;
         renderCopy.onionSkinEnabled = false;
-        renderCopy.zoom = 1 / window.devicePixelRatio;
-        renderCopy.pan = { x: 0, y: 0 };
+        renderCopy.zoom = zoom / window.devicePixelRatio;
+        renderCopy.pan = {x: 0, y: 0};
 
-        //renderCopy.tick();
+        // renderCopy.tick();
 
         // We need full control over when paper.js renders, if we leave autoUpdate on, it's possible to lose frames if paper.js doesnt automatically render as fast as we are generating the images.
         // (See paper.js docs for info about autoUpdate)
@@ -1441,6 +1637,74 @@ Wick.Project = class extends Wick.Base {
             frameImage.src = renderCopy.view.canvas.toDataURL(args.imageType);
         }
 
+        this.resetSoundsPlayed();
+        renderFrame();
+    }
+
+    resetSoundsPlayed () {
+        this.soundsPlayed = [];
+    }
+
+    /**
+     * Play the project through to generate an audio track.
+     */
+    generateAudioSequence (args) {
+        if (!args) args = {};
+        if (!args.onProgress) args.onProgress = (frame, maxFrames) => {}
+        if (!args.onFinish) args.onFinish = (output) => {}
+
+        var renderCopy = this;
+        var oldCanvasContainer = this.view.canvasContainer;
+
+        this.history.saveSnapshot('before-audio-render');
+        this.mute();
+        this.selection.clear();
+        this.publishedMode = "audioSequence";
+
+        // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
+        let container = window.document.createElement('div');
+        container.style.width  = (args.width /window.devicePixelRatio)+'px';
+        container.style.height = (args.height/window.devicePixelRatio)+'px';
+        window.document.body.appendChild(container);
+        renderCopy.view.canvasContainer = container;
+        renderCopy.view.resize();
+
+        // Set the initial state of the project.
+        renderCopy.focus = renderCopy.root;
+        renderCopy.focus.timeline.playheadPosition = 1;
+
+        renderCopy.tick();
+
+        // We need full control over when paper.js renders, if we leave autoUpdate on, it's possible to lose frames if paper.js doesnt automatically render as fast as we are generating the images.
+        // (See paper.js docs for info about autoUpdate)
+        renderCopy.view.paper.view.autoUpdate = false;
+        var numMaxFrameImages = renderCopy.focus.timeline.length;
+        var renderFrame = () => {
+            var currentPos = renderCopy.focus.timeline.playheadPosition;
+            args.onProgress(currentPos, numMaxFrameImages);
+
+            if(currentPos >= numMaxFrameImages) {
+                // reset autoUpdate back to normal
+                renderCopy.view.paper.view.autoUpdate = true;
+
+                this.view.canvasContainer = oldCanvasContainer;
+                this.view.resize();
+
+                this.history.loadSnapshot('before-audio-render');
+                this.publishedMode = false;
+                this.view.render();
+
+                window.document.body.removeChild(container);
+                args.onFinish(this.soundsPlayed);
+            } else {
+                var oldPlayhead = renderCopy.activeTimeline.playheadPosition
+                renderCopy.tick();
+                renderCopy.activeTimeline.playheadPosition = oldPlayhead + 1;
+                renderFrame();
+            }
+        }
+
+        this.resetSoundsPlayed();
         renderFrame();
     }
 
@@ -1469,13 +1733,16 @@ Wick.Project = class extends Wick.Base {
 
     /**
      * Generate an audiobuffer containing all the project's sounds merged together.
-     * @param {object} args - placeholder for future options, not currently used
+     * @param {object} args - takes soundInfo (list of soundInfo to use for audioGeneration).
      * @param {Function} callback - callback used to recieve the final audiobuffer.
      */
     generateAudioTrack(args, callback) {
         var audioTrack = new Wick.AudioTrack(this);
-        audioTrack.toAudioBuffer(audioBuffer => {
-            callback(audioBuffer);
+
+        audioTrack.toAudioBuffer({
+            callback: audioBuffer => callback(audioBuffer),
+            soundInfo: args.soundInfo ? args.soundInfo : undefined,
+            onProgress: args.onProgress,
         });
     }
 
@@ -1529,10 +1796,14 @@ Wick.Project = class extends Wick.Base {
         });
     }
 
-    /*
-     * @return {string} - the project in SVG, (should we turn it into base64 or a blob or something?)
+    /**
+     * Remove assets from the project that are never used.
      */
-    //toSVG(callback) {
-    //    this.activetimeline.exportSVG();
-    //}
+    cleanupUnusedAssets () {
+        this.assets.forEach(asset => {
+            if(!asset.hasInstances()) {
+                asset.remove();
+            }
+        });
+    }
 }

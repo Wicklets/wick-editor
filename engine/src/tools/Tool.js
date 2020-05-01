@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -258,6 +258,17 @@ Wick.Tool = class {
      * @param {Wick.Frame} frame - (optional) the frame to add the path to.
      */
     addPathToProject (path, frame) {
+        // Avoid adding empty paths
+        if(!path) {
+            return;
+        }
+        if((path instanceof paper.Path) && path.segments.length === 0) {
+            return;
+        }
+        if((path instanceof paper.CompoundPath) && path.children.length === 0) {
+            return;
+        }
+
         if(!this.project.activeFrame) {
             // Automatically add a frame is there isn't one
             this.project.insertBlankFrame();

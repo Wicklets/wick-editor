@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -30,7 +30,7 @@ Wick.View.Timeline = class extends Wick.View {
         this.frameLayers = [];
 
         var layersInRenderOrder = this.model.layers.filter(layer => {
-            return layer.project.publishedMode || !layer.hidden;
+            return layer.project.isPublished || !layer.hidden;
         }).reverse();
 
         layersInRenderOrder.forEach(layer => {

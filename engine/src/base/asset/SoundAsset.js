@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -39,6 +39,7 @@ Wick.SoundAsset = class extends Wick.FileAsset {
 
     /**
      * Creates a new SoundAsset.
+     * @param {object} args - Asset constructor args. see constructor for Wick.Asset
      */
     constructor(args) {
         super(args);
@@ -61,7 +62,7 @@ Wick.SoundAsset = class extends Wick.FileAsset {
 
     /**
      * Plays this asset's sound.
-     * @param {number} seekMS - the amount of time in milliseconds to start the sound at.
+     * @param {number} seekMS - the amount of time in milliseconds into the sound the sound should start at.
      * @param {number} volume - the volume of the sound, from 0.0 - 1.0
      * @param {boolean} loop - if set to true, the sound will loop
      * @return {number} The id of the sound instance that was played.
@@ -112,9 +113,8 @@ Wick.SoundAsset = class extends Wick.FileAsset {
     }
 
     /**
-     * A list of Wick Paths that use this font as their fontFamily.
-     * TODO: update this text, it's a sound not a font
-
+     * A list of frames that use this sound.
+     * @returns {Wick.Frame[]}
      */
     getInstances() {
         var frames = [];
@@ -145,6 +145,7 @@ Wick.SoundAsset = class extends Wick.FileAsset {
 
     /**
      * Loads data about the sound into the asset.
+     * @param {function} callback - function to call when the data is done being loaded.
      */
     load(callback) {
         this._generateWaveform(() => {
@@ -173,6 +174,7 @@ Wick.SoundAsset = class extends Wick.FileAsset {
                 src: [srcFixed]
             });
         }
+
         return this._howlInstance;
     }
 

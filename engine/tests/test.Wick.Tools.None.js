@@ -9,8 +9,8 @@ describe('Wick.Tools.None', function() {
         project.activeFrame.remove();
 
         project.view.render();
-        project.view.on('error', (e) => {
-            expect(e.message).to.equal('CLICK_NOT_ALLOWED_NO_FRAME');
+        project.onError((e) => {
+            expect(e).to.equal('CLICK_NOT_ALLOWED_NO_FRAME');
             done();
         });
 
@@ -23,8 +23,8 @@ describe('Wick.Tools.None', function() {
         project.activeLayer.locked = true;
 
         project.view.render();
-        project.view.on('error', (e) => {
-            expect(e.message).to.equal('CLICK_NOT_ALLOWED_LAYER_LOCKED');
+        project.onError((e) => {
+            expect(e).to.equal('CLICK_NOT_ALLOWED_LAYER_LOCKED');
             done();
         });
 
@@ -37,8 +37,8 @@ describe('Wick.Tools.None', function() {
         project.activeLayer.hidden = true;
 
         project.view.render();
-        project.view.on('error', (e) => {
-            expect(e.message).to.equal('CLICK_NOT_ALLOWED_LAYER_HIDDEN');
+        project.onError((e) => {
+            expect(e).to.equal('CLICK_NOT_ALLOWED_LAYER_HIDDEN');
             done();
         });
 

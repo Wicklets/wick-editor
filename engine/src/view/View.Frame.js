@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -59,6 +59,18 @@ Wick.View.Frame = class extends Wick.View {
         this.objectsLayer.data.wickUUID = this.model.uuid;
         this.objectsLayer.data.wickType = 'clipsandpaths';
         this.objectsLayer.removeChildren();
+
+        // Remove placeholder paths if
+        // 1) this frame is focused, or
+        // 2) the project is playing
+        if(this.model.parentClip.isFocus || (this.model.project&&this.model.project.playing)) {
+            this.model.paths.forEach(path => {
+                if(path.isPlaceholder) {
+                    path.remove();
+                }
+            });
+        }
+
         this.model.drawable.forEach(object => {
             object.view.render();
             if (object.view.model instanceof Wick.Path) {
@@ -125,7 +137,18 @@ Wick.View.Frame = class extends Wick.View {
                 });
             }
         });
+
+        /*
+        var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
+        var pathJSON = Wick.View.Path.exportJSON(child);
+        var wickPath = new Wick.Path({json:pathJSON});
+
+        this.model.addPath(wickPath);
+        wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
+        wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
+        wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;
+        wickPath.isPlaceholder = originalWickPath ? originalWickPath.isPlaceholder : false;
+        child.name = wickPath.uuid;
+        */
     }
-
-
 };

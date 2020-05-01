@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Editor.
  *
@@ -32,4 +32,13 @@
   justify-content: center;
   align-items: center;
   margin-bottom: $inspector-padding;
+  margin-top: $inspector-padding;
+}
+
+.inspector-sound-preview {
+
+}
+
+.inspector-sound-preview-container {
+  margin: 5px;
 }

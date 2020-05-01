@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -71,10 +71,11 @@ Wick.Tween = class extends Wick.Base {
             var valB = tweenB.transformation[propName];
             if(propName === 'rotation') {
                 // Constrain rotation values to range of -180 to 180
-                while(valA < -180) valA += 360;
+                // (Disabled for now - a bug in paper.js clamps these for us)
+                /*while(valA < -180) valA += 360;
                 while(valB < -180) valB += 360;
                 while(valA > 180) valA -= 360;
-                while(valB > 180) valB -= 360;
+                while(valB > 180) valB -= 360;*/
                 // Convert full rotations to 360 degree amounts
                 valB += tweenA.fullRotations * 360;
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -61,8 +61,10 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
                 point: e.point,
                 bgColor: new paper.Color(this.project.backgroundColor.hex),
                 gapFillAmount: this.getSetting('gapFillAmount'),
-                layers: this.project.activeFrames.map(frame => {
-                    return frame.view.objectsLayer;
+                layers: this.project.activeFrames.filter(frame => {
+                    return !frame.parentLayer.hidden;
+                }).map(frame => {
+                    return frame.view.pathsLayer;
                 }),
                 onFinish: (path) => {
                     this.setCursor('default');
@@ -81,9 +83,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
                 },
                 onError: (message) => {
                     this.setCursor('default');
-                    this.fireEvent('error', {
-                        message: message,
-                    });
+                    this.project.errorOccured(message);
                 }
             });
         }, 50);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Editor.
  *
@@ -66,8 +66,26 @@
 }
 
 .wick-checkbox {
+  min-width: 20px;
+  min-height: 20px;
+}
+
+.wick-checkbox:hover {
+  cursor: pointer;
+}
+
+.wick-checkbox-label {
+  margin: 0; 
+  margin-right: 4px;
+  color: white;
+}
+
+.wick-checkbox-container {
   height: 100%;
   width: 100%;
+  display: flex;
+  align-items: center;
+  text-align: center;
 }
 
 .wick-button {

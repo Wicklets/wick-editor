@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Editor.
  *
@@ -199,16 +199,55 @@ class KeyboardShortcuts extends Component {
 
   // Initiate custom hotkey change locally.
   changeKey = (actionName, sequenceIndex, sequence) => {
+    let actions = [];
+
+    let keyCommand = sequence.id.toLowerCase();
+
     let newAction = {
       actionName: actionName, 
       index: sequenceIndex,
-      sequence: sequence.id,
+      sequence: keyCommand,
     }
 
-    this.setState(prevState => ({
-        newActions: prevState.newActions.concat([newAction])
-      })
-    )
+    actions.push(newAction);
+
+    // Check if we have overwritten any previous keys and make that change. Remove duplicates if they exist.
+    Object.keys(this.props.keyMap).forEach(key => {
+      let action = this.props.keyMap[key];
+
+      let index = 0;
+      action.sequences.forEach(seq => {
+        if (typeof seq === "string" && seq.toLowerCase() === keyCommand) {
+          // Remove Sequence
+          let act = {
+            actionName: key, 
+            index: index,
+            sequence: "",
+          }
+
+          actions.push(act);
+          this.props.toast('Key Command Overwritten: ' + action.name +'. Please reset this key command.', 'warning');
+        }
+
+        index += 1;
+      });
+    })
+
+    // Check if this sequence will override a newly added sequence.
+    let newActionsArray = this.state.newActions.concat([]);
+    for (var i=0; i<newActionsArray.length; i++) {
+      let action = newActionsArray[i];
+      if (action.sequence === keyCommand) {
+        
+        newActionsArray.splice(i, 1);
+        this.props.toast('Key Command Overwritten: ' + action.name +'. Please reset this key command.', 'warning');
+        break;
+      }
+    }
+
+    this.setState({
+      newActions: newActionsArray.concat(actions), 
+    });
 
     this.stopEditingKey();
   } 

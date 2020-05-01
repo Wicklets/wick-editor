@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Editor.
  *
@@ -60,6 +60,10 @@ class HotKeyInterface extends Object {
       'activate-cursor': {
         name: "Activate Cursor",
         sequences: ['c', 'v'],
+      },
+      'activate-path-cursor': {
+        name: "Activate Path Cursor",
+        sequences: ['a'],
       },
       'activate-pencil': {
         name: "Activate Pencil",
@@ -355,6 +359,7 @@ class HotKeyInterface extends Object {
         "activate-rectangle",
         "activate-ellipse",
         "activate-line",
+        "activate-path-cursor", 
         "activate-text",
         "activate-fill",
         "activate-eyedropper",
@@ -437,6 +442,7 @@ class HotKeyInterface extends Object {
       'activate-line': (() => this.editor.setActiveTool("line")),
       'activate-text': (() => this.editor.setActiveTool("text")),
       'activate-fill': (() => this.editor.setActiveTool("fillbucket")),
+      'activate-path-cursor': (() => this.editor.setActiveTool("pathcursor")),
       'activate-eyedropper': (() => this.editor.setActiveTool("eyedropper")),
       'deactivate-eyedropper': this.editor.activateLastTool,
       'activate-pan': (() => this.editor.setActiveTool("pan")),
@@ -546,7 +552,7 @@ class HotKeyInterface extends Object {
   // ** ** 0 {String} (Hotkey string sequence)
   // ** ** 1 {String} (Hotkey string sequence)
   setCustomHotKeys = (customHotKeys) => {
-    if (customHotKeys === undefined) return; // Ignore operation if customHotKeys is not set.
+    if (!customHotKeys) return; // Ignore operation if customHotKeys is not set.
     this.customHotKeys = customHotKeys;
   }
 
@@ -584,6 +590,7 @@ class HotKeyInterface extends Object {
     if (isMac) {
       replacement = "cmd"
     }
+
     Object.keys(keyMap).forEach((actionName) => {
 
       // Set default attributes...
@@ -611,10 +618,12 @@ class HotKeyInterface extends Object {
       // Update keymap with new attributes.
       if (customKeys[actionName]) {
         let customSequences = customKeys[actionName];
-        if (customSequences[0]) {
+
+        if (customSequences[0] || customSequences[0] === "") {
           newKeyMap[actionName].sequences[0] = customSequences[0];
         }
-        if (customSequences[1]) {
+
+        if (customSequences[1] || customSequences[1] === "") {
           newKeyMap[actionName].sequences[1] = customSequences[1];
         }
       }

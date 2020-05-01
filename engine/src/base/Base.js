@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -73,6 +73,11 @@ Wick.Base = class {
 
         var object = new Wick[data.classname]({ uuid: data.uuid });
         object.deserialize(data);
+
+        if (data.classname === 'Project') {
+            object.initialize();
+        }
+
         return object;
     }
 
@@ -286,7 +291,10 @@ Wick.Base = class {
         if (this._identiferNameIsPartOfWickAPI(identifier)) return;
 
         // Make sure the identifier is a valid js variable name
-        if (!isVarName(identifier)) return;
+        if(!isVarName(identifier)) {
+            this.project && this.project.errorOccured('Identifier must be a valid variable name.');
+            return;
+        }
 
         // Make sure the identifier is not a reserved word in js
         if (reserved.check(identifier)) return;
@@ -334,7 +342,8 @@ Wick.Base = class {
     }
 
     /**
-     *
+     * Returns a single child of this object with a given classname.
+     * @param {string} classname - the classname to use
      */
     getChild(classname) {
         return this.getChildren(classname)[0];
@@ -484,7 +493,11 @@ Wick.Base = class {
         });
     }
 
-    getLinkedAssets() {
+    /**
+     * Assets attached to this object.
+     * @returns {Wick.Base[]}
+     */
+    getLinkedAssets () {
         // Implemented by Wick.Frame and Wick.Clip
         return [];
     }

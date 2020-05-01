@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Editor.
  *
@@ -28,11 +28,9 @@ import { DragDropContext } from "react-dnd";
 import 'react-reflex/styles.css'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import { throttle } from 'underscore';
-import { GlobalHotKeys} from 'react-hotkeys';
 import localForage from 'localforage';
-import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Slide } from 'react-toastify';
+import { toast } from 'react-toastify';
 
 import HotKeyInterface from './hotKeyMap';
 import ActionMapInterface from './actionMap';
@@ -41,7 +39,6 @@ import FontInfoInterface from './fontInfo';
 import EditorCore from './EditorCore';
 
 import DockedPanel from './Panels/DockedPanel/DockedPanel';
-import ModalHandler from './Modals/ModalHandler/ModalHandler';
 import Canvas from './Panels/Canvas/Canvas';
 import Inspector from './Panels/Inspector/Inspector';
 import MenuBar from './Panels/MenuBar/MenuBar';
@@ -50,20 +47,22 @@ import CanvasTransforms from './Panels/CanvasTransforms/CanvasTransforms';
 import Toolbox from './Panels/Toolbox/Toolbox';
 import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
 import PopOutCodeEditor from './PopOuts/PopOutCodeEditor/PopOutCodeEditor';
-import ErrorBoundary from './Util/ErrorBoundary';
-import ErrorPage from './Util/ErrorPage';
+
+import EditorWrapper from './EditorWrapper';
+
 
 var classNames = require('classnames');
 
 class Editor extends EditorCore {
   constructor () {
-    super();    
+    super();
     // Set path for engine dependencies
     window.Wick.resourcepath = 'corelibs/wick-engine/';
 
     // "Live" editor states
     this.project = null;
     this.paper = null;
+    this.editorVersion = "1.17";
 
     // GUI state
     this.state = {
@@ -74,6 +73,7 @@ class Editor extends EditorCore {
       codeEditorOpen: false,
       scriptToEdit: "default",
       showCanvasActions: false,
+      showBrushModes: false,
       showCodeErrors: false,
       inspectorSize: 250,
       timelineSize: 175,
@@ -91,7 +91,16 @@ class Editor extends EditorCore {
       renderStatusMessage: "",
       customHotKeys: {},
       colorPickerType: "swatches",
-      lastColorsUsed: ["#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"]
+      lastColorsUsed: ["#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"],
+      renderMediumWidth: 1200,
+      renderSmallWidth: 800,
+      exporting: false,
+      useCustomOnionSkinningColors: false,
+      customOnionSkinningColors: {
+        backward: "rgba(0, 255, 0, .3)",
+        forward: "rgba(255, 0, 0, .3)",
+      },
+      onionSkinningWasOn: false,
     };
 
     // Catch all errors that happen in the editor.
@@ -151,6 +160,7 @@ class Editor extends EditorCore {
     ReactGA.pageview(window.location.pathname + window.location.search);
     // Initialize "live" engine state
     this.project = new window.Wick.Project();
+    this.attachErrorHandlers();
     this.paper = window.paper;
 
     // Initialize local storage
@@ -167,6 +177,10 @@ class Editor extends EditorCore {
       (customHotKeys) => {
         if (!customHotKeys) customHotKeys = {}; // Ensure we never send a null hotkey setting.
         this.hotKeyInterface.setCustomHotKeys(customHotKeys);
+
+        this.setState({
+          customHotKeys: customHotKeys,
+        });
       }
     );
 
@@ -473,12 +487,26 @@ class Editor extends EditorCore {
    * @param {boolean} state - Optional. True will open the canvas actions menu, false will close.
    */
   toggleCanvasActions = (state) => {
-    if (state === undefined || (typeof variable !== "boolean")) {
+    if (state === undefined || (typeof state !== "boolean")) {
       state = !this.state.showCanvasActions;
     }
 
     this.setState({
       showCanvasActions: state,
+    });
+  }
+
+  /**
+   * Opens and closes the brush modes popover.
+   * @param {boolean} state - Optional. True will open the brush modes menu, false will close.
+   */
+  toggleBrushModes = (state) => {
+    if (state === undefined || (typeof state !== "boolean")) {
+      state = !this.state.showBrushModes;
+    }
+
+    this.setState({
+      showBrushModes: state,
     });
   }
 
@@ -498,6 +526,21 @@ class Editor extends EditorCore {
       this.selectObject(obj)
       this.projectDidChange();
     }
+  }
+
+  /**
+   * Update the onion skinning colors in the editor.
+   * @param {object} colors An object with colors to be used for onion skinning. colors.backward is used for previous frames. colors.forward is used for following frames.
+   */
+  changeOnionSkinningColors = (colors) => {
+    if (!colors) return; // ignore change if no colors are passed.
+
+    this.setState({
+      customOnionSkinningColors: {
+        backward: colors.backward || this.state.customOnionSkinningColors.backward,
+        forward: colors.forward || this.state.customOnionSkinningColors.forward,
+      }
+    });
   }
 
   /**
@@ -612,9 +655,18 @@ class Editor extends EditorCore {
     });
   }
 
-  // Any elements that are in hotkeys 2 will overwrite items by same name in hotkeys1.
+  /**
+   *  Combines two custom hotkey objects into a single custom hotkey object.
+   *  Any hotkeys in hotkeys2 will overwrite hotkeys1.
+   * @param {Object} hotkeys1 - Custom hotkey map.
+   * @param {Object} hotkeys2 - Custom hotkey map.
+   * @returns {Object} - Combined custom hotkey map.
+   **/
+
+
   combineHotKeys = (hotkeys1, hotkeys2) => {
     // Try to combine all keys
+
     let newHotKeys = {...hotkeys1, ...hotkeys2};
 
     let keys1 = Object.keys(hotkeys1);
@@ -630,6 +682,9 @@ class Editor extends EditorCore {
     return newHotKeys;
   }
 
+  /**
+   * Converts an array of hotkeys to a custom hotkey object.
+   */
   convertHotkeyArray = (hotkeys) => {
     let keyObj = {};
 
@@ -645,16 +700,30 @@ class Editor extends EditorCore {
     return keyObj;
   }
 
-  // Expects array of hotkey objects
+  /**
+   * Creates a combined key map from a key map object and key array.
+   */
+  createCombinedHotKeyMap = (hotKeyMap, hotKeyArray) => {
+    return this.combineHotKeys(hotKeyMap, this.convertHotkeyArray(hotKeyArray));
+  }
+
+  /**
+   * Takes an array of hot key objects. Combines these with existing custom hot keys and syncs the editor
+   * to these new hot keys.
+   */
   addCustomHotKeys = (newHotKeys) => {
-    let combined = this.combineHotKeys(this.state.customHotKeys, this.convertHotkeyArray(newHotKeys));
+    let combined = this.createCombinedHotKeyMap(this.state.customHotKeys, newHotKeys);
 
     this.syncHotKeys(combined);
   }
 
+  /**
+   * Takes a hotkeys object and sets these as the custom hot keys.
+   */
   syncHotKeys = (hotkeys) => {
     this.hotKeyInterface.setCustomHotKeys(hotkeys);
     localForage.setItem(this.customHotKeysKey, hotkeys);
+
     this.setState({
       customHotKeys: hotkeys
     });
@@ -722,248 +791,202 @@ class Editor extends EditorCore {
     }
   }
 
+  /**
+   * Returns a string representing the render size elements should use in the editor.
+   * @returns {String} "large", "medium" or "small" depending on the width of the window.
+   */
+  getRenderSize = () => {
+    if (window.innerWidth > this.state.renderMediumWidth) {
+      return "large";
+    } else if (window.innerWidth > this.state.renderSmallWidth) {
+      return "medium";
+    } else {
+      return "small";
+    }
+  }
+
   render = () => {
     // Create some references to the project and editor to make debugging in the console easier:
     window.project = this.project;
     window.editor = this;
 
-    let renderMobile = window.innerWidth < 640;
+    let renderSize = this.getRenderSize();
 
     return (
-      <ErrorBoundary
-      fallback={ErrorPage}
-      processError={(error, errorInfo) => {this.autoSaveProject(() => {"Project Autosaved"})} }
-      >
-      <div>
-        <div>
-          <ToastContainer
-           transition={Slide}
-            position="top-right"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnVisibilityChange
-            draggable
-            pauseOnHover
-          />
-            <GlobalHotKeys
-              allowChanges={true}
-              keyMap={this.getKeyMap()}
-              handlers={this.getKeyHandlers()}/>
-              <div id="editor">
-                <input
-                  type='file'
-                  accept={window.Wick.FileAsset.getValidExtensions().join(', ')}
-                  style={{display: 'none'}}
-                  ref={this.importAssetRef}
-                  onChange={this.handleAssetFileImport}
-                  multiple="multiple"
-                />
-                <input
-                  type='file'
-                  accept='.zip, .wick'
-                  style={{display: 'none'}}
-                  ref={this.openFileRef}
-                  onChange={this.handleWickFileLoad}
-                />
-                <div id="menu-bar-container">
-                  <ModalHandler
-                    activeModalName={this.state.activeModalName}
-                    openModal={this.openModal}
-                    closeActiveModal={this.closeActiveModal}
-                    queueModal={this.queueModal}
-                    project={this.project}
-                    createClipFromSelection={this.createClipFromSelection}
-                    createButtonFromSelection={this.createButtonFromSelection}
-                    updateProjectSettings={this.updateProjectSettings}
-                    exportProjectAsGif={this.exportProjectAsAnimatedGIF}
-                    exportProjectAsVideo={this.exportProjectAsVideo}
-                    exportProjectAsStandaloneZip={this.exportProjectAsStandaloneZip}
-                    exportProjectAsStandaloneHTML={this.exportProjectAsStandaloneHTML}
-                    exportProjectAsImageSequence={this.exportProjectAsImageSequence}
-                    exportProjectAsImageSVG={this.exportProjectAsImageSVG}
-                    warningModalInfo={this.state.warningModalInfo}
-                    loadAutosavedProject={this.loadAutosavedProject}
-                    clearAutoSavedProject={this.clearAutoSavedProject}
-                    renderProgress={this.state.renderProgress}
-                    renderStatusMessage={this.state.renderStatusMessage}
-                    renderType={this.state.renderType}
-                    addCustomHotKeys={this.addCustomHotKeys}
-                    resetCustomHotKeys={this.resetCustomHotKeys}
-                    customHotKeys={this.state.customHotKeys}
-                    keyMap={this.getKeyMap(true)}
-                    keyMapGroups={this.hotKeyInterface.createHandlerGroups()}
-                    importFileAsAsset={this.importFileAsAsset}
-                    colorPickerType={this.state.colorPickerType}
-                    changeColorPickerType={this.changeColorPickerType}
-                    updateLastColors={this.updateLastColors}
-                    lastColorsUsed={this.state.lastColorsUsed}
-                  />
-                  {/* Header */}
+      <EditorWrapper editor={this}>
+        {/* Menu Bar */}
+
+        <div id="menu-bar-container">
+          {/* Header */}
+          <DockedPanel showOverlay={this.state.previewPlaying}>
+            <MenuBar
+              openModal={this.openModal}
+              projectName={this.project.name}
+              openProjectFileDialog={this.openProjectFileDialog}
+              openNewProjectConfirmation={this.openNewProjectConfirmation}
+              exportProjectAsWickFile={this.exportProjectAsWickFile}
+              importProjectAsWickFile={this.importProjectAsWickFile}
+              exporting={this.state.exporting}
+              toast={this.toast}
+              openExportMedia={() => {this.openModal('ExportMedia')}}
+              openExportOptions={() => {this.openModal('ExportOptions')}}
+            />
+          </DockedPanel>
+        </div>
+
+        {/* Main Editor Panel */}
+
+        <div id="editor-body">
+          <div className={classNames({"mobile-editor-body": (renderSize === "small")})} id="flexible-container">
+            {/*App*/}
+            <ReflexContainer windowResizeAware={true} orientation="vertical">
+              {/* Middle Panel */}
+              <ReflexElement {...this.resizeProps}>
+                {/*Toolbox*/}
+                <div className={classNames("toolbox-container", {'toolbox-container-medium': renderSize === 'medium'}, {'toolbox-container-small': renderSize === 'small'})}>
                   <DockedPanel showOverlay={this.state.previewPlaying}>
-                    <MenuBar
-                      openModal={this.openModal}
-                      projectName={this.project.name}
-                      openProjectFileDialog={this.openProjectFileDialog}
-                      openNewProjectConfirmation={this.openNewProjectConfirmation}
-                      exportProjectAsWickFile={this.exportProjectAsWickFile}
-                      importProjectAsWickFile={this.importProjectAsWickFile}
-                      toast={this.toast}
-                      openExportOptions={() => {this.openModal('ExportOptions')}}
+                    <Toolbox
+                      project={this.state.project}
+                      getActiveToolName={() => this.getActiveTool().name}
+                      activeToolName={this.getActiveTool().name}
+                      setActiveTool={this.setActiveTool}
+                      getToolSetting={this.getToolSetting}
+                      setToolSetting={this.setToolSetting}
+                      previewPlaying={this.state.previewPlaying}
+                      editorActions={this.actionMapInterface.editorActions}
+                      getToolSettingRestrictions={this.getToolSettingRestrictions}
+                      showCanvasActions={this.state.showCanvasActions}
+                      showBrushModes={this.state.showBrushModes}
+                      toggleCanvasActions={this.toggleCanvasActions}
+                      toggleBrushModes={this.toggleBrushModes}
+                      colorPickerType={this.state.colorPickerType}
+                      changeColorPickerType={this.changeColorPickerType}
+                      updateLastColors={this.updateLastColors}
+                      lastColorsUsed={this.state.lastColorsUsed}
+                      renderSize={renderSize}
                     />
                   </DockedPanel>
                 </div>
-                <div id="editor-body">
-                  <div className={classNames({"mobile-editor-body": renderMobile})} id="flexible-container">
-                    {/*App*/}
-                    <ReflexContainer windowResizeAware={true} orientation="vertical">
-                      {/* Middle Panel */}
-                      <ReflexElement {...this.resizeProps}>
-                        {/*Toolbox*/}
-                        <div id="toolbox-container">
-                          <DockedPanel showOverlay={this.state.previewPlaying}>
-                            <Toolbox
-                              project={this.state.project}
-                              getActiveToolName={() => this.getActiveTool().name}
-                              activeToolName={this.getActiveTool().name}
-                              setActiveTool={this.setActiveTool}
-                              getToolSetting={this.getToolSetting}
-                              setToolSetting={this.setToolSetting}
-                              previewPlaying={this.state.previewPlaying}
-                              editorActions={this.actionMapInterface.editorActions}
-                              getToolSettingRestrictions={this.getToolSettingRestrictions}
-                              showCanvasActions={this.state.showCanvasActions}
-                              toggleCanvasActions={this.toggleCanvasActions}
-                              colorPickerType={this.state.colorPickerType}
-                              changeColorPickerType={this.changeColorPickerType}
-                              updateLastColors={this.updateLastColors}
-                              lastColorsUsed={this.state.lastColorsUsed}
-                            />
-                          </DockedPanel>
-                        </div>
-                        <div id="editor-canvas-timeline-panel">
-                          <ReflexContainer windowResizeAware={true} orientation="horizontal">
-                            {/*Canvas*/}
-                            <ReflexElement {...this.resizeProps}>
-                              <DockedPanel>
-                                <Canvas
-                                  project={this.project}
-                                  projectDidChange={this.projectDidChange}
-                                  projectData={this.state.project}
-                                  paper={this.paper}
-                                  previewPlaying={this.state.previewPlaying}
-                                  createImageFromAsset={this.createImageFromAsset}
-                                  toast={this.toast}
-                                  onEyedropperPickedColor={this.onEyedropperPickedColor}
-                                  onRef={ref => this.canvasComponent = ref}
-                                />
-                                <CanvasTransforms
-                                  onionSkinEnabled={this.project.onionSkinEnabled}
-                                  toggleOnionSkin={this.toggleOnionSkin}
-                                  zoomIn={this.zoomIn}
-                                  zoomOut={this.zoomOut}
-                                  recenterCanvas={this.recenterCanvas}
-                                  activeToolName={this.getActiveTool().name}
-                                  setActiveTool={this.setActiveTool}
-                                  previewPlaying={this.state.previewPlaying}
-                                  togglePreviewPlaying={this.togglePreviewPlaying}
-                                />
-                              </DockedPanel>
-                            </ReflexElement>
-                            <ReflexSplitter {...this.resizeProps}/>
-                            {/*Timeline*/}
-                            <ReflexElement
-                              minSize={100}
-                              size={this.state.timelineSize}
-                              onResize={this.resizeProps.onResize}
-                              onStopResize={this.resizeProps.onStopTimelineResize}>
-                              <DockedPanel  showOverlay={this.state.previewPlaying}>
-                                <Timeline
-                                  project={this.project}
-                                  projectDidChange={this.projectDidChange}
-                                  projectData={this.state.project}
-                                  getSelectedTimelineObjects={this.getSelectedTimelineObjects}
-                                  setOnionSkinOptions={this.setOnionSkinOptions}
-                                  getOnionSkinOptions={this.getOnionSkinOptions}
-                                  setFocusObject={this.setFocusObject}
-                                  addTweenKeyframe={this.addTweenKeyframe}
-                                  onRef={ref => this.timelineComponent = ref}
-                                  dragSoundOntoTimeline={this.dragSoundOntoTimeline}
-                                />
-                              </DockedPanel>
-                            </ReflexElement>
-                          </ReflexContainer>
-                        </div>
-                      </ReflexElement>
-
-                      {!renderMobile && <ReflexSplitter {...this.resizeProps}/>}
-
-                      {/* Right Sidebar */}
-                      {
-                        !renderMobile &&
-
-                        <ReflexElement
-                        size={250}
-                        maxSize={300} minSize={200}
-                        onResize={this.resizeProps.onResize}
-                        onStopResize={this.resizeProps.onStopInspectorResize}>
-                        <ReflexContainer windowResizeAware={true} orientation="horizontal">
-                          {/* Inspector */}
-                          <ReflexElement {...this.resizeProps}>
-                            <DockedPanel showOverlay={this.state.previewPlaying}>
-                              <Inspector
-                                getToolSetting={this.getToolSetting}
-                                setToolSetting={this.setToolSetting}
-                                getSelectionType={this.getSelectionType}
-                                getAllSoundAssets={this.getAllSoundAssets}
-                                getAllSelectionAttributes={this.getAllSelectionAttributes}
-                                setSelectionAttribute={this.setSelectionAttribute}
-                                editorActions={this.actionMapInterface.editorActions}
-                                selectionIsScriptable={this.selectionIsScriptable}
-                                script={this.getSelectedObjectScript()}
-                                scriptInfoInterface={this.scriptInfoInterface}
-                                deleteScript={this.deleteScript}
-                                editScript={this.editScript}
-                                fontInfoInterface={this.fontInfoInterface}
-                                project={this.project}
-                                importFileAsAsset={this.importFileAsAsset}
-                                colorPickerType={this.state.colorPickerType}
-                                changeColorPickerType={this.changeColorPickerType}
-                                updateLastColors={this.updateLastColors}
-                                lastColorsUsed={this.state.lastColorsUsed}
-                              />
-                            </DockedPanel>
-                          </ReflexElement>
-
-                          <ReflexSplitter {...this.resizeProps}/>
-
-                          {/* Asset Library */}
-                          <ReflexElement
-                            minSize={100}
-                            size={this.state.assetLibrarySize}
-                            onResize={this.resizeProps.onResize}
-                            onStopResize={this.resizeProps.onStopAssetLibraryResize}>
-                            <DockedPanel showOverlay={this.state.previewPlaying}>
-                              <AssetLibrary
-                                projectData={this.state.project}
-                                assets={this.project.getAssets()}
-                                openModal={this.openModal}
-                                openImportAssetFileDialog={this.openImportAssetFileDialog}
-                                selectObjects={this.selectObjects}
-                                clearSelection={this.clearSelection}
-                                isObjectSelected={this.isObjectSelected}
-                              />
-                            </DockedPanel>
-                          </ReflexElement>
-                        </ReflexContainer>
-                      </ReflexElement>
-                      }
-                    </ReflexContainer>
-                  </div>
+                <div className={classNames("editor-canvas-timeline-panel", {'editor-canvas-timeline-panel-medium': renderSize === 'medium'}, {'editor-canvas-timeline-panel-small': renderSize === 'small'})}>
+                  <ReflexContainer windowResizeAware={true} orientation="horizontal">
+                    {/*Canvas*/}
+                    <ReflexElement {...this.resizeProps}>
+                      <DockedPanel>
+                        <Canvas
+                          project={this.project}
+                          projectDidChange={this.projectDidChange}
+                          projectData={this.state.project}
+                          paper={this.paper}
+                          previewPlaying={this.state.previewPlaying}
+                          createImageFromAsset={this.createImageFromAsset}
+                          toast={this.toast}
+                          onEyedropperPickedColor={this.onEyedropperPickedColor}
+                          createAssets={this.createAssets}
+                          importProjectAsWickFile={this.importProjectAsWickFile}
+                          onRef={ref => this.canvasComponent = ref}
+                        />
+                        <CanvasTransforms
+                          onionSkinEnabled={this.project.onionSkinEnabled}
+                          toggleOnionSkin={this.toggleOnionSkin}
+                          zoomIn={this.zoomIn}
+                          zoomOut={this.zoomOut}
+                          recenterCanvas={this.recenterCanvas}
+                          activeToolName={this.getActiveTool().name}
+                          setActiveTool={this.setActiveTool}
+                          previewPlaying={this.state.previewPlaying}
+                          togglePreviewPlaying={this.togglePreviewPlaying}
+                        />
+                      </DockedPanel>
+                    </ReflexElement>
+                    <ReflexSplitter {...this.resizeProps}/>
+                    {/*Timeline*/}
+                    <ReflexElement
+                      minSize={100}
+                      size={this.state.timelineSize}
+                      onResize={this.resizeProps.onResize}
+                      onStopResize={this.resizeProps.onStopTimelineResize}>
+                      <DockedPanel  showOverlay={this.state.previewPlaying}>
+                        <Timeline
+                          project={this.project}
+                          projectDidChange={this.projectDidChange}
+                          projectData={this.state.project}
+                          getSelectedTimelineObjects={this.getSelectedTimelineObjects}
+                          setOnionSkinOptions={this.setOnionSkinOptions}
+                          getOnionSkinOptions={this.getOnionSkinOptions}
+                          setFocusObject={this.setFocusObject}
+                          addTweenKeyframe={this.addTweenKeyframe}
+                          onRef={ref => this.timelineComponent = ref}
+                          dragSoundOntoTimeline={this.dragSoundOntoTimeline}
+                        />
+                      </DockedPanel>
+                    </ReflexElement>
+                  </ReflexContainer>
                 </div>
-              </div>
+              </ReflexElement>
+
+              {/* Right Sidebar */}
+              {!(renderSize === "small") && <ReflexSplitter {...this.resizeProps}/>}
+              {!(renderSize === "small") &&
+
+                <ReflexElement
+                size={250}
+                maxSize={300} minSize={200}
+                onResize={this.resizeProps.onResize}
+                onStopResize={this.resizeProps.onStopInspectorResize}>
+                <ReflexContainer windowResizeAware={true} orientation="horizontal">
+                  {/* Inspector */}
+                  <ReflexElement {...this.resizeProps}>
+                    <DockedPanel showOverlay={this.state.previewPlaying}>
+                      <Inspector
+                        getToolSetting={this.getToolSetting}
+                        setToolSetting={this.setToolSetting}
+                        getSelectionType={this.getSelectionType}
+                        getAllSoundAssets={this.getAllSoundAssets}
+                        getAllSelectionAttributes={this.getAllSelectionAttributes}
+                        setSelectionAttribute={this.setSelectionAttribute}
+                        editorActions={this.actionMapInterface.editorActions}
+                        selectionIsScriptable={this.selectionIsScriptable}
+                        script={this.getSelectedObjectScript()}
+                        scriptInfoInterface={this.scriptInfoInterface}
+                        deleteScript={this.deleteScript}
+                        editScript={this.editScript}
+                        fontInfoInterface={this.fontInfoInterface}
+                        project={this.project}
+                        importFileAsAsset={this.importFileAsAsset}
+                        colorPickerType={this.state.colorPickerType}
+                        changeColorPickerType={this.changeColorPickerType}
+                        updateLastColors={this.updateLastColors}
+                        lastColorsUsed={this.state.lastColorsUsed}
+                        getClipAnimationTypes={this.getClipAnimationTypes}
+                      />
+                    </DockedPanel>
+                  </ReflexElement>
+
+                  <ReflexSplitter {...this.resizeProps}/>
+
+                  {/* Asset Library */}
+                  <ReflexElement
+                    minSize={100}
+                    size={this.state.assetLibrarySize}
+                    onResize={this.resizeProps.onResize}
+                    onStopResize={this.resizeProps.onStopAssetLibraryResize}>
+                    <DockedPanel showOverlay={this.state.previewPlaying}>
+                      <AssetLibrary
+                        projectData={this.state.project}
+                        assets={this.project.getAssets()}
+                        openModal={this.openModal}
+                        openImportAssetFileDialog={this.openImportAssetFileDialog}
+                        selectObjects={this.selectObjects}
+                        clearSelection={this.clearSelection}
+                        isObjectSelected={this.isObjectSelected}
+                      />
+                    </DockedPanel>
+                  </ReflexElement>
+                </ReflexContainer>
+              </ReflexElement>
+              }
+            </ReflexContainer>
+          </div>
           {this.state.codeEditorOpen &&
             <PopOutCodeEditor
               codeEditorWindowProperties={this.state.codeEditorWindowProperties}
@@ -983,10 +1006,9 @@ class Editor extends EditorCore {
               clearCodeEditorError={this.clearCodeEditorError}
             />}
         </div>
-      </div>
-      </ErrorBoundary>
+      </EditorWrapper>
       )
+    }
   }
-}
 
 export default DragDropContext(HTML5Backend)(Editor)

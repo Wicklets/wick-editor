@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Editor.
  *
@@ -32,19 +32,19 @@ var classNames = require('classnames');
 class WelcomeModal extends Component {
   constructor () {
     super();
-    this.version = "1.16.2";
-    this.forumPost = "https://forum.wickeditor.com/t/wick-editor-1-16-prerelease-3-new-color-picker-builtin-assets-and-more/2105/9";
+    this.forumPost = "https://forum.wickeditor.com/t/wick-editor-version-1-17-new-clip-options-editor-options-onion-skinning-and-more/2450";
     this.updates = [
-      "Faster Autosave",
-      "Export Preview",
-      "PNG Sequence Export",
+      "Animation Types for Clips",
+      "Advanced Export Options",
+      "And So Much More!",
     ] // No More than 3
 
-    let t1 = ["Hyun's Dojo", "Guy de Bree"]
+    let t1 = ["Hyun's Dojo", "Guy de Bree", "Dimp"]
     let t2 = ["Constance Ye", "Victoria Rojas"]
     let t3 = ["Gautaum Bose", "Ji Heon Han"]
-    let t4 = ["Golan Levin", "ThisPodcastIsInEnglish", "Anonymous"]
-    this.patreonSupporters = t1.concat(t2, t3, t4)
+    let t4 = ["Golan Levin", "ThisPodcastIsInEnglish", "Daniel Sun", "Benjamin Briand", "Anonymous"]
+    let t5 = ["Joe", "Karlin Fox"]
+    this.patreonSupporters = t1.concat(t2, t3, t4, t5)
   }
 
   // Render updates as a list.
@@ -62,7 +62,7 @@ class WelcomeModal extends Component {
   renderPatreonSupporters = (className) => {
     return  (
       <div className={classNames("supporter-list-container", className)}>
-        <a className="welcome-modal-highlight" target="_blank" rel="noopener noreferrer" href="https://www.patreon.com/WickEditor">Patreon Supporters</a>
+        <a className="welcome-modal-highlight" target="_blank" rel="noopener noreferrer" href="https://www.patreon.com/WickEditor">Become a Patreon Supporter!</a>
         <div className="supporter-list">
           {this.patreonSupporters.join(", ")}
         </div>
@@ -80,7 +80,7 @@ class WelcomeModal extends Component {
           </div>
           <div className="welcome-modal-mobile-content">
             <div className="welcome-modal-title small-modal">The Wick Editor</div>
-            <div className="welcome-modal-version small-modal"><a className="welcome-modal-highlight" target="_blank" rel="noopener noreferrer" href={this.forumPost}>Version {this.version}</a></div>
+            <div className="welcome-modal-version small-modal"><a className="welcome-modal-highlight" target="_blank" rel="noopener noreferrer" href={this.forumPost}>Version {this.props.editorVersion}</a></div>
             {this.renderUpdates("small-modal")}
             {this.renderPatreonSupporters()}
           </div>
@@ -108,8 +108,8 @@ class WelcomeModal extends Component {
           </div>
           <div id="welcome-message-container" className="modal-main-container">
             <div id="welcome-modal-title" className="welcome-modal-item">Welcome to the Wick Editor!</div>
-            <div id="welcome-modal-version" className="welcome-modal-item"><a className="welcome-modal-highlight" target="_blank" rel="noopener noreferrer" href={this.forumPost}>Version {this.version}</a></div>
-            <div id="welcome-modal-subtitle" className="welcome-modal-item">Wick Editor {this.version} includes:</div>
+            <div id="welcome-modal-version" className="welcome-modal-item"><a className="welcome-modal-highlight" target="_blank" rel="noopener noreferrer" href={this.forumPost}>Version {this.props.editorVersion}</a></div>
+            <div id="welcome-modal-subtitle" className="welcome-modal-item">Wick Editor {this.props.editorVersion} includes:</div>
             <div id="welcome-modal-message" className="welcome-modal-item">
               {this.renderUpdates()}
               {this.renderPatreonSupporters("desktop-modal")}

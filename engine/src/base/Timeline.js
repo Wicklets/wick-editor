@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -77,7 +77,7 @@ Wick.Timeline = class extends Wick.Base {
 
     set playheadPosition(playheadPosition) {
         // Automatically clear selection when any playhead in the project moves
-        if (this.project && this._playheadPosition !== playheadPosition) {
+        if(this.project && this._playheadPosition !== playheadPosition && this.parentClip.isFocus) {
             this.project.selection.clear('Canvas');
         }
 
@@ -89,6 +89,7 @@ Wick.Timeline = class extends Wick.Base {
         // Automatically apply tween transforms on child frames when playhead moves
         this.activeFrames.forEach(frame => {
             frame.applyTweenTransforms();
+            frame.updateClipTimelinesForAnimationType();
         });
     }
 

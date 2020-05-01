@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Editor.
  *
@@ -26,6 +26,8 @@ import TabbedInterface from 'Editor/Util/TabbedInterface/TabbedInterface';
 
 import './_exportoptions.scss';
 
+let classNames=require("classnames");
+
 class ExportOptions extends Component {
   constructor (props) {
     super(props);
@@ -33,7 +35,38 @@ class ExportOptions extends Component {
     this.state = {
       name: this.props.projectName || '',
       subTab: 'Animation',
+      exportWidth: 1920,
+      exportHeight: 1080,
+      exportResolution: "1080p",
+      blackBars: true,
+      useAdvanced: false,
     }
+
+    this.customSizeTag = "custom";
+
+    // If size is not represented, default to "custom".
+    this.advancedSizes = {
+      "1080p": {
+        width: 1920,
+        height: 1080,
+      },
+      "720p": {
+        width: 1080,
+        height: 720,
+      },
+      "480p": {
+        width: 720,
+        height: 480
+      }
+    }
+  }
+
+  resetCustomSize = () => {
+    this.setState({
+      exportResolution: this.customSizeTag,
+      exportWidth: 720,
+      exportHeight: 405,
+    });
   }
 
   componentDidUpdate = (prevProps) => {
@@ -51,18 +84,26 @@ class ExportOptions extends Component {
   createAndToggle = (type) => {
     let name = this.state.name !== "" ? this.state.name : (type);
 
+    let args = {
+      name: name,
+      width:  this.state.useAdvanced ? this.state.exportWidth : undefined,
+      height: this.state.useAdvanced ? this.state.exportHeight : undefined,
+    }
+
     if (type === 'GIF') {
-      this.props.exportProjectAsGif(name);
+      this.props.exportProjectAsGif(args);
     } else if (type === 'VIDEO') {
-      this.props.exportProjectAsVideo(name);
+      this.props.exportProjectAsVideo(args);
     } else if (type === 'ZIP') {
-      this.props.exportProjectAsStandaloneZip(name);
+      this.props.exportProjectAsStandaloneZip(args);
       this.props.toggle();
     } else if (type === 'HTML') {
-      this.props.exportProjectAsStandaloneHTML(name);
+      this.props.exportProjectAsStandaloneHTML(args);
       this.props.toggle();
     } else if (type === 'IMAGE_SEQUENCE') {
-      this.props.exportProjectAsImageSequence(name);
+      this.props.exportProjectAsImageSequence(args);
+    } else if (type === 'AUDIO_TRACK') {
+      this.props.exportProjectAsAudioTrack(args);
       this.props.toggle();
     } else if (type === 'IMAGE_SVG') {
       this.props.exportProjectAsImageSVG(name);
@@ -84,63 +125,139 @@ class ExportOptions extends Component {
     });
   }
 
+  toggleAdvancedOptionsCheckbox = () => {
+    this.setState({
+      useAdvanced: !this.state.useAdvanced,
+    })
+  }
+
+  updateExportSize = (width, height) => {
+
+    let res = this.customSizeTag;
+
+    Object.keys(this.advancedSizes).forEach(key => {
+      let size = this.advancedSizes[key];
+      if (size.width === width && size.height === height) {
+        res = key;
+      }
+    });
+
+    this.setState({
+      exportResolution: res,
+      exportWidth: width,
+      exportHeight: height,
+    });
+  }
+
+  updateExportResolutionType = (val) => {
+    let value = val.value;
+
+    if (value === this.customSizeTag) {
+      this.resetCustomSize();
+    } else if (this.advancedSizes[value]) {
+      let dimensions = this.advancedSizes[value];
+      this.setState({
+        exportResolution: value,
+        exportWidth: dimensions.width,
+        exportHeight: dimensions.height,
+      });
+    }
+  }
+
+  renderAdvancedOptions = () => {
+    return (
+      <div className="export-modal-advanced-options">
+        <div className="export-modal-advanced-checkbox-container">
+          <WickInput
+            type="checkbox"
+            checked={this.state.useAdvanced}
+            onChange={this.toggleAdvancedOptionsCheckbox}
+            label="Use Advanced Options"/>
+        </div>
+        {this.state.useAdvanced &&
+          <div className="export-modal-advanced-options-content">
+
+          <div className="export-modal-advanced-option-title">
+            Resolution
+          </div>
+
+          <div className="export-modal-resolution-inputs">
+            <div className="export-modal-resolution-dropdown-container">
+              <WickInput
+                type="select"
+                value={this.state.exportResolution}
+                options={Object.keys(this.advancedSizes).concat([this.customSizeTag])}
+                onChange={(val) => {this.updateExportResolutionType(val)}} />
+            </div>
+            <div className="export-modal-resolution-inputs-container">
+              <div className="export-modal-resolution-input-container">
+                <WickInput
+                  type="numeric"
+                  value={this.state.exportWidth}
+                  onChange={(val) => {this.updateExportSize(val, this.state.exportHeight)}}
+                  />
+              </div>
+              <div className="export-modal-x-symbol">
+                x
+              </div>
+              <div className="export-modal-resolution-input-container">
+                <WickInput
+                  type="numeric"
+                  value={this.state.exportHeight}
+                  onChange={(val) => {this.updateExportSize(this.state.exportWidth, val)}}
+                  />
+              </div>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+    )
+  }
+
   // Renders the body of the "Animation" tab.
   renderAnimatedInfo = () => {
     return (
-      <div className="export-info-container">
-        <div className="export-info-item">
-          <ObjectInfo
-            className="export-object-info"
-            title="Animated GIF"
-            rows={[
-              {
-                text: "Creates a .gif file",
-                icon: "check"
-              },
-              {
-                text: "No Sound",
-                icon: "cancel",
-              },
-              {
-                text: "No Code is Run",
-                icon: "cancel"
-              },
-            ]} />
-          <div className="export-modal-button-container">
-          <ActionButton
-            color='gray-green'
-            action={() => { this.createAndToggle("GIF") }}
-            text="Export GIF"
-            />
+      <div>
+        <div className="export-info-container">
+          <div className="export-info-item">
+            <ObjectInfo
+              className="export-object-info"
+              title="Animated GIF"
+              rows={[
+                { text: "Creates a .gif file", icon: "check" },
+                { text: "No Sound",            icon: "cancel" },
+                { text: "No Code is Run",      icon: "cancel" },
+              ]} />
+            <div className="export-modal-button-container">
+              <ActionButton
+                color='gray-green'
+                action={() => { this.createAndToggle("GIF") }}
+                text="Export GIF"
+                />
+            </div>
+          </div>
+          <div className="export-info-item">
+            <ObjectInfo
+              className="export-object-info"
+              title="Video (Beta)"
+              rows={[
+                { text: "Creates an .mp4 file", icon: "check" },
+                { text: "Has Sound",            icon: "check" },
+                { text: "No Code is Run",       icon: "cancel"},
+              ]}/>
+            <div className="export-modal-button-container">
+              <ActionButton
+                color='gray-green'
+                action={() => { this.createAndToggle("VIDEO") }}
+                text="Export Video (Beta)"
+                />
+            </div>
           </div>
         </div>
-        <div className="export-info-item">
-          <ObjectInfo
-            className="export-object-info"
-            title="Video (Beta)"
-            rows={[
-              {
-                text: "Creates an .mp4 file",
-                icon: "check"
-              },
-              {
-                text: "Has Sound",
-                icon: "check",
-              },
-              {
-                text: "No code is run",
-                icon: "cancel"
-              },
-            ]}/>
-          <div className="export-modal-button-container">
-          <ActionButton
-            color='gray-green'
-            action={() => { this.createAndToggle("VIDEO") }}
-            text="Export Video (Beta)"
-            />
-          </div>
-        </div>
+        {this.renderAdvancedOptions()}
       </div>
+
     );
   }
 
@@ -153,18 +270,9 @@ class ExportOptions extends Component {
             className="export-object-info"
             title="ZIP Archive"
             rows={[
-              {
-                text: "Fully Interactive",
-                icon: "check"
-              },
-              {
-                text: "Works on other sites",
-                icon: "check"
-              },
-              {
-                text: "Exports a .zip file",
-                icon: "check",
-              }
+              { text: "Fully Interactive",    icon: "check" },
+              { text: "Works on other sites", icon: "check" },
+              { text: "Exports a .zip file",  icon: "check" }
             ]}>
           </ObjectInfo>
           <div className="export-modal-button-container">
@@ -180,18 +288,9 @@ class ExportOptions extends Component {
             className="export-object-info"
             title="HTML"
             rows={[
-              {
-                text: "1-Click open",
-                icon: "check"
-              },
-              {
-                text: "Easily share projects",
-                icon: "check"
-              },
-              {
-                text: "Exports a .html file",
-                icon: "check",
-              }
+              { text: "1-Click open",           icon: "check" },
+              { text: "Easily share projects",  icon: "check" },
+              { text: "Exports a .html file",   icon: "check" }
             ]}>
           </ObjectInfo>
           <div className="export-modal-button-container">
@@ -235,6 +334,7 @@ class ExportOptions extends Component {
               text="Export Image Sequence"
               />
             </div>
+            {this.renderAdvancedOptions()}
           </div>
           <div className="wide-export-info-item">
             <ObjectInfo
@@ -266,12 +366,42 @@ class ExportOptions extends Component {
       );
     }
 
+  renderAudioInfo () {
+    return (
+      <div className="export-info-container">
+        <div className="wide-export-info-item">
+          <ObjectInfo
+            className="export-object-info"
+            title="Audio Track"
+            rows={[
+              {
+                text: "Creates a .wav file of all audio in the project",
+                icon: "check"
+              },
+              {
+                text: "No Code is Run",
+                icon: "cancel"
+              },
+            ]} />
+          <div className="export-modal-button-container">
+          <ActionButton
+            color='gray-green'
+            action={() => { this.createAndToggle('AUDIO_TRACK') }}
+            text="Export Audio Track"
+            />
+          </div>
+          {this.renderAdvancedOptions()}
+        </div>
+      </div>
+    );
+  }
+
   render() {
     return (
       <WickModal
       open={this.props.open}
       toggle={this.props.toggle}
-      className="export-modal-body"
+      className={classNames("export-modal-body", {"advanced-options": (this.state.useAdvanced && (this.state.subTab === "Animation" || this.state.subTab === "Images"))})}
       overlayClassName="export-modal-overlay">
         <div id="export-modal-interior-content">
           <div id="export-modal-title">Export</div>
@@ -282,10 +412,13 @@ class ExportOptions extends Component {
               onChange={this.updateExportName}
               placeholder={this.placeholderName} />
           </div>
-          <TabbedInterface tabNames={["Animation", "Interactive", "Images"]}>
+          <TabbedInterface
+            tabNames={["Animation", "Interactive", "Images", "Audio Track"]}
+            onTabSelect={this.setSubTab}>
             {this.renderAnimatedInfo()}
             {this.renderInteractiveInfo()}
             {this.renderImageInfo()}
+            {this.renderAudioInfo()}
           </TabbedInterface>
         </div>
       </WickModal>

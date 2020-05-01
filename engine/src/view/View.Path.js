@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -19,7 +19,7 @@
 
 Wick.View.Path = class extends Wick.View {
     /**
-     * Create a frame view.
+     * Create a path view.
      */
     constructor () {
         super();
@@ -83,9 +83,11 @@ Wick.View.Path = class extends Wick.View {
         }
 
         // Get image source from assets
+        var cachedImg = null;
         if(json[0] === 'Raster' && json[1].source.startsWith('asset:')) {
             var assetUUID = json[1].source.split(':')[1];
-            json[1].source = this.model.project.getAssetByUUID(assetUUID).src;
+            var imageAsset = this.model.project.getAssetByUUID(assetUUID);
+            json[1].source = imageAsset.src;
         }
 
         // Import JSON data into paper.js
@@ -105,6 +107,46 @@ Wick.View.Path = class extends Wick.View {
             // https://github.com/paperjs/paper.js/issues/937
             this._item.fontWeight = this.model.fontWeight + ' ' + this.model.fontStyle;
         }
+
+        // Apply onion skin style
+        // (This is done here in the Path code because we actually change the style of the path
+        // if the current onion skin mode is set to "outlines" or "tint")
+        var onionSkinStyle = this.model.project && this.model.project.toolSettings.getSetting('onionSkinStyle');
+        if(this.model.parentFrame && this.model.parentFrame.onionSkinned) {
+            this.item.data.originalStyle = this.item.data.originalStyle || {
+                strokeColor: this.item.strokeColor,
+                fillColor: this.item.fillColor,
+                strokeWidth: this.item.strokeWidth,
+            };
+
+            var frame = this.model.parentFrame;
+            var playheadPosition = this.model.project.focus.timeline.playheadPosition;
+
+            var onionTintColor = new Wick.Color("#ffffff");
+            if(frame.midpoint < playheadPosition) {
+                onionTintColor = this.model.project.toolSettings.getSetting('backwardOnionSkinTint').rgba;
+            } else if(frame.midpoint > playheadPosition) {
+                onionTintColor = this.model.project.toolSettings.getSetting('forwardOnionSkinTint').rgba;
+            }
+
+            if(onionSkinStyle === 'standard') {
+                // We don't have to do anything!
+            } else if (onionSkinStyle === 'outlines') {
+                this.item.fillColor = 'rgba(0,0,0,0)'; // Make the fills transparent.
+                this.item.strokeWidth = this.model.project.toolSettings.getSetting('onionSkinOutlineWidth');
+                this.item.strokeColor = onionTintColor;
+            } else if (onionSkinStyle === 'tint') {
+                if(this.item.fillColor) this.item.fillColor = Wick.Color.average(new Wick.Color(this.item.fillColor.toCSS()), new Wick.Color(onionTintColor)).rgba;
+                if(this.item.strokeColor) this.item.strokeColor = Wick.Color.average(new Wick.Color(this.item.strokeColor.toCSS()), new Wick.Color(onionTintColor)).rgba;
+            }
+        } else {
+            if(this.item.data.originalStyle) {
+                this.item.strokeColor = this.item.data.originalStyle.strokeColor;
+                this.item.fillColor = this.item.data.originalStyle.fillColor;
+                this.item.strokeWidth = this.item.data.originalStyle.strokeWidth;
+            }
+            delete this.item.data.originalStyle;
+        }
     }
 
     /**
@@ -118,6 +160,12 @@ Wick.View.Path = class extends Wick.View {
      * Export a path as paper.js Path json data.
      */
     static exportJSON (item) {
+        // Recover original style (if needed - only neccesary if style was overritten by custom onion skin style)
+        if(item.data.originalStyle) {
+            item.strokeColor = item.data.originalStyle.strokeColor;
+            item.fillColor = item.data.originalStyle.fillColor;
+            item.strokeWidth = item.data.originalStyle.strokeWidth;
+        }
         return item.exportJSON({asString:false});
     }
 }

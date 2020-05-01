@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -49,6 +49,8 @@ Wick.ImageSequence = class {
         }
 
         project.generateImageSequence({
+            width: args.width,
+            height: args.height,
             onFinish: buildZip,
             onProgress: onProgress,
         });

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -36,6 +36,7 @@ Wick.FontAsset = class extends Wick.FileAsset {
 
     /**
      * The default font to use if a font couldn't load, or if a FontAsset was deleted
+     * @type {string}
      */
     static get MISSING_FONT_DEFAULT () {
         return 'Helvetica, Arial, sans-serif';
@@ -43,6 +44,7 @@ Wick.FontAsset = class extends Wick.FileAsset {
 
     /**
      * Create a new FontAsset.
+     * @param {object} args - Asset constructor args. see constructor for Wick.Asset
      */
     constructor (args) {
         super(args);
@@ -63,6 +65,7 @@ Wick.FontAsset = class extends Wick.FileAsset {
 
     /**
      * Loads the font into the window.
+     * @param {function} callback - function to call when the font is done being loaded.
      */
     load (callback) {
         var fontDataArraybuffer = Base64ArrayBuffer.decode(this.src.split(',')[1]);
@@ -118,7 +121,7 @@ Wick.FontAsset = class extends Wick.FileAsset {
     }
 
     /**
-     *
+     * The name of the font that this FontAsset represents.
      * @type {string}
      */
     get fontFamily () {

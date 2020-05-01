@@ -9,17 +9,20 @@ class GIFExport {
 
     onProgress("Creating Gif", 10);
 
+    let width = args.width || project.width;
+    let height = args.height || project.height;
+
     // Initialize GIF.js
     let gif = new window.GIF({
       workers: 2,
       quality: 5,
-      width: project.width,
-      height: project.height,
+      width: width,
+      height: height,
       workerScript: process.env.PUBLIC_URL + "/corelibs/gif/gif.worker.js",
     });
 
     gif.on('finished', (gif) => {
-      onProgress('Finished GIF export', 100);
+      onProgress('Saving GIF file (this may take a while)...', 99);
       onFinish(gif);
     });
 
@@ -28,6 +31,7 @@ class GIFExport {
         // Add frame to gif.
         gif.addFrame(image, {delay: 1000/project.framerate});
       });
+      onProgress('Rendering GIF file (this may take a while)...', 99);
       gif.render(); // Finalize gif render.
     }
 
@@ -40,6 +44,8 @@ class GIFExport {
 
     // Get frame images from project, add to GIF.js
     project.generateImageSequence({
+      width: width,
+      height: height,
       onFinish: combineImageSequence,
       onProgress: updateProgress,
     });

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Editor.
  *
@@ -203,7 +203,7 @@ a:hover {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  overflow: hidden;
+  // overflow: hidden;
   font-family: 'Nunito Sans';
   box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
 }

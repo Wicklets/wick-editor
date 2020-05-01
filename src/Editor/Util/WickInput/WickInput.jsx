@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Editor.
  *
@@ -179,25 +179,19 @@ class WickInput extends Component {
 
   renderCheckbox = () => {
     return (
-      <input
-        {...this.props}
-        type="checkbox"
-        className={classNames("wick-checkbox", this.props.className)}/>
+      <div className="wick-checkbox-container">
+        {this.props.label && 
+          <div className="wick-checkbox-label">
+            {this.props.label}
+          </div>
+        }
+        <input 
+          className="wick-checkbox"
+          {...this.props} 
+          type="checkbox" />
+      </div>
     );
   }
-
-  renderCheckboxInput = () => {
-    return (
-      <WickInput
-        type="checkbox"
-        containerclassname="settings-checkbox-wick-input-container"
-        className="settings-checkbox-input"
-        onChange={this.props.onChange}
-        defaultChecked={this.props.value}
-        />
-    );
-  }
-
 
   renderRadio = () => {
     if(!this.props.name) throw new Error("WickInput radio buttons require a name.");

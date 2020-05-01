@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -56,6 +56,10 @@ Wick.View.Clip = class extends Wick.View {
     }
 
     render () {
+        // Prevent an unselectable object from being rendered
+        // due to a clip having no content on the first frame.
+        this.model.ensureActiveFrameIsContentful();
+
         // Render timeline view
         this.model.timeline.view.render();
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -28,7 +28,8 @@ Wick.FileAsset = class extends Wick.Asset {
         let fontTypes = Wick.FontAsset.getValidMIMETypes();
         let clipTypes = Wick.ClipAsset.getValidMIMETypes();
         let svgTypes = Wick.SVGAsset.getValidMIMETypes();
-        return imageTypes.concat(soundTypes).concat(fontTypes).concat(clipTypes).concat(svgTypes);
+        let gifTypes = Wick.GIFAsset.getValidMIMETypes();
+        return imageTypes.concat(soundTypes).concat(fontTypes).concat(clipTypes).concat(svgTypes).concat(gifTypes);
     }
 
     /**
@@ -42,7 +43,13 @@ Wick.FileAsset = class extends Wick.Asset {
         let fontExtensions = Wick.FontAsset.getValidExtensions();
         let clipExtensions = Wick.ClipAsset.getValidExtensions();
         let svgExtensions = Wick.SVGAsset.getValidExtensions();
-        return imageExtensions.concat(soundExtensions).concat(fontExtensions).concat(clipExtensions).concat(svgExtensions);
+        let gifExtensions = Wick.GIFAsset.getValidExtensions();
+        return imageExtensions
+            .concat(soundExtensions)
+            .concat(fontExtensions)
+            .concat(clipExtensions)
+            .concat(svgExtensions)
+            .concat(gifExtensions);
     }
 
     /**

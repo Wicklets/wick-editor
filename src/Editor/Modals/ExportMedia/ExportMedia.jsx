@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Editor.
  *
@@ -25,7 +25,16 @@ import './_exportmedia.scss';
 
 class ExportMedia extends Component {
   render() {
-    let renderName = this.props.renderType === "video" ? this.props.project.name+'.mp4' : this.props.project.name+'.gif';
+    let renderName = this.props.project.name;
+
+    if (this.props.renderType === "video") {
+      renderName += ".mp4";
+    } else if (this.props.renderType === "gif") {
+      renderName += ".gif";
+    } else if (this.props.renderType === "image sequence") {
+      renderName += " as sequence"
+    }
+
     return (
       <WickModal
         open={this.props.open}

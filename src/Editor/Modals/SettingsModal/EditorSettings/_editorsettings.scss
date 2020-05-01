@@ -1,0 +1,67 @@
+/*
+ * Copyright 2020 WICKLETS LLC
+ *
+ * This file is part of Wick Editor.
+ *
+ * Wick Editor is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Editor is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+ @import 'Editor/_wickbrand.scss';
+
+.editor-settings-modal-body {
+  width: 100%;
+  height: 100%;
+}
+
+.editor-settings-group {
+  margin-top: 8px;
+  display: flex;
+  flex-flow: column;
+  width: 100%;
+  height: 60px;
+}
+
+.editor-settings-row {
+  height: 40px;
+  color: white;
+  margin-top: 4px; 
+}
+
+.editor-settings-color-containers-row {
+  display: flex;
+  flex: 1 1 auto;
+  justify-content: space-between;
+  height: 30px;
+}
+
+.editor-settings-color-container {
+  display: flex;
+  width: 50%;
+  height: 100%;
+  flex: 0 1 auto;
+  align-items: center;
+  color: $editor-modal-text-gray;
+  flex-direction: row;
+  margin-left: 4px;
+}
+
+.editor-settings-group-title {
+  font-size: 20px;
+  color: $editor-modal-text-gray;
+}
+
+.editor-settings-group {
+  color: white;
+}
+

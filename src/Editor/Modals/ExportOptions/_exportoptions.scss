@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Editor.
  *
@@ -26,6 +26,12 @@ $info-left-margin: 12px;
   min-width: 240px;  
   height: 320px;
   padding: 20px; 
+  transition: height .5s, width .5s;
+  transition-timing-function: ease-in-out;
+}
+
+.export-modal-body.advanced-options {
+  height: 400px; 
 }
 
 #export-modal-title {
@@ -109,4 +115,48 @@ $info-left-margin: 12px;
   align-items: flex-end;
   justify-content: left;
   overflow: auto; 
+}
+
+.export-modal-advanced-options {
+  display: flex;
+  flex-direction: column;
+}
+
+.export-modal-advanced-option-title {
+  color: white;
+  font-size: 18px;
+}
+
+.export-modal-advanced-checkbox-container {
+  margin-top: 8px;
+  display: flex;
+  margin-left: auto;
+}
+
+.export-modal-resolution-inputs {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.export-modal-resolution-input-container {
+  width: 50%;
+}
+
+.export-modal-resolution-dropdown-container {
+  width: 50%;
+}
+
+.export-modal-resolution-inputs-container {
+  margin-left: 8px; 
+  display: flex;
+  width: 50%;
+  text-align: center;
+}
+
+.export-modal-x-symbol {
+  text-align: center;
+  vertical-align: center;
+  margin-left: 4px;
+  margin-right: 4px;
 }

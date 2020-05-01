@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Editor.
  *
@@ -32,6 +32,7 @@ import InspectorSelector from './InspectorRow/InspectorRowTypes/InspectorSelecto
 import InspectorColorNumericInput from './InspectorRow/InspectorRowTypes/InspectorColorNumericInput';
 import InspectorActionButton from './InspectorActionButton/InspectorActionButton';
 import InspectorImagePreview from './InspectorPreview/InspectorPreviewTypes/InspectorImagePreview';
+import InspectorSoundPreview from './InspectorPreview/InspectorPreviewTypes/InspectorSoundPreview';
 import InspectorScriptWindow from './InspectorScriptWindow/InspectorScriptWindow';
 
 class Inspector extends Component {
@@ -71,6 +72,7 @@ class Inspector extends Component {
       'convertSelectionToButton': ["path", "text", "image", "multipath", "multiclip", "multicanvas"],
       'convertSelectionToClip': ["path", "text", "image", "multipath", "multiclip", "multicanvas"],
       'editTimeline': ["clip", "button"],
+      'addAssetToCanvas': ["imageasset"],
     }
 
     /**
@@ -377,12 +379,21 @@ class Inspector extends Component {
   /**
    * Renders an inspector row allowing viewing of the selection's src image.
    */
-  renderImagePreview = () => {
-    return (
-      <InspectorImagePreview
-        src={this.getSelectionAttribute('src')}
-        id="inspector-image-preview" />
-    )
+  renderAssetPreview = () => {
+    let selectionType = this.props.getSelectionType();
+    if(selectionType === 'imageasset') {
+      return (
+        <InspectorImagePreview
+          src={this.getSelectionAttribute('src')}
+          id="inspector-image-preview" />
+      );
+    } else if (selectionType === 'soundasset') {
+      return (
+        <InspectorSoundPreview
+          src={this.getSelectionAttribute('src')}
+          id="inspector-sound-preview" />
+      );
+    }
   }
 
   /**
@@ -576,6 +587,26 @@ class Inspector extends Component {
     )
   }
 
+  renderAnimationType = () => {
+    return (
+      <div className="inspector-item">
+        <InspectorSelector
+          tooltip="Animation"
+          type="select"
+          options={this.props.getClipAnimationTypes()}
+          value={this.getSelectionAttribute('animationType')}
+          isSearchable={true}
+          onChange={(val) => {this.setSelectionAttribute('animationType', val.value)}} />
+          {this.getSelectionAttribute('singleFrameNumber') &&
+            <InspectorNumericInput
+            tooltip="Frame Number"
+            val={this.getSelectionAttribute('singleFrameNumber')}
+            onChange={(val) => this.setSelectionAttribute('singleFrameNumber', val)} />
+          }
+      </div>
+    )
+  }
+
   renderTweenEasingType = () => {
     let options = window.Wick.Tween.VALID_EASING_TYPES;
 
@@ -588,6 +619,18 @@ class Inspector extends Component {
           value={this.getSelectionAttribute('easingType')}
           isSearchable={true}
           onChange={(val) => {this.setSelectionAttribute('easingType', val.value)}} />
+      </div>
+    );
+  }
+
+  renderTweenFullRotations = () => {
+    return (
+      <div className="inspector-item">
+        <InspectorNumericInput
+          tooltip="Full Rotations"
+          val={this.getSelectionAttribute('fullRotations')}
+          onChange={(val) => this.setSelectionAttribute('fullRotations', val)}
+          id="inspector-full-rotation" />
       </div>
     );
   }
@@ -639,6 +682,7 @@ class Inspector extends Component {
     return (
       <div className="inspector-content">
         {this.renderTweenEasingType()}
+        {this.renderTweenFullRotations()}
       </div>
      );
   }
@@ -649,6 +693,7 @@ class Inspector extends Component {
   renderMultiTween = () => {
     return ( <div className="inspector-content">
       {this.renderTweenEasingType()}
+      {this.renderTweenFullRotations()}
     </div> );
   }
 
@@ -739,6 +784,17 @@ class Inspector extends Component {
   }
 
   /**
+   * Renders the inspector view for clip animation type.
+   */
+  renderAnimationSetting = () => {
+    return (
+      <div className="inspector-content">
+        {this.renderAnimationType()}
+      </div>
+    );
+  }
+
+  /**
    * Renders the inspector view for all image properties.
    */
   renderImage = () => {
@@ -788,7 +844,7 @@ class Inspector extends Component {
       <div className="inspector-content">
         {this.renderName()}
         {this.renderFilename()}
-        {this.renderImagePreview()}
+        {this.renderAssetPreview()}
       </div>
     )
   }
@@ -903,6 +959,7 @@ class Inspector extends Component {
           {this.renderDisplay(selectionType)}
           {this.renderActions()}
           {this.props.selectionIsScriptable() && this.renderScripts()}
+          {selectionType === 'clip' && this.renderAnimationSetting()}
         </div>
       </div>
     )

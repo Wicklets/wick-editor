@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -38,19 +38,23 @@ Wick.ImageAsset = class extends Wick.FileAsset {
 
     /**
      * Create a new ImageAsset.
-     * @param {object} args
+     * @param {object} args - Asset constructor args. see constructor for Wick.Asset
      */
     constructor (args) {
         super(args);
+
+        this.gifAssetUUID = null;
     }
 
     _serialize (args) {
         var data = super._serialize(args);
+        data.gifAssetUUID = this.gifAssetUUID;
         return data;
     }
 
     _deserialize (data) {
         super._deserialize(data);
+        this.gifAssetUUID = data.gifAssetUUID;
     }
 
     get classname () {
@@ -62,7 +66,15 @@ Wick.ImageAsset = class extends Wick.FileAsset {
      * @returns {Wick.Path[]}
      */
     getInstances () {
-        return []; // TODO
+        var paths = [];
+        this.project.getAllFrames().forEach(frame => {
+            frame.paths.forEach(path => {
+                if(path.getLinkedAssets().indexOf(this) !== -1) {
+                    paths.push(path);
+                }
+            });
+        });
+        return paths;
     }
 
     /**
@@ -70,7 +82,7 @@ Wick.ImageAsset = class extends Wick.FileAsset {
      * @returns {boolean}
      */
     hasInstances () {
-        return false; // TODO
+        return this.getInstances().length > 0;
     }
 
     /**
@@ -78,11 +90,14 @@ Wick.ImageAsset = class extends Wick.FileAsset {
      * @returns {boolean}
      */
     removeAllInstances () {
-        // TODO
+        this.getInstances().forEach(path => {
+            path.remove();
+        });
     }
 
     /**
      * Load data in the asset
+     * @param {function} callback - function to call when the data is done being loaded.
      */
     load (callback) {
         // Try to get paper.js to cache the image src.
@@ -103,5 +118,13 @@ Wick.ImageAsset = class extends Wick.FileAsset {
         Wick.Path.createImagePath(this, path => {
             callback(path);
         });
+    }
+
+    /**
+     * Is this image asset part of a GIF? (if this is set to true, this asset won't appear in the asset library GUI)
+     * @type {boolean}
+     */
+    get isGifImage () {
+        return this.gifAssetUUID;
     }
 }

@@ -91,4 +91,41 @@ describe('Wick.Tools.FillBucket', function() {
         // Make sure this tests against that one bug where the bottom layers were rendering first.
         done();
     });
+
+    it('Should not fill holes created by paths on hidden layers', function(done) {
+        var project = new Wick.Project();
+        var fillbucket = project.tools.fillbucket;
+
+        project.view.on('canvasModified', function (e) {
+            throw new Error("Hole should not have been successful!");
+        });
+        project.onError(error => {
+            expect(error).to.equal('NO_PATHS');
+            done();
+        });
+
+        var json1 = ["Path",{"segments":[[0,0],[50,0],[50,10],[0,10]],"closed":true,"fillColor":[255,0,0]}];
+        var json2 = ["Path",{"segments":[[0,0],[10,0],[10,50],[0,50]],"closed":true,"fillColor":[255,0,0]}]
+        var json3 = ["Path",{"segments":[[40,0],[50,0],[50,50],[40,50]],"closed":true,"fillColor":[255,0,0]}]
+        var json4 = ["Path",{"segments":[[0,40],[50,40],[50,50],[0,50]],"closed":true,"fillColor":[255,0,0]}]
+
+        var path1 = new Wick.Path({json: json1});
+        var path2 = new Wick.Path({json: json2});
+        var path3 = new Wick.Path({json: json3});
+        var path4 = new Wick.Path({json: json4});
+        project.activeFrame.addPath(path1);
+        project.activeFrame.addPath(path2);
+        project.activeFrame.addPath(path3);
+        project.activeFrame.addPath(path4);
+
+        project.activeLayer.hidden = true;
+        var otherLayer = new Wick.Layer();
+        project.focus.timeline.addLayer(otherLayer);
+        otherLayer.activate();
+        project.view.render();
+
+        fillbucket.activate();
+        project.toolSettings.setSetting('fillColor', new Wick.Color('#ff0000'));
+        fillbucket.onMouseDown({point: new paper.Point(15,15), modifiers: {}});
+    });
 });

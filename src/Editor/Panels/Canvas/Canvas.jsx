@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Editor.
  *
@@ -58,22 +58,6 @@ class Canvas extends Component {
     project.view.on('eyedropperPickedColor', (e) => {
       this.props.onEyedropperPickedColor(e);
     });
-
-    project.view.on('error', (e) => {
-      if(e.message === 'OUT_OF_BOUNDS' || e.message === 'LEAKY_HOLE') {
-        this.props.toast('The shape you are trying to fill has a gap.', 'warning');
-      } else if (e.message === 'NO_PATHS') {
-        this.props.toast('There is no hole to fill.', 'warning');
-      } else if (e.message === 'CLICK_NOT_ALLOWED_LAYER_LOCKED') {
-        this.props.toast('The layer you are trying to draw onto is locked.', 'warning');
-      } else if (e.message === 'CLICK_NOT_ALLOWED_LAYER_HIDDEN') {
-        this.props.toast('The layer you are trying to draw onto is hidden.', 'warning');
-      } else if (e.message === 'CLICK_NOT_ALLOWED_NO_FRAME') {
-        this.props.toast('There is no frame to draw onto.', 'warning');
-      } else {
-        this.props.toast('There was an error while drawing.', 'warning');
-      }
-    });
   }
 
   updateCanvas = (project) => {
@@ -97,7 +81,20 @@ const canvasTarget = {
   drop(props, monitor, component) {
     const dropLocation = monitor.getClientOffset();
     let draggedItem = monitor.getItem();
-    props.createImageFromAsset(draggedItem.uuid, dropLocation.x, dropLocation.y);
+    if(draggedItem.files && draggedItem.files.length > 0) {
+      // Dropped a file from native filesystem
+      if(draggedItem.files[0].name.endsWith('.wick')) {
+        // Wick Project (.wick file)
+        var file = draggedItem.files[0];
+        props.importProjectAsWickFile(file);
+      } else {
+        // Assets (images, sounds, etc)
+        props.createAssets(draggedItem.files, []);
+      }
+    } else {
+      // Dropped an asset from the asset library
+      props.createImageFromAsset(draggedItem.uuid, dropLocation.x, dropLocation.y);
+    }
   }
 }
 

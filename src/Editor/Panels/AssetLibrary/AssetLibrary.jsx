@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Editor.
  *
@@ -52,7 +52,8 @@ class AssetLibrary extends Component {
 
   filterArray = (array) => {
     return array.filter( item => {
-        return item.name.toLowerCase().includes(this.state.filterText.toLowerCase());
+        return item.name.toLowerCase().includes(this.state.filterText.toLowerCase())
+            && !item.isGifImage;
     });
   }
 

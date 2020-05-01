@@ -1,85 +1,139 @@
 {
-    "name": "wick-editor-react",
-    "version": "0.1.0",
-    "private": true,
-    "homepage": "./",
-    "dependencies": {
-        "audiobuffer-to-wav": "^1.0.0",
-        "base64-arraybuffer": "^0.2.0",
-        "bootstrap": "^4.1.3",
-        "classnames": "^2.2.6",
-        "debug": "^4.1.1",
-        "file-saver": "^2.0.0",
-        "gh-pages": "^2.0.1",
-        "gulp": "^4.0.2",
-        "gulp-babel": "^8.0.0",
-        "gulp-concat": "^2.6.1",
-        "gulp-header": "^2.0.9",
-        "gulp-rename": "^2.0.0",
-        "gulp-uglify": "^3.0.2",
-        "localforage": "^1.7.3",
-        "node-sass": "^4.9.4",
-        "query-string": "^6.9.0",
-        "rc-slider": "^8.6.3",
-        "react": "^16.5.2",
-        "react-ace": "^6.2.0",
-        "react-aria-menubutton": "^6.0.1",
-        "react-color": "^2.14.1",
-        "react-dnd": "^6.0.0",
-        "react-dnd-html5-backend": "^6.0.0",
-        "react-dom": "^16.5.2",
-        "react-dropdown": "^1.6.4",
-        "react-dropzone": "^8.0.3",
-        "react-ga": "^2.5.6",
-        "react-hotkeys": "^2.0.0",
-        "react-modal": "^3.8.1",
-        "react-numeric-input": "^2.2.3",
-        "react-popover": "^0.5.10",
-        "react-reflex": "^3.0.6",
-        "react-resize-detector": "^3.1.3",
-        "react-rnd": "^9.1.1",
-        "react-scripts": "2.0.5",
-        "react-select": "^2.1.0",
-        "react-tabs": "^3.0.0",
-        "react-toastify": "^4.5.2",
-        "react-tooltip": "^3.9.0",
-        "reactstrap": "^6.5.0",
-        "tinycolor2": "^1.4.1",
-        "underscore": "^1.9.1",
-        "url-parse": "^1.4.7"
-    },
-    "main": "src/electron-starter.js",
-    "scripts": {
-        "start": "react-scripts start",
-        "build": "react-scripts build && cp CNAME_editor ./build/CNAME",
-        "lint-engine": "cd engine; eslint src/**",
-        "build-engine": "cd engine; mkdir dist; gulp; cp -a dist/. ../public/corelibs/wick-engine/",
-        "build-engine-windows": "cd engine & mkdir dist  2>nul &    gulp & xcopy /EY dist\\. ..\\public\\corelibs\\wick-engine\\",
-        "build-electron-macos": "electron-packager . 'Wick Editor' --ignore=node_modules --icon=public/icon.icns--platform=darwin --out build-electron --overwrite",
-        "build-electron-windows": "electron-packager . wickwindows --ignore=node_modules --icon=public/icon.ico --platform=win32 --out build-electron --overwrite",
-        "build-ios": "cp -r build/* build-ios/WebViewExample/local_html",
-        "test": "react-scripts test",
-        "predeploy": "npm run build",
-        "prerelease-deploy": "npm run build; cp -r build/* ../wick-editor-prerelease/; cd ../wick-editor-prerelease; rm CNAME; echo 'test.wickeditor.com' > CNAME; git add .; git commit -m 'update prerelease build'; git push --force;",
-        "deploy": "gh-pages -d build",
-        "eject": "react-scripts eject",
-        "electron": "electron .",
-        "electron-dev-macos": "ELECTRON_START_URL=http://localhost:3000 electron .",
-        "electron-dev-windows": "set ELECTRON_START_URL=http://localhost:3000 && electron .",
-        "engine-tests": "cd engine; python -m SimpleHTTPServer 9999",
-        "debug": "src/electron-starter.js"
-    },
-    "eslintConfig": {
-        "extends": "react-app"
-    },
-    "browserslist": [
-        ">0.2%",
-        "not dead",
-        "not ie <= 11",
-        "not op_mini all"
+  "name": "wick-editor",
+  "version": "1.17.0",
+  "author": "Wicklets LLC",
+  "private": true,
+  "homepage": "./",
+  "main": "./public/electron.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Wicklets/wick-editor.git"
+  },
+  "dependencies": {
+    "@ffmpeg/ffmpeg": "^0.7.0",
+    "audiobuffer-to-wav": "^1.0.0",
+    "base64-arraybuffer": "^0.2.0",
+    "bootstrap": "^4.1.3",
+    "classnames": "^2.2.6",
+    "electron-is-dev": "^1.2.0",
+    "electron-updater": "^4.2.5",
+    "file-saver": "^2.0.0",
+    "gh-pages": "^2.0.1",
+    "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-header": "^2.0.9",
+    "gulp-rename": "^2.0.0",
+    "gulp-uglify": "^3.0.2",
+    "localforage": "^1.7.3",
+    "node-sass": "^4.9.4",
+    "query-string": "^6.9.0",
+    "rc-slider": "^8.6.3",
+    "react": "^16.5.2",
+    "react-ace": "^6.2.0",
+    "react-aria-menubutton": "^6.0.1",
+    "react-color": "^2.14.1",
+    "react-dnd": "^6.0.0",
+    "react-dnd-html5-backend": "^6.0.0",
+    "react-dom": "^16.5.2",
+    "react-dropdown": "^1.6.4",
+    "react-dropzone": "^8.0.3",
+    "react-ga": "^2.5.6",
+    "react-hotkeys": "^2.0.0",
+    "react-measure": "^2.3.0",
+    "react-modal": "^3.8.1",
+    "react-numeric-input": "^2.2.3",
+    "react-popover": "^0.5.10",
+    "react-reflex": "^3.0.6",
+    "react-resize-detector": "^3.1.3",
+    "react-rnd": "^9.1.1",
+    "react-scripts": "2.0.5",
+    "react-select": "^2.1.0",
+    "react-tabs": "^3.0.0",
+    "react-toastify": "^4.5.2",
+    "react-tooltip": "^3.9.0",
+    "reactstrap": "^6.5.0",
+    "tinycolor2": "^1.4.1",
+    "underscore": "^1.9.1",
+    "url-parse": "^1.4.7"
+  },
+  "build": {
+    "appId": "com.wicklets.wickEditor",
+    "productName": "Wick Editor",
+    "icon": "public/icon.icns",
+    "afterSign": "electron-builder-notarize",
+    "copyright": "© 2016-2020 Wicklets LLC",
+    "files": [
+      "./build/**/*",
+      "./public/electron.js"
     ],
-    "devDependencies": {
-        "electron": "^6.0.10",
-        "electron-packager": "^14.0.6"
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "license": "build/license_en.txt"
+    },
+    "mac": {
+      "target": [
+        "pkg",
+        "dmg"
+      ],
+      "category": "public.app-category.entertainment",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "./entitlements.mac.plist",
+      "entitlementsInherit": "./entitlements.mac.plist"
+    },
+    "dmg": {
+      "icon": false
+    },
+    "pkg": {
+      "license": "./build/license_en.txt"
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Entertainment"
+    },
+    "win": {
+      "icon": "build/icon.png"
     }
+  },
+  "scripts": {
+    "dist": "electron-builder",
+    "start": "react-scripts start",
+    "build": "react-scripts build && cp CNAME_editor ./build/CNAME",
+    "build-engine": "cd engine; mkdir dist/; gulp; cp -a dist/. ../public/corelibs/wick-engine/",
+    "test": "react-scripts test",
+    "predeploy": "npm run build",
+    "prerelease-deploy": "npm run build; cp -r build/* ../wick-editor-prerelease/; cd ../wick-editor-prerelease; rm CNAME; echo 'test.wickeditor.com' > CNAME; git add .; git commit -m 'update prerelease build'; git push --force;",
+    "deploy": "gh-pages -d build",
+    "eject": "react-scripts eject",
+    "electron": "electron .",
+    "electron-dev-macos": "ELECTRON_START_URL=http://localhost:3000 electron .",
+    "electron-dev-windows": "set ELECTRON_START_URL=http://localhost:3000 && electron .",
+    "engine-tests": "cd engine; python -m SimpleHTTPServer 9999",
+    "postinstall": "electron-builder install-app-deps",
+    "build-packages": "electron-builder --mac --windows --linux",
+    "package-mac": "npm run build; electron-builder --mac",
+    "package-windows": "npm run build; electron-builder --windows"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "devDependencies": {
+    "dotenv": "^8.2.0",
+    "electron": "^6.0.10",
+    "electron-builder": "^22.4.1",
+    "electron-builder-notarize": "^1.1.2",
+    "electron-notarize": "^0.3.0",
+    "electron-osx-sign": "^0.4.15",
+    "electron-packager": "^14.2.1"
+  }
 }

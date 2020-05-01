@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -56,9 +56,7 @@ Wick.Tools.None = class extends Wick.Tool {
            return;
         }
 
-        this.fireEvent('error', {
-            message: message,
-        });
+        this.project.errorOccured(message);
     }
 
     onMouseDrag (e) {

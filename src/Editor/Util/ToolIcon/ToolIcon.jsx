@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Editor.
  *
@@ -50,6 +50,10 @@ import iconCurve from 'resources/tool-icons/curve.svg';
 import iconPoint from 'resources/tool-icons/point.svg';
 import iconBrushPressure from 'resources/tool-icons/brushpressure.png';
 import iconRelativeBrushSize from 'resources/tool-icons/relativebrush.png';
+
+import iconBrushModeNone from 'resources/tool-icons/brush-mode-none.png';
+import iconBrushModeInside from 'resources/tool-icons/brush-mode-inside.png';
+import iconBrushModeOutside from 'resources/tool-icons/brush-mode-outside.png';
 
 // Actions
 import iconAction from 'resources/tool-icons/action.svg';
@@ -128,6 +132,11 @@ import iconShown from 'resources/tool-icons/shown.svg';
 import iconCopyForward from 'resources/tool-icons/copyForward.svg';
 import iconSplit from 'resources/tool-icons/split.svg';
 import iconLayerTween from 'resources/tool-icons/layerTween.svg';
+
+// Marks
+import mascotMarkDark from 'resources/logo-icons/mascot-mark-dark.svg';
+import mascotMark from 'resources/logo-icons/mascot-mark.svg';
+import mascot from 'resources/logo-icons/mascot.svg';
 
 var classNames = require('classnames');
 
@@ -231,6 +240,12 @@ class ToolIcon extends Component {
       "spectrum": iconSpectrum,
       "swatches": iconSwatches,
       "group": iconGroup,
+      "mascotmark": mascotMark,
+      "mascotmarkdark": mascotMarkDark,
+      "mascot": mascot,
+      "brushmodenone": iconBrushModeNone,
+      "brushmodeinside": iconBrushModeInside,
+      "brushmodeoutside": iconBrushModeOutside,
     }
   }
 

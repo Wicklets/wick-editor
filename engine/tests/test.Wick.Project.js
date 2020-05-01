@@ -663,7 +663,7 @@ describe('Wick.Project', function() {
 
             project.play({
                 onError: error => {
-                expect(error.message).to.equal('thisWillCauseAnError is not defined');
+                    expect(error.message).to.equal('thisWillCauseAnError is not defined');
                     done();
                 }
             });
@@ -697,7 +697,6 @@ describe('Wick.Project', function() {
 
             project.play({
                 onError: error => {
-                    project.stop();
                     expect(error.uuid).to.equal(project.activeFrame.uuid);
                     expect(error.name).to.equal("load");
                     expect(error.lineNumber).to.equal(1);
@@ -719,7 +718,6 @@ describe('Wick.Project', function() {
 
             project.play({
                 onError: error => {
-                    project.stop();
                     expect(error.uuid).to.equal(clip.activeFrame.uuid);
                     expect(error.name).to.equal("load");
                     expect(error.lineNumber).to.equal(1);
@@ -787,6 +785,25 @@ describe('Wick.Project', function() {
                     delete window.tempArea;
                     done();
                 }
+            });
+        });
+
+        it('should catch errors from unload scripts when the project is stopped', function (done) {
+            var project = new Wick.Project();
+
+            var rootLevelClip = new Wick.Clip();
+            rootLevelClip.addScript('unload', 'thisWillCauseAnError();');
+            project.activeFrame.addClip(rootLevelClip);
+
+            project.play({
+                onAfterTick: () => {
+                    project.stop();
+                    console.log(project.error)
+                    done();
+                },
+                onError: () => {
+                    console.log('a')
+                },
             });
         });
 
@@ -1143,12 +1160,13 @@ describe('Wick.Project', function() {
     describe('#generateImageSequence', function () {
         it('should export correct images', function (done) {
             var project = new Wick.Project();
+            project.backgroundColor = new Wick.Color('#FF00FF');
             project.activeLayer.addFrame(new Wick.Frame({start: 2}));
             project.activeLayer.addFrame(new Wick.Frame({start: 3}));
 
             let path1 = new Wick.Path({json: TestUtils.TEST_PATH_JSON_RED_SQUARE});
             let path2 = new Wick.Path({json: TestUtils.TEST_PATH_JSON_BLUE_SQUARE});
-            let path3 = new Wick.Path({json: TestUtils.TEST_PATH_JSON_RED_SQUARE});
+            let path3 = new Wick.Path({json: TestUtils.TEST_PATH_JSON_GREEN_SQUARE});
 
             project.activeFrame.addPath(path1);
             project.activeLayer.frames[1].addPath(path2);
@@ -1164,8 +1182,142 @@ describe('Wick.Project', function() {
                 },
                 onFinish: images => {
                     images.forEach(image => {
-                        // TODO need more tests here
-                        //console.log(image);
+                        expect(image.width).to.equal(project.width);
+                        expect(image.height).to.equal(project.height);
+
+                        var imageName = document.createElement('p');
+                        imageName.innerHTML = 'zoom 1x, frame ' + images.indexOf(image);
+                        document.body.appendChild(imageName);
+                        document.body.appendChild(image);
+                    });
+                    expect(images.length).to.equal(3);
+
+                    expect(onProgressCallsResult).to.deep.equal(onProgressCallsCorrect);
+
+                    done();
+                }
+            });
+        });
+
+        it('should export correct images (zoom 2x, same aspect ratio)', function (done) {
+            var project = new Wick.Project();
+            project.backgroundColor = new Wick.Color('#FF00FF');
+            project.activeLayer.addFrame(new Wick.Frame({start: 2}));
+            project.activeLayer.addFrame(new Wick.Frame({start: 3}));
+
+            let path1 = new Wick.Path({json: TestUtils.TEST_PATH_JSON_RED_SQUARE});
+            let path2 = new Wick.Path({json: TestUtils.TEST_PATH_JSON_BLUE_SQUARE});
+            let path3 = new Wick.Path({json: TestUtils.TEST_PATH_JSON_GREEN_SQUARE});
+
+            project.activeFrame.addPath(path1);
+            project.activeLayer.frames[1].addPath(path2);
+            project.activeLayer.frames[2].addPath(path3);
+
+            // for testing is onProgress works (this is kind of hacky and weird to test...)
+            var onProgressCallsCorrect = [[1,3],[2,3],[3,3]];
+            var onProgressCallsResult = [];
+
+            project.generateImageSequence({
+                width: project.width * 2,
+                height: project.height * 2,
+                onProgress: (current, max) => {
+                    onProgressCallsResult.push([current,max]);
+                },
+                onFinish: images => {
+                    images.forEach(image => {
+                        expect(image.width).to.equal(project.width * 2);
+                        expect(image.height).to.equal(project.height * 2);
+
+                        var imageName = document.createElement('p');
+                        imageName.innerHTML = 'zoom 2x, same aspect ratio, frame ' + images.indexOf(image);
+                        document.body.appendChild(imageName);
+                        document.body.appendChild(image);
+                    });
+                    expect(images.length).to.equal(3);
+
+                    expect(onProgressCallsResult).to.deep.equal(onProgressCallsCorrect);
+
+                    done();
+                }
+            });
+        });
+
+        it('should export correct images (square aspect ratio, 720p project)', function (done) {
+            var project = new Wick.Project();
+            project.backgroundColor = new Wick.Color('#FF00FF');
+            project.activeLayer.addFrame(new Wick.Frame({start: 2}));
+            project.activeLayer.addFrame(new Wick.Frame({start: 3}));
+
+            let path1 = new Wick.Path({json: TestUtils.TEST_PATH_JSON_RED_SQUARE});
+            let path2 = new Wick.Path({json: TestUtils.TEST_PATH_JSON_BLUE_SQUARE});
+            let path3 = new Wick.Path({json: TestUtils.TEST_PATH_JSON_GREEN_SQUARE});
+
+            project.activeFrame.addPath(path1);
+            project.activeLayer.frames[1].addPath(path2);
+            project.activeLayer.frames[2].addPath(path3);
+
+            // for testing is onProgress works (this is kind of hacky and weird to test...)
+            var onProgressCallsCorrect = [[1,3],[2,3],[3,3]];
+            var onProgressCallsResult = [];
+
+            project.generateImageSequence({
+                width: 1000,
+                height: 1000,
+                onProgress: (current, max) => {
+                    onProgressCallsResult.push([current,max]);
+                },
+                onFinish: images => {
+                    images.forEach(image => {
+                        expect(image.width).to.equal(1000);
+                        expect(image.height).to.equal(1000);
+
+                        var imageName = document.createElement('p');
+                        imageName.innerHTML = 'square aspect ratio, 720p project, frame ' + images.indexOf(image);
+                        document.body.appendChild(imageName);
+                        document.body.appendChild(image);
+                    });
+                    expect(images.length).to.equal(3);
+
+                    expect(onProgressCallsResult).to.deep.equal(onProgressCallsCorrect);
+
+                    done();
+                }
+            });
+        });
+
+        it('should export correct images (super wide aspect ratio, 720p project)', function (done) {
+            var project = new Wick.Project();
+            project.backgroundColor = new Wick.Color('#FF00FF');
+            project.activeLayer.addFrame(new Wick.Frame({start: 2}));
+            project.activeLayer.addFrame(new Wick.Frame({start: 3}));
+
+            let path1 = new Wick.Path({json: TestUtils.TEST_PATH_JSON_RED_SQUARE});
+            let path2 = new Wick.Path({json: TestUtils.TEST_PATH_JSON_BLUE_SQUARE});
+            let path3 = new Wick.Path({json: TestUtils.TEST_PATH_JSON_GREEN_SQUARE});
+
+            project.activeFrame.addPath(path1);
+            project.activeLayer.frames[1].addPath(path2);
+            project.activeLayer.frames[2].addPath(path3);
+
+            // for testing is onProgress works (this is kind of hacky and weird to test...)
+            var onProgressCallsCorrect = [[1,3],[2,3],[3,3]];
+            var onProgressCallsResult = [];
+
+            project.generateImageSequence({
+                width: 2000,
+                height: 500,
+                onProgress: (current, max) => {
+                    onProgressCallsResult.push([current,max]);
+                },
+                onFinish: images => {
+                    images.forEach(image => {
+                        expect(image.width).to.equal(2000);
+                        expect(image.height).to.equal(500);
+
+                        var imageName = document.createElement('p');
+                        imageName.innerHTML = 'super wide aspect ratio, 720p project, frame ' + images.indexOf(image);
+                        document.body.appendChild(imageName);
+                        document.body.appendChild(image);
                     });
                     expect(images.length).to.equal(3);
 
@@ -1236,7 +1388,7 @@ describe('Wick.Project', function() {
             project.activeFrame.end = 12;
 
             project.generateAudioTrack({}, audioBuffer => {
-                expect(audioBuffer.length).to.equal(44100 * 1);
+                expect(audioBuffer.length).to.equal(48000 * 1);
                 done();
             });
         });
@@ -1254,7 +1406,7 @@ describe('Wick.Project', function() {
             project.activeFrame.end = 6;
 
             project.generateAudioTrack({}, audioBuffer => {
-                expect(audioBuffer.length).to.equal(44100 * 0.5);
+                expect(audioBuffer.length).to.equal(48000 * 0.5);
                 done();
             });
         });
@@ -1277,7 +1429,7 @@ describe('Wick.Project', function() {
             frame2.sound = sound;
 
             project.generateAudioTrack({}, audioBuffer => {
-                expect(audioBuffer.length).to.equal(44100 * 1.0);
+                expect(audioBuffer.length).to.equal(48000 * 1.0);
                 done();
             });
         });

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -51,6 +51,7 @@ Wick.Frame = class extends Wick.Tickable {
         data.sound = this._soundAssetUUID;
         data.soundVolume = this._soundVolume;
         data.soundLoop = this._soundLoop;
+        data.soundStart = this._soundStart;
 
         data.originalLayerIndex = this.layerIndex !== -1 ? this.layerIndex : this._originalLayerIndex;
 
@@ -66,6 +67,7 @@ Wick.Frame = class extends Wick.Tickable {
         this._soundAssetUUID = data.sound;
         this._soundVolume = data.soundVolume === undefined ? 1.0 : data.soundVolume;
         this._soundLoop = data.soundLoop === undefined ? false : data.soundLoop;
+        this._soundStart = data.soundStart === undefined ? 0 : data.soundStart;
 
         this._originalLayerIndex = data.originalLayerIndex;
     }
@@ -143,6 +145,28 @@ Wick.Frame = class extends Wick.Tickable {
     }
 
     /**
+     * True if this frame should currently be onion skinned.
+     */
+    get onionSkinned () {
+        if (!this.project.onionSkinEnabled) {
+            return false;
+        }
+
+        // Don't onion skin if we're in the playhead's position.
+        var playheadPosition = this.project.focus.timeline.playheadPosition;
+        if (this.inPosition(playheadPosition)) {
+            return false;
+        }
+
+        // Determine if we're in onion skinning range.
+        var onionSkinSeekBackwards = this.project.onionSkinSeekBackwards;
+        var onionSkinSeekForwards = this.project.onionSkinSeekForwards;
+        return this.inRange(playheadPosition - onionSkinSeekBackwards,
+                            playheadPosition + onionSkinSeekForwards);
+
+    }
+
+    /**
      * Removes the sound attached to this frame.
      */
     removeSound() {
@@ -161,8 +185,10 @@ Wick.Frame = class extends Wick.Tickable {
             seekMS: this.playheadSoundOffsetMS + this.soundStart,
             volume: this.soundVolume,
             loop: this.soundLoop,
+            frame: this,
         };
-        this._soundID = this.sound.play(options);
+
+        this._soundID = this.project.playSoundFromAsset(this.sound, options);
     }
 
     /**
@@ -224,6 +250,18 @@ Wick.Frame = class extends Wick.Tickable {
     }
 
     /**
+     * Returns the frame's start position in relation to the root timeline.
+     */
+    get projectFrameStart () {
+        if (this.parentClip.isRoot) {
+            return this.start;
+        } else {
+            let val = this.start + this.parentClip.parentFrame.projectFrameStart - 1;
+            return val;
+        }
+    }
+
+    /**
      * The paths on the frame.
      * @type {Wick.Path[]}
      */
@@ -275,8 +313,10 @@ Wick.Frame = class extends Wick.Tickable {
      * True if there are clips or paths on the frame.
      * @type {boolean}
      */
-    get contentful() {
-        return this.drawable.length > 0;
+    get contentful () {
+        return this.paths.filter(path => {
+            return !path.view.item.data._isPlaceholder;
+        }).length > 0 || this.clips.length > 0;
     }
 
     /**
@@ -362,6 +402,12 @@ Wick.Frame = class extends Wick.Tickable {
             clip.remove();
         }
         this.addChild(clip);
+
+        // Pre-render the clip's frames
+        // (this fixes an issue where clips created from ClipAssets would be "missing" frames)
+        clip.timeline.getAllFrames(true).forEach(frame => {
+            frame.view.render();
+        });
     }
 
     /**
@@ -506,6 +552,24 @@ Wick.Frame = class extends Wick.Tickable {
                 tween.applyTransformsToClip(clip);
             });
         }
+    }
+
+    /**
+     * Applies single frame positions to timelines if necessary.
+     */
+    applyClipSingleFramePositions () {
+        this.clips.forEach(clip => {
+            clip.applySingleFramePosition();
+        });
+    }
+
+    /**
+     * Update all clip timelines for their animation type.
+     */
+    updateClipTimelinesForAnimationType () {
+        this.clips.forEach(clip => {
+            clip.updateTimelineForAnimationType();
+        })
     }
 
     /**

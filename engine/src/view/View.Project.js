@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -100,6 +100,16 @@ Wick.View.Project = class extends Wick.View {
      */
     get canvas() {
         return this._svgCanvas;
+    }
+
+    /**
+     * Get the current width/height of the canvas.
+     */
+    get canvasDimensions () {
+        return {
+            width: this._svgCanvas.offsetWidth,
+            height: this._svgCanvas.offsetHeight,
+        };
     }
 
     /**
@@ -211,10 +221,27 @@ Wick.View.Project = class extends Wick.View {
         });
     }
 
-    _setupTools() {
+    /**
+     * Returns how much the zoom level must be to optimally fit the canvas inside a div.
+     * @type {Number}
+     */
+    calculateFitZoom () {
+        var w = 0;
+        var h = 0;
+
+        w = this.paper.view.viewSize.width;
+        h = this.paper.view.viewSize.height;
+
+        var wr = w / this.model.width;
+        var hr = h / this.model.height;
+
+        return Math.min(wr, hr);
+    }
+
+    _setupTools () {
         // This is a hacky way to create scroll-to-zoom functionality.
         // (Using https://github.com/jquery/jquery-mousewheel for cross-browser mousewheel event)
-        if (!this.model.publishedMode) {
+        if(!this.model.isPublished) {
             $(this._svgCanvas).on('mousewheel', e => {
                 e.preventDefault();
                 var d = e.deltaY * e.deltaFactor * 0.001;
@@ -237,10 +264,7 @@ Wick.View.Project = class extends Wick.View {
             });
             tool.on('eyedropperPickedColor', (e) => {
                 this.fireEvent('eyedropperPickedColor', e);
-            })
-            tool.on('error', (e) => {
-                this.fireEvent('error', e);
-            })
+            });
         }
 
         this.model.tools.none.activate();
@@ -321,10 +345,12 @@ Wick.View.Project = class extends Wick.View {
         } else if (this._fitMode === 'fill') {
             // Fill mode: Try to fit the wick project's canvas inside the container canvas by
             // scaling it as much as possible without changing the project's original aspect ratio
-            this.paper.view.zoom = this._calculateFitZoom();
+            this.paper.view.zoom = this.model.zoom * this.calculateFitZoom();
         }
+
         var pan = this._pan;
         this.paper.view.center = new paper.Point(-pan.x, -pan.y);
+        this.paper.view.rotation = this.model.rotation;
 
         // Generate background layer
         this._svgBackgroundLayer.removeChildren();
@@ -361,13 +387,13 @@ Wick.View.Project = class extends Wick.View {
         // Render GUI Layer
         this._svgGUILayer.removeChildren();
         this._svgGUILayer.locked = true;
-        if (this.model.showClipBorders && !this.model.playing && !this.model.publishedMode) {
+        if(this.model.showClipBorders && !this.model.playing && !this.model.isPublished) {
             this._svgGUILayer.addChildren(this._generateClipBorders());
             this.paper.project.addLayer(this._svgGUILayer);
         }
 
         // Render black bars (for published projects)
-        if (this.model.publishedMode) {
+        if(this.model.isPublished && this.model.renderBlackBars) {
             this._svgBordersLayer.removeChildren();
             this._svgBordersLayer.addChildren(this._generateSVGBorders());
             this.paper.project.addLayer(this._svgBordersLayer);
@@ -427,45 +453,60 @@ Wick.View.Project = class extends Wick.View {
 
         var borderMin = -10000,
             borderMax = 10000;
-        return [
+        var strokeOffset = 0.5; // prevents gaps between border rects
+
+        var bottom = this.model.height;
+        var right = this.model.width;
+
+        if (this.model.publishedMode === "imageSequence") {
+            bottom *= window.devicePixelRatio;
+            right *= window.devicePixelRatio;
+        }
+
+        var borderPieces = [
             // top
             new paper.Path.Rectangle({
                 from: new paper.Point(borderMin, borderMin),
-                to: new paper.Point(borderMax, 0),
+                to: new paper.Point(borderMax, strokeOffset),
                 fillColor: 'black',
+                strokeWidth: 1,
+                strokeColor: 'black',
             }),
             // bottom
             new paper.Path.Rectangle({
-                from: new paper.Point(borderMin, this.model.height),
+                from: new paper.Point(borderMin, (bottom)-strokeOffset),
                 to: new paper.Point(borderMax, borderMax),
                 fillColor: 'black',
+                strokeWidth: 1,
+                strokeColor: 'black',
             }),
             // left
             new paper.Path.Rectangle({
-                from: new paper.Point(borderMin, 0),
-                to: new paper.Point(0, this.model.height),
+                from: new paper.Point(borderMin, -strokeOffset),
+                to: new paper.Point(-strokeOffset, (bottom)+strokeOffset),
                 fillColor: 'black',
+                strokeWidth: 1,
+                strokeColor: 'black',
             }),
             // right
             new paper.Path.Rectangle({
-                from: new paper.Point(this.model.width, 0),
+                from: new paper.Point((right)+strokeOffset, -strokeOffset),
                 to: new paper.Point(borderMax, borderMax),
                 fillColor: 'black',
+                strokeWidth: 1,
+                strokeColor: 'black',
             }),
         ];
-    }
 
-    _calculateFitZoom() {
-        var w = 0;
-        var h = 0;
+        var border = new paper.Group();
+        border.applyMatrix = false;
+        border.addChildren(borderPieces);
 
-        w = this.paper.view.viewSize.width;
-        h = this.paper.view.viewSize.height;
+        // Adjust borders based on zoom/pan (this fixes borders hiding things while using a vcam)
+        border.scaling = new paper.Point(this.model.zoom, this.model.zoom);
+        border.position = new paper.Point(-this.model.pan.x, -this.model.pan.y);
 
-        var wr = w / this.model.width;
-        var hr = h / this.model.height;
-
-        return Math.min(wr, hr);
+        return border;
     }
 
     _generateClipBorders() {

@@ -8,13 +8,16 @@ var header = require('gulp-header');
 var mergeStream = require('merge-stream');
 
 gulp.task("default", function() {
-    /* Generate build number */
-    /* Year.Month.Day[micro] */
-    var date = new Date();
-    var year = date.getFullYear();
-    var month = date.getMonth() + 1;
-    var day = date.getDate();
-    var buildString = year + '.' + month + '.' + day;
+  /* Generate build number */
+  /* Year.Month.Day[micro] */
+  var date = new Date();
+  var year = date.getFullYear();
+  var month = date.getMonth() + 1;
+  var day = date.getDate();
+  var hour = date.getHours();
+  var minute = date.getMinutes();
+  var second = date.getSeconds();
+  var buildString = year + '.' + month + '.' + day + '.' + hour + '.' + minute + '.' + second;
 
     /* Libraries */
     var libs = gulp
