@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>Loading...</title>
+    </head>
+
+    <body>
+        <!-- The Wick project is bundled here during HTML export. (see src/export/html/HTMLExport.js) -->
+        <script>
+            window.INJECTED_WICKPROJECT_DATA = '<!--INJECT_WICKPROJECTDATA_HERE-->';
+        </script>
+
+        <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
+        <script>
+            <!--INJECT_WICKENGINE_HERE-->
+        </script>
+
+        <script>
+          window.addEventListener('load', function() {
+              window.runBundledProject();
+          }, false);
+
+          window.runBundledProject = () => {
+              Wick.WickFile.fromWickFile(window.INJECTED_WICKPROJECT_DATA, project => {
+                  project.inject(document.getElementById('wick-canvas-container'));
+              }, 'base64');
+          }
+        </script>
+
+        <style>
+            body, html {
+                margin: 0px;
+                width: 100%;
+                height: 100%;
+            }
+
+            #wick-canvas-container {
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+            }
+        </style>
+        <div id="wick-canvas-container"></div>
+    </body>
+</html>
