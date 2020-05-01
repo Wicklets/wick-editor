@@ -77,7 +77,7 @@ describe('Wick.GIFAsset', function() {
             project.loadAssets(() => {
                 Wick.GIFAsset.fromImages([image1, image2, image3], project, gifAsset => {
                     project.addAsset(gifAsset);
-                    gifAsset.remove();
+                    project.removeAsset(gifAsset);
                     expect(project.assets.length).to.equal(0);
                 });
             });
