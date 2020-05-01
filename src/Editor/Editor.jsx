@@ -242,7 +242,7 @@ class Editor extends EditorCore {
 
     if(!this.state.previewPlaying && prevState.previewPlaying) {
       this.project.stop();
-      this.projectDidChange({actionName:"Stop Project"});
+      this.projectDidChange({ skipHistory: true, actionName:"Stop Project" });
     }
   }
 
