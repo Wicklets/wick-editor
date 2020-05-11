@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.5.11.14.50.33";
+var WICK_ENGINE_BUILD_VERSION = "2020.5.11.16.13.48";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -55809,7 +55809,7 @@ Wick.Clip = class extends Wick.Tickable {
     this._singleFrameNumber = 1; // Default to 1, this value is only used if the animation type is single
 
     this._playedOnce = false;
-    this._isSynced = 'false';
+    this._isSynced = false;
     this._transformation = args.transformation || new Wick.Transformation();
     this.cursor = 'default';
     this._isClone = false;
@@ -56009,12 +56009,13 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   get syncFrame() {
-    if (!this.parentClip) {
-      console.error("Error: This clip does not have a parent clip.", this);
-      return 1;
-    }
+    let timelineOffset = this.parentClip.timeline.playheadPosition - this.parentFrame.start; // Show the last frame if we're past it on a playOnce Clip.
 
-    let timelineOffset = this.parentClip.timeline.playheadPosition - this.parentFrame.start;
+    if (this.animationType === 'playOnce' && timelineOffset >= this.timeline.length) {
+      return this.timeline.length;
+    } // Otherwise, show the correct frame.
+
+
     return timelineOffset % this.timeline.length + 1;
   }
   /**

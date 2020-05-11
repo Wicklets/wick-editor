@@ -49,7 +49,7 @@ Wick.Clip = class extends Wick.Tickable {
         this._animationType = 'loop'; // Can be one of loop, oneFrame, single
         this._singleFrameNumber = 1; // Default to 1, this value is only used if the animation type is single
         this._playedOnce = false;
-        this._isSynced = 'false';
+        this._isSynced = false;
 
         this._transformation = args.transformation || new Wick.Transformation();
 
@@ -245,12 +245,14 @@ Wick.Clip = class extends Wick.Tickable {
      * @type {number}
      */
     get syncFrame () {
-        if (!this.parentClip) { 
-            console.error("Error: This clip does not have a parent clip.", this);
-            return 1;
+        let timelineOffset = this.parentClip.timeline.playheadPosition - this.parentFrame.start;
+
+        // Show the last frame if we're past it on a playOnce Clip.
+        if (this.animationType === 'playOnce' && (timelineOffset >= this.timeline.length)) {
+            return this.timeline.length;
         }
 
-        let timelineOffset = this.parentClip.timeline.playheadPosition - this.parentFrame.start;
+        // Otherwise, show the correct frame.
         return (timelineOffset % this.timeline.length) + 1;
     }
 

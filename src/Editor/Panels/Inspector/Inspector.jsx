@@ -605,7 +605,6 @@ class Inspector extends Component {
             val={this.getSelectionAttribute('singleFrameNumber')}
             onChange={(val) => this.setSelectionAttribute('singleFrameNumber', val)} />
           }
-
         <InspectorCheckbox
           tooltip="Synced" 
           checked={this.getSelectionAttribute('isSynced')}
