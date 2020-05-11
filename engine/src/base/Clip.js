@@ -739,6 +739,12 @@ Wick.Clip = class extends Wick.Tickable {
     _onActivated () {
         super._onActivated();
         this._tickChildren();
+
+        if (this.animationType === 'playOnce') {
+            this.playedOnce = false;
+            this.timeline.playheadPosition = 1;
+        }
+        
     }
 
     _onActive () {
@@ -751,6 +757,7 @@ Wick.Clip = class extends Wick.Tickable {
         } else if (this.animationType === 'playOnce') {
             if (!this.playedOnce) {
                 if (this.timeline.playheadPosition === this.timeline.length) {
+                    console.log("Reset");
                     this.playedOnce = true;
                 } else {
                     this.timeline.advance();
