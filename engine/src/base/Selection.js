@@ -107,6 +107,7 @@ Wick.Selection = class extends Wick.Base {
             "scaleY",
             "animationType",
             "singleFrameNumber",
+            "isSynced",
         ];
     }
 
@@ -564,6 +565,26 @@ Wick.Selection = class extends Wick.Base {
             this.getSelectedObject().scaleY = scaleY;
         } else {
             this.height = this.originalHeight * scaleY;
+        }
+    }
+
+    /**
+     * Determines if a clip is synced to the timeline.
+     */
+    get isSynced () {
+        // Clips store can be synced to the animation timeline
+        if (this.selectionType === "clip") {
+            return this.getSelectedObject().isSynced;
+        } else {
+            return false;
+        }
+    }
+
+    set isSynced (syncBool) {
+        if (!typeof syncBool === "boolean") return;
+
+        if (this.selectionType === "clip") {
+            this.getSelectedObject().isSynced = syncBool;
         }
     }
 

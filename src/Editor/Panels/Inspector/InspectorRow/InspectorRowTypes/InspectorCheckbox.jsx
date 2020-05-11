@@ -27,9 +27,11 @@ class InspectorCheckbox extends Component {
         <InspectorRow
           {...this.props}
           input1={
-            {type: "checkbox",
-            defaultChecked: this.props.defaultChecked,
-            onChange: this.props.onChange}
+            {
+              type: "checkbox",
+              checked: this.props.checked,
+              onChange: this.props.onChange
+            }
           }
         />
     )

@@ -62,10 +62,7 @@ Wick.History = class {
             actionName: actionName || "Unknown Action",
         }
 
-        console.log("Pushing", stateObject);
-
         this._undoStack.push(stateObject);
-        console.log(this._undoStack);
     }
 
     /**

@@ -34,6 +34,7 @@ import InspectorActionButton from './InspectorActionButton/InspectorActionButton
 import InspectorImagePreview from './InspectorPreview/InspectorPreviewTypes/InspectorImagePreview';
 import InspectorSoundPreview from './InspectorPreview/InspectorPreviewTypes/InspectorSoundPreview';
 import InspectorScriptWindow from './InspectorScriptWindow/InspectorScriptWindow';
+import InspectorCheckbox from './InspectorRow/InspectorRowTypes/InspectorCheckbox';
 
 class Inspector extends Component {
   constructor (props) {
@@ -597,12 +598,18 @@ class Inspector extends Component {
           value={this.getSelectionAttribute('animationType')}
           isSearchable={true}
           onChange={(val) => {this.setSelectionAttribute('animationType', val.value)}} />
-          {this.getSelectionAttribute('singleFrameNumber') &&
+          {
+            this.getSelectionAttribute('singleFrameNumber') &&
             <InspectorNumericInput
             tooltip="Frame Number"
             val={this.getSelectionAttribute('singleFrameNumber')}
             onChange={(val) => this.setSelectionAttribute('singleFrameNumber', val)} />
           }
+
+        <InspectorCheckbox
+          tooltip="Synced" 
+          checked={this.getSelectionAttribute('isSynced')}
+          onChange={(val) => this.setSelectionAttribute('isSynced', !this.getSelectionAttribute('isSynced'))}/>
       </div>
     )
   }
