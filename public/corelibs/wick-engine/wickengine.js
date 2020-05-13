@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.5.13.15.21.5";
+var WICK_ENGINE_BUILD_VERSION = "2020.5.13.15.57.32";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -45854,7 +45854,6 @@ Wick.History = class {
     var currentStateObject = this._undoStack[this._undoStack.length - 1]; // 1.17.1 History update, pull actual state information out, aside from names.
 
     var currentState = currentStateObject;
-    console.log(currentStateObject);
 
     if (currentStateObject.state) {
       currentState = currentStateObject.state;
@@ -45876,7 +45875,7 @@ Wick.History = class {
       return false;
     }
 
-    var recoveredState = this._redoStack.pop();
+    var recoveredState = this._redoStack.pop().state;
 
     this._undoStack.push(recoveredState);
 
