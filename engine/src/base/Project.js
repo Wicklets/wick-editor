@@ -25,7 +25,7 @@ Wick.Project = class extends Wick.Base {
      * Create a project.
      * @param {string} name - Project name. Default "My Project".
      * @param {number} width - Project width in pixels. Default 720.
-     * @param {number} height - Project height in pixels. Default 405.
+     * @param {number} height - Project height in pixels. Default 480.
      * @param {number} framerate - Project framerate in frames-per-second. Default 12.
      * @param {Color} backgroundColor - Project background color in hex. Default #ffffff.
      */
@@ -35,7 +35,7 @@ Wick.Project = class extends Wick.Base {
 
         this._name = args.name || 'My Project';
         this._width = args.width || 720;
-        this._height = args.height || 405;
+        this._height = args.height || 480;
         this._framerate = args.framerate || 12;
         this._backgroundColor = args.backgroundColor || new Wick.Color('#ffffff');
 
@@ -1572,7 +1572,7 @@ Wick.Project = class extends Wick.Base {
 
         // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
         let container = window.document.createElement('div');
-        container.style.width  = (args.width /window.devicePixelRatio)+'px';
+        container.style.width  = (args.width/window.devicePixelRatio)+'px';
         container.style.height = (args.height/window.devicePixelRatio)+'px';
         window.document.body.appendChild(container);
         renderCopy.view.canvasContainer = container;

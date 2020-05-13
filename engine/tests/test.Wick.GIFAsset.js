@@ -79,6 +79,7 @@ describe('Wick.GIFAsset', function() {
                     project.addAsset(gifAsset);
                     project.removeAsset(gifAsset);
                     expect(project.assets.length).to.equal(3);
+                    done();
                 });
             });
         });

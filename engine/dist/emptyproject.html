@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.5.13.12.53.36";
+var WICK_ENGINE_BUILD_VERSION = "2020.5.13.15.21.5";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -49237,7 +49237,7 @@ Wick.Project = class extends Wick.Base {
    * Create a project.
    * @param {string} name - Project name. Default "My Project".
    * @param {number} width - Project width in pixels. Default 720.
-   * @param {number} height - Project height in pixels. Default 405.
+   * @param {number} height - Project height in pixels. Default 480.
    * @param {number} framerate - Project framerate in frames-per-second. Default 12.
    * @param {Color} backgroundColor - Project background color in hex. Default #ffffff.
    */
@@ -49246,7 +49246,7 @@ Wick.Project = class extends Wick.Base {
     super(args);
     this._name = args.name || 'My Project';
     this._width = args.width || 720;
-    this._height = args.height || 405;
+    this._height = args.height || 480;
     this._framerate = args.framerate || 12;
     this._backgroundColor = args.backgroundColor || new Wick.Color('#ffffff');
     this.pan = {

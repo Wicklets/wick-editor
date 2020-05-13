@@ -1172,31 +1172,17 @@ describe('Wick.Project', function() {
             project.activeLayer.frames[1].addPath(path2);
             project.activeLayer.frames[2].addPath(path3);
 
-            // for testing is onProgress works (this is kind of hacky and weird to test...)
-            var onProgressCallsCorrect = [[1,3],[2,3],[3,3]];
-            var onProgressCallsResult = [];
-
             project.generateImageSequence({
-                onProgress: (current, max) => {
-                    onProgressCallsResult.push([current,max]);
-                },
-                onFinish: images => {
+                onFinish: (images) => {
                     images.forEach(image => {
                         expect(image.width).to.equal(project.width);
                         expect(image.height).to.equal(project.height);
-
-                        var imageName = document.createElement('p');
-                        imageName.innerHTML = 'zoom 1x, frame ' + images.indexOf(image);
-                        document.body.appendChild(imageName);
-                        document.body.appendChild(image);
                     });
+
                     expect(images.length).to.equal(3);
-
-                    expect(onProgressCallsResult).to.deep.equal(onProgressCallsCorrect);
-
                     done();
                 }
-            });
+            }); 
         });
 
         it('should export correct images (zoom 2x, same aspect ratio)', function (done) {

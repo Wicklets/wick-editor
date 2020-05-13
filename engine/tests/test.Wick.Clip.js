@@ -1646,7 +1646,7 @@ describe('Wick.Clip', function() {
             project.activeFrame.end = 6;
             project.framerate = 60; // speed up test time.
 
-            clip.animationType = 'sync';
+            clip.isSynced = true; 
 
             let totalTicks = 0;
 
@@ -1664,7 +1664,7 @@ describe('Wick.Clip', function() {
             });
         });
 
-        it ('should animate correctly as a sync clip, regardless of code applied.', function (done) {
+        it ('should animate correctly as a single frame clip, regardless of code applied.', function (done) {
             let project = new Wick.Project();
 
             let clip = new Wick.Clip();
@@ -1690,42 +1690,6 @@ describe('Wick.Clip', function() {
             project.play({
                 onAfterTick: () => {
                     expect(clip.timeline.playheadPosition).to.equal(3);
-
-                    totalTicks += 1;
-
-                    if (totalTicks === 7) {
-                        project.stop();
-                        done();
-                    }
-                }
-            });
-        });
-
-        it ('should animate correctly as a sync clip, regardless of code applied.', function (done) {
-            let project = new Wick.Project();
-
-            let clip = new Wick.Clip();
-            let frame2 = new Wick.Frame({start:2});
-            let frame3 = new Wick.Frame({start:3});
-
-            clip.timeline.addFrame(frame2);
-            clip.timeline.addFrame(frame3);
-
-            clip.addScript('update', 'this.gotoAndStop(2);');
-
-            project.activeFrame.addClip(clip);
-            project.activeFrame.end = 6;
-            project.framerate = 60; // speed up test time.
-
-            clip.animationType = 'sync';
-
-
-
-            let totalTicks = 0;
-
-            project.play({
-                onAfterTick: () => {
-                    expect(clip.timeline.playheadPosition).to.equal((totalTicks % 3) + 1);
 
                     totalTicks += 1;
 
@@ -1833,9 +1797,9 @@ describe('Wick.Clip', function() {
 
             project.activeFrame.addClip(clip);
 
-            clip.animationType = 'sync';
+            clip.isSynced = true; 
 
-            expect(clip.animationType).to.equal('sync');
+            expect(clip.isSynced).to.equal(true);
             expect(project.activeTimeline.playheadPosition).to.equal(1);
             expect(clip.timeline.playheadPosition).to.equal(1);
 
