@@ -5,7 +5,7 @@ describe('Wick.Project', function() {
             expect(project.classname).to.equal('Project');
 
             expect(project.width).to.equal(720);
-            expect(project.height).to.equal(405);
+            expect(project.height).to.equal(480);
             expect(project.framerate).to.equal(12);
             expect(project.backgroundColor.hex).to.equal('#ffffff');
 
@@ -69,7 +69,7 @@ describe('Wick.Project', function() {
             expect(data.classname).to.equal('Project');
             expect(data.focus).to.equal(project.focus.uuid);
             expect(data.framerate).to.equal(12);
-            expect(data.height).to.equal(405);
+            expect(data.height).to.equal(480);
             expect(data.identifier).to.equal(null);
             expect(data.name).to.equal('My Project');
             expect(data.onionSkinEnabled).to.equal(false);
@@ -113,7 +113,7 @@ describe('Wick.Project', function() {
             expect(projectFromData.classname).to.equal('Project');
             expect(projectFromData.focus).to.equal(project.focus);
             expect(projectFromData.framerate).to.equal(12);
-            expect(projectFromData.height).to.equal(405);
+            expect(projectFromData.height).to.equal(480);
             expect(projectFromData.identifier).to.equal(null);
             expect(projectFromData.name).to.equal('My Project');
             expect(projectFromData.onionSkinEnabled).to.equal(false);
