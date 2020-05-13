@@ -107,7 +107,7 @@ class Timeline extends Component {
   }
 
   onProjectModified = () => {
-      this.props.projectDidChange();
+      this.props.projectDidChange({ actionName: "Timeline Action" });
   }
 
   onProjectSoftModified = () => {

@@ -56,7 +56,7 @@ class EditorCore extends Component {
       // See: https://github.com/reactstrap/reactstrap/issues/894
       this.toggleBrushModes(false);
 
-      this.projectDidChange();
+      this.projectDidChange({ actionName: "Set Active Tool: " + newTool });
     }
   }
 
@@ -65,7 +65,7 @@ class EditorCore extends Component {
    */
   toggleClipBorders = () => {
     this.project.showClipBorders = !this.project.showClipBorders;
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Toggle Clip Borders"});
   }
 
   /**
@@ -73,7 +73,7 @@ class EditorCore extends Component {
    */
   activateLastTool = () => {
     this.project.activeTool = this.lastUsedTool;
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Activate Last Tool" });
   }
 
   /**
@@ -83,7 +83,7 @@ class EditorCore extends Component {
     if(!this.project.undo()) {
       this.toast('Nothing to undo.', 'warning');
     } else {
-      this.projectDidChange({skipHistory:true});
+      this.projectDidChange({ skipHistory:true, actionName: "Undo" });
     }
   }
 
@@ -94,7 +94,7 @@ class EditorCore extends Component {
     if(!this.project.redo()) {
       this.toast('Nothing to redo.', 'warning');
     } else {
-      this.projectDidChange({skipHistory:true});
+      this.projectDidChange({skipHistory:true, actionName: "Redo" });
     }
   }
 
@@ -103,7 +103,7 @@ class EditorCore extends Component {
    */
   recenterCanvas = () => {
     this.project.recenter();
-    this.projectDidChange(true);
+    this.projectDidChange( { skipHistory: true, actionName: "recenterCanvas"} );
   }
 
   /**
@@ -136,7 +136,7 @@ class EditorCore extends Component {
    */
   setToolSetting = (name, value) => {
     this.project.toolSettings.setSetting(name, value);
-    this.projectDidChange();
+    this.projectDidChange({actionName: "Change Tool Setting " + name + ":" + value });
   }
 
   /**
@@ -202,7 +202,7 @@ class EditorCore extends Component {
    * Finishes a playhead moving operation.
    */
   finishMovingPlayhead = () => {
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Finish Moving Playhead" });
   }
 
   /**
@@ -342,7 +342,7 @@ class EditorCore extends Component {
    */
   selectObject = (object) => {
     this.project.selection.select(object);
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Select Object" });
   }
 
   /**
@@ -354,7 +354,7 @@ class EditorCore extends Component {
     objects.forEach(object => {
       this.project.selection.select(object);
     });
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Select Multiple Objects" });
   }
 
   /**
@@ -362,7 +362,7 @@ class EditorCore extends Component {
    */
   clearSelection = () => {
     this.project.selection.clear();
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Clear Selection" });
   }
 
   /**
@@ -370,7 +370,7 @@ class EditorCore extends Component {
    */
   selectAll = () => {
     this.project.selectAll();
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Select All" });
   }
 
   /**
@@ -428,7 +428,7 @@ class EditorCore extends Component {
    */
   setSelectionAttribute = (attribute, newValue) => {
     this.project.selection[attribute] = newValue;
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Set Selection Attribute: " + attribute + ":" + newValue});
   }
 
   /**
@@ -438,17 +438,6 @@ class EditorCore extends Component {
    */
   isObjectSelected = (object) => {
     return this.project.selection.isObjectSelected(object);
-  }
-
-  /**
-   * Creates a new symbol from the selected paths and clips and adds it to the project.
-   */
-  createSymbolFromSelection = (name, type) => {
-    this.project.createClipFromSelection({
-      identifier: name,
-      type: type
-    });
-    this.projectDidChange();
   }
 
   /**
@@ -471,7 +460,7 @@ class EditorCore extends Component {
       identifier: name,
       type: 'Clip'
     });
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Create Clip From Selection" });
   }
 
   /**
@@ -483,7 +472,7 @@ class EditorCore extends Component {
       identifier: name,
       type: 'Button'
     });
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Create Button From Selection" });
   }
 
   /**
@@ -492,7 +481,7 @@ class EditorCore extends Component {
    */
   setFocusObject = (object) => {
     this.project.focus = object;
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Set Focus Object" });
   }
 
   /**
@@ -506,7 +495,7 @@ class EditorCore extends Component {
       return;
     }
     this.project.breakApartSelection();
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Break Apart Selection"});
   }
 
   /**
@@ -520,7 +509,7 @@ class EditorCore extends Component {
         title: "Delete this asset?",
         acceptAction: (() => {
           this.project.deleteSelectedObjects();
-          this.projectDidChange();
+          this.projectDidChange({ actionName: "Delete Selected Asset" });
         }),
         cancelAction: (() => {}),
         finalAction: (() => {}),
@@ -529,7 +518,7 @@ class EditorCore extends Component {
       });
     } else {
       this.project.deleteSelectedObjects();
-      this.projectDidChange();
+      this.projectDidChange({actionName: "Delete Selected Objects"});
     }
   }
 
@@ -571,7 +560,7 @@ class EditorCore extends Component {
    */
   sendSelectionToBack = () => {
     this.project.selection.sendToBack();
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Send Selection to Back" });
   }
 
   /**
@@ -579,7 +568,7 @@ class EditorCore extends Component {
    */
   sendSelectionToFront = () => {
     this.project.selection.bringToFront();
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Bring Selection to Front" });
   }
 
   /**
@@ -587,7 +576,7 @@ class EditorCore extends Component {
    */
   moveSelectionBackwards = () => {
     this.project.selection.moveBackwards();
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Move Selection Backwards" });
   }
 
   /**
@@ -595,7 +584,7 @@ class EditorCore extends Component {
    */
   moveSelectionForwards = () => {
     this.project.selection.moveForwards();
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Move Selection Forwards" });
   }
 
   /**
@@ -603,7 +592,7 @@ class EditorCore extends Component {
    */
   flipSelectedHorizontal = () => {
     this.project.selection.flipHorizontally();
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Flip Selection Horizontal" });
   }
 
   /**
@@ -611,7 +600,7 @@ class EditorCore extends Component {
    */
   flipSelectedVertical = () => {
     this.project.selection.flipVertically();
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Flip Selection Vertical" });
   }
 
   /**
@@ -690,7 +679,7 @@ class EditorCore extends Component {
    * Finish the current nudging operation
    */
   finishNudgingObject = () => {
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Nudge Elements" });
   }
 
   /**
@@ -698,7 +687,7 @@ class EditorCore extends Component {
    */
   booleanUnite = () => {
     this.project.doBooleanOperationOnSelection('unite');
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Boolean Unite" });
   }
 
   /**
@@ -706,7 +695,7 @@ class EditorCore extends Component {
    */
   booleanSubtract = () => {
     this.project.doBooleanOperationOnSelection('subtract');
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Boolean Subtract" });
   }
 
   /**
@@ -714,7 +703,7 @@ class EditorCore extends Component {
    */
   booleanIntersect = () => {
     this.project.doBooleanOperationOnSelection('intersect');
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Boolean Intersect" });
   }
 
   /**
@@ -736,7 +725,7 @@ class EditorCore extends Component {
     });
 
     if (updated) {
-      this.projectDidChange();
+      this.projectDidChange({ actionName: "Update Project Settings" });
     }
   }
 
@@ -745,7 +734,7 @@ class EditorCore extends Component {
    */
   focusTimelineOfSelectedObject = () => {
     this.project.focusTimelineOfSelectedClip();
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Focus Selected Object Timeline" });
   }
 
   /**
@@ -753,7 +742,7 @@ class EditorCore extends Component {
    */
   focusTimelineOfParentClip = () => {
     this.project.focusTimelineOfParentClip();
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Focus Timeline of Parent Clip" });
   }
 
   /**
@@ -780,15 +769,15 @@ class EditorCore extends Component {
 
     if (obj instanceof window.Wick.ImageAsset) {
       this.project.createImagePathFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), dropPoint.x, dropPoint.y, path => {
-        this.projectDidChange();
+        this.projectDidChange({ actionName: "Create Image Path From Asset"});
       });
     } else if (obj instanceof window.Wick.ClipAsset) {
       this.project.createClipInstanceFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), dropPoint.x, dropPoint.y, clip => {
-        this.projectDidChange();
+        this.projectDidChange({ actionName: "Create Clip Instance From Asset"});
       });
     } else if (obj instanceof window.Wick.SVGAsset) {
       this.project.createSVGInstanceFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), dropPoint.x, dropPoint.y, svg => {
-        this.projectDidChange();
+        this.projectDidChange({ actionName: "Create SVG Instance From Asset"});
       });
     }else {
       console.error('object is not an ImageAsset or a ClipAsset')
@@ -828,7 +817,7 @@ class EditorCore extends Component {
         this.toast('Could not add files to project: ' + file.name, 'error');
       } else {
         this.toast('Imported "' + file.name + '" successfully.', 'success');
-        this.projectDidChange();
+        this.projectDidChange({ actionName: "Import File As Asset" });
       }
     });
   }
@@ -862,7 +851,7 @@ class EditorCore extends Component {
                 console.log('GIFImport onFinish:')
                 console.log(gifAsset)
                 this.project.addAsset(gifAsset);
-                this.projectDidChange();
+                this.projectDidChange({ actionName: "Add Asset" });
             }});
       } else {
         var file = acceptedFiles[i];
@@ -1168,7 +1157,7 @@ class EditorCore extends Component {
     // Attach error handling messages
     this.attachErrorHandlers();
 
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Setup New Project" });
     this.hideWaitOverlay();
     this.project.view.prerender();
     this.project.view.render();
@@ -1332,7 +1321,7 @@ class EditorCore extends Component {
    */
   toggleOnionSkin = () => {
     this.project.onionSkinEnabled = !this.project.onionSkinEnabled;
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Toggle Onion Skinning" });
   }
 
   /**
@@ -1402,7 +1391,7 @@ class EditorCore extends Component {
         this.editScript(this.project.error.name);
     }
 
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Stop Preview Playing" });
   }
 
   /**
@@ -1410,7 +1399,7 @@ class EditorCore extends Component {
    */
   clearCodeEditorError = () => {
       this.project.error = null;
-      this.projectDidChange();
+      this.projectDidChange({ actionName: "Clear Code Editor Error" });
   }
 
   /**
@@ -1418,7 +1407,7 @@ class EditorCore extends Component {
    */
   copySelectionToClipboard = () => {
     if(this.project.copySelectionToClipboard()) {
-      this.projectDidChange();
+      this.projectDidChange({ actionName: "Copy Selection" });
     } else {
       this.toast('There is nothing to copy.', 'warning');
     }
@@ -1429,7 +1418,7 @@ class EditorCore extends Component {
    */
   duplicateSelection = () => {
     if(this.project.duplicateSelection()) {
-      this.projectDidChange();
+      this.projectDidChange({actionName: "Duplicate Selection" });
     } else {
       this.toast('There is nothing to duplicate.', 'warning');
     }
@@ -1440,7 +1429,7 @@ class EditorCore extends Component {
    */
   cutSelectionToClipboard = () => {
     if(this.project.cutSelectionToClipboard()) {
-      this.projectDidChange();
+      this.projectDidChange({ actionName: "Cut Selection"});
     } else {
       this.toast('There is nothing to duplicate.', 'warning');
     }
@@ -1452,7 +1441,7 @@ class EditorCore extends Component {
    */
   pasteFromClipboard = () => {
     if(this.project.pasteClipboardContents()) {
-      this.projectDidChange();
+      this.projectDidChange({ actionName: "Paste from Clipboard" });
     } else {
       this.toast('There is nothing in the clipboard to paste.', 'warning');
     }
@@ -1464,7 +1453,7 @@ class EditorCore extends Component {
   addTweenKeyframe = () => {
     if(!this.project.activeFrame) return;
     this.project.activeFrame.createTween();
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Add Tween Keyframe" });
   }
 
   /**
@@ -1487,69 +1476,61 @@ class EditorCore extends Component {
       var frames = this.project.selection.getSelectedObjects('Frame');
       this.project.extendFrames(frames);
       this.project.guiElement.draw();
-      //this.projectDidChange();
   }
 
   shrinkFrame = () => {
       var frames = this.project.selection.getSelectedObjects('Frame');
       this.project.shrinkFrames(frames);
       this.project.guiElement.draw();
-      //this.projectDidChange();
   }
 
   moveFrameRight = () => {
       this.project.moveSelectedFramesRight();
       this.project.guiElement.draw();
-      //this.projectDidChange();
   }
 
   moveFrameLeft = () => {
       this.project.moveSelectedFramesLeft();
       this.project.guiElement.draw();
-      //this.projectDidChange();
   }
 
   createTween = () => {
       this.project.createTween();
-      this.projectDidChange();
+      this.projectDidChange({ actionName: "Create Tween" });
   }
 
   cutFrame = () => {
       this.project.cutSelectedFrames();
-      this.projectDidChange();
+      this.projectDidChange({ actionName: "Cut Frame" });
   }
 
   insertBlankFrame = () => {
       this.project.insertBlankFrame();
-      this.projectDidChange();
+      this.projectDidChange({ actionName: "Insert Blank Frame" });
   }
 
   extendSelectedFramesAndPushOtherFrames = () => {
       var frames = this.project.selection.getSelectedObjects('Frame');
       this.project.extendFramesAndPushOtherFrames(frames);
       this.project.guiElement.draw();
-      //this.projectDidChange();
   }
 
   shrinkSelectedFramesAndPullOtherFrames = () => {
       var frames = this.project.selection.getSelectedObjects('Frame');
       this.project.shrinkFramesAndPullOtherFrames(frames);
       this.project.guiElement.draw();
-      //this.projectDidChange();
   }
 
   extendActiveFramesAndPushOtherFrames = () => {
       var frames = this.project.activeTimeline.activeFrames;
       this.project.extendFramesAndPushOtherFrames(frames);
       this.project.guiElement.draw();
-      //this.projectDidChange();
   }
 
   shrinkActiveFramesAndPullOtherFrames = () => {
       var frames = this.project.activeTimeline.activeFrames;
       this.project.shrinkFramesAndPullOtherFrames(frames);
       this.project.guiElement.draw();
-      //this.projectDidChange();
   }
 
   exportSelectedClip = () => {

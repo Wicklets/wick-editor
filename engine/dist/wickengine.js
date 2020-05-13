@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.5.1.17.14.57";
+var WICK_ENGINE_BUILD_VERSION = "2020.5.13.12.53.36";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -45823,13 +45823,18 @@ Wick.History = class {
   /**
    * Push the current state of the ObjectCache to the undo stack.
    * @param {number} filter - the filter to choose which objects to serialize. See Wick.History.StateType
+   * @param {string} actionName - Optional: Name of the action conducted to generate this state. If no name is presented, "Unknown Action" is presented in its place.
    */
 
 
-  pushState(filter) {
+  pushState(filter, actionName) {
     this._redoStack = [];
+    let stateObject = {
+      state: this._generateState(filter),
+      actionName: actionName || "Unknown Action"
+    };
 
-    this._undoStack.push(this._generateState(filter));
+    this._undoStack.push(stateObject);
   }
   /**
    * Pop the last state in the undo stack off and apply the new last state to the project.
@@ -45846,10 +45851,18 @@ Wick.History = class {
 
     this._redoStack.push(lastState);
 
-    var currentState = this._undoStack[this._undoStack.length - 1];
+    var currentStateObject = this._undoStack[this._undoStack.length - 1]; // 1.17.1 History update, pull actual state information out, aside from names.
+
+    var currentState = currentStateObject;
+    console.log(currentStateObject);
+
+    if (currentStateObject.state) {
+      currentState = currentStateObject.state;
+    }
 
     this._recoverState(currentState);
 
+    console.log(this._undoStack);
     return true;
   }
   /**
@@ -51145,7 +51158,7 @@ Wick.Selection = class extends Wick.Base {
 
 
   get allAttributeNames() {
-    return ["strokeWidth", "fillColor", "strokeColor", "name", "filename", "fontSize", "fontFamily", "fontWeight", "fontStyle", "src", "frameLength", "x", "y", "originX", "originY", "width", "height", "rotation", "opacity", "sound", "soundVolume", "soundStart", "identifier", "easingType", "fullRotations", "scaleX", "scaleY", "animationType", "singleFrameNumber"];
+    return ["strokeWidth", "fillColor", "strokeColor", "name", "filename", "fontSize", "fontFamily", "fontWeight", "fontStyle", "src", "frameLength", "x", "y", "originX", "originY", "width", "height", "rotation", "opacity", "sound", "soundVolume", "soundStart", "identifier", "easingType", "fullRotations", "scaleX", "scaleY", "animationType", "singleFrameNumber", "isSynced"];
   }
   /**
    * Add a wick object to the selection.
@@ -51646,6 +51659,27 @@ Wick.Selection = class extends Wick.Base {
       this.getSelectedObject().scaleY = scaleY;
     } else {
       this.height = this.originalHeight * scaleY;
+    }
+  }
+  /**
+   * Determines if a clip is synced to the timeline.
+   */
+
+
+  get isSynced() {
+    // Clips store can be synced to the animation timeline
+    if (this.selectionType === "clip") {
+      return this.getSelectedObject().isSynced;
+    } else {
+      return false;
+    }
+  }
+
+  set isSynced(syncBool) {
+    if (!typeof syncBool === "boolean") return;
+
+    if (this.selectionType === "clip") {
+      this.getSelectedObject().isSynced = syncBool;
     }
   }
   /**
@@ -55965,7 +55999,6 @@ Wick.Clip = class extends Wick.Tickable {
   static get animationTypes() {
     return {
       'loop': 'Loop',
-      'sync': 'Sync',
       'single': 'Single Frame',
       'playOnce': 'Play Once'
     };
@@ -55989,6 +56022,7 @@ Wick.Clip = class extends Wick.Tickable {
     this._singleFrameNumber = 1; // Default to 1, this value is only used if the animation type is single
 
     this._playedOnce = false;
+    this._isSynced = false;
     this._transformation = args.transformation || new Wick.Transformation();
     this.cursor = 'default';
     this._isClone = false;
@@ -56011,6 +56045,7 @@ Wick.Clip = class extends Wick.Tickable {
     data.animationType = this._animationType;
     data.singleFrameNumber = this._singleFrameNumber;
     data.assetSourceUUID = this._assetSourceUUID;
+    data.isSynced = this._isSynced;
     return data;
   }
 
@@ -56022,6 +56057,7 @@ Wick.Clip = class extends Wick.Tickable {
     this._animationType = data.animationType || 'loop';
     this._singleFrameNumber = data.singleFrameNumber || 1;
     this._assetSourceUUID = data.assetSourceUUID;
+    this._isSynced = data.isSynced;
     this._playedOnce = false;
     this._clones = [];
   }
@@ -56050,6 +56086,30 @@ Wick.Clip = class extends Wick.Tickable {
 
   get isRoot() {
     return this.project && this === this.project.root;
+  }
+  /**
+   * True if the clip should sync to the timeline's position.
+   * @type {boolean} 
+   */
+
+
+  get isSynced() {
+    let isSingle = this.animationType === 'single';
+    return this._isSynced && !isSingle && !this.isRoot;
+  }
+
+  set isSynced(bool) {
+    if (!(typeof bool === 'boolean')) {
+      return;
+    }
+
+    this._isSynced = bool;
+
+    if (bool) {
+      this.applySyncPosition();
+    } else {
+      this.timeline.playheadPosition = 1;
+    }
   }
   /**
    * Determines whether or not the clip is the currently focused clip in the project.
@@ -56128,8 +56188,6 @@ Wick.Clip = class extends Wick.Tickable {
 
       if (animationType === 'single') {
         this.applySingleFramePosition();
-      } else if (animationType === 'sync') {
-        this.applySyncPosition();
       } else {
         this.timeline.playheadPosition = 1; // Reset timeline position if we are not on single frame.
       }
@@ -56161,13 +56219,19 @@ Wick.Clip = class extends Wick.Tickable {
     this.applySingleFramePosition();
   }
   /**
-   * The frame to display when the clip has an animationType of "sync";
+   * The frame to display when the clip is synced
    * @type {number}
    */
 
 
   get syncFrame() {
-    let timelineOffset = this.parentClip.timeline.playheadPosition - this.parentFrame.start;
+    let timelineOffset = this.parentClip.timeline.playheadPosition - this.parentFrame.start; // Show the last frame if we're past it on a playOnce Clip.
+
+    if (this.animationType === 'playOnce' && timelineOffset >= this.timeline.length) {
+      return this.timeline.length;
+    } // Otherwise, show the correct frame.
+
+
     return timelineOffset % this.timeline.length + 1;
   }
   /**
@@ -56257,7 +56321,7 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   applySyncPosition() {
-    if (this.animationType === 'sync') {
+    if (this.isSynced) {
       this.timeline.playheadPosition = this.syncFrame;
     }
   }
@@ -56269,7 +56333,9 @@ Wick.Clip = class extends Wick.Tickable {
   updateTimelineForAnimationType() {
     if (this.animationType === 'single') {
       this.applySingleFramePosition();
-    } else if (this.animationType === 'sync') {
+    }
+
+    if (this.isSynced) {
       this.applySyncPosition();
     }
   }
@@ -56689,6 +56755,11 @@ Wick.Clip = class extends Wick.Tickable {
     super._onActivated();
 
     this._tickChildren();
+
+    if (this.animationType === 'playOnce') {
+      this.playedOnce = false;
+      this.timeline.playheadPosition = 1;
+    }
   }
 
   _onActive() {
@@ -56701,12 +56772,15 @@ Wick.Clip = class extends Wick.Tickable {
     } else if (this.animationType === 'playOnce') {
       if (!this.playedOnce) {
         if (this.timeline.playheadPosition === this.timeline.length) {
+          console.log("Reset");
           this.playedOnce = true;
         } else {
           this.timeline.advance();
         }
       }
-    } else if (this.animationType === 'sync') {
+    }
+
+    if (this.isSynced) {
       this.timeline.playheadPosition = this.syncFrame;
     }
 
@@ -57735,8 +57809,11 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         return item.data.wickUUID;
       }).forEach(item => {
         this._selectItem(item);
-      });
-      this.fireEvent('canvasModified');
+      }); // Only modify the canvas if you actually selected something.
+
+      if (this.selectionBox.items.length > 0) {
+        this.fireEvent('canvasModified');
+      }
     } else if (this._selection.numObjects > 0) {
       if (this.__isDragging) {
         this.__isDragging = false;

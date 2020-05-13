@@ -170,7 +170,12 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             }).forEach(item => {
                 this._selectItem(item);
             });
-            this.fireEvent('canvasModified');
+
+            // Only modify the canvas if you actually selected something.
+            if (this.selectionBox.items.length > 0) {
+                this.fireEvent('canvasModified');
+            }
+
         } else if (this._selection.numObjects > 0) {
             if(this.__isDragging) {
                 this.__isDragging = false;

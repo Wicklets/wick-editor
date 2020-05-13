@@ -118,7 +118,7 @@ class VideoExport {
       // Slow down the video if the framerate is less than 6 (framerate <6 causes a corrupted video to render)
       let filterv = 'showinfo';
       if(project.framerate < 6) {
-          filterv = 'setpts='+(6/project.framerate)+'*PTS, ' + filterv;
+          filterv = 'setpts='+(6/project.framerate)+'*PTS,' + filterv;
       }
 
       let dimensions = {
