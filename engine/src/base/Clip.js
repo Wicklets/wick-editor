@@ -90,6 +90,7 @@ Wick.Clip = class extends Wick.Tickable {
         this._animationType = data.animationType || 'loop';
         this._singleFrameNumber = data.singleFrameNumber || 1;
         this._assetSourceUUID = data.assetSourceUUID;
+        this._isSynced = data.isSynced;
 
         this._playedOnce = false;
 
@@ -133,12 +134,13 @@ Wick.Clip = class extends Wick.Tickable {
         if (!(typeof bool === 'boolean')) {
             return;
         }
+        this._isSynced = bool;
 
         if (bool) {
             this.applySyncPosition();
+        } else {
+            this.timeline.playheadPosition = 1; 
         }
-
-        this._isSynced = bool;
     }
 
     /**

@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.5.11.17.11.23";
+var WICK_ENGINE_BUILD_VERSION = "2020.5.13.11.54.37";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -55859,6 +55859,7 @@ Wick.Clip = class extends Wick.Tickable {
     this._animationType = data.animationType || 'loop';
     this._singleFrameNumber = data.singleFrameNumber || 1;
     this._assetSourceUUID = data.assetSourceUUID;
+    this._isSynced = data.isSynced;
     this._playedOnce = false;
     this._clones = [];
   }
@@ -55904,11 +55905,13 @@ Wick.Clip = class extends Wick.Tickable {
       return;
     }
 
+    this._isSynced = bool;
+
     if (bool) {
       this.applySyncPosition();
+    } else {
+      this.timeline.playheadPosition = 1;
     }
-
-    this._isSynced = bool;
   }
   /**
    * Determines whether or not the clip is the currently focused clip in the project.
