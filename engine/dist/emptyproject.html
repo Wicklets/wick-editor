@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.5.14.13.29.19";
+var WICK_ENGINE_BUILD_VERSION = "2020.5.14.15.30.15";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -64354,7 +64354,7 @@ Wick.GUIElement.OnionSkinRange = class extends Wick.GUIElement {
     this.mousePlayheadPosition = Math.round(this.localMouse.x / this.gridCellWidth); // Calculate positions of the handle
 
     var seek = this.direction === 'right' ? this.model.project.onionSkinSeekForwards : this.model.project.onionSkinSeekBackwards;
-    var width = seek * this.gridCellWidth;
+    var width = Math.max(seek * this.gridCellWidth, this.gridCellWidth / 2);
     var edgeWidth = this.gridCellWidth - Wick.GUIElement.PLAYHEAD_MARGIN * 2;
     var height = Wick.GUIElement.NUMBER_LINE_HEIGHT * 0.9; // Draw handle
 
@@ -64379,9 +64379,9 @@ Wick.GUIElement.OnionSkinRange = class extends Wick.GUIElement {
 
   onMouseDrag(e) {
     if (this.direction === 'right') {
-      this.model.project.onionSkinSeekForwards = Math.max(1, this.mousePlayheadPosition);
+      this.model.project.onionSkinSeekForwards = Math.max(0, this.mousePlayheadPosition);
     } else if (this.direction === 'left') {
-      this.model.project.onionSkinSeekBackwards = Math.max(1, -this.mousePlayheadPosition);
+      this.model.project.onionSkinSeekBackwards = Math.max(0, -this.mousePlayheadPosition);
     }
 
     this.projectWasSoftModified();
@@ -64392,14 +64392,14 @@ Wick.GUIElement.OnionSkinRange = class extends Wick.GUIElement {
       return {
         x: this.gridCellWidth / 2,
         y: 0,
-        width: this.model.project.onionSkinSeekForwards * this.gridCellWidth,
+        width: Math.max(this.model.project.onionSkinSeekForwards * this.gridCellWidth, this.gridCellWidth / 3),
         height: Wick.GUIElement.NUMBER_LINE_HEIGHT
       };
     } else if (this.direction === 'left') {
       return {
         x: -this.model.project.onionSkinSeekBackwards * this.gridCellWidth - this.gridCellWidth / 2,
         y: 0,
-        width: this.model.project.onionSkinSeekBackwards * this.gridCellWidth,
+        width: Math.max(this.model.project.onionSkinSeekBackwards * this.gridCellWidth, this.gridCellWidth / 3),
         height: Wick.GUIElement.NUMBER_LINE_HEIGHT
       };
     }

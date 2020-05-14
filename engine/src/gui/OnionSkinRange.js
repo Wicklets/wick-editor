@@ -39,7 +39,7 @@ Wick.GUIElement.OnionSkinRange = class extends Wick.GUIElement {
 
         // Calculate positions of the handle
         var seek = this.direction === 'right' ? this.model.project.onionSkinSeekForwards : this.model.project.onionSkinSeekBackwards;
-        var width = seek * this.gridCellWidth;
+        var width = Math.max(seek * this.gridCellWidth, this.gridCellWidth/2);
         var edgeWidth = this.gridCellWidth - Wick.GUIElement.PLAYHEAD_MARGIN * 2;
         var height = Wick.GUIElement.NUMBER_LINE_HEIGHT * 0.9;
 
@@ -67,9 +67,9 @@ Wick.GUIElement.OnionSkinRange = class extends Wick.GUIElement {
 
     onMouseDrag (e) {
         if(this.direction === 'right') {
-            this.model.project.onionSkinSeekForwards = Math.max(1, this.mousePlayheadPosition);
+            this.model.project.onionSkinSeekForwards = Math.max(0, this.mousePlayheadPosition);
         } else if(this.direction === 'left') {
-            this.model.project.onionSkinSeekBackwards = Math.max(1, -this.mousePlayheadPosition);
+            this.model.project.onionSkinSeekBackwards = Math.max(0, -this.mousePlayheadPosition);
         }
         this.projectWasSoftModified();
     }
@@ -79,14 +79,14 @@ Wick.GUIElement.OnionSkinRange = class extends Wick.GUIElement {
             return {
                 x: this.gridCellWidth/2,
                 y: 0,
-                width: this.model.project.onionSkinSeekForwards * this.gridCellWidth,
+                width: Math.max(this.model.project.onionSkinSeekForwards * this.gridCellWidth, this.gridCellWidth/3),
                 height: Wick.GUIElement.NUMBER_LINE_HEIGHT,
             };
         } else if (this.direction === 'left') {
             return {
                 x: -this.model.project.onionSkinSeekBackwards * this.gridCellWidth - this.gridCellWidth/2,
                 y: 0,
-                width: this.model.project.onionSkinSeekBackwards * this.gridCellWidth,
+                width: Math.max(this.model.project.onionSkinSeekBackwards * this.gridCellWidth, this.gridCellWidth/3),
                 height: Wick.GUIElement.NUMBER_LINE_HEIGHT,
             };
         }
