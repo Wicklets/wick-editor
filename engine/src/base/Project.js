@@ -1593,7 +1593,7 @@ Wick.Project = class extends Wick.Base {
         renderCopy.zoom = zoom / window.devicePixelRatio;
         renderCopy.pan = {x: 0, y: 0};
 
-        // renderCopy.tick();
+        renderCopy.tick();
 
         // We need full control over when paper.js renders, if we leave autoUpdate on, it's possible to lose frames if paper.js doesnt automatically render as fast as we are generating the images.
         // (See paper.js docs for info about autoUpdate)
@@ -1673,10 +1673,9 @@ Wick.Project = class extends Wick.Base {
         renderCopy.focus = renderCopy.root;
         renderCopy.focus.timeline.playheadPosition = 1;
 
-        renderCopy.tick();
+        // renderCopy.tick(); // This is commented out to not miss frame 1.
 
-        // We need full control over when paper.js renders, if we leave autoUpdate on, it's possible to lose frames if paper.js doesnt automatically render as fast as we are generating the images.
-        // (See paper.js docs for info about autoUpdate)
+
         renderCopy.view.paper.view.autoUpdate = false;
         var numMaxFrameImages = renderCopy.focus.timeline.length;
         var renderFrame = () => {
@@ -1695,7 +1694,7 @@ Wick.Project = class extends Wick.Base {
                 this.view.render();
 
                 window.document.body.removeChild(container);
-                args.onFinish(this.soundsPlayed);
+                args.onFinish([...this.soundsPlayed]);
             } else {
                 var oldPlayhead = renderCopy.activeTimeline.playheadPosition
                 renderCopy.tick();

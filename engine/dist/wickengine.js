@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.5.14.10.42.38";
+var WICK_ENGINE_BUILD_VERSION = "2020.5.14.12.41.3";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -47139,7 +47139,6 @@ Wick.AudioTrack = class {
     if (!args.onProgress) args.onProgress = (frame, maxFrames) => {};
 
     let genBuffer = audioInfo => {
-      console.log(audioInfo);
       if (!audioInfo) args.callback(null);
 
       if (audioInfo.length === 0) {
@@ -50864,8 +50863,8 @@ Wick.Project = class extends Wick.Base {
     renderCopy.pan = {
       x: 0,
       y: 0
-    }; // renderCopy.tick();
-    // We need full control over when paper.js renders, if we leave autoUpdate on, it's possible to lose frames if paper.js doesnt automatically render as fast as we are generating the images.
+    };
+    renderCopy.tick(); // We need full control over when paper.js renders, if we leave autoUpdate on, it's possible to lose frames if paper.js doesnt automatically render as fast as we are generating the images.
     // (See paper.js docs for info about autoUpdate)
 
     renderCopy.view.paper.view.autoUpdate = false;
@@ -50934,9 +50933,7 @@ Wick.Project = class extends Wick.Base {
     renderCopy.view.resize(); // Set the initial state of the project.
 
     renderCopy.focus = renderCopy.root;
-    renderCopy.focus.timeline.playheadPosition = 1;
-    renderCopy.tick(); // We need full control over when paper.js renders, if we leave autoUpdate on, it's possible to lose frames if paper.js doesnt automatically render as fast as we are generating the images.
-    // (See paper.js docs for info about autoUpdate)
+    renderCopy.focus.timeline.playheadPosition = 1; // renderCopy.tick(); // This is commented out to not miss frame 1.
 
     renderCopy.view.paper.view.autoUpdate = false;
     var numMaxFrameImages = renderCopy.focus.timeline.length;
@@ -50954,7 +50951,7 @@ Wick.Project = class extends Wick.Base {
         this.publishedMode = false;
         this.view.render();
         window.document.body.removeChild(container);
-        args.onFinish(this.soundsPlayed);
+        args.onFinish([...this.soundsPlayed]);
       } else {
         var oldPlayhead = renderCopy.activeTimeline.playheadPosition;
         renderCopy.tick();

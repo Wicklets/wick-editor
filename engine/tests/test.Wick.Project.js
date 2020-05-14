@@ -1400,7 +1400,7 @@ describe('Wick.Project', function() {
             project.addAsset(sound);
 
             frame2.sound = sound;
-            
+
             project.generateAudioSequence({onFinish: audioSequence => {
                     expect(audioSequence).to.be.an('array');
                     expect(audioSequence.length).to.equal(1);
