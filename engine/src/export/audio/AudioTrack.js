@@ -48,6 +48,7 @@ Wick.AudioTrack = class {
         if (!args.onProgress) args.onProgress = (frame, maxFrames) => {}
 
         let genBuffer = (audioInfo) => {
+            console.log(audioInfo);
             if (!audioInfo) args.callback(null);
 
             if(audioInfo.length === 0) {

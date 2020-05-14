@@ -1740,7 +1740,7 @@ Wick.Project = class extends Wick.Base {
         var audioTrack = new Wick.AudioTrack(this);
 
         audioTrack.toAudioBuffer({
-            callback: audioBuffer => callback(audioBuffer),
+            callback: callback,
             soundInfo: args.soundInfo ? args.soundInfo : undefined,
             onProgress: args.onProgress,
         });

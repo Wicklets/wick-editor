@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.5.13.15.57.32";
+var WICK_ENGINE_BUILD_VERSION = "2020.5.14.10.42.38";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -47139,6 +47139,7 @@ Wick.AudioTrack = class {
     if (!args.onProgress) args.onProgress = (frame, maxFrames) => {};
 
     let genBuffer = audioInfo => {
+      console.log(audioInfo);
       if (!audioInfo) args.callback(null);
 
       if (audioInfo.length === 0) {
@@ -50999,7 +51000,7 @@ Wick.Project = class extends Wick.Base {
   generateAudioTrack(args, callback) {
     var audioTrack = new Wick.AudioTrack(this);
     audioTrack.toAudioBuffer({
-      callback: audioBuffer => callback(audioBuffer),
+      callback: callback,
       soundInfo: args.soundInfo ? args.soundInfo : undefined,
       onProgress: args.onProgress
     });

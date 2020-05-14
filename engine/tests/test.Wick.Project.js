@@ -1352,6 +1352,118 @@ describe('Wick.Project', function() {
     })
 
     describe('#generateAudioTrack', function () {
+        it('should return an empty audio sequence if project has no sounds', function (done) {
+            var project = new Wick.Project();
+
+            project.generateAudioSequence({onFinish: audioSequence => {
+                    expect(audioSequence).to.be.an('array');
+                    expect(audioSequence.length).to.equal(0);
+                    done();
+                }
+            });
+        });
+
+        it('Should find sounds on the first frame.', function (done) {
+            var project = new Wick.Project();
+
+            var sound = new Wick.SoundAsset({
+                filename: 'foo.wav',
+                src: TestUtils.TEST_SOUND_SRC_WAV
+            });
+
+            project.addAsset(sound);
+
+            project.activeFrame.sound = sound;
+            project.activeFrame.end = 12;
+
+            project.generateAudioSequence({onFinish: audioSequence => {
+                    expect(audioSequence).to.be.an('array');
+                    expect(audioSequence.length).to.equal(1);
+                    done();
+                }
+            });
+        });
+
+        it('Should find sounds on the second frame.', function (done) {
+            var project = new Wick.Project();
+
+            var sound = new Wick.SoundAsset({
+                filename: 'foo.wav',
+                src: TestUtils.TEST_SOUND_SRC_WAV
+            });
+
+            project.activeFrame.end = 6;
+
+            var frame2 = new Wick.Frame({start: 7, end: 12});
+            project.activeLayer.addFrame(frame2);
+
+            project.addAsset(sound);
+
+            frame2.sound = sound;
+            
+            project.generateAudioSequence({onFinish: audioSequence => {
+                    expect(audioSequence).to.be.an('array');
+                    expect(audioSequence.length).to.equal(1);
+                    done();
+                }
+            });
+        });
+
+        it('Should find 2 sounds on the first and second frame.', function (done) {
+            var project = new Wick.Project();
+
+            var sound = new Wick.SoundAsset({
+                filename: 'foo.wav',
+                src: TestUtils.TEST_SOUND_SRC_WAV
+            });
+
+            project.activeFrame.end = 6;
+
+            var frame2 = new Wick.Frame({start: 7, end: 12});
+            project.activeLayer.addFrame(frame2);
+
+            project.addAsset(sound);
+
+            project.activeFrame.sound = sound;
+            frame2.sound = sound;
+            
+            project.generateAudioSequence({onFinish: audioSequence => {
+                    expect(audioSequence).to.be.an('array');
+                    expect(audioSequence.length).to.equal(2);
+                    done();
+                }
+            });
+        });
+
+        it('Should find sounds in clips', function (done) {
+            var project = new Wick.Project();
+
+            var sound = new Wick.SoundAsset({
+                filename: 'foo.wav',
+                src: TestUtils.TEST_SOUND_SRC_WAV
+            });
+
+            project.addAsset(sound);
+
+            var frame2 = new Wick.Frame({start: 7, end: 12});
+            project.activeLayer.addFrame(frame2);
+
+            var clip1 = new Wick.Clip();
+            project.activeFrame.addClip(clip1);
+            clip1.activeFrame.sound = sound;
+
+            var clip2 = new Wick.Clip();
+            frame2.addClip(clip2);
+            clip2.activeFrame.sound = sound;
+            
+            project.generateAudioSequence({onFinish: audioSequence => {
+                    expect(audioSequence).to.be.an('array');
+                    expect(audioSequence.length).to.equal(2);
+                    done();
+                }
+            });
+        });
+
         it('should return an empty audio track if project has no sounds' , function (done) {
             var project = new Wick.Project();
 
@@ -1368,6 +1480,7 @@ describe('Wick.Project', function() {
                 filename: 'foo.wav',
                 src: TestUtils.TEST_SOUND_SRC_WAV
             });
+
             project.addAsset(sound);
 
             project.activeFrame.sound = sound;
@@ -1397,7 +1510,7 @@ describe('Wick.Project', function() {
             });
         });
 
-        it('should return an audio track two 0.5 second sounds' , function (done) {
+        it('should return an audio track with two 0.5 second sounds' , function (done) {
             var project = new Wick.Project();
 
             var sound = new Wick.SoundAsset({
