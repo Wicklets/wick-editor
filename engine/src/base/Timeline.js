@@ -267,8 +267,11 @@ Wick.Timeline = class extends Wick.Base {
      */
     moveLayer(layer, index) {
         var layers = this.getChildren('Layer');
+        
         layers.splice(layers.indexOf(layer), 1);
         layers.splice(index, 0, layer);
+
+        this._children = layers;
     }
 
     /**

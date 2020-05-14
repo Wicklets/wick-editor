@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.5.14.12.41.3";
+var WICK_ENGINE_BUILD_VERSION = "2020.5.14.13.15.33";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -52399,6 +52399,7 @@ Wick.Timeline = class extends Wick.Base {
     var layers = this.getChildren('Layer');
     layers.splice(layers.indexOf(layer), 1);
     layers.splice(index, 0, layer);
+    this._children = layers;
   }
   /**
    * Gets the frames at the given playhead position.
