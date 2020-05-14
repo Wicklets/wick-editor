@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.5.11.17.11.23";
+var WICK_ENGINE_BUILD_VERSION = "2020.5.14.13.29.19";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -45869,7 +45869,6 @@ Wick.History = class {
     var currentStateObject = this._undoStack[this._undoStack.length - 1]; // 1.17.1 History update, pull actual state information out, aside from names.
 
     var currentState = currentStateObject;
-    console.log(currentStateObject);
 
     if (currentStateObject.state) {
       currentState = currentStateObject.state;
@@ -45891,7 +45890,7 @@ Wick.History = class {
       return false;
     }
 
-    var recoveredState = this._redoStack.pop();
+    var recoveredState = this._redoStack.pop().state;
 
     this._undoStack.push(recoveredState);
 
@@ -47657,7 +47656,7 @@ Wick.AutoSave = class {
 };
 Wick.AutoSave.ENABLE_PERF_TIMERS = false;
 /*
- * Copyright 2020 WICKLETS LLC
+ * Copyright 2019 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -47795,17 +47794,14 @@ Wick.WickFile = class {
     if (format !== 'blob' && format !== 'base64') {
       console.error('WickFile.toWickFile: invalid format: ' + format);
       return;
-    } // This can cause issues if clips or sounds are used in code.
-    // Delete unused assets before export (minimizes filesize)
-    // project.cleanupUnusedAssets();
-
+    }
 
     var zip = new JSZip(); // Create assets folder
 
     var assetsFolder = zip.folder("assets"); // Populate assets folder with files
 
     project.getAssets().filter(asset => {
-      return asset instanceof Wick.ImageAsset || asset instanceof Wick.SoundAsset || asset instanceof Wick.FontAsset || asset instanceof Wick.ClipAsset;
+      return asset instanceof Wick.ImageAsset || asset instanceof Wick.SoundAsset || asset instanceof Wick.FontAsset || asset instanceof Wick.ClipAsset || asset instanceof Wick.SVGAsset;
     }).forEach(asset => {
       // Create file from asset dataurl, add it to assets folder
       var fileExtension = asset.MIMEType.split('/')[1];
@@ -48154,6 +48150,66 @@ Wick.HTMLPreview = class {
 
 };
 /*
+ * Copyright 2019 WICKLETS LLC
+ *
+ * This file is part of Wick Engine.
+ *
+ * Wick Engine is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Engine is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/**
+ * Utility class for creating and parsing wickobject files.
+ */
+Wick.SVGFile = class {
+  /**
+   * Create a project from a wick file.
+   * @param {Blob | string} svgFile - WickObject file containing object data (can be a Blob or a dataURL string)
+   * @param {function} callback - Function called when the object is done being loaded
+   */
+  static fromSVGFile(svgFile, callback) {
+    if (typeof svgFile === 'string') {
+      svgFile = Wick.ExportUtils.dataURItoBlob(svgFile);
+    }
+
+    var fr = new FileReader();
+
+    fr.onload = function () {
+      callback(fr.result);
+    };
+
+    fr.readAsText(svgFile);
+  }
+  /**
+   * Create a wick file from the project.
+   * @param {Wick.Timeline} timeline - the clip to create a wickobject file from
+   * @param {function(string)} onError - Can be 'blob' or 'dataurl'.
+   * @param {function(blob)} callback - function to call when done
+   * @returns {Blob}
+   */
+
+
+  static toSVGFile(timeline, onError, callback) {
+    var svgString = timeline.exportSVG(onError);
+    var blob = new Blob([svgString], {
+      type: 'image/svg+xml'
+    });
+    callback(blob);
+    return blob;
+  }
+
+};
+/*
  * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
@@ -48324,10 +48380,10 @@ Wick.Base = class {
     this._guiElement = null;
     this.guiElement = this._generateGUIElement();
     this._classname = this.classname;
-    this._children = {};
+    this._children = [];
     this._childrenData = null;
     this._parent = null;
-    this._project = this.classname === 'Project' ? this : null;
+    this._project = this.classname === 'Project' ? this : args.project ? args.project : null;
     this.needsAutosave = true;
     this._cachedSerializeData = null;
     Wick.ObjectCache.addObject(this);
@@ -48414,7 +48470,7 @@ Wick.Base = class {
     this._uuid = data.uuid;
     this._identifier = data.identifier;
     this._name = data.name;
-    this._children = {};
+    this._children = [];
     this._childrenData = data.children; // Clear any custom attributes set by scripts
 
     var compareObj = Wick._originals[this.classname];
@@ -48649,22 +48705,30 @@ Wick.Base = class {
 
     if (classname instanceof Array) {
       var children = [];
-      classname.forEach(classnameSeek => {
-        children = children.concat(this.getChildren(classnameSeek));
-      });
+
+      if (this._children !== undefined) {
+        this._children.forEach(child => {
+          if (classname.indexOf(child.classname) !== -1) {
+            children.push(child);
+          }
+        });
+      }
+
       return children;
     } else if (classname === undefined) {
       // Retrieve all children if no classname was given
-      var allChildren = [];
-
-      for (var classnameSeek in this._children) {
-        allChildren = allChildren.concat(this._children[classnameSeek]);
-      }
-
-      return allChildren;
+      return Array.from(this._children);
     } else {
       // Retrieve children by classname
-      return this._children[classname] || [];
+      var children = [];
+
+      this._children.forEach(child => {
+        if (child.classname === classname) {
+          children.push(child);
+        }
+      });
+
+      return children || [];
     }
   }
   /**
@@ -48753,15 +48817,15 @@ Wick.Base = class {
   addChild(child) {
     var classname = child.classname;
 
-    if (!this._children[classname]) {
-      this._children[classname] = [];
+    if (!this._children) {
+      this._children = [];
     }
 
     child._parent = this;
 
     child._setProject(this.project);
 
-    this._children[classname].push(child);
+    this._children.push(child);
   }
   /**
    * Remove a child from this object.
@@ -48772,13 +48836,13 @@ Wick.Base = class {
   removeChild(child) {
     var classname = child.classname;
 
-    if (!this._children[classname]) {
+    if (!this._children) {
       return;
     }
 
     child._parent = null;
     child._project = null;
-    this._children[classname] = this._children[classname].filter(seekChild => {
+    this._children = this._children.filter(seekChild => {
       return seekChild !== child;
     });
   }
@@ -48827,7 +48891,9 @@ Wick.Base = class {
   _setProject(project) {
     this._project = project;
     this.getChildren().forEach(child => {
-      child._setProject(project);
+      if (child instanceof Wick.Base) {
+        child._setProject(project);
+      }
     });
   }
 
@@ -49230,7 +49296,7 @@ Wick.Project = class extends Wick.Base {
    * Create a project.
    * @param {string} name - Project name. Default "My Project".
    * @param {number} width - Project width in pixels. Default 720.
-   * @param {number} height - Project height in pixels. Default 405.
+   * @param {number} height - Project height in pixels. Default 480.
    * @param {number} framerate - Project framerate in frames-per-second. Default 12.
    * @param {Color} backgroundColor - Project background color in hex. Default #ffffff.
    */
@@ -49239,7 +49305,7 @@ Wick.Project = class extends Wick.Base {
     super(args);
     this._name = args.name || 'My Project';
     this._width = args.width || 720;
-    this._height = args.height || 405;
+    this._height = args.height || 480;
     this._framerate = args.framerate || 12;
     this._backgroundColor = args.backgroundColor || new Wick.Color('#ffffff');
     this.pan = {
@@ -49254,7 +49320,9 @@ Wick.Project = class extends Wick.Base {
     this.selection = new Wick.Selection();
     this.history = new Wick.History();
     this.clipboard = new Wick.Clipboard();
-    this.root = new Wick.Clip();
+    this.root = new Wick.Clip({
+      project: this
+    });
     this.root._identifier = 'Project';
     this.focus = this.root;
     this._mousePosition = {
@@ -49310,7 +49378,6 @@ Wick.Project = class extends Wick.Base {
       if (name === 'fillColor') {
         this.selection.fillColor = value.rgba;
       } else if (name === 'strokeColor') {
-        f;
         this.selection.strokeColor = value.rgba;
       }
     });
@@ -49562,7 +49629,7 @@ Wick.Project = class extends Wick.Base {
 
 
   get assets() {
-    return this.getChildren(['ImageAsset', 'SoundAsset', 'ClipAsset', 'FontAsset']);
+    return this.getChildren(['ImageAsset', 'SoundAsset', 'ClipAsset', 'FontAsset', 'SVGAsset']);
   }
   /**
    * Adds an asset to the project.
@@ -49823,7 +49890,8 @@ Wick.Project = class extends Wick.Base {
     let imageTypes = Wick.ImageAsset.getValidMIMETypes();
     let soundTypes = Wick.SoundAsset.getValidMIMETypes();
     let fontTypes = Wick.FontAsset.getValidMIMETypes();
-    let clipTypes = Wick.ClipAsset.getValidMIMETypes(); // Fix missing mimetype for wickobj files
+    let clipTypes = Wick.ClipAsset.getValidMIMETypes();
+    let svgTypes = Wick.SVGAsset.getValidMIMETypes(); // Fix missing mimetype for wickobj files
 
     var type = file.type;
 
@@ -49841,6 +49909,8 @@ Wick.Project = class extends Wick.Base {
       asset = new Wick.FontAsset();
     } else if (clipTypes.indexOf(type) !== -1) {
       asset = new Wick.ClipAsset();
+    } else if (svgTypes.indexOf(type) !== -1) {
+      asset = new Wick.SVGAsset();
     }
 
     if (asset === undefined) {
@@ -49853,6 +49923,8 @@ Wick.Project = class extends Wick.Base {
       console.log(fontTypes);
       console.warn('supported clip file types:');
       console.log(clipTypes);
+      console.warn('supported SVG file types:');
+      console.log(svgTypes);
       callback(null);
       return;
     }
@@ -50222,6 +50294,24 @@ Wick.Project = class extends Wick.Base {
       clip.y = y;
       callback(clip);
     }, this);
+  }
+  /**
+   * Adds an instance of a clip asset to the active frame.
+   * @param {Wick.Asset} asset - the asset to create the SVG file instance from
+   * @param {number} x - the x position to import the SVG file at
+   * @param {number} y - the y position to import the SVG file at
+   * @param {function} callback - the function to call after the path is created.
+   */
+
+
+  createSVGInstanceFromAsset(asset, x, y, callback) {
+    asset.createInstance(svg => {
+      this.addObject(svg);
+      svg.x = x;
+      svg.y = y; //this.addObject(svg);
+
+      callback(svg);
+    });
   }
   /**
    * Creates a symbol from the objects currently selected.
@@ -50848,8 +50938,8 @@ Wick.Project = class extends Wick.Base {
     renderCopy.pan = {
       x: 0,
       y: 0
-    }; // renderCopy.tick();
-    // We need full control over when paper.js renders, if we leave autoUpdate on, it's possible to lose frames if paper.js doesnt automatically render as fast as we are generating the images.
+    };
+    renderCopy.tick(); // We need full control over when paper.js renders, if we leave autoUpdate on, it's possible to lose frames if paper.js doesnt automatically render as fast as we are generating the images.
     // (See paper.js docs for info about autoUpdate)
 
     renderCopy.view.paper.view.autoUpdate = false;
@@ -50918,9 +51008,7 @@ Wick.Project = class extends Wick.Base {
     renderCopy.view.resize(); // Set the initial state of the project.
 
     renderCopy.focus = renderCopy.root;
-    renderCopy.focus.timeline.playheadPosition = 1;
-    renderCopy.tick(); // We need full control over when paper.js renders, if we leave autoUpdate on, it's possible to lose frames if paper.js doesnt automatically render as fast as we are generating the images.
-    // (See paper.js docs for info about autoUpdate)
+    renderCopy.focus.timeline.playheadPosition = 1; // renderCopy.tick(); // This is commented out to not miss frame 1.
 
     renderCopy.view.paper.view.autoUpdate = false;
     var numMaxFrameImages = renderCopy.focus.timeline.length;
@@ -50938,7 +51026,7 @@ Wick.Project = class extends Wick.Base {
         this.publishedMode = false;
         this.view.render();
         window.document.body.removeChild(container);
-        args.onFinish(this.soundsPlayed);
+        args.onFinish([...this.soundsPlayed]);
       } else {
         var oldPlayhead = renderCopy.activeTimeline.playheadPosition;
         renderCopy.tick();
@@ -50984,7 +51072,7 @@ Wick.Project = class extends Wick.Base {
   generateAudioTrack(args, callback) {
     var audioTrack = new Wick.AudioTrack(this);
     audioTrack.toAudioBuffer({
-      callback: audioBuffer => callback(audioBuffer),
+      callback: callback,
       soundInfo: args.soundInfo ? args.soundInfo : undefined,
       onProgress: args.onProgress
     });
@@ -51211,9 +51299,19 @@ Wick.Selection = class extends Wick.Base {
 
 
   clear(filter) {
-    this.project.selection.getSelectedObjects(filter).forEach(object => {
-      this.deselect(object);
-    });
+    if (filter === undefined) {
+      this.project.selection.getSelectedObjects().forEach(object => {
+        if (object !== null) {
+          this.deselect(object);
+        } //else object is no longer in cache, this happens sometimes when loading up an autosave project
+
+      });
+      this._selectedObjectsUUIDs = [];
+    } else {
+      this.project.selection.getSelectedObjects(filter).forEach(object => {
+        this.deselect(object);
+      });
+    }
   }
   /**
    * Checks if a given object is selected.
@@ -51355,6 +51453,8 @@ Wick.Selection = class extends Wick.Base {
         return 'imageasset';
       } else if (selection.getSelectedObjects()[0] instanceof window.Wick.SoundAsset) {
         return 'soundasset';
+      } else if (selection.getSelectedObjects()[0] instanceof window.Wick.SVGAsset) {
+        return 'svgasset';
       } else {
         return 'multiassetmixed';
       }
@@ -52232,6 +52332,23 @@ Wick.Timeline = class extends Wick.Base {
     });
     return frames;
   }
+  /*
+   * exports the project as an SVG file
+   * @onError {function(message)}
+   * @returns {string} - the SVG for the current view in string form (maybe this should be base64 or a blob or something)
+   */
+
+
+  exportSVG(onError) {
+    var svgOutput = paper.project.exportSVG({
+      asString: true,
+      matchShapes: true,
+      embedImages: true
+    });
+    return svgOutput;
+  } //this.project.paper.
+  //paperGroup = new paper.Group
+
   /**
    * The active frame, determined by the playhead position.
    * @type {Wick.Frame}
@@ -52357,6 +52474,7 @@ Wick.Timeline = class extends Wick.Base {
     var layers = this.getChildren('Layer');
     layers.splice(layers.indexOf(layer), 1);
     layers.splice(index, 0, layer);
+    this._children = layers;
   }
   /**
    * Gets the frames at the given playhead position.
@@ -53170,6 +53288,7 @@ Wick.Path = class extends Wick.Base {
    * The image asset that this path uses, if this path is a Raster path.
    * @returns {Wick.Asset[]}
    */
+  //should this also return the SVGAsset if the path is loaded from an SVGAsset
 
 
   getLinkedAssets() {
@@ -53345,14 +53464,6 @@ Wick.Asset = class extends Wick.Base {
     this.name = data.name;
   }
   /**
-   * Removes this asset from the project.
-   */
-
-
-  remove() {
-    this.project.removeAsset(this);
-  }
-  /**
    * A list of all objects using this asset.
    */
 
@@ -53408,8 +53519,9 @@ Wick.FileAsset = class extends Wick.Asset {
     let soundTypes = Wick.SoundAsset.getValidMIMETypes();
     let fontTypes = Wick.FontAsset.getValidMIMETypes();
     let clipTypes = Wick.ClipAsset.getValidMIMETypes();
+    let svgTypes = Wick.SVGAsset.getValidMIMETypes();
     let gifTypes = Wick.GIFAsset.getValidMIMETypes();
-    return imageTypes.concat(soundTypes).concat(fontTypes).concat(clipTypes).concat(gifTypes);
+    return imageTypes.concat(soundTypes).concat(fontTypes).concat(clipTypes).concat(svgTypes).concat(gifTypes);
   }
   /**
    * Returns all valid extensions types for files which can be attempted to be
@@ -53423,8 +53535,9 @@ Wick.FileAsset = class extends Wick.Asset {
     let soundExtensions = Wick.SoundAsset.getValidExtensions();
     let fontExtensions = Wick.FontAsset.getValidExtensions();
     let clipExtensions = Wick.ClipAsset.getValidExtensions();
+    let svgExtensions = Wick.SVGAsset.getValidExtensions();
     let gifExtensions = Wick.GIFAsset.getValidExtensions();
-    return imageExtensions.concat(soundExtensions).concat(fontExtensions).concat(clipExtensions).concat(gifExtensions);
+    return imageExtensions.concat(soundExtensions).concat(fontExtensions).concat(clipExtensions).concat(svgExtensions).concat(gifExtensions);
   }
   /**
    * Create a new FileAsset.
@@ -53489,6 +53602,10 @@ Wick.FileAsset = class extends Wick.Asset {
       this.MIMEType = this._MIMETypeOfString(src);
     }
   }
+  /**
+   * Loads data about the file into the asset.
+   */
+
 
   load(callback) {
     callback();
@@ -54383,7 +54500,8 @@ Wick.SVGAsset = class extends Wick.FileAsset {
     return 'SVGAsset';
   }
   /**
-   * A list of Wick Paths that use this SVGAsset as their image source.
+   * A list of Wick Paths, Clips and Layers that use this SVGAsset as their image source.
+   * I think this should return Assets not Paths
    * @returns {Wick.Path[]}
    */
 
@@ -54398,10 +54516,10 @@ Wick.SVGAsset = class extends Wick.FileAsset {
 
 
   hasInstances() {
-    return false; // TODO
+    return false;
   }
   /**
-   * Removes all Paths using this asset as their source from the project.
+   * Removes all Items using this asset as their source from the project.
    * @returns {boolean}
    */
 
@@ -54418,12 +54536,154 @@ Wick.SVGAsset = class extends Wick.FileAsset {
     callback();
   }
   /**
-   * Creates a new Wick Path that uses this asset's data.
-   * @param {function} callback - called when the Path is done loading.
+   * Walks through the items tree creating the apprptiate wick object for each node*
+   * @param {paper.Item} item - called when the Path is done loading.
+   * @returns {Wick.Base}
    */
 
 
-  createInstance(callback, project) {// TODO
+  static walkItems(item) {
+    // create paths for all the path items, this also needs to be done for the following item.className=:
+    // 'Group', 'Layer', 'Path', 'CompoundPath', 'Shape', 'Raster', 'SymbolItem', 'PointText'
+    // I think path automatically handles this, but maybe not layer or group
+    var wickItem = null; // Groups (clips) and layers do this differently so they must be handled separately
+
+    if (item instanceof paper.Layer || item.name !== null && item.name.startsWith("layer") && item instanceof paper.Group) {
+      wickItem = new Wick.Layer(); // If we've just added a layer set it to be the active layer
+      //TODO: Find out how multiple layers are handled
+
+      var frame = new Wick.Frame();
+      wickItem.addFrame(frame);
+      var groupChildren = Array.from(item.children); //prevent any side effects
+
+      groupChildren.forEach(childItem => {
+        var wickChildItem = Wick.SVGAsset.walkItems(childItem).copy();
+
+        if (wickChildItem instanceof Wick.Clip) {
+          frame.addClip(wickChildItem);
+        } else if (wickChildItem instanceof Wick.Path) {
+          frame.addPath(wickChildItem);
+        } else if (wickChildItem instanceof Wick.Layer) {
+          frame.addLayer(wickChildItem); //console.error("SVG Import: Error importing, nested layers.ignoring."); // Insert text
+        } else {
+          console.error("SVG Import: Unknown item type.".concat(wickChildItem.classname)); // Insert text
+        }
+      });
+    } else if (item instanceof paper.Group) {
+      wickItem = new Wick.Clip();
+      var wickObjects = [];
+      var layers = [];
+      var groupChildren = Array.from(item.children); //prevent any side effects
+
+      groupChildren.forEach(childItem => {
+        var clipActiveLayer = wickItem.activeLayer; ///This should be clips and paths not layers
+
+        var walkItem = Wick.SVGAsset.walkItems(childItem).copy();
+
+        if (walkItem instanceof Wick.Layer) {
+          //console.error("SVG Import: Clip has a child that is a layer, this should never happen. ignoring."); // Insert text
+          layers.push(walkItem);
+          clipActiveLayer.activate();
+        } else {
+          wickObjects.push(walkItem);
+        }
+      });
+      wickItem.addObjects(wickObjects); //add the items to the project
+      // add layers after onjects so the objexts don't get bound to the new layer
+
+      var layersCopy = Array.from(layers); //prevent any side effects
+
+      layersCopy.forEach(layer => {
+        wickItem.timeline.addLayer(layer);
+      });
+    } else if (item instanceof paper.Shape) {
+      //console.error("SVG Import: Item is an instance of a shape. This should never happen as all shapes should be converted to paths when we call paperProject.importSVG(data, options.expandShapes = true);");
+      wickItem = new Wick.Path({//json: item.clone().toPath().exportJSON()
+      });
+    } else {
+      //'Path', 'CompoundPath', 'Raster', 'SymbolItem', 'PointText' all handled by Path which takes the loaded paper object expressed as JSON to load
+      wickItem = new Wick.Path({
+        json: item.exportJSON()
+      });
+    }
+
+    return wickItem;
+  }
+  /**
+   * Walks through the items tree creating the appropriate wick object for each node
+   * @param {Paper.Item} item - the item to turn into paths
+   */
+
+  /**
+   * Walks through the items tree converting shapes into paths. This should be possible to do in the walkitems routine
+   * @param {Paper.Item} item - called when the Path is done loading.
+   */
+
+
+  static _breakAppartShapesRecursively(item) {
+    item.applyMatrix = true;
+
+    if (item instanceof paper.Group || item instanceof paper.Layer) {
+      var children = Array.from(item.children);
+      children.forEach(childItem => {
+        Wick.SVGAsset._breakAppartShapesRecursively(childItem);
+      });
+    } else if (item instanceof paper.Shape) {
+      //This should have been done automatically by the import options, spo shouldn't be needed
+      var path = item.toPath(); //item.parent.addChild(path);
+      //path.insertAbove(item);
+      //item.remove();
+
+      item.replaceWith(path);
+    }
+  }
+  /**
+   * Creates a new Wick SVG that uses this asset's data.
+   * @param {function} callback - called when the SVG is done loading.
+   */
+
+
+  createInstance(callback) {
+    // needs to take a base64 encoded string.
+    //we need a viewSVG and an SVG object that extends base by the looks of things.
+
+    /*
+            var myPath = new paper.Path();
+            myPath.strokeColor = 'black';
+            myPath.add(new paper.Point(0, 0));
+            myPath.add(new paper.Point(100, 50));
+            var anItem = this.walkItems(myPath);
+            this.project.addObject(anItem);
+            var myLayer = new paper.Layer();
+            var secondPath = new paper.Path.Circle(new paper.Point(150, 50), 35);
+            secondPath.fillColor = 'green';
+            var aLayer = this.walkItems(myLayer);
+            this.project.addObject(aLayer);
+                // Create two circle shaped paths:
+            var firstPath = new paper.Path.Circle(new paper.Point(80, 50), 35);
+            var secondPath = new paper.Path.Circle(new paper.Point(120, 50), 35);
+            var group = new paper.Group([firstPath, secondPath]);
+            // Change the fill color of the items contained within the group:
+            group.style = {
+                fillColor: 'red',
+                strokeColor: 'black'
+            };
+            var agroup = this.walkItems(group);
+            this.project.addObject(agroup);
+      */
+    var importSVG = function (data) {
+      var item = paper.project.importSVG(data, {
+        expandShapes: true,
+        insert: false
+      });
+
+      Wick.SVGAsset._breakAppartShapesRecursively(item);
+
+      var wickItem = Wick.SVGAsset.walkItems(item).copy();
+      callback(wickItem);
+    };
+
+    Wick.SVGFile.fromSVGFile(this.src, importSVG);
   }
 
 };
@@ -55159,7 +55419,7 @@ Wick.Frame = class extends Wick.Tickable {
 
 
   get onionSkinned() {
-    if (!this.project.onionSkinEnabled) {
+    if (!this.project || !this.project.onionSkinEnabled) {
       return false;
     } // Don't onion skin if we're in the playhead's position.
 
@@ -55306,6 +55566,15 @@ Wick.Frame = class extends Wick.Tickable {
 
   get clips() {
     return this.getChildren(['Clip', 'Button']);
+  }
+  /**
+   * The drawable objectson the frame.
+   * @type {Wick.Base[]}
+   */
+
+
+  get drawable() {
+    return this.getChildren(['Clip', 'Button', 'Path']);
   }
   /**
    * The tweens on this frame.
@@ -55676,10 +55945,12 @@ Wick.Frame = class extends Wick.Tickable {
    * @param {string} svg - the SVG data to parse and import.
    */
 
-
-  importSVG(svg) {
-    this.view.importSVG(svg);
+  /*
+  importSVG (svg) {
+      this.view.importSVG(svg);
   }
+  */
+
   /**
    * Get the position of this frame in relation to the parent timeline's playhead position.
    * @returns {number}
@@ -55859,6 +56130,7 @@ Wick.Clip = class extends Wick.Tickable {
     this._animationType = data.animationType || 'loop';
     this._singleFrameNumber = data.singleFrameNumber || 1;
     this._assetSourceUUID = data.assetSourceUUID;
+    this._isSynced = data.isSynced;
     this._playedOnce = false;
     this._clones = [];
   }
@@ -55904,11 +56176,13 @@ Wick.Clip = class extends Wick.Tickable {
       return;
     }
 
+    this._isSynced = bool;
+
     if (bool) {
       this.applySyncPosition();
+    } else {
+      this.timeline.playheadPosition = 1;
     }
-
-    this._isSynced = bool;
   }
   /**
    * Determines whether or not the clip is the currently focused clip in the project.
@@ -56520,7 +56794,7 @@ Wick.Clip = class extends Wick.Tickable {
         path.remove();
       }); // Generate crosshair
 
-      var size = 10;
+      var size = Wick.View.Clip.PLACEHOLDER_SIZE;
       var line1 = new paper.Path.Line({
         from: [0, -size],
         to: [0, size],
@@ -57383,7 +57657,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
       if (this._currentDrawingFrame && this._currentDrawingFrame.view) {
         // Don't apply brush mode if there is no frame to draw on
         // (the frame is added during addPathToProject)
-        result = this._applyBrushMode(brushMode, result, this._currentDrawingFrame.view.pathsLayer);
+        result = this._applyBrushMode(brushMode, result, this._currentDrawingFrame.view.objectsLayer);
       } // Done! Add the path to the project
 
 
@@ -58152,7 +58426,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
         layers: this.project.activeFrames.filter(frame => {
           return !frame.parentLayer.hidden;
         }).map(frame => {
-          return frame.view.pathsLayer;
+          return frame.view.objectsLayer;
         }),
         onFinish: path => {
           this.setCursor('default');
@@ -59261,15 +59535,13 @@ Wick.Tools.Zoom = class extends Wick.Tool {
   }
 
   function eraseWithPath(eraserPath) {
-    var touchingPaths = [];
-    this.children.forEach(function (child) {
-      if (eraserPath.bounds.intersects(child.bounds)) {
-        touchingPaths.push(child);
-      }
-    });
-    touchingPaths.filter(path => {
+    var erasables = this.children.filter(path => {
       return path instanceof paper.Path || path instanceof paper.CompoundPath;
-    }).forEach(path => {
+    });
+    var touchingPaths = this.children.filter(function (child) {
+      return eraserPath.bounds.intersects(child.bounds);
+    });
+    touchingPaths.forEach(path => {
       if (path.strokeColor && path.fillColor) {
         var res = splitPath(path);
         eraseFill(res.fill, eraserPath);
@@ -61097,7 +61369,7 @@ Wick.View.Project = class extends Wick.View {
     this.model.focus.timeline.view.frameLayers.forEach(layer => {
       this.paper.project.addLayer(layer);
 
-      if (this.model.project && this.model.project.activeFrame && !layer.locked && layer.data.wickType === 'paths' && layer.data.wickUUID === this.model.project.activeFrame.uuid) {
+      if (this.model.project && this.model.project.activeFrame && !layer.locked && (layer.data.wickType === 'paths' || layer.data.wickType === 'clipsandpaths') && layer.data.wickUUID === this.model.project.activeFrame.uuid) {
         layer.activate();
       }
     }); // Render selection
@@ -61489,6 +61761,10 @@ Wick.View.Clip = class extends Wick.View {
   static get BORDER_STROKE_COLOR_HAS_CODE_ERROR() {
     return '#E61E07';
   }
+
+  static get PLACEHOLDER_SIZE() {
+    return 10;
+  }
   /**
    * Creates a new Button view.
    */
@@ -61665,12 +61941,9 @@ Wick.View.Layer = class extends Wick.View {
 
     if (frame) {
       frame.view.render();
-      this.activeFrameLayers.push(frame.view.pathsLayer);
-      this.activeFrameLayers.push(frame.view.clipsLayer);
-      frame.view.clipsLayer.locked = false;
-      frame.view.pathsLayer.locked = false;
-      frame.view.clipsLayer.opacity = 1.0;
-      frame.view.pathsLayer.opacity = 1.0;
+      this.activeFrameLayers.push(frame.view.objectsLayer);
+      frame.view.objectsLayer.locked = false;
+      frame.view.objectsLayer.opacity = 1.0;
     } // Disable mouse events on layers if they are locked.
     // (However, this is ignored while the project is playing so the interact tool always works.)
     // (This is also ignored for layers which are inside clips and not the current focus.)
@@ -61704,8 +61977,7 @@ Wick.View.Layer = class extends Wick.View {
     var onionSkinSeekForwards = this.model.project.onionSkinSeekForwards;
     var playheadPosition = this.model.project.focus.timeline.playheadPosition;
     frame.view.render();
-    this.onionSkinnedFramesLayers.push(frame.view.pathsLayer);
-    this.onionSkinnedFramesLayers.push(frame.view.clipsLayer);
+    this.onionSkinnedFramesLayers.push(frame.view.objectsLayer);
     var seek = 1;
 
     if (frame.midpoint < playheadPosition) {
@@ -61718,10 +61990,8 @@ Wick.View.Layer = class extends Wick.View {
     var onionMult = (seek - dist + 1) / seek;
     onionMult = Math.min(1, Math.max(0, onionMult));
     var opacity = onionMult * Wick.View.Layer.BASE_ONION_OPACITY;
-    frame.view.clipsLayer.locked = true;
-    frame.view.pathsLayer.locked = true;
-    frame.view.clipsLayer.opacity = opacity;
-    frame.view.pathsLayer.opacity = opacity;
+    frame.view.objectsLayer.locked = true;
+    frame.view.objectsLayer.opacity = opacity;
   }
 
 };
@@ -61762,10 +62032,8 @@ Wick.View.Frame = class extends Wick.View {
 
   constructor() {
     super();
-    this.clipsLayer = new this.paper.Layer();
-    this.clipsLayer.remove();
-    this.pathsLayer = new this.paper.Layer();
-    this.pathsLayer.remove();
+    this.objectsLayer = new this.paper.Layer();
+    this.objectsLayer.remove();
   }
   /**
    * Write the changes made to the view to the frame.
@@ -61773,35 +62041,21 @@ Wick.View.Frame = class extends Wick.View {
 
 
   applyChanges() {
-    this._applyClipChanges();
-
-    this._applyPathChanges();
+    this._applyDrawableChanges();
   }
   /**
-   * Import SVG data into the paper.js layer, and updates the Frame's json data.
-   * @param {string} svg - the SVG data to parse and import.
+   * Update the view based on the model
    */
 
 
-  importSVG(svg) {
-    var importedItem = this.pathsLayer.importSVG(svg);
-
-    this._recursiveBreakApart(importedItem);
-
-    this._applyPathChanges();
-  }
-
   render() {
-    this._renderPaths();
-
-    this._renderClips();
+    this._renderObjects();
   }
 
-  _renderPaths(args) {
-    if (!args) args = {};
-    this.pathsLayer.data.wickUUID = this.model.uuid;
-    this.pathsLayer.data.wickType = 'paths';
-    this.pathsLayer.removeChildren(); // Remove placeholder paths if
+  _renderObjects() {
+    this.objectsLayer.data.wickUUID = this.model.uuid;
+    this.objectsLayer.data.wickType = 'clipsandpaths';
+    this.objectsLayer.removeChildren(); // Remove placeholder paths if
     // 1) this frame is focused, or
     // 2) the project is playing
 
@@ -61813,97 +62067,77 @@ Wick.View.Frame = class extends Wick.View {
       });
     }
 
-    this.model.paths.forEach(path => {
-      path.view.render();
-      this.pathsLayer.addChild(path.view.item);
+    this.model.drawable.forEach(object => {
+      object.view.render();
+
+      if (object.view.model instanceof Wick.Path) {
+        this.objectsLayer.addChild(object.view.item);
+      } else {
+        this.objectsLayer.addChild(object.view.group);
+      }
     });
   }
 
-  _renderClips() {
-    this.clipsLayer.data.wickUUID = this.model.uuid;
-    this.clipsLayer.data.wickType = 'clips';
-    this.clipsLayer.removeChildren();
-    this.model.clips.forEach(clip => {
-      clip.view.render();
-      this.clipsLayer.addChild(clip.view.group);
-    });
-  }
-
-  _applyClipChanges() {
-    // Reorder clips
-    var clips = this.model.clips.concat([]);
-    clips.forEach(clip => {
-      this.model.removeClip(clip);
-    });
-    this.clipsLayer.children.forEach(child => {
-      this.model.addClip(clips.find(g => {
-        return g.uuid === child.data.wickUUID;
-      }));
-    }); // Update clip transforms
-
-    this.clipsLayer.children.forEach(child => {
-      var wickClip = Wick.ObjectCache.getObjectByUUID(child.data.wickUUID);
-      wickClip.transformation = new Wick.Transformation({
-        x: child.position.x,
-        y: child.position.y,
-        scaleX: child.scaling.x,
-        scaleY: child.scaling.y,
-        rotation: child.rotation,
-        opacity: child.opacity
-      });
-    });
-  }
-
-  _applyPathChanges() {
-    // NOTE:
-    // This could be optimized by updating existing paths instead of completely clearing the frame children.
-    // Quickfix for now:
-    // Force all dynamic text paths to render in front of all other paths.
-    this.model.paths.filter(path => {
-      return path.isDynamicText;
+  _applyDrawableChanges() {
+    this.model.drawable.filter(path => {
+      return path instanceof Wick.Path && path.isDynamicText;
     }).forEach(path => {
       path.view.item.bringToFront();
     }); // Clear all WickPaths from the frame
+    // Reorder clips
 
-    this.model.paths.forEach(path => {
-      this.model.removePath(path);
-    }); // Create new WickPaths for the frame
-
-    this.pathsLayer.children.filter(child => {
+    var drawables = this.model.drawable.concat([]);
+    drawables.forEach(drawable => {
+      // should realkly be remove child
+      this.model.removeClip(drawable);
+    });
+    this.objectsLayer.children.filter(child => {
       return child.data.wickType !== 'gui';
     }).forEach(child => {
-      var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
-      var pathJSON = Wick.View.Path.exportJSON(child);
-      var wickPath = new Wick.Path({
-        json: pathJSON
-      });
-      this.model.addPath(wickPath);
-      wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
-      wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
-      wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;
-      wickPath.isPlaceholder = originalWickPath ? originalWickPath.isPlaceholder : false;
-      child.name = wickPath.uuid;
+      if (child instanceof paper.Group || child instanceof Wick.Clip) {
+        this.model.addClip(drawables.find(g => {
+          return g.uuid === child.data.wickUUID;
+        }));
+      } else {
+        var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
+        var pathJSON = Wick.View.Path.exportJSON(child);
+        var wickPath = new Wick.Path({
+          json: pathJSON
+        });
+        this.model.addPath(wickPath);
+        wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
+        wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
+        wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;
+        child.name = wickPath.uuid;
+      }
+    }); // Update clip transforms
+
+    this.objectsLayer.children.filter(child => {
+      return child.data.wickType !== 'gui';
+    }).forEach(child => {
+      if (child instanceof paper.Group || child instanceof Wick.Clip) {
+        var wickClip = Wick.ObjectCache.getObjectByUUID(child.data.wickUUID);
+        wickClip.transformation = new Wick.Transformation({
+          x: child.position.x,
+          y: child.position.y,
+          scaleX: child.scaling.x,
+          scaleY: child.scaling.y,
+          rotation: child.rotation,
+          opacity: child.opacity
+        });
+      }
     });
-  } // Helper function for SVG import (paper.js imports SVGs as one big group.)
-
-
-  _recursiveBreakApart(item) {
-    item.applyMatrix = true;
-
-    if (item instanceof paper.Shape) {
-      var path = item.toPath();
-      item.parent.addChild(path);
-      item.remove();
-    }
-
-    if (item instanceof paper.Group) {
-      var children = item.removeChildren();
-      item.parent.addChildren(children);
-      item.remove();
-      children.forEach(child => {
-        this._recursiveBreakApart(child);
-      });
-    }
+    /*
+    var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
+    var pathJSON = Wick.View.Path.exportJSON(child);
+    var wickPath = new Wick.Path({json:pathJSON});
+     this.model.addPath(wickPath);
+    wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
+    wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
+    wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;
+    wickPath.isPlaceholder = originalWickPath ? originalWickPath.isPlaceholder : false;
+    child.name = wickPath.uuid;
+    */
   }
 
 };

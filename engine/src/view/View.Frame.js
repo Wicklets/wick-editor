@@ -22,57 +22,43 @@ Wick.View.Frame = class extends Wick.View {
      * A multiplier for the resolution for the rasterization process.
      * E.g. a multiplier of 2 will make a path 100 pixels wide rasterize into an image 200 pixels wide.
      */
-    static get RASTERIZE_RESOLUTION_MODIFIER () {
+    static get RASTERIZE_RESOLUTION_MODIFIER() {
         return 1;
     }
 
-    static get RASTERIZE_RESOLUTION_MODIFIER_FOR_DEVICE () {
+    static get RASTERIZE_RESOLUTION_MODIFIER_FOR_DEVICE() {
         return Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER / window.devicePixelRatio;
     }
 
     /**
      * Create a frame view.
      */
-    constructor () {
+    constructor() {
         super();
 
-        this.clipsLayer = new this.paper.Layer();
-        this.clipsLayer.remove();
+        this.objectsLayer = new this.paper.Layer();
+        this.objectsLayer.remove();
 
-        this.pathsLayer = new this.paper.Layer();
-        this.pathsLayer.remove();
     }
 
     /**
      * Write the changes made to the view to the frame.
      */
-    applyChanges () {
-        this._applyClipChanges();
-        this._applyPathChanges();
+    applyChanges() {
+        this._applyDrawableChanges();
     }
 
     /**
-     * Import SVG data into the paper.js layer, and updates the Frame's json data.
-     * @param {string} svg - the SVG data to parse and import.
+     * Update the view based on the model
      */
-    importSVG (svg) {
-        var importedItem = this.pathsLayer.importSVG(svg);
-        this._recursiveBreakApart(importedItem);
-        this._applyPathChanges();
+    render() {
+        this._renderObjects();
     }
 
-    render () {
-        this._renderPaths();
-        this._renderClips();
-    }
-
-    _renderPaths (args) {
-        if(!args) args = {};
-
-        this.pathsLayer.data.wickUUID = this.model.uuid;
-        this.pathsLayer.data.wickType = 'paths';
-
-        this.pathsLayer.removeChildren();
+    _renderObjects() {
+        this.objectsLayer.data.wickUUID = this.model.uuid;
+        this.objectsLayer.data.wickType = 'clipsandpaths';
+        this.objectsLayer.removeChildren();
 
         // Remove placeholder paths if
         // 1) this frame is focused, or
@@ -85,102 +71,84 @@ Wick.View.Frame = class extends Wick.View {
             });
         }
 
-        this.model.paths.forEach(path => {
-            path.view.render();
-            this.pathsLayer.addChild(path.view.item);
+        this.model.drawable.forEach(object => {
+            object.view.render();
+            if (object.view.model instanceof Wick.Path) {
+                this.objectsLayer.addChild(object.view.item);
+            } else {
+                this.objectsLayer.addChild(object.view.group);
+            }
         });
     }
 
-    _renderClips () {
-        this.clipsLayer.data.wickUUID = this.model.uuid;
-        this.clipsLayer.data.wickType = 'clips';
+    _applyDrawableChanges() {
 
-        this.clipsLayer.removeChildren();
-
-        this.model.clips.forEach(clip => {
-            clip.view.render();
-            this.clipsLayer.addChild(clip.view.group);
-        });
-    }
-
-    _applyClipChanges () {
-        // Reorder clips
-        var clips = this.model.clips.concat([]);
-        clips.forEach(clip => {
-            this.model.removeClip(clip);
-        });
-        this.clipsLayer.children.forEach(child => {
-            this.model.addClip(clips.find(g => {
-                return g.uuid === child.data.wickUUID;
-            }));
-        });
-
-        // Update clip transforms
-        this.clipsLayer.children.forEach(child => {
-            var wickClip = Wick.ObjectCache.getObjectByUUID(child.data.wickUUID);
-            wickClip.transformation = new Wick.Transformation({
-                x: child.position.x,
-                y: child.position.y,
-                scaleX: child.scaling.x,
-                scaleY: child.scaling.y,
-                rotation: child.rotation,
-                opacity: child.opacity,
-            });
-        });
-    }
-
-    _applyPathChanges () {
-        // NOTE:
-        // This could be optimized by updating existing paths instead of completely clearing the frame children.
-
-        // Quickfix for now:
-        // Force all dynamic text paths to render in front of all other paths.
-        this.model.paths.filter(path => {
-            return path.isDynamicText;
+        this.model.drawable.filter(path => {
+            return path instanceof Wick.Path && path.isDynamicText;
         }).forEach(path => {
             path.view.item.bringToFront();
+        }); // Clear all WickPaths from the frame
+
+        // Reorder clips
+        var drawables = this.model.drawable.concat([]);
+        drawables.forEach(drawable => {
+            // should realkly be remove child
+            this.model.removeClip(drawable);
         });
 
-        // Clear all WickPaths from the frame
-        this.model.paths.forEach(path => {
-            this.model.removePath(path);
-        });
 
-        // Create new WickPaths for the frame
-        this.pathsLayer.children.filter(child => {
+
+        this.objectsLayer.children.filter(child => {
             return child.data.wickType !== 'gui';
         }).forEach(child => {
-            var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
-            var pathJSON = Wick.View.Path.exportJSON(child);
-            var wickPath = new Wick.Path({json:pathJSON});
+            if (child instanceof paper.Group || child instanceof Wick.Clip) {
+                this.model.addClip(drawables.find(g => {
+                    return g.uuid === child.data.wickUUID;
+                }));
+            } else {
+                var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
+                var pathJSON = Wick.View.Path.exportJSON(child);
+                var wickPath = new Wick.Path({
+                    json: pathJSON
+                });
+                this.model.addPath(wickPath);
+                wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
+                wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
+                wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;
+                child.name = wickPath.uuid;
+            }
+        }); // Update clip transforms
 
-            this.model.addPath(wickPath);
-            wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
-            wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
-            wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;
-            wickPath.isPlaceholder = originalWickPath ? originalWickPath.isPlaceholder : false;
-            child.name = wickPath.uuid;
+
+
+        this.objectsLayer.children.filter(child => {
+            return child.data.wickType !== 'gui';
+        }).forEach(child => {
+            if (child instanceof paper.Group || child instanceof Wick.Clip) {
+                var wickClip = Wick.ObjectCache.getObjectByUUID(child.data.wickUUID);
+                wickClip.transformation = new Wick.Transformation({
+                    x: child.position.x,
+                    y: child.position.y,
+                    scaleX: child.scaling.x,
+                    scaleY: child.scaling.y,
+                    rotation: child.rotation,
+                    opacity: child.opacity
+
+                });
+            }
         });
+
+        /*
+        var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
+        var pathJSON = Wick.View.Path.exportJSON(child);
+        var wickPath = new Wick.Path({json:pathJSON});
+
+        this.model.addPath(wickPath);
+        wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
+        wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
+        wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;
+        wickPath.isPlaceholder = originalWickPath ? originalWickPath.isPlaceholder : false;
+        child.name = wickPath.uuid;
+        */
     }
-
-    // Helper function for SVG import (paper.js imports SVGs as one big group.)
-    _recursiveBreakApart (item) {
-        item.applyMatrix = true;
-
-        if(item instanceof paper.Shape) {
-            var path = item.toPath();
-            item.parent.addChild(path);
-            item.remove();
-        }
-
-        if(item instanceof paper.Group) {
-            var children = item.removeChildren();
-            item.parent.addChildren(children);
-            item.remove();
-
-            children.forEach(child => {
-                this._recursiveBreakApart(child);
-            });
-        }
-    }
-}
+};

@@ -222,8 +222,8 @@ describe('Wick.Selection', function() {
         expect(frame.clips[0]).to.equal(clip);
 
         expect(frame.getTweenAtPosition(1)).to.equal(tweenA);
-        expect(frame.getTweenAtPosition(5).transformation.x).to.equal(300);
-        expect(frame.getTweenAtPosition(5).transformation.y).to.equal(300);
+        expect(frame.getTweenAtPosition(5).transformation.x).to.equal(300 + Wick.View.Clip.PLACEHOLDER_SIZE);
+        expect(frame.getTweenAtPosition(5).transformation.y).to.equal(300 + Wick.View.Clip.PLACEHOLDER_SIZE);
     });
 
     describe('Origin Point Transformation', function () {

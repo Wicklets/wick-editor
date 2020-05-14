@@ -22,7 +22,7 @@ describe('Wick.View.Clip', function() {
             expect(clip.view.group instanceof paper.Group).to.equal(true);
             expect(clip.view.group.data.wickUUID).to.equal(clip.uuid);
             expect(clip.view.group.data.wickType).to.equal('clip');
-            expect(clip.view.group.children.length).to.equal(0);
+            expect(clip.view.group.children.length).to.equal(1); // only the placeholder should exist
         });
 
         it('should create paper group from populated wick clip', function() {
@@ -41,14 +41,11 @@ describe('Wick.View.Clip', function() {
 
             clip.view.render(clip);
 
-            expect(clip.view.group.children.length).to.equal(2);
+            expect(clip.view.group.children.length).to.equal(1);
 
             expect(clip.view.group.children[0].data.wickUUID).to.equal(clip.activeFrame.uuid);
-            expect(clip.view.group.children[0].data.wickType).to.equal('paths');
+            expect(clip.view.group.children[0].data.wickType).to.equal('clipsandpaths');
             expect(clip.view.group.children[0].children.length).to.equal(3);
-
-            expect(clip.view.group.children[1].data.wickUUID).to.equal(clip.activeFrame.uuid);
-            expect(clip.view.group.children[1].data.wickType).to.equal('clips');
         });
 
         it('should create paper group with correct transformation', function() {

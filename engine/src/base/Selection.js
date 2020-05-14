@@ -21,29 +21,29 @@
  * Class representing a Wick Selection.
  */
 Wick.Selection = class extends Wick.Base {
-    static get SELECTABLE_OBJECT_TYPES () {
+    static get SELECTABLE_OBJECT_TYPES() {
         return ['Path', 'Clip', 'Frame', 'Tween', 'Layer', 'Asset'];
     }
 
-    static get LOCATION_NAMES () {
+    static get LOCATION_NAMES() {
         return ['Canvas', 'Timeline', 'AssetLibrary'];
     }
 
     /**
      * Create a Wick Selection.
      */
-    constructor (args) {
-        if(!args) args = {};
+    constructor(args) {
+        if (!args) args = {};
         super(args);
 
         this._selectedObjectsUUIDs = args.selectedObjects || [];
         this._widgetRotation = args.widgetRotation || 0;
-        this._pivotPoint = {x: 0, y: 0};
+        this._pivotPoint = { x: 0, y: 0 };
         this._originalWidth = 0;
         this._originalHeight = 0;
     }
 
-    _serialize (args) {
+    _serialize(args) {
         var data = super._serialize(args);
         data.selectedObjects = Array.from(this._selectedObjectsUUIDs);
         data.widgetRotation = this._widgetRotation;
@@ -56,7 +56,7 @@ Wick.Selection = class extends Wick.Base {
         return data;
     }
 
-    _deserialize (data) {
+    _deserialize(data) {
         super._deserialize(data);
         this._selectedObjectsUUIDs = data.selectedObjects || [];
         this._widgetRotation = data.widgetRotation;
@@ -68,7 +68,7 @@ Wick.Selection = class extends Wick.Base {
         this._originalHeight = data.originalHeight;
     }
 
-    get classname () {
+    get classname() {
         return 'Selection';
     }
 
@@ -76,7 +76,7 @@ Wick.Selection = class extends Wick.Base {
      * The names of all attributes of the selection that can be changed.
      * @type {string[]}
      */
-    get allAttributeNames () {
+    get allAttributeNames() {
         return [
             "strokeWidth",
             "fillColor",
@@ -115,28 +115,28 @@ Wick.Selection = class extends Wick.Base {
      * Add a wick object to the selection.
      * @param {Wick.Base} object - The object to select.
      */
-    select (object) {
+    select(object) {
         // Do not allow selection of objects not defined to be selectable
-        if(!Wick.Selection.SELECTABLE_OBJECT_TYPES.find(type => {
-            return object instanceof Wick[type];
-        })) {
+        if (!Wick.Selection.SELECTABLE_OBJECT_TYPES.find(type => {
+                return object instanceof Wick[type];
+            })) {
             console.warn("Tried to select a " + object.classname + " object. This type is not selectable");
             return;
         }
 
         // Don't do anything if the object is already selected
-        if(this.isObjectSelected(object)){
+        if (this.isObjectSelected(object)) {
             return;
         }
 
         // Activate the cursor tool when selection changes
-        if(this._locationOf(object) === 'Canvas') {
+        if (this._locationOf(object) === 'Canvas') {
             this.project.activeTool = this.project.tools.cursor;
             object.parentLayer && object.parentLayer.activate();
         }
 
         // Only allow selection of objects of in the same location
-        if(this._locationOf(object) !== this.location) {
+        if (this._locationOf(object) !== this.location) {
             this.clear();
         }
 
@@ -144,7 +144,7 @@ Wick.Selection = class extends Wick.Base {
         this._selectedObjectsUUIDs.push(object.uuid);
 
         // Select in between frames (for shift+click selecting frames)
-        if(object instanceof Wick.Frame) {
+        if (object instanceof Wick.Frame) {
             this._selectInBetweenFrames(object);
         }
 
@@ -158,7 +158,7 @@ Wick.Selection = class extends Wick.Base {
      * Remove a wick object from the selection.
      * @param {Wick.Base} object - The object to deselect.
      */
-    deselect (object) {
+    deselect(object) {
         this._selectedObjectsUUIDs = this._selectedObjectsUUIDs.filter(uuid => {
             return uuid !== object.uuid;
         });
@@ -173,17 +173,26 @@ Wick.Selection = class extends Wick.Base {
      * Remove all objects from the selection with an optional filter.
      * @param {string} filter - A location or a type (see SELECTABLE_OBJECT_TYPES and LOCATION_NAMES)
      */
-    clear (filter) {
-        this.project.selection.getSelectedObjects(filter).forEach(object => {
-            this.deselect(object);
-        });
+    clear(filter) {
+        if (filter === undefined) {
+            this.project.selection.getSelectedObjects().forEach(object => {
+                if (object !== null) {
+                    this.deselect(object);
+                } //else object is no longer in cache, this happens sometimes when loading up an autosave project
+            });
+            this._selectedObjectsUUIDs = [];
+        } else {
+            this.project.selection.getSelectedObjects(filter).forEach(object => {
+                this.deselect(object);
+            });
+        }
     }
 
     /**
      * Checks if a given object is selected.
      * @param {Wick.Base} object - The object to check selection of.
      */
-    isObjectSelected (object) {
+    isObjectSelected(object) {
         return this._selectedObjectsUUIDs.indexOf(object.uuid) !== -1;
     }
 
@@ -191,8 +200,8 @@ Wick.Selection = class extends Wick.Base {
      * Get the first object in the selection if there is a single object in the selection.
      * @return {Wick.Base} The first object in the selection.
      */
-    getSelectedObject () {
-        if(this.numObjects === 1) {
+    getSelectedObject() {
+        if (this.numObjects === 1) {
             return this.getSelectedObjects()[0];
         } else {
             return null;
@@ -204,14 +213,14 @@ Wick.Selection = class extends Wick.Base {
      * @param {string} filter - A location or a type (see SELECTABLE_OBJECT_TYPES and LOCATION_NAMES)
      * @return {Wick.Base[]} The selected objects.
      */
-    getSelectedObjects (filter) {
+    getSelectedObjects(filter) {
         var objects = this._selectedObjectsUUIDs.map(uuid => {
             return Wick.ObjectCache.getObjectByUUID(uuid);
         });
 
-        if(Wick.Selection.LOCATION_NAMES.indexOf(filter) !== -1) {
+        if (Wick.Selection.LOCATION_NAMES.indexOf(filter) !== -1) {
             var location = filter;
-            if(this.location !== location) {
+            if (this.location !== location) {
                 return [];
             } else {
                 return this.getSelectedObjects();
@@ -231,7 +240,7 @@ Wick.Selection = class extends Wick.Base {
      * @param {string} filter - A location or a type (see SELECTABLE_OBJECT_TYPES and LOCATION_NAMES)
      * @return {string[]} The UUIDs of the selected objects.
      */
-    getSelectedObjectUUIDs (filter) {
+    getSelectedObjectUUIDs(filter) {
         return this.getSelectedObjects(filter).map(object => {
             return object.uuid;
         });
@@ -241,8 +250,8 @@ Wick.Selection = class extends Wick.Base {
      * The location of the objects in the selection. (see LOCATION_NAMES)
      * @type {string}
      */
-    get location () {
-        if(this.numObjects === 0) return null;
+    get location() {
+        if (this.numObjects === 0) return null;
         return this._locationOf(this.getSelectedObjects()[0]);
     }
 
@@ -250,7 +259,7 @@ Wick.Selection = class extends Wick.Base {
      * The types of the objects in the selection. (see SELECTABLE_OBJECT_TYPES)
      * @type {string[]}
      */
-    get types () {
+    get types() {
         var types = this.getSelectedObjects().map(object => {
             return object.classname;
         });
@@ -262,66 +271,68 @@ Wick.Selection = class extends Wick.Base {
      * A single string describing the contents of the selection.
      * @type {string}
      */
-    get selectionType () {
-      let selection = this;
+    get selectionType() {
+        let selection = this;
 
-      if(selection.location === 'Canvas') {
-        if(selection.numObjects === 1) {
-          var selectedObject = selection.getSelectedObject();
-          if(selectedObject instanceof window.Wick.Path) {
-            return selectedObject.pathType;
-          } else if(selectedObject instanceof window.Wick.Button) {
-            return 'button';
-          } else if(selectedObject instanceof window.Wick.Clip) {
-            return 'clip';
-          }
-        } else if (selection.types.length === 1) {
-          if (selection.types[0] === 'Path') {
-            return 'multipath';
-          } else {
-            return 'multiclip';
-          }
+        if (selection.location === 'Canvas') {
+            if (selection.numObjects === 1) {
+                var selectedObject = selection.getSelectedObject();
+                if (selectedObject instanceof window.Wick.Path) {
+                    return selectedObject.pathType;
+                } else if (selectedObject instanceof window.Wick.Button) {
+                    return 'button';
+                } else if (selectedObject instanceof window.Wick.Clip) {
+                    return 'clip';
+                }
+            } else if (selection.types.length === 1) {
+                if (selection.types[0] === 'Path') {
+                    return 'multipath';
+                } else {
+                    return 'multiclip';
+                }
+            } else {
+                return 'multicanvas';
+            }
+        } else if (selection.location === 'Timeline') {
+            if (selection.numObjects === 1) {
+                if (selection.getSelectedObject() instanceof window.Wick.Frame) {
+                    return 'frame';
+                } else if (selection.getSelectedObject() instanceof window.Wick.Layer) {
+                    return 'layer';
+                } else if (selection.getSelectedObject() instanceof window.Wick.Tween) {
+                    return 'tween';
+                }
+            } else if (selection.types.length === 1) {
+                if (selection.getSelectedObjects()[0] instanceof window.Wick.Frame) {
+                    return 'multiframe';
+                } else if (selection.getSelectedObjects()[0] instanceof window.Wick.Layer) {
+                    return 'multilayer';
+                } else if (selection.getSelectedObjects()[0] instanceof window.Wick.Tween) {
+                    return 'multitween';
+                }
+            } else {
+                return 'multitimeline';
+            }
+        } else if (selection.location === 'AssetLibrary') {
+            if (selection.getSelectedObjects()[0] instanceof window.Wick.ImageAsset) {
+                return 'imageasset';
+            } else if (selection.getSelectedObjects()[0] instanceof window.Wick.SoundAsset) {
+                return 'soundasset';
+            } else if (selection.getSelectedObjects()[0] instanceof window.Wick.SVGAsset) {
+                return 'svgasset';
+            } else {
+                return 'multiassetmixed'
+            }
         } else {
-          return 'multicanvas';
+            return 'unknown';
         }
-      } else if (selection.location === 'Timeline') {
-        if(selection.numObjects === 1) {
-          if(selection.getSelectedObject() instanceof window.Wick.Frame) {
-            return 'frame';
-          } else if(selection.getSelectedObject() instanceof window.Wick.Layer) {
-            return 'layer';
-          } else if(selection.getSelectedObject() instanceof window.Wick.Tween) {
-            return 'tween';
-          }
-        } else if (selection.types.length === 1) {
-          if(selection.getSelectedObjects()[0] instanceof window.Wick.Frame) {
-            return 'multiframe';
-          } else if(selection.getSelectedObjects()[0] instanceof window.Wick.Layer) {
-            return 'multilayer';
-          } else if(selection.getSelectedObjects()[0] instanceof window.Wick.Tween) {
-            return 'multitween';
-          }
-        } else {
-          return 'multitimeline';
-        }
-      } else if (selection.location === 'AssetLibrary') {
-        if(selection.getSelectedObjects()[0] instanceof window.Wick.ImageAsset) {
-          return 'imageasset';
-        } else if(selection.getSelectedObjects()[0] instanceof window.Wick.SoundAsset) {
-          return 'soundasset';
-        } else {
-          return 'multiassetmixed'
-        }
-      } else {
-        return 'unknown';
-      }
     }
 
     /**
      * The number of objects in the selection.
      * @type {number}
      */
-    get numObjects () {
+    get numObjects() {
         return this._selectedObjectsUUIDs.length;
     }
 
@@ -329,11 +340,11 @@ Wick.Selection = class extends Wick.Base {
      * The rotation of the selection (used for canvas selections)
      * @type {number}
      */
-    get widgetRotation () {
+    get widgetRotation() {
         return this._widgetRotation;
     }
 
-    set widgetRotation (widgetRotation) {
+    set widgetRotation(widgetRotation) {
         this._widgetRotation = widgetRotation;
     }
 
@@ -341,11 +352,11 @@ Wick.Selection = class extends Wick.Base {
      * The point that transformations to the selection will be based around.
      * @type {object}
      */
-    get pivotPoint () {
+    get pivotPoint() {
         return this._pivotPoint;
     }
 
-    set pivotPoint (pivotPoint) {
+    set pivotPoint(pivotPoint) {
         this._pivotPoint = pivotPoint;
     }
 
@@ -393,11 +404,11 @@ Wick.Selection = class extends Wick.Base {
      * The position of the selection.
      * @type {number}
      */
-    get x () {
+    get x() {
         return this.view.x;
     }
 
-    set x (x) {
+    set x(x) {
         this.view.x = x;
         this.project.tryToAutoCreateTween();
     }
@@ -406,11 +417,11 @@ Wick.Selection = class extends Wick.Base {
      * The position of the selection.
      * @type {number}
      */
-    get y () {
+    get y() {
         return this.view.y;
     }
 
-    set y (y) {
+    set y(y) {
         this.view.y = y;
         this.project.tryToAutoCreateTween();
     }
@@ -419,21 +430,21 @@ Wick.Selection = class extends Wick.Base {
      * The origin position the selection.
      * @type {number}
      */
-    get originX () {
+    get originX() {
         // If there's only 1 object selected, the origin is that object's position.
-        if(this.getSelectedObject() && (this.selectionType === "clip" || this.selectionType === "button")) {
+        if (this.getSelectedObject() && (this.selectionType === "clip" || this.selectionType === "button")) {
             return this.getSelectedObject().transformation.x;
         } else {
-            return this.x + this.width/2;
+            return this.x + this.width / 2;
         }
     }
 
-    set originX (x) {
-        if(this.getSelectedObject() && (this.selectionType === "clip" || this.selectionType === "button")) {
+    set originX(x) {
+        if (this.getSelectedObject() && (this.selectionType === "clip" || this.selectionType === "button")) {
             this.getSelectedObject().x = x;
-            this.pivotPoint = {x: x, y : this.pivotPoint.y};
+            this.pivotPoint = { x: x, y: this.pivotPoint.y };
         } else {
-            this.x = x - this.width/2;
+            this.x = x - this.width / 2;
         }
     }
 
@@ -441,21 +452,21 @@ Wick.Selection = class extends Wick.Base {
      * The origin position the selection.
      * @type {number}
      */
-    get originY () {
+    get originY() {
         // If there's only 1 object selected, the origin is that object's position.
         if (this.getSelectedObject() && (this.selectionType === "clip" || this.selectionType === "button")) {
             return this.getSelectedObject().y
         } else {
-            return this.y + this.height/2;
+            return this.y + this.height / 2;
         }
     }
 
-    set originY (y) {
+    set originY(y) {
         if (this.getSelectedObject() && (this.selectionType === "clip" || this.selectionType === "button")) {
             this.getSelectedObject().y = y;
-            this.pivotPoint = {x: this.pivotPoint.x, y : y};
+            this.pivotPoint = { x: this.pivotPoint.x, y: y };
         } else {
-            this.y = y - this.height/2;
+            this.y = y - this.height / 2;
         }
     }
 
@@ -464,11 +475,11 @@ Wick.Selection = class extends Wick.Base {
      * The width of the selection.
      * @type {number}
      */
-    get width () {
+    get width() {
         return this.view.width;
     }
 
-    set width (width) {
+    set width(width) {
         this.project.tryToAutoCreateTween();
         this.view.width = width;
     }
@@ -477,11 +488,11 @@ Wick.Selection = class extends Wick.Base {
      * The height of the selection.
      * @type {number}
      */
-    get height () {
+    get height() {
         return this.view.height;
     }
 
-    set height (height) {
+    set height(height) {
         this.project.tryToAutoCreateTween();
         this.view.height = height;
     }
@@ -490,11 +501,11 @@ Wick.Selection = class extends Wick.Base {
      * The rotation of the selection.
      * @type {number}
      */
-    get rotation () {
+    get rotation() {
         return this.view.rotation;
     }
 
-    set rotation (rotation) {
+    set rotation(rotation) {
         this.project.tryToAutoCreateTween();
         this.view.rotation = rotation;
     }
@@ -503,11 +514,11 @@ Wick.Selection = class extends Wick.Base {
      * It is the original width of the selection at creation.
      * @type {number}
      */
-    get originalWidth () {
+    get originalWidth() {
         return this._originalWidth;
     }
 
-    set originalWidth (originalWidth) {
+    set originalWidth(originalWidth) {
         this._originalWidth = originalWidth;
     }
 
@@ -515,11 +526,11 @@ Wick.Selection = class extends Wick.Base {
      * It is the original height of the selection at creation.
      * @type {number}
      */
-    get originalHeight () {
+    get originalHeight() {
         return this._originalHeight;
     }
 
-    set originalHeight (originalHeight) {
+    set originalHeight(originalHeight) {
         this._originalHeight = originalHeight;
     }
 
@@ -527,7 +538,7 @@ Wick.Selection = class extends Wick.Base {
      * The scale of the selection on the X axis.
      * @type {number}
      */
-    get scaleX () {
+    get scaleX() {
         // Clips store their scale state internally
         if (this.selectionType === "clip" || this.selectionType === "button") {
             return this.getSelectedObject().transformation.scaleX;
@@ -537,7 +548,7 @@ Wick.Selection = class extends Wick.Base {
         }
     }
 
-    set scaleX (scaleX) {
+    set scaleX(scaleX) {
         // Clips store their scale state internally
         if (this.selectionType === "clip" || this.selectionType === "button") {
             this.getSelectedObject().scaleX = scaleX;
@@ -550,7 +561,7 @@ Wick.Selection = class extends Wick.Base {
      * The scale of the selection on the Y axis.
      * @type {number}
      */
-    get scaleY () {
+    get scaleY() {
         // Clips store their scale state internally
         if (this.selectionType === "clip" || this.selectionType === "button") {
             return this.getSelectedObject().transformation.scaleY;
@@ -559,7 +570,7 @@ Wick.Selection = class extends Wick.Base {
         }
     }
 
-    set scaleY (scaleY) {
+    set scaleY(scaleY) {
         // Clips store their scale state internally
         if (this.selectionType === "clip" || this.selectionType === "button") {
             this.getSelectedObject().scaleY = scaleY;
@@ -591,7 +602,7 @@ Wick.Selection = class extends Wick.Base {
     /**
      * Flips the selected obejcts horizontally.
      */
-    flipHorizontally () {
+    flipHorizontally() {
         this.project.tryToAutoCreateTween();
         this.view.flipHorizontally();
     }
@@ -599,7 +610,7 @@ Wick.Selection = class extends Wick.Base {
     /**
      * Flips the selected obejcts vertically.
      */
-    flipVertically () {
+    flipVertically() {
         this.project.tryToAutoCreateTween();
         this.view.flipVertically();
     }
@@ -607,28 +618,28 @@ Wick.Selection = class extends Wick.Base {
     /**
      * Sends the selected objects to the back.
      */
-    sendToBack () {
+    sendToBack() {
         this.view.sendToBack();
     }
 
     /**
      * Brings the selected objects to the front.
      */
-    bringToFront () {
+    bringToFront() {
         this.view.bringToFront();
     }
 
     /**
      * Moves the selected objects forwards.
      */
-    moveForwards () {
+    moveForwards() {
         this.view.moveForwards();
     }
 
     /**
      * Moves the selected objects backwards.
      */
-    moveBackwards () {
+    moveBackwards() {
         this.view.moveBackwards();
     }
 
@@ -636,11 +647,11 @@ Wick.Selection = class extends Wick.Base {
      * The identifier of the selected object.
      * @type {string}
      */
-    get identifier () {
+    get identifier() {
         return this._getSingleAttribute('identifier');
     }
 
-    set identifier (identifier) {
+    set identifier(identifier) {
         this._setSingleAttribute('identifier', identifier);
     }
 
@@ -648,11 +659,11 @@ Wick.Selection = class extends Wick.Base {
      * The name of the selected object.
      * @type {string}
      */
-    get name () {
+    get name() {
         return this._getSingleAttribute('name');
     }
 
-    set name (name) {
+    set name(name) {
         this._setSingleAttribute('name', name);
     }
 
@@ -660,11 +671,11 @@ Wick.Selection = class extends Wick.Base {
      * The fill color of the selected object.
      * @type {paper.Color}
      */
-    get fillColor () {
+    get fillColor() {
         return this._getSingleAttribute('fillColor');
     }
 
-    set fillColor (fillColor) {
+    set fillColor(fillColor) {
         this._setSingleAttribute('fillColor', fillColor);
     }
 
@@ -672,11 +683,11 @@ Wick.Selection = class extends Wick.Base {
      * The stroke color of the selected object.
      * @type {paper.Color}
      */
-    get strokeColor () {
+    get strokeColor() {
         return this._getSingleAttribute('strokeColor');
     }
 
-    set strokeColor (strokeColor) {
+    set strokeColor(strokeColor) {
         this._setSingleAttribute('strokeColor', strokeColor);
     }
 
@@ -684,11 +695,11 @@ Wick.Selection = class extends Wick.Base {
      * The stroke width of the selected object.
      * @type {number}
      */
-    get strokeWidth () {
+    get strokeWidth() {
         return this._getSingleAttribute('strokeWidth');
     }
 
-    set strokeWidth (strokeWidth) {
+    set strokeWidth(strokeWidth) {
         this._setSingleAttribute('strokeWidth', strokeWidth);
     }
 
@@ -696,11 +707,11 @@ Wick.Selection = class extends Wick.Base {
      * The font family of the selected object.
      * @type {string}
      */
-    get fontFamily () {
+    get fontFamily() {
         return this._getSingleAttribute('fontFamily');
     }
 
-    set fontFamily (fontFamily) {
+    set fontFamily(fontFamily) {
         this._setSingleAttribute('fontFamily', fontFamily);
     }
 
@@ -708,11 +719,11 @@ Wick.Selection = class extends Wick.Base {
      * The font size of the selected object.
      * @type {number}
      */
-    get fontSize () {
+    get fontSize() {
         return this._getSingleAttribute('fontSize');
     }
 
-    set fontSize (fontSize) {
+    set fontSize(fontSize) {
         this._setSingleAttribute('fontSize', fontSize);
     }
 
@@ -720,11 +731,11 @@ Wick.Selection = class extends Wick.Base {
      * The font weight of the selected object.
      * @type {number}
      */
-    get fontWeight () {
+    get fontWeight() {
         return this._getSingleAttribute('fontWeight');
     }
 
-    set fontWeight (fontWeight) {
+    set fontWeight(fontWeight) {
         this._setSingleAttribute('fontWeight', fontWeight);
     }
 
@@ -732,11 +743,11 @@ Wick.Selection = class extends Wick.Base {
      * The font style of the selected object. ('italic' or 'oblique')
      * @type {string}
      */
-    get fontStyle () {
+    get fontStyle() {
         return this._getSingleAttribute('fontStyle');
     }
 
-    set fontStyle (fontStyle) {
+    set fontStyle(fontStyle) {
         this._setSingleAttribute('fontStyle', fontStyle);
     }
 
@@ -744,11 +755,11 @@ Wick.Selection = class extends Wick.Base {
      * The opacity of the selected object.
      * @type {number}
      */
-    get opacity () {
+    get opacity() {
         return this._getSingleAttribute('opacity');
     }
 
-    set opacity (opacity) {
+    set opacity(opacity) {
         this.project.tryToAutoCreateTween();
         this._setSingleAttribute('opacity', opacity);
     }
@@ -757,11 +768,11 @@ Wick.Selection = class extends Wick.Base {
      * The sound attached to the selected frame.
      * @type {Wick.SoundAsset}
      */
-    get sound () {
+    get sound() {
         return this._getSingleAttribute('sound');
     }
 
-    set sound (sound) {
+    set sound(sound) {
         this._setSingleAttribute('sound', sound);
     }
 
@@ -769,11 +780,11 @@ Wick.Selection = class extends Wick.Base {
      * The length of the selected frame.
      * @type {number}
      */
-    get frameLength () {
+    get frameLength() {
         return this._getSingleAttribute('length');
     }
 
-    set frameLength (frameLength) {
+    set frameLength(frameLength) {
         this._setSingleAttribute('length', frameLength);
         var layer = this.project.activeLayer;
         layer.resolveOverlap(this.getSelectedObjects());
@@ -784,11 +795,11 @@ Wick.Selection = class extends Wick.Base {
      * The volume of the sound attached to the selected frame.
      * @type {number}
      */
-    get soundVolume () {
+    get soundVolume() {
         return this._getSingleAttribute('soundVolume');
     }
 
-    set soundVolume (soundVolume) {
+    set soundVolume(soundVolume) {
         this._setSingleAttribute('soundVolume', soundVolume);
     }
 
@@ -796,11 +807,11 @@ Wick.Selection = class extends Wick.Base {
      * The starting position of the sound on the frame in ms.
      * @type {number}
      */
-    get soundStart () {
+    get soundStart() {
         return this._getSingleAttribute('soundStart');
     }
 
-    set soundStart (soundStart) {
+    set soundStart(soundStart) {
         this._setSingleAttribute('soundStart', soundStart);
     }
 
@@ -808,11 +819,11 @@ Wick.Selection = class extends Wick.Base {
      * The easing type of a selected tween. See Wick.Tween.VALID_EASING_TYPES.
      * @type {string}
      */
-    get easingType () {
+    get easingType() {
         return this._getSingleAttribute('easingType');
     }
 
-    set easingType (easingType) {
+    set easingType(easingType) {
         return this._setSingleAttribute('easingType', easingType);
     }
 
@@ -832,7 +843,7 @@ Wick.Selection = class extends Wick.Base {
      * The filename of the selected asset. Read only.
      * @type {string}
      */
-    get filename () {
+    get filename() {
         return this._getSingleAttribute('filename');
     }
 
@@ -840,7 +851,7 @@ Wick.Selection = class extends Wick.Base {
      * True if the selection is scriptable. Read only.
      * @type {boolean}
      */
-    get isScriptable () {
+    get isScriptable() {
         return this.numObjects === 1 && this.getSelectedObjects()[0].isScriptable;
     }
 
@@ -856,19 +867,19 @@ Wick.Selection = class extends Wick.Base {
      * Get a list of only the farthest right frames on each layer.
      * @returns {Wick.Frame[]}
      */
-    getRightmostFrames () {
+    getRightmostFrames() {
         var selectedFrames = this.getSelectedObjects('Frame');
 
         var rightmostFrames = {};
         selectedFrames.forEach(frame => {
-              var layerid = frame.parentLayer.uuid;
-              if(!rightmostFrames[layerid] || frame.end > rightmostFrames[layerid].end) {
-                  rightmostFrames[layerid] = frame;
-              }
+            var layerid = frame.parentLayer.uuid;
+            if (!rightmostFrames[layerid] || frame.end > rightmostFrames[layerid].end) {
+                rightmostFrames[layerid] = frame;
+            }
         });
 
         var result = [];
-        for(var id in rightmostFrames) {
+        for (var id in rightmostFrames) {
             result.push(rightmostFrames[id]);
         }
 
@@ -879,43 +890,43 @@ Wick.Selection = class extends Wick.Base {
      * Get a list of only the farthest left frames on each layer.
      * @returns {Wick.Frame[]}
      */
-    getLeftmostFrames () {
+    getLeftmostFrames() {
         var selectedFrames = this.getSelectedObjects('Frame');
 
         var leftmostFrames = {};
         selectedFrames.forEach(frame => {
-              var layerid = frame.parentLayer.uuid;
-              if(!leftmostFrames[layerid] || frame.start < leftmostFrames[layerid].end) {
-                  leftmostFrames[layerid] = frame;
-              }
+            var layerid = frame.parentLayer.uuid;
+            if (!leftmostFrames[layerid] || frame.start < leftmostFrames[layerid].end) {
+                leftmostFrames[layerid] = frame;
+            }
         });
 
         var result = [];
-        for(var id in leftmostFrames) {
+        for (var id in leftmostFrames) {
             result.push(leftmostFrames[id]);
         }
 
         return result;
     }
 
-    _locationOf (object) {
-        if(object instanceof Wick.Frame
-        || object instanceof Wick.Tween
-        || object instanceof Wick.Layer) {
+    _locationOf(object) {
+        if (object instanceof Wick.Frame ||
+            object instanceof Wick.Tween ||
+            object instanceof Wick.Layer) {
             return 'Timeline';
         } else if (object instanceof Wick.Asset) {
             return 'AssetLibrary';
-        } else if (object instanceof Wick.Path
-                || object instanceof Wick.Clip) {
+        } else if (object instanceof Wick.Path ||
+            object instanceof Wick.Clip) {
             return 'Canvas';
         }
     }
 
     /* Helper function: Calculate the selection x,y */
-    _resetPositioningValues () {
+    _resetPositioningValues() {
         var selectedObject = this.getSelectedObject();
 
-        if(selectedObject instanceof Wick.Clip) {
+        if (selectedObject instanceof Wick.Clip) {
             // Single clip selected: Use that Clip's transformation for the pivot point and rotation
             this._widgetRotation = selectedObject.transformation.rotation;
             this._pivotPoint = {
@@ -939,20 +950,20 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /* helper function for getting a single value from multiple selected objects */
-    _getSingleAttribute (attributeName) {
-        if(this.numObjects === 0) return null;
+    _getSingleAttribute(attributeName) {
+        if (this.numObjects === 0) return null;
         return this.getSelectedObjects()[0][attributeName];
     }
 
     /* helper function for updating the same attribute on all items in the selection  */
-    _setSingleAttribute (attributeName, value) {
+    _setSingleAttribute(attributeName, value) {
         this.getSelectedObjects().forEach(selectedObject => {
             selectedObject[attributeName] = value;
         });
     }
 
     /*helper function for shift+selecting frames*/
-    _selectInBetweenFrames (selectedFrame) {
+    _selectInBetweenFrames(selectedFrame) {
         var frameBounds = {
             playheadStart: null,
             playheadEnd: null,
@@ -966,15 +977,15 @@ Wick.Selection = class extends Wick.Base {
             var start = frame.start;
             var end = frame.end;
 
-            if(!frameBounds.playheadStart || !frameBounds.playheadEnd) {
+            if (!frameBounds.playheadStart || !frameBounds.playheadEnd) {
                 frameBounds.playheadStart = start;
                 frameBounds.playheadEnd = end;
             }
 
-            if(start < frameBounds.playheadStart) {
+            if (start < frameBounds.playheadStart) {
                 frameBounds.playheadStart = start;
             }
-            if(end > frameBounds.playheadEnd) {
+            if (end > frameBounds.playheadEnd) {
                 frameBounds.playheadEnd = end;
             }
         });
@@ -982,8 +993,8 @@ Wick.Selection = class extends Wick.Base {
         // Select all frames inside bounding box
         this.project.activeTimeline.getAllFrames().filter(frame => {
             return !frame.isSelected &&
-                   frame.parentLayer === selectedFrame.parentLayer &&
-                   frame.inRange(frameBounds.playheadStart, frameBounds.playheadEnd)
+                frame.parentLayer === selectedFrame.parentLayer &&
+                frame.inRange(frameBounds.playheadStart, frameBounds.playheadEnd)
         }).forEach(frame => {
             this._selectedObjectsUUIDs.push(frame.uuid);
         });

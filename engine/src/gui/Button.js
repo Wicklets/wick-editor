@@ -24,10 +24,10 @@ Wick.GUIElement.Button = class extends Wick.GUIElement {
      * @param {function} clickFn - The function to call when the button is clicked
      * @param {string} tooltip - (Optional) The title of the tooltip
      */
-    constructor (model, args) {
+    constructor(model, args) {
         super(model);
 
-        if(!args) args = {};
+        if (!args) args = {};
         this._clickFn = args.clickFn;
         this._tooltip = args.tooltip;
 
@@ -36,11 +36,11 @@ Wick.GUIElement.Button = class extends Wick.GUIElement {
         this.cursor = 'pointer';
     }
 
-    draw () {
+    draw() {
         super.draw();
     }
 
-    onMouseDown (e) {
+    onMouseDown(e) {
         this._clickFn(e);
     }
 }

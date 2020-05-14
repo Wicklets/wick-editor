@@ -105,6 +105,10 @@ class ExportOptions extends Component {
     } else if (type === 'AUDIO_TRACK') {
       this.props.exportProjectAsAudioTrack(args);
       this.props.toggle();
+    } else if (type === 'IMAGE_SVG') {
+      this.props.exportProjectAsImageSVG(name);
+      this.props.toggle();
+      
     }
   }
 
@@ -223,7 +227,7 @@ class ExportOptions extends Component {
               rows={[
                 { text: "Creates a .gif file", icon: "check" },
                 { text: "No Sound",            icon: "cancel" },
-                { text: "No Code is Run",      icon: "cancel" },
+                { text: "Not Interactive",      icon: "cancel" },
               ]} />
             <div className="export-modal-button-container">
               <ActionButton
@@ -240,7 +244,7 @@ class ExportOptions extends Component {
               rows={[
                 { text: "Creates an .mp4 file", icon: "check" },
                 { text: "Has Sound",            icon: "check" },
-                { text: "No Code is Run",       icon: "cancel"},
+                { text: "Not Interactive",       icon: "cancel"},
               ]}/>
             <div className="export-modal-button-container">
               <ActionButton
@@ -304,34 +308,62 @@ class ExportOptions extends Component {
     // Renders the body of the "Animation" tab.
     renderImageInfo = () => {
       return (
-        <div className="export-info-container">
-          <div className="wide-export-info-item">
-            <ObjectInfo
-              className="export-object-info"
-              title="Image Sequence"
-              rows={[
-                {
-                  text: "Creates a .zip file of images",
-                  icon: "check"
-                },
-                {
-                  text: "Exports an .png image of each frame",
-                  icon: "check",
-                },
-                {
-                  text: "No Code is Run",
-                  icon: "cancel"
-                },
-              ]} />
-            <div className="export-modal-button-container">
-            <ActionButton
-              color='gray-green'
-              action={() => { this.createAndToggle('IMAGE_SEQUENCE') }}
-              text="Export Image Sequence"
-              />
+        <div>
+          <div className="export-info-container">
+            <div className="export-info-item">
+              <ObjectInfo
+                className="export-object-info"
+                title="Image Sequence"
+                rows={[
+                  {
+                    text: "Creates a .zip archive",
+                    icon: "check"
+                  },
+                  {
+                    text: "Exports .png files",
+                    icon: "check",
+                  },
+                  {
+                    text: "Not interactive",
+                    icon: "cancel"
+                  },
+                ]} />
+              <div className="export-modal-button-container">
+              <ActionButton
+                color='gray-green'
+                action={() => { this.createAndToggle('IMAGE_SEQUENCE') }}
+                text="Export Image Sequence"
+                />
+              </div>
             </div>
-            {this.renderAdvancedOptions()}
+            <div className="export-info-item">
+              <ObjectInfo
+                className="export-object-info"
+                title="Image SVG"
+                rows={[
+                  {
+                    text: "Creates a .svg file",
+                    icon: "check"
+                  },
+                  {
+                    text: "Not Animated",
+                    icon: "cancel",
+                  },
+                  {
+                    text: "Not ineractive",
+                    icon: "cancel"
+                  },
+                ]} />
+              <div className="export-modal-button-container">
+              <ActionButton
+                color='gray-green'
+                action={() => { this.createAndToggle('IMAGE_SVG') }}
+                text="Export Image SVG"
+                />
+              </div>
+            </div>
           </div>
+          {this.renderAdvancedOptions()}
         </div>
       );
     }
@@ -349,7 +381,7 @@ class ExportOptions extends Component {
                 icon: "check"
               },
               {
-                text: "No Code is Run",
+                text: "Not Interactive",
                 icon: "cancel"
               },
             ]} />
@@ -360,7 +392,6 @@ class ExportOptions extends Component {
             text="Export Audio Track"
             />
           </div>
-          {this.renderAdvancedOptions()}
         </div>
       </div>
     );

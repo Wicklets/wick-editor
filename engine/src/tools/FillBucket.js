@@ -21,13 +21,13 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
     /**
      *
      */
-    constructor () {
+    constructor() {
         super();
 
         this.name = 'fillbucket';
     }
 
-    get doubleClickEnabled () {
+    get doubleClickEnabled() {
         return false;
     }
 
@@ -35,23 +35,23 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
      *
      * @type {string}
      */
-    get cursor () {
+    get cursor() {
         return 'url(cursors/fillbucket.png) 32 32, auto';
     }
 
-    get isDrawingTool () {
+    get isDrawingTool() {
         return true;
     }
 
-    onActivate (e) {
+    onActivate(e) {
 
     }
 
-    onDeactivate (e) {
+    onDeactivate(e) {
 
     }
 
-    onMouseDown (e) {
+    onMouseDown(e) {
         setTimeout(() => {
             this.setCursor('wait');
         }, 0);
@@ -64,15 +64,15 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
                 layers: this.project.activeFrames.filter(frame => {
                     return !frame.parentLayer.hidden;
                 }).map(frame => {
-                    return frame.view.pathsLayer;
+                    return frame.view.objectsLayer;
                 }),
                 onFinish: (path) => {
                     this.setCursor('default');
-                    if(path) {
+                    if (path) {
                         path.fillColor = this.getSetting('fillColor').rgba;
                         path.name = null;
                         this.addPathToProject();
-                        if(e.item) {
+                        if (e.item) {
                             path.insertAbove(e.item);
                         } else {
                             this.paper.project.activeLayer.addChild(path);
@@ -89,11 +89,11 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
         }, 50);
     }
 
-    onMouseDrag (e) {
+    onMouseDrag(e) {
 
     }
 
-    onMouseUp (e) {
+    onMouseUp(e) {
 
     }
 }

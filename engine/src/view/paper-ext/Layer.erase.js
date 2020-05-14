@@ -144,17 +144,15 @@
     }
 
     function eraseWithPath (eraserPath) {
-        var touchingPaths = [];
-        this.children.forEach(function (child) {
-            if(eraserPath.bounds.intersects(child.bounds)) {
-                touchingPaths.push(child);
-            }
-        });
-
-        touchingPaths.filter(path => {
+        var erasables = this.children.filter(path => {
             return path instanceof paper.Path
                 || path instanceof paper.CompoundPath;
-        }).forEach(path => {
+        });
+
+        var touchingPaths = this.children.filter(function (child) {
+            return eraserPath.bounds.intersects(child.bounds);
+        });
+        touchingPaths.forEach(path => {
             if(path.strokeColor && path.fillColor) {
                 var res = splitPath(path);
                 eraseFill(res.fill, eraserPath);

@@ -28,6 +28,7 @@ import AudioExport from './export/AudioExport';
 import timeStamp from './Util/DataFunctions/timestamp';
 
 class EditorCore extends Component {
+
   /**
    * Returns the name of the active tool.
    * @returns {string} The string representation active tool name.
@@ -771,10 +772,14 @@ class EditorCore extends Component {
         this.projectDidChange({ actionName: "Create Image Path From Asset"});
       });
     } else if (obj instanceof window.Wick.ClipAsset) {
-        this.project.createClipInstanceFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), dropPoint.x, dropPoint.y, clip => {
-          this.projectDidChange({ actionName: "Create Clip Instance From Asset"});
-        });
-    } else {
+      this.project.createClipInstanceFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), dropPoint.x, dropPoint.y, clip => {
+        this.projectDidChange({ actionName: "Create Clip Instance From Asset"});
+      });
+    } else if (obj instanceof window.Wick.SVGAsset) {
+      this.project.createSVGInstanceFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), dropPoint.x, dropPoint.y, svg => {
+        this.projectDidChange({ actionName: "Create SVG Instance From Asset"});
+      });
+    }else {
       console.error('object is not an ImageAsset or a ClipAsset')
     }
   }
@@ -1047,22 +1052,40 @@ class EditorCore extends Component {
         exporting: false,
       });
     }
+  }
+    /**
+   * Export the current project as a video.
+   */
+
+  exportProjectAsImageSVG = () => {
+    // Open export media loading bar modal.
+    this.openModal('ExportMedia');
+    this.setState({
+      renderProgress: 0,
+      renderType: "svg",
+      renderStatusMessage: "Creating svg.",
+    });
+
+    let toastID = this.toast('Exporting svg...', 'info');
+
+    let onError = (message) => {
+      console.error("SVG builder had an error with message: ", message);
+    }
+
+    let onFinish = (file) => {
+      this.updateToast(toastID, {
+        type: 'success',
+        text: "Successfully saved .wick file." });
+        saveAs(file, this.project.name + timeStamp() + '.svg');
+        this.hideWaitOverlay();
+    }
 
     // this.showWaitOverlay('Rendering video...');
-    VideoExport.renderVideo({
-      project: this.project,
-      width: args.width,
-      height: args.height,
-      onProgress: onProgress,
-      onError: () => {
+    window.Wick.SVGFile.toSVGFile(this.project.activeTimeline,
+       onError,file => {
         this.hideWaitOverlay();
-        onError();
-      },
-      onFinish: () => {
-        this.hideWaitOverlay();
-        onFinish();
-      },
-    });
+        onFinish(file);
+      });
   }
 
   /**
@@ -1169,7 +1192,7 @@ class EditorCore extends Component {
   /**
    * Parses a URL passed into the editor using ?project=file.wick in the URL. URLs must be encoded with encodeURIComponent.
    */
-  tryToParseProjectURL () {
+  tryToParseProjectURL = () => {
     // Retrieve URL
     var urlParams = queryString.parse(window.location.search);
     var urlParam = urlParams.project;

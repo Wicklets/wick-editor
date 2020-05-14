@@ -20,9 +20,8 @@ describe('Wick.View.Layer', function() {
 
             layer.view.render(layer);
 
-            expect(layer.view.activeFrameLayers.length).to.equal(2);
+            expect(layer.view.activeFrameLayers.length).to.equal(1);
             expect(layer.view.activeFrameLayers[0].data.wickUUID).to.equal(layer.frames[0].uuid);
-            expect(layer.view.activeFrameLayers[1].data.wickUUID).to.equal(layer.frames[0].uuid);
         });
 
         it('should have no visible layers if there is no frame at active playhead position', function() {
@@ -50,9 +49,9 @@ describe('Wick.View.Layer', function() {
             layer.addFrame(new Wick.Frame({start:2}));
             layer.addFrame(new Wick.Frame({start:3}));
 
-            // Two frames, two layers each (paths+clips layers)
+            // Two frames = two layers
             layer.view.render();
-            expect(layer.view.onionSkinnedFramesLayers.length).to.equal(4);
+            expect(layer.view.onionSkinnedFramesLayers.length).to.equal(2);
 
             project.onionSkinEnabled = true;
             project.onionSkinSeekBackwards = 1;
@@ -77,7 +76,7 @@ describe('Wick.View.Layer', function() {
             project.focus.timeline.playheadPosition = 2;
             project.view.render();
             expect(layer.view.onionSkinnedFramesLayers[0].opacity).to.be.closeTo(Wick.View.Layer.BASE_ONION_OPACITY, 0.001);
-            expect(layer.view.onionSkinnedFramesLayers[2].opacity).to.be.closeTo(Wick.View.Layer.BASE_ONION_OPACITY, 0.001);
+            expect(layer.view.onionSkinnedFramesLayers[1].opacity).to.be.closeTo(Wick.View.Layer.BASE_ONION_OPACITY, 0.001);
         });
 
         it('onion skinned frames should have correct opacity (many frames)', function() {
@@ -97,11 +96,11 @@ describe('Wick.View.Layer', function() {
             project.focus.timeline.playheadPosition = 2;
             project.view.render();
             expect(layer.view.onionSkinnedFramesLayers[0].opacity).to.be.closeTo((1/1)*Wick.View.Layer.BASE_ONION_OPACITY, 0.001);
-            expect(layer.view.onionSkinnedFramesLayers[2].opacity).to.be.closeTo((5/5)*Wick.View.Layer.BASE_ONION_OPACITY, 0.001);
-            expect(layer.view.onionSkinnedFramesLayers[4].opacity).to.be.closeTo((4/5)*Wick.View.Layer.BASE_ONION_OPACITY, 0.001);
-            expect(layer.view.onionSkinnedFramesLayers[6].opacity).to.be.closeTo((3/5)*Wick.View.Layer.BASE_ONION_OPACITY, 0.001);
-            expect(layer.view.onionSkinnedFramesLayers[8].opacity).to.be.closeTo((2/5)*Wick.View.Layer.BASE_ONION_OPACITY, 0.001);
-            expect(layer.view.onionSkinnedFramesLayers[10].opacity).to.be.closeTo((1/5)*Wick.View.Layer.BASE_ONION_OPACITY, 0.001);
+            expect(layer.view.onionSkinnedFramesLayers[1].opacity).to.be.closeTo((5/5)*Wick.View.Layer.BASE_ONION_OPACITY, 0.001);
+            expect(layer.view.onionSkinnedFramesLayers[2].opacity).to.be.closeTo((4/5)*Wick.View.Layer.BASE_ONION_OPACITY, 0.001);
+            expect(layer.view.onionSkinnedFramesLayers[3].opacity).to.be.closeTo((3/5)*Wick.View.Layer.BASE_ONION_OPACITY, 0.001);
+            expect(layer.view.onionSkinnedFramesLayers[4].opacity).to.be.closeTo((2/5)*Wick.View.Layer.BASE_ONION_OPACITY, 0.001);
+            expect(layer.view.onionSkinnedFramesLayers[5].opacity).to.be.closeTo((1/5)*Wick.View.Layer.BASE_ONION_OPACITY, 0.001);
         });
 
         it('(bug) onion skinned extended frames should have correct opacity', function() {
@@ -116,7 +115,7 @@ describe('Wick.View.Layer', function() {
 
           project.view.render();
           expect(layer.view.onionSkinnedFramesLayers[0].opacity).to.be.closeTo((100/100)*Wick.View.Layer.BASE_ONION_OPACITY, 0.001);
-          expect(layer.view.onionSkinnedFramesLayers[2].opacity).to.be.closeTo((91/100)*Wick.View.Layer.BASE_ONION_OPACITY, 0.001);
+          expect(layer.view.onionSkinnedFramesLayers[1].opacity).to.be.closeTo((91/100)*Wick.View.Layer.BASE_ONION_OPACITY, 0.001);
         });
 
         it('should not create layers for frames outside onion range', function() {

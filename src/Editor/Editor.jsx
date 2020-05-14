@@ -56,14 +56,13 @@ var classNames = require('classnames');
 class Editor extends EditorCore {
   constructor () {
     super();
-
     // Set path for engine dependencies
     window.Wick.resourcepath = 'corelibs/wick-engine/';
 
     // "Live" editor states
     this.project = null;
     this.paper = null;
-    this.editorVersion = "1.17";
+    this.editorVersion = "1.17.1";
 
     // GUI state
     this.state = {
@@ -100,7 +99,7 @@ class Editor extends EditorCore {
       customOnionSkinningColors: {
         backward: "rgba(0, 255, 0, .3)",
         forward: "rgba(255, 0, 0, .3)",
-      }, 
+      },
       onionSkinningWasOn: false,
     };
 
@@ -665,9 +664,9 @@ class Editor extends EditorCore {
    * @param {Object} hotkeys1 - Custom hotkey map.
    * @param {Object} hotkeys2 - Custom hotkey map.
    * @returns {Object} - Combined custom hotkey map.
-   **/ 
-  
-  
+   **/
+
+
   combineHotKeys = (hotkeys1, hotkeys2) => {
     // Try to combine all keys
 
@@ -713,7 +712,7 @@ class Editor extends EditorCore {
 
   /**
    * Takes an array of hot key objects. Combines these with existing custom hot keys and syncs the editor
-   * to these new hot keys. 
+   * to these new hot keys.
    */
   addCustomHotKeys = (newHotKeys) => {
     let combined = this.createCombinedHotKeyMap(this.state.customHotKeys, newHotKeys);

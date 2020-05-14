@@ -82,8 +82,6 @@ Wick.History = class {
         // 1.17.1 History update, pull actual state information out, aside from names.
         var currentState = currentStateObject; 
 
-        console.log(currentStateObject);
-
         if (currentStateObject.state) {
             currentState = currentStateObject.state;
         }
@@ -104,7 +102,7 @@ Wick.History = class {
             return false;
         }
 
-        var recoveredState = this._redoStack.pop();
+        var recoveredState = this._redoStack.pop().state;
         this._undoStack.push(recoveredState);
 
         this._recoverState(recoveredState);

@@ -5,7 +5,7 @@ describe('Wick.Project', function() {
             expect(project.classname).to.equal('Project');
 
             expect(project.width).to.equal(720);
-            expect(project.height).to.equal(405);
+            expect(project.height).to.equal(480);
             expect(project.framerate).to.equal(12);
             expect(project.backgroundColor.hex).to.equal('#ffffff');
 
@@ -69,7 +69,7 @@ describe('Wick.Project', function() {
             expect(data.classname).to.equal('Project');
             expect(data.focus).to.equal(project.focus.uuid);
             expect(data.framerate).to.equal(12);
-            expect(data.height).to.equal(405);
+            expect(data.height).to.equal(480);
             expect(data.identifier).to.equal(null);
             expect(data.name).to.equal('My Project');
             expect(data.onionSkinEnabled).to.equal(false);
@@ -113,7 +113,7 @@ describe('Wick.Project', function() {
             expect(projectFromData.classname).to.equal('Project');
             expect(projectFromData.focus).to.equal(project.focus);
             expect(projectFromData.framerate).to.equal(12);
-            expect(projectFromData.height).to.equal(405);
+            expect(projectFromData.height).to.equal(480);
             expect(projectFromData.identifier).to.equal(null);
             expect(projectFromData.name).to.equal('My Project');
             expect(projectFromData.onionSkinEnabled).to.equal(false);
@@ -1172,31 +1172,17 @@ describe('Wick.Project', function() {
             project.activeLayer.frames[1].addPath(path2);
             project.activeLayer.frames[2].addPath(path3);
 
-            // for testing is onProgress works (this is kind of hacky and weird to test...)
-            var onProgressCallsCorrect = [[1,3],[2,3],[3,3]];
-            var onProgressCallsResult = [];
-
             project.generateImageSequence({
-                onProgress: (current, max) => {
-                    onProgressCallsResult.push([current,max]);
-                },
-                onFinish: images => {
+                onFinish: (images) => {
                     images.forEach(image => {
                         expect(image.width).to.equal(project.width);
                         expect(image.height).to.equal(project.height);
-
-                        var imageName = document.createElement('p');
-                        imageName.innerHTML = 'zoom 1x, frame ' + images.indexOf(image);
-                        document.body.appendChild(imageName);
-                        document.body.appendChild(image);
                     });
+
                     expect(images.length).to.equal(3);
-
-                    expect(onProgressCallsResult).to.deep.equal(onProgressCallsCorrect);
-
                     done();
                 }
-            });
+            }); 
         });
 
         it('should export correct images (zoom 2x, same aspect ratio)', function (done) {
@@ -1366,6 +1352,118 @@ describe('Wick.Project', function() {
     })
 
     describe('#generateAudioTrack', function () {
+        it('should return an empty audio sequence if project has no sounds', function (done) {
+            var project = new Wick.Project();
+
+            project.generateAudioSequence({onFinish: audioSequence => {
+                    expect(audioSequence).to.be.an('array');
+                    expect(audioSequence.length).to.equal(0);
+                    done();
+                }
+            });
+        });
+
+        it('Should find sounds on the first frame.', function (done) {
+            var project = new Wick.Project();
+
+            var sound = new Wick.SoundAsset({
+                filename: 'foo.wav',
+                src: TestUtils.TEST_SOUND_SRC_WAV
+            });
+
+            project.addAsset(sound);
+
+            project.activeFrame.sound = sound;
+            project.activeFrame.end = 12;
+
+            project.generateAudioSequence({onFinish: audioSequence => {
+                    expect(audioSequence).to.be.an('array');
+                    expect(audioSequence.length).to.equal(1);
+                    done();
+                }
+            });
+        });
+
+        it('Should find sounds on the second frame.', function (done) {
+            var project = new Wick.Project();
+
+            var sound = new Wick.SoundAsset({
+                filename: 'foo.wav',
+                src: TestUtils.TEST_SOUND_SRC_WAV
+            });
+
+            project.activeFrame.end = 6;
+
+            var frame2 = new Wick.Frame({start: 7, end: 12});
+            project.activeLayer.addFrame(frame2);
+
+            project.addAsset(sound);
+
+            frame2.sound = sound;
+
+            project.generateAudioSequence({onFinish: audioSequence => {
+                    expect(audioSequence).to.be.an('array');
+                    expect(audioSequence.length).to.equal(1);
+                    done();
+                }
+            });
+        });
+
+        it('Should find 2 sounds on the first and second frame.', function (done) {
+            var project = new Wick.Project();
+
+            var sound = new Wick.SoundAsset({
+                filename: 'foo.wav',
+                src: TestUtils.TEST_SOUND_SRC_WAV
+            });
+
+            project.activeFrame.end = 6;
+
+            var frame2 = new Wick.Frame({start: 7, end: 12});
+            project.activeLayer.addFrame(frame2);
+
+            project.addAsset(sound);
+
+            project.activeFrame.sound = sound;
+            frame2.sound = sound;
+            
+            project.generateAudioSequence({onFinish: audioSequence => {
+                    expect(audioSequence).to.be.an('array');
+                    expect(audioSequence.length).to.equal(2);
+                    done();
+                }
+            });
+        });
+
+        it('Should find sounds in clips', function (done) {
+            var project = new Wick.Project();
+
+            var sound = new Wick.SoundAsset({
+                filename: 'foo.wav',
+                src: TestUtils.TEST_SOUND_SRC_WAV
+            });
+
+            project.addAsset(sound);
+
+            var frame2 = new Wick.Frame({start: 7, end: 12});
+            project.activeLayer.addFrame(frame2);
+
+            var clip1 = new Wick.Clip();
+            project.activeFrame.addClip(clip1);
+            clip1.activeFrame.sound = sound;
+
+            var clip2 = new Wick.Clip();
+            frame2.addClip(clip2);
+            clip2.activeFrame.sound = sound;
+            
+            project.generateAudioSequence({onFinish: audioSequence => {
+                    expect(audioSequence).to.be.an('array');
+                    expect(audioSequence.length).to.equal(2);
+                    done();
+                }
+            });
+        });
+
         it('should return an empty audio track if project has no sounds' , function (done) {
             var project = new Wick.Project();
 
@@ -1382,6 +1480,7 @@ describe('Wick.Project', function() {
                 filename: 'foo.wav',
                 src: TestUtils.TEST_SOUND_SRC_WAV
             });
+
             project.addAsset(sound);
 
             project.activeFrame.sound = sound;
@@ -1411,7 +1510,7 @@ describe('Wick.Project', function() {
             });
         });
 
-        it('should return an audio track two 0.5 second sounds' , function (done) {
+        it('should return an audio track with two 0.5 second sounds' , function (done) {
             var project = new Wick.Project();
 
             var sound = new Wick.SoundAsset({

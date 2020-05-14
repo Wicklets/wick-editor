@@ -42,7 +42,7 @@ class ProjectSettings extends Component {
       {
         name: "Default",
         width: 720,
-        height: 405
+        height: 480
       },
       {
         name: "Square",

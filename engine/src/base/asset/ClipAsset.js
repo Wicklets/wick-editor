@@ -22,7 +22,7 @@ Wick.ClipAsset = class extends Wick.FileAsset {
      * Returns all valid MIME types for files which can be converted to ClipAssets.
      * @return {string[]} Array of strings of MIME types in the form MediaType/Subtype.
      */
-    static getValidMIMETypes () {
+    static getValidMIMETypes() {
         return ['application/json', 'application/octet-stream'];
     }
 
@@ -31,7 +31,7 @@ Wick.ClipAsset = class extends Wick.FileAsset {
      * converted to ClipAssets.
      * @return  {string[]} Array of strings representing extensions.
      */
-    static getValidExtensions () {
+    static getValidExtensions() {
         return ['.wickobj']
     }
 
@@ -62,20 +62,20 @@ Wick.ClipAsset = class extends Wick.FileAsset {
      * Create a new ClipAsset.
      * @param {object} args
      */
-    constructor (args) {
+    constructor(args) {
         super(args);
     }
 
-    _serialize (args) {
+    _serialize(args) {
         var data = super._serialize(args);
         return data;
     }
 
-    _deserialize (data) {
+    _deserialize(data) {
         super._deserialize(data);
     }
 
-    get classname () {
+    get classname() {
         return 'ClipAsset';
     }
 
@@ -127,7 +127,7 @@ Wick.ClipAsset = class extends Wick.FileAsset {
      * Load data in the asset
      * @param {function} callback - function to call when the data is done being loaded.
      */
-    load (callback) {
+    load(callback) {
         // We don't need to do anything here, the data for ClipAssets is just json
         callback();
     }
