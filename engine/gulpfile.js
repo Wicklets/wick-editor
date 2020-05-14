@@ -72,6 +72,7 @@ gulp.task("default", function() {
       'src/export/wickobj/WickObjectFile.js',
       'src/export/html/HTMLExport.js',
       'src/export/html/HTMLPreview.js',
+      'src/export/svg/SvgFile.js', 
       'src/export/image/ImageSequence.js',
       'src/export/zip/ZIPExport.js',
       'src/base/Base.js',
