@@ -39,7 +39,7 @@ class WelcomeModal extends Component {
       "And So Much More!",
     ] // No More than 3
 
-    let t1 = ["Hyun's Dojo", "Guy de Bree", "Dimp"]
+    let t1 = ["Hyun's Dojo", "Guy de Bree", "Dimp", "Pablosaurs910"]
     let t2 = ["Constance Ye", "Victoria Rojas"]
     let t3 = ["Gautaum Bose", "Ji Heon Han"]
     let t4 = ["Golan Levin", "ThisPodcastIsInEnglish", "Daniel Sun", "Benjamin Briand", "Anonymous"]
