@@ -1052,6 +1052,22 @@ class EditorCore extends Component {
         exporting: false,
       });
     }
+
+    // this.showWaitOverlay('Rendering video...');
+    VideoExport.renderVideo({
+      project: this.project,
+      width: args.width,
+      height: args.height,
+      onProgress: onProgress,
+      onError: () => {
+        this.hideWaitOverlay();
+        onError();
+      },
+      onFinish: () => {
+        this.hideWaitOverlay();
+        onFinish();
+      },
+    });
   }
     /**
    * Export the current project as a video.
