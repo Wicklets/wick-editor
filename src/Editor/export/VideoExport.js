@@ -160,7 +160,7 @@ class VideoExport {
         }
 
         let blob = new Blob([data]);
-        onProgress("Video Render Complete: Downloading...", 90);
+        onProgress("Video Render Complete: Downloading...", 100);
         onFinish();
 
         window.saveAs(blob, project.name+'.mp4');

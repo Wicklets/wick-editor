@@ -120,12 +120,13 @@ Wick.Tickable = class extends Wick.Base {
      */
     get hasContentfulScripts () {
         var hasContentfulScripts = false;
-        this._scripts.forEach(script => {
-            if(hasContentfulScripts) return;
-            if(script.src !== '') {
+
+        for (var script of this.scripts) {
+            if (this.scriptIsContentful(script.name)) {
                 hasContentfulScripts = true;
             }
-        })
+        }
+
         return hasContentfulScripts;
     }
 

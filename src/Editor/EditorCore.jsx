@@ -1023,7 +1023,7 @@ class EditorCore extends Component {
     // Open export media loading bar modal.
     this.openModal('ExportMedia');
     this.setState({
-      renderProgress: 0,
+      renderProgress: 10,
       renderType: "video",
       renderStatusMessage: "Creating video.",
       exporting: true,

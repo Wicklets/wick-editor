@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.5.14.15.30.15";
+var WICK_ENGINE_BUILD_VERSION = "2020.5.20.11.16.57";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -54772,13 +54772,11 @@ Wick.Tickable = class extends Wick.Base {
   get hasContentfulScripts() {
     var hasContentfulScripts = false;
 
-    this._scripts.forEach(script => {
-      if (hasContentfulScripts) return;
-
-      if (script.src !== '') {
+    for (var script of this.scripts) {
+      if (this.scriptIsContentful(script.name)) {
         hasContentfulScripts = true;
       }
-    });
+    }
 
     return hasContentfulScripts;
   }
