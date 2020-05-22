@@ -62,7 +62,7 @@ class Editor extends EditorCore {
     // "Live" editor states
     this.project = null;
     this.paper = null;
-    this.editorVersion = "1.17.1";
+    this.editorVersion = "1.17.2";
 
     // GUI state
     this.state = {
