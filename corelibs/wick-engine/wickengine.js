@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.5.20.11.16.57";
+var WICK_ENGINE_BUILD_VERSION = "2020.5.22.12.56.21";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -50923,8 +50923,8 @@ Wick.Project = class extends Wick.Base {
     renderCopy.pan = {
       x: 0,
       y: 0
-    };
-    renderCopy.tick(); // We need full control over when paper.js renders, if we leave autoUpdate on, it's possible to lose frames if paper.js doesnt automatically render as fast as we are generating the images.
+    }; // renderCopy.tick();
+    // We need full control over when paper.js renders, if we leave autoUpdate on, it's possible to lose frames if paper.js doesnt automatically render as fast as we are generating the images.
     // (See paper.js docs for info about autoUpdate)
 
     renderCopy.view.paper.view.autoUpdate = false;
@@ -51001,6 +51001,7 @@ Wick.Project = class extends Wick.Base {
     var renderFrame = () => {
       var currentPos = renderCopy.focus.timeline.playheadPosition;
       args.onProgress(currentPos, numMaxFrameImages);
+      console.log(currentPos);
 
       if (currentPos >= numMaxFrameImages) {
         // reset autoUpdate back to normal
