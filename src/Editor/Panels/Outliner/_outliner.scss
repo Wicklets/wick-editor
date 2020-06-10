@@ -1,0 +1,156 @@
+@import 'Editor/_wickbrand.scss';
+
+$outliner-title-height: 36px;
+
+$outliner-padding: 10px;
+$inspector-title-height: 36px;
+$inspector-selection-icon-size: 40px;
+$inspector-row-height: 26px;
+$outliner-button-height: 40px;
+
+$outliner-break-size: calc(#{$editor-outline-padding} * .5);
+
+$inspector-transition-duration: 0.2s;
+
+.outliner {
+  background-color: $editor-primary;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  box-sizing: border-box;
+  border-right: $editor-outline-padding solid $editor-primary-outline;
+  font-family: 'Nunito Sans';
+  overflow: hidden;
+}
+
+.outliner-tab {
+  box-sizing: border-box;
+  display: inline-block;
+  border-style: none;
+  background-color: $editor-primary-outline; 
+  text-align: center;
+  padding-left: 6px;
+  padding-right: 6px;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;  
+  font-size: 20px;
+  font-weight: bold;
+  color: $editor-secondary-text;
+  margin-left: 5px;
+}
+
+.outliner-tabs {
+  padding-top: 5px;
+  background-color: $editor-primary-outline;
+}
+
+.current-timeline {
+  background-color: $editor-primary;
+  border-bottom: $editor-green-highlight;
+  color: $editor-primary-property-text;
+}
+
+.outliner-body {
+  color: $editor-primary-property-text;
+  height: calc(100% - #{$outliner-title-height});
+  width: 100%;
+  overflow: hidden;
+}
+
+.outliner-body:hover {
+  overflow-y: auto;
+}
+
+.outliner-item {
+  padding-left: $outliner-padding;
+  padding-right: $outliner-padding;
+  padding-top: calc(#{$outliner-padding} / 2);
+  padding-bottom: calc(#{$outliner-padding} / 2);
+  border-bottom: $outliner-break-size solid $editor-primary-outline;
+  display: flex;
+  flex-direction: column;
+}
+
+.outliner-script-icon {
+  height: 16px;
+  vertical-align: middle;
+}
+.outliner-script-icon:focus {
+  outline:2;
+}
+
+.outliner-sound-icon {
+  height: 20px;
+  margin-right: 4px;
+}
+
+.outliner-object {
+  text-align: left;
+  width: 100%;
+  border-style: none;
+  align-content: flex-start;
+  box-sizing: border-box;
+  background-color: $editor-secondary;
+  border-top: 2px solid $editor-primary;
+  border-bottom: 2px solid $editor-primary;
+}
+.outliner-object:focus {
+  outline: 1px solid white;
+}
+
+.object-selected {
+  border: 2px solid $editor-green-highlight;
+}
+
+.object-dragging {
+  opacity: 0.5;
+}
+
+.highlighted {
+  background-color: $editor-tertiary;
+}
+  
+.outliner-name {
+  color: $editor-primary-property-text;
+  font-size: 16px;
+  margin-left: 5px;
+}
+
+.row-icon {
+  //float: left;
+  display: inline;
+  width: 22px;
+  padding: 4px;
+}
+
+.indentation {
+  padding-left: 25px;
+}
+
+.outliner-buttons-container {
+  float: right;
+}
+
+.hover-top {
+  border-top: 4px $wick-active-blue solid;
+}
+
+.hover-middle {
+  background-color: $wick-active-blue; 
+}
+
+.hover-bottom {
+  border-bottom: 4px $wick-active-blue solid;
+} 
+
+.widget {
+  width: 20px;
+  border-style: none;
+  background: none;
+  padding: 0px;
+  margin-right: 3px;
+}
+
+.widget-off {
+  opacity: 0.25;
+}

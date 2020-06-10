@@ -337,7 +337,7 @@ class EditorCore extends Component {
   }
 
   /**
-   * Clears the selection, then adds the given object to the selection.
+   * Adds the given object to the selection.
    * @param {object} object - The object to add to the selection.
    */
   selectObject = (object) => {
@@ -346,7 +346,7 @@ class EditorCore extends Component {
   }
 
   /**
-   * Clears the selection, then adds the given objects to the selection. No
+   * Adds the given objects to the selection. No
    * changes will be made if the selection does not change.
    * @param {object[]} objects - The objects to add to the selection.
    */
@@ -355,6 +355,18 @@ class EditorCore extends Component {
       this.project.selection.select(object);
     });
     this.projectDidChange({ actionName: "Select Multiple Objects" });
+  }
+
+  /**
+   * Removes the given objects from the selection. No
+   * changes will be made if the selection does not change.
+   * @param {object[]} objects - The objects to remove from the selection.
+   */
+  deselectObjects = (objects) => {
+    objects.forEach(object => {
+      this.project.selection.deselect(object);
+    });
+    this.projectDidChange({ actionName: "Deselect Multiple Objects" });
   }
 
   /**

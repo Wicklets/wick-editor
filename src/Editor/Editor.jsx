@@ -23,8 +23,8 @@ import ReactGA from 'react-ga';
 import './_editor.scss';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-import HTML5Backend from 'react-dnd-html5-backend'
-import { DragDropContext } from "react-dnd";
+import { HTML5Backend } from 'react-dnd-html5-backend'
+import { DndProvider } from 'react-dnd'
 import 'react-reflex/styles.css'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import { throttle } from 'underscore';
@@ -46,6 +46,7 @@ import Timeline from './Panels/Timeline/Timeline';
 import CanvasTransforms from './Panels/CanvasTransforms/CanvasTransforms';
 import Toolbox from './Panels/Toolbox/Toolbox';
 import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
+import Outliner from './Panels/Outliner/Outliner';
 import PopOutCodeEditor from './PopOuts/PopOutCodeEditor/PopOutCodeEditor';
 
 import EditorWrapper from './EditorWrapper';
@@ -816,6 +817,7 @@ class Editor extends EditorCore {
     let renderSize = this.getRenderSize();
 
     return (
+      <DndProvider backend={HTML5Backend}>
       <EditorWrapper editor={this}>
         {/* Menu Bar */}
 
@@ -965,12 +967,31 @@ class Editor extends EditorCore {
                     </DockedPanel>
                   </ReflexElement>
 
+          
+
+                  <ReflexSplitter {...this.resizeProps}/>
+
+                  {/* Outliner */}
+                  <ReflexElement
+                    minSize={100}>
+                    <DockedPanel showOverlay={this.state.previewPlaying}>
+                      <Outliner 
+                        project={this.project}
+                        selectObjects={this.selectObjects}
+                        deselectObjects={this.deselectObjects}
+                        clearSelection={this.clearSelection}
+                        editScript={this.editScript}
+                        setFocusObject={this.setFocusObject}
+                      />
+                    </DockedPanel>
+                  </ReflexElement>
+
                   <ReflexSplitter {...this.resizeProps}/>
 
                   {/* Asset Library */}
                   <ReflexElement
                     minSize={100}
-                    size={this.state.assetLibrarySize}
+                    size={500}
                     onResize={this.resizeProps.onResize}
                     onStopResize={this.resizeProps.onStopAssetLibraryResize}>
                     <DockedPanel showOverlay={this.state.previewPlaying}>
@@ -1010,8 +1031,9 @@ class Editor extends EditorCore {
             />}
         </div>
       </EditorWrapper>
+      </DndProvider>
       )
     }
   }
 
-export default DragDropContext(HTML5Backend)(Editor)
+export default Editor

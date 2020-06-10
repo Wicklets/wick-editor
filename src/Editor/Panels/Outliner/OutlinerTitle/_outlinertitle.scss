@@ -1,0 +1,56 @@
+/*
+ * Copyright 2020 WICKLETS LLC
+ *
+ * This file is part of Wick Editor.
+ *
+ * Wick Editor is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Editor is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+ @import 'Editor/_wickbrand.scss';
+ @import '../_outliner.scss';
+
+ $outliner-title-height: 36px;
+ $outliner-padding: 10px;
+ 
+ .outliner-title {
+   height: $outliner-title-height;
+   padding-left: $outliner-padding;
+   padding-right: $outliner-padding;
+   white-space: nowrap;
+   display: flex;
+   align-items: center;
+ }
+ 
+ .outliner-title-container {
+   box-shadow: 0px 2px 4px black;
+   position: relative;
+ }
+ 
+ .outliner-title-name {
+   font-size: 22px;
+   color: $editor-secondary-text;
+   font-family: 'Nunito Sans';
+   display: inline-block;
+ }
+ 
+ .outliner-title-selection-type {
+   height: 80%;
+   display: inline-flex;
+   align-items: center;
+   font-size: 20px;
+   font-weight: bold;
+   color: $editor-primary-property-text;
+   margin-left: 8px;
+ }
+ 
