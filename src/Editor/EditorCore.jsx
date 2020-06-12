@@ -337,6 +337,26 @@ class EditorCore extends Component {
   }
 
   /**
+   * Sets the active layer
+   * @param {number} index The index to set as active
+   */
+  setActiveLayerIndex = (index) => {
+    this.project.activeTimeline.activeLayerIndex = index;
+    this.projectDidChange({ actionName: "Set Active Layer" });
+  }
+
+  /**
+   * Moves selection into target at index
+   * @param {object} target The object to insert into
+   * @param {number} index The index to insert at
+   */
+  moveSelection = (target, index) => {
+    if (this.project.moveSelection(target, index)) {
+      this.projectDidChange({ actionName: "Moved Selection" });
+    }
+  }
+
+  /**
    * Adds the given object to the selection.
    * @param {object} object - The object to add to the selection.
    */

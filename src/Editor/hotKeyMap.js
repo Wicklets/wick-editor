@@ -45,7 +45,7 @@ class HotKeyInterface extends Object {
     this.customHotKeys = {};
 
     // Keys that should always work.
-    this.essentialKeys = ['preview-play-toggle'];
+    this.essentialKeys = [];// ['preview-play-toggle'];
   }
 
   // Create mappings of actions to keys

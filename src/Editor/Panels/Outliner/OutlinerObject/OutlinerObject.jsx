@@ -30,7 +30,8 @@ var classNames = require("classnames");
 
 export const OutlinerObject = ({clearSelection, selectObjects, 
   editScript, playhead, depth, maxDepth, display, highlighted, 
-  toggle, data, isActive, collapsedUUIDs, dragging, setDragging, setFocusObject}) => {
+  toggle, data, isActive, collapsedUUIDs, dragging, setDragging, 
+  setFocusObject, setActiveLayerIndex, moveSelection}) => {
 
   const ref = useRef(null);
 
@@ -49,10 +50,20 @@ export const OutlinerObject = ({clearSelection, selectObjects,
       clearSelection();
       selectObjects([data]);
 
+      if (data.classname === 'Layer') {
+        setActiveLayerIndex(data.index);
+      }
+      else {
+        setActiveLayerIndex(data.parentLayer.index);
+      }
+
     },
     end: () => {
       setDragging(false);
     },
+    canDrag: () => {
+      return (data.classname !== 'Frame');
+    }
   })
 
   const [hoverLocation, setHoverLocation] = useState(null);
@@ -60,8 +71,42 @@ export const OutlinerObject = ({clearSelection, selectObjects,
   const [{ isOverCurrent }, drop] = useDrop({
     accept: DragDropTypes.GET_OUTLINER_TARGETS({data}),
     drop: (item, monitor) => {
-      //const dropLocation = monitor.getClientOffset();
-      //const draggedItem = monitor.getItem();
+      if (monitor.didDrop()) return;
+      let type = DragDropTypes.GET_OUTLINER_SOURCE({data});
+      if (item.type === type) {
+        // Drop above or below
+        // Determine rectangle on screen
+        const hoverBoundingRect = ref.current ? ref.current.getBoundingClientRect() : null;
+
+        // Get vertical half
+        const hoverMiddle = (hoverBoundingRect.bottom - hoverBoundingRect.top - (hoverLocation ? 5 : 0)) / 2.0 ;
+        // Determine mouse position
+        const clientOffset = monitor.getClientOffset();
+        // Get pixels to the top
+        const hoverClientY = clientOffset.y - hoverBoundingRect.top;
+
+        if (hoverClientY <= hoverMiddle ^ type === 'object') {
+          //above
+          moveSelection(data.parent, data.parent.getChildren().indexOf(data));
+        }
+        else {
+          //below
+          console.log(data.parent.getChildren().indexOf(data) + 1);
+          moveSelection(data.parent, data.parent.getChildren().indexOf(data) + 1);
+        }
+      }
+      else if (type === 'layer') {
+        if (item.type === 'object') {
+          if (data.activeFrame) {
+            moveSelection(data.activeFrame, data.activeFrame.getChildren().length);
+          }
+        }
+      }
+      else if (type === 'frame') {
+        if (item.type === 'object') {
+          moveSelection(data, data.getChildren().length);
+        }
+      }
     },
     collect: (monitor) => ({
       isOverCurrent: monitor.isOver({ shallow: true }),
@@ -123,15 +168,24 @@ export const OutlinerObject = ({clearSelection, selectObjects,
   <>
   <DragPreviewImage connect={preview} src={typeIcon}/>
   <div 
-  className={classNames("outliner-object-container")}> 
-    <button ref={ref}
-      className={classNames("outliner-object", 
-        {"object-selected": data.isSelected},
-        {"object-dragging": (data.isSelected || data.parent.isSelected || data.parent.parent.isSelected) && dragging},
-        {"highlighted": highlighted === data},
-        isOverCurrent && hoverLocation)}
-      onClick={(e) => toggle(e, [], 'select')}
-    >
+  ref={ref}
+  className={classNames("outliner-object-container", 
+  hoverLocation !== 'hover-middle' && isOverCurrent && hoverLocation)}> 
+    <div className={classNames("outliner-object", 
+    {"object-selected": data.isSelected},
+    {"object-dragging": dragging && (data.isSelected || data.parent.isSelected || data.parent.parent.isSelected) },
+    {"highlighted": highlighted === data},
+    hoverLocation === 'hover-middle' && isOverCurrent && hoverLocation)}>
+    <button
+    className="outliner-object-selector"
+    onClick={(e) => {
+      toggle(e, [], 'select')}}
+      
+    onKeyPress={(e) => {
+      if (e.ctrlKey && e.which === 13){
+        toggle(e, [], 'select');
+      }
+    }}  />
     <OutlinerDropdown 
     empty={empty}
     collapsed={collapsedUUIDs[data.uuid]}
@@ -146,7 +200,6 @@ export const OutlinerObject = ({clearSelection, selectObjects,
     <span className="outliner-name">
     {name}
     </span>
-
     <span className="outliner-buttons-container">
       {data.classname === 'Layer' &&
         <OutlinerWidget onClick={(e) => {toggle(e, [], 'hidden')}} on={!data.hidden} src={hiddenIcon} alt="hidden"/>
@@ -168,10 +221,17 @@ export const OutlinerObject = ({clearSelection, selectObjects,
         onClick={() => {
           clearSelection();
           selectObjects([data]);
+          if (data.classname === 'Layer') {
+            setActiveLayerIndex(data.index);
+          }
+          else {
+            setActiveLayerIndex(data.parentLayer.index);
+          }
           editScript(data.scripts[0].name);
         }}/>}
     </span>
-</button>
+    </div>
+    
 
     {!empty && !collapsedUUIDs[data.uuid] && 
     <div className="indentation">
@@ -204,6 +264,8 @@ export const OutlinerObject = ({clearSelection, selectObjects,
           dragging={dragging}
           setDragging={setDragging}
           setFocusObject={setFocusObject}
+          setActiveLayerIndex={setActiveLayerIndex}
+          moveSelection={moveSelection}
         />)
       })}
     </div>}

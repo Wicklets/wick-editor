@@ -154,6 +154,8 @@ class Editor extends EditorCore {
 
     this.canvasComponent = null;
     this.timelineComponent = null;
+
+    this.lastUsedTool = 'cursor';
   }
 
   componentWillMount = () => {
@@ -982,6 +984,8 @@ class Editor extends EditorCore {
                         clearSelection={this.clearSelection}
                         editScript={this.editScript}
                         setFocusObject={this.setFocusObject}
+                        setActiveLayerIndex={this.setActiveLayerIndex}
+                        moveSelection={this.moveSelection}
                       />
                     </DockedPanel>
                   </ReflexElement>

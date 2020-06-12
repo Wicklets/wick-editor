@@ -1,6 +1,9 @@
 @import 'Editor/_wickbrand.scss';
 
 .outliner-dropdown-icon {
+  position: relative;
+  z-index: 1;
+  margin-left: 3px;
   vertical-align: middle;
   width: 15px;
   height: 15px;

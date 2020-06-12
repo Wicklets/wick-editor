@@ -188,6 +188,12 @@ class Outliner extends Component {
 
         this.props.selectObjects(to_select);
         this.setState({highlighted: object});
+        if (object.classname === 'Layer') {
+          this.props.setActiveLayerIndex(object.index);
+        }
+        else {
+          this.props.setActiveLayerIndex(object.parentLayer.index);
+        }
     }
     else if (e.ctrlKey && is_same_depth) {
         if (object.isSelected) {
@@ -195,6 +201,12 @@ class Outliner extends Component {
         }
         else {
             this.props.selectObjects([object]);
+            if (object.classname === 'Layer') {
+              this.props.setActiveLayerIndex(object.index);
+            }
+            else {
+              this.props.setActiveLayerIndex(object.parentLayer.index);
+            }
         }
         this.setState({highlighted: object});
     }
@@ -202,6 +214,12 @@ class Outliner extends Component {
         this.props.clearSelection();
         this.props.selectObjects([object]);
         this.setState({highlighted: object});
+        if (object.classname === 'Layer') {
+            this.props.setActiveLayerIndex(object.index);
+        }
+        else {
+            this.props.setActiveLayerIndex(object.parentLayer.index);
+        }
     }
   }
 
@@ -275,6 +293,8 @@ class Outliner extends Component {
                 dragging={this.state.dragging}
                 setDragging={(d) => {this.setState({dragging: d})}}
                 setFocusObject={this.props.setFocusObject}
+                setActiveLayerIndex={this.props.setActiveLayerIndex}
+                moveSelection={this.props.moveSelection}
                 />
                 )
             })}

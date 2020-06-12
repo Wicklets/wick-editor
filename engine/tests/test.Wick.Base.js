@@ -57,6 +57,49 @@ describe('Wick.Base', function() {
         expect(child3.parent).to.equal(null);
     });
 
+    it('should insert children', function() {
+        var base = new Wick.Base({
+            identifier: 'foo',
+        });
+
+        var child1 = new Wick.Base();
+        var child2 = new Wick.Base();
+        var child3 = new Wick.Base();
+        var child4 = new Wick.Base();
+
+        base.insertChild(child1, 0);
+        base.insertChild(child2, 0);
+        base.insertChild(child3, 2);
+        base.insertChild(child4, 1);
+        base.insertChild(child1, 2);
+
+        var grandchild1 = new Wick.Base();
+        var grandchild2 = new Wick.Base();
+        var grandchild3 = new Wick.Base();
+
+        child1.insertChild(grandchild1, 0);
+        child1.insertChild(grandchild2, 1);
+        child1.insertChild(grandchild3, 2);
+
+        var children = base.getChildren('Base');
+        expect(children[0]).to.equal(child2);
+        expect(children[1]).to.equal(child4);
+        expect(children[2]).to.equal(child1);
+        expect(children[3]).to.equal(child3);
+        expect(children[0].parent).to.equal(base);
+        expect(children[1].parent).to.equal(base);
+        expect(children[2].parent).to.equal(base);
+        expect(children[3].parent).to.equal(base);
+
+        var grandchildren = child1.getChildren('Base');
+        expect(grandchildren[0]).to.equal(grandchild1);
+        expect(grandchildren[1]).to.equal(grandchild2);
+        expect(grandchildren[2]).to.equal(grandchild3);
+        expect(grandchildren[0].parent).to.equal(child1);
+        expect(grandchildren[1].parent).to.equal(child1);
+        expect(grandchildren[2].parent).to.equal(child1);
+    });
+
     it('should create parent references', function() {
         var parent = new Wick.Base();
         var child = new Wick.Base();
