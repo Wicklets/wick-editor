@@ -1,23 +1,21 @@
 @import 'Editor/_wickbrand.scss';
+@import '../../outliner';
+
+$outliner-dropdown-size: 15px;
 
 .outliner-dropdown-icon {
   position: relative;
-  z-index: 1;
-  margin-left: 3px;
+  z-index: 0;
+  margin-left: $outliner-icon-spacing;
   vertical-align: middle;
-  width: 15px;
-  height: 15px;
+  width: $outliner-dropdown-size;
+  height: $outliner-dropdown-size;
 }
-
-.collapsed {
-    transform: rotate(0deg);
-  }
 
 .expanded {
   transform: rotate(90deg);
 }
 
 .empty {
-  width: 15px;
-  padding: 4px;
+  padding: calc(#{$outliner-dropdown-size} * .3);
 }

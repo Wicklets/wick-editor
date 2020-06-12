@@ -202,6 +202,7 @@ class EditorCore extends Component {
    * Finishes a playhead moving operation.
    */
   finishMovingPlayhead = () => {
+    console.log("dangus");
     this.projectDidChange({ actionName: "Finish Moving Playhead" });
   }
 
@@ -343,6 +344,24 @@ class EditorCore extends Component {
   setActiveLayerIndex = (index) => {
     this.project.activeTimeline.activeLayerIndex = index;
     this.projectDidChange({ actionName: "Set Active Layer" });
+  }
+
+  /**
+   * Toggles layer hidden
+   * @param {object} layer The layer to toggle
+   */
+  toggleHidden = (layer) => {
+    layer.hidden = !layer.hidden;
+    this.projectDidChange({ actionName: "Toggle Layer Hidden" });
+  }
+
+  /**
+   * Toggles layer locked
+   * @param {object} layer The layer to toggle
+   */
+  toggleLocked = (layer) => {
+    layer.locked = !layer.locked;
+    this.projectDidChange({ actionName: "Toggle Layer Locked" });
   }
 
   /**

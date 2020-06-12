@@ -3,14 +3,22 @@
 $outliner-title-height: 36px;
 
 $outliner-padding: 10px;
-$inspector-title-height: 36px;
-$inspector-selection-icon-size: 40px;
-$inspector-row-height: 26px;
-$outliner-button-height: 40px;
+$outliner-row-height: 24px;
+$outliner-row-spacing: 2px;
+
+$outliner-icon-spacing: 4px;
+$outliner-icon-width: 14px;
+$outliner-name-size: 16px;
+
+$widget-width: 20px;
+
+$tab-spacing: 5px;
+$tab-radius: 3px;
+$tab-font-size: 20px;
+
+$indentation: 25px;
 
 $outliner-break-size: calc(#{$editor-outline-padding} * .5);
-
-$inspector-transition-duration: 0.2s;
 
 .outliner {
   background-color: $editor-primary;
@@ -29,14 +37,14 @@ $inspector-transition-duration: 0.2s;
   border-style: none;
   background-color: $editor-primary-outline; 
   text-align: center;
-  padding-left: 6px;
-  padding-right: 6px;
-  border-top-left-radius: 3px;
-  border-top-right-radius: 3px;  
-  font-size: 20px;
+  padding-left: $tab-spacing;
+  padding-right: $tab-spacing;
+  border-top-left-radius: $tab-radius;
+  border-top-right-radius: $tab-radius;  
+  font-size: $tab-font-size;
   font-weight: bold;
   color: $editor-secondary-text;
-  margin-left: 5px;
+  margin-left: $tab-spacing;
 }
 
 .outliner-tabs {
@@ -72,42 +80,37 @@ $inspector-transition-duration: 0.2s;
 }
 
 .outliner-script-icon {
-  height: 16px;
+  height: $outliner-name-size;
   vertical-align: middle;
-}
-.outliner-script-icon:focus {
-  outline:2;
 }
 
 .outliner-sound-icon {
   height: 20px;
-  margin-right: 4px;
+  margin-right: $outliner-icon-spacing;
 }
 
 .outliner-object {
   align-content: flex-start;
   box-sizing: border-box;
+  position: relative;
+  z-index: 0;
   background-color: $editor-secondary;
-  border-top: 2px solid $editor-primary;
-  border-bottom: 2px solid $editor-primary;
-}
-.outliner-object:focus {
-  outline: 1px solid white;
+  border-top: $outliner-row-spacing solid $editor-primary;
+  border-bottom: $outliner-row-spacing solid $editor-primary;
 }
 
 .outliner-object-selector {
   position: absolute;
   top: 0;
   left: 0;
-  height: 29px;
-  z-index: 1;
+  height: $outliner-row-height;
   width: 100%;
   border-style: none;
   background-color: transparent;
 }
 
 .object-selected {
-  border: 2px solid $editor-green-highlight;
+  border: $outliner-row-spacing solid $editor-green-highlight;
 }
 
 .object-dragging {
@@ -126,30 +129,32 @@ $inspector-transition-duration: 0.2s;
   
 .outliner-name {
   position: relative;
+  z-index: -1;
   color: $editor-primary-property-text;
-  font-size: 16px;
-  margin-left: 5px;
+  font-size: $outliner-name-size;
+  margin-left: calc(#{$outliner-icon-spacing} * 2);
 }
 
 .row-icon {
   position: relative;
-  display: inline;
-  width: 22px;
-  padding: 4px;
+  z-index: -1;
+  width: $outliner-icon-width;
+  margin-left: $outliner-icon-spacing;
+  margin-bottom: 3px;
 }
 
 .indentation {
-  padding-left: 25px;
+  padding-left: $indentation;
 }
 
 .outliner-buttons-container {
   position: relative;
-  z-index: 1;
+  z-index: 0;
   float: right;
 }
 
 .hover-top {
-  border-top: 4px $wick-active-blue solid;
+  border-top: calc(#{$outliner-row-spacing} * 2) $wick-active-blue solid;
 }
 
 .hover-middle {
@@ -157,15 +162,15 @@ $inspector-transition-duration: 0.2s;
 }
 
 .hover-bottom {
-  border-bottom: 4px $wick-active-blue solid;
+  border-bottom: calc(#{$outliner-row-spacing} * 2) $wick-active-blue solid;
 } 
 
 .widget {
-  width: 20px;
+  width: $widget-width;
   border-style: none;
   background: none;
   padding: 0px;
-  margin-right: 3px;
+  margin-right: $outliner-icon-spacing;
 }
 
 .widget-off {

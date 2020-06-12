@@ -280,12 +280,14 @@ class Outliner extends Component {
                     else if (property === 'dropdown') {
                         this.toggleDropdown(e, indices);
                     }
-                    /*else if (property === 'locked') {
-                        this.toggleVisible(e, indices); //TODO
+                    else if (property === 'locked') {
+                        let layer = this.getObjectAtIndices(this.props.project.activeTimeline, indices, indices.length);
+                        this.props.toggleLocked(layer);
                     }
                     else if (property === 'hidden') {
-                        this.toggleLocked(e, indices); //TODO
-                    }*/
+                        let layer = this.getObjectAtIndices(this.props.project.activeTimeline, indices, indices.length);
+                        this.props.toggleHidden(layer);
+                    }
                 }}
                 data={layer}
                 isActive={this.isActive}

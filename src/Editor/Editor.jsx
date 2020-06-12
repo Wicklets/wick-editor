@@ -986,6 +986,8 @@ class Editor extends EditorCore {
                         setFocusObject={this.setFocusObject}
                         setActiveLayerIndex={this.setActiveLayerIndex}
                         moveSelection={this.moveSelection}
+                        toggleHidden={this.toggleHidden}
+                        toggleLocked={this.toggleLocked}
                       />
                     </DockedPanel>
                   </ReflexElement>

@@ -20,10 +20,10 @@ export default {
   },
   GET_OUTLINER_TARGETS: (props) => {
     if (props.data.classname.toLowerCase() === 'frame') {
-      return ['object', 'frame'];
+      return ['object'];
     }
     else if (props.data.classname.toLowerCase() === 'layer') {
-      return ['object', 'frame', 'layer'];
+      return ['object', 'layer'];
     }
     else {
       return ['object'];

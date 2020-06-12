@@ -16,6 +16,14 @@ import clipIcon from 'resources/object-icons/clip.svg';
 import textIcon from 'resources/object-icons/text.svg';
 import imageIcon from 'resources/object-icons/image.svg';
 
+import layerImage from 'resources/object-icons/layer.png';
+import frameImage from 'resources/object-icons/frame.png';
+import pathImage from 'resources/object-icons/path.png';
+import buttonImage from 'resources/object-icons/button.png';
+import clipImage from 'resources/object-icons/clip.png';
+import textImage from 'resources/object-icons/text.png';
+import imageImage from 'resources/object-icons/image.png';
+
 import scriptIcon from 'resources/outliner-icons/script.svg';
 import soundIcon from 'resources/outliner-icons/sound.svg';
 
@@ -24,7 +32,10 @@ import hiddenIcon from 'resources/outliner-icons/hidden.svg';
 import lockedIcon from 'resources/outliner-icons/locked.svg';
 
 let icons = {layer: layerIcon, frame: frameIcon, path: pathIcon, button: buttonIcon, 
-            clip: clipIcon, text: textIcon, image: imageIcon};
+  clip: clipIcon, text: textIcon, image: imageIcon};
+
+let images = {layer: layerImage, frame: frameImage, path: pathImage, button: buttonImage, 
+  clip: clipImage, text: textImage, image: imageImage};
 
 var classNames = require("classnames");
 
@@ -61,9 +72,6 @@ export const OutlinerObject = ({clearSelection, selectObjects,
     end: () => {
       setDragging(false);
     },
-    canDrag: () => {
-      return (data.classname !== 'Frame');
-    }
   })
 
   const [hoverLocation, setHoverLocation] = useState(null);
@@ -91,7 +99,6 @@ export const OutlinerObject = ({clearSelection, selectObjects,
         }
         else {
           //below
-          console.log(data.parent.getChildren().indexOf(data) + 1);
           moveSelection(data.parent, data.parent.getChildren().indexOf(data) + 1);
         }
       }
@@ -118,7 +125,8 @@ export const OutlinerObject = ({clearSelection, selectObjects,
           types.indexOf(DragDropTypes.GET_OUTLINER_SOURCE({data}))) {
         // Drop above or below
         // Determine rectangle on screen
-        const hoverBoundingRect = ref.current ? ref.current.getBoundingClientRect() : null;
+        if (!ref.current) return;
+        const hoverBoundingRect = ref.current.getBoundingClientRect();
 
         // Get vertical half
         const hoverMiddle = (hoverBoundingRect.bottom - hoverBoundingRect.top - (hoverLocation ? 5 : 0)) / 2.0 ;
@@ -161,28 +169,33 @@ export const OutlinerObject = ({clearSelection, selectObjects,
   const typeIcon = data.classname === 'Path' ? 
                     icons[data.pathType] : 
                     icons[data.classname.toLowerCase()];
-
-  drag(drop(ref));
+  const typeDragImage = data.classname === 'Path' ? 
+                    images[data.pathType] : 
+                    images[data.classname.toLowerCase()];
+  
+  drop(ref)
 
   return (
   <>
-  <DragPreviewImage connect={preview} src={typeIcon}/>
+  <DragPreviewImage connect={preview} src={typeDragImage}/>
   <div 
   ref={ref}
   className={classNames("outliner-object-container", 
   hoverLocation !== 'hover-middle' && isOverCurrent && hoverLocation)}> 
-    <div className={classNames("outliner-object", 
+    <div 
+    className={classNames("outliner-object", 
     {"object-selected": data.isSelected},
     {"object-dragging": dragging && (data.isSelected || data.parent.isSelected || data.parent.parent.isSelected) },
     {"highlighted": highlighted === data},
     hoverLocation === 'hover-middle' && isOverCurrent && hoverLocation)}>
     <button
+    ref={drag}
     className="outliner-object-selector"
     onClick={(e) => {
       toggle(e, [], 'select')}}
       
     onKeyPress={(e) => {
-      if (e.ctrlKey && e.which === 13){
+      if (e.which === 13 && e.ctrlKey){
         toggle(e, [], 'select');
       }
     }}  />
