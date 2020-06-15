@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 
 import {OutlinerObject} from './OutlinerObject/OutlinerObject'
 import OutlinerTitle from './OutlinerTitle/OutlinerTitle'
-import OutlinerTabs from './OutlinerTabs/OutlinerTabs'
 import OutlinerDisplay from './OutlinerRow/OutlinerRowTypes/OutlinerDisplay'
 
 import './_outliner.scss';
@@ -250,8 +249,6 @@ class Outliner extends Component {
           </div>
 
           <div className="outliner-body">
-            
-            <OutlinerTabs tabs={timelineHierarchy} setFocusObject={this.props.setFocusObject}/>
 
             <div className="outliner-item">
                 <OutlinerDisplay
