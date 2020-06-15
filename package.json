@@ -1,6 +1,6 @@
 {
   "name": "wick-editor",
-  "version": "1.17.1",
+  "version": "1.17.3",
   "author": "Wicklets LLC",
   "private": true,
   "homepage": "./",
@@ -17,6 +17,7 @@
     "classnames": "^2.2.6",
     "electron-is-dev": "^1.2.0",
     "electron-updater": "^4.2.5",
+    "ffmpeg.js": "^4.2.9003",
     "file-saver": "^2.0.0",
     "gh-pages": "^2.0.1",
     "gulp": "^4.0.2",
@@ -108,6 +109,7 @@
     "test": "react-scripts test",
     "predeploy": "npm run build",
     "prerelease-deploy": "npm run build; cp -r build/* ../wick-editor-prerelease/; cd ../wick-editor-prerelease; rm CNAME; echo 'test.wickeditor.com' > CNAME; git add .; git commit -m 'update prerelease build'; git push --force;",
+    "phonegap-deploy": "npm run build; cp -r build/* ../wick-editor-phonegap/www; cd ../wick-editor-phonegap; git add .; git commit -m 'update phonegap build'; git push --force;",
     "deploy": "gh-pages -d build",
     "eject": "react-scripts eject",
     "electron": "electron .",

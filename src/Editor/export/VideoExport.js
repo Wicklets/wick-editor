@@ -1,7 +1,5 @@
 import AudioExport from './AudioExport';
 
-const { createWorker } = require('@ffmpeg/ffmpeg');
-const { setLogging } = require('@ffmpeg/ffmpeg');
 var b64toBuff = require('base64-arraybuffer');
 
 var ENABLE_LOGGING = false;
@@ -14,25 +12,9 @@ class VideoExport {
      * project, onProgress, onError, onFinish;
      */
     static renderVideo = async (args) => {
-
-      setLogging(ENABLE_LOGGING);
-      const worker = createWorker({
-          logger: ({message}) => {
-              if(ENABLE_LOGGING) {
-                  console.log(message);
-              }
-              VideoExport._parseProgressMessage(message, args);
-          },
-      });
-
-      args.worker = worker;
-
-      await worker.load();
       let images = await VideoExport._generateProjectImages(args);
-
       let soundInfo = [...args.project.soundsPlayed]; // Make a deepcopy of the sound info.
       args.soundInfo = soundInfo;
-
       let audio = await VideoExport._generateAudioFile(args);
 
       await VideoExport._generateVideo({images:images, audio:audio, args});
@@ -98,21 +80,82 @@ class VideoExport {
     }
 
     static _generateVideo = async ({images, audio, args}) => {
-      let { project, onProgress, onFinish, worker } = args;
+      let { project, onProgress, onFinish } = args;
+
+      // Save on Done
+      let onDone = (data) => {
+        if(!(data instanceof Uint8Array)) {
+          data = new Uint8Array(data);
+        }
+        let blob = new Blob([data]);
+        window.saveAs(blob, project.name+'.mp4');
+        onProgress("Rendering Complete! Downloading...", 100);
+        onFinish();
+      }
+
+      let workerReady = false;
+      let _worker = new Worker("corelibs/video/worker-asm.js");
+      _worker.onmessage = (e) => {
+      let msg = e.data;
+
+        switch (msg.type) {
+          case "ready": 
+            ENABLE_LOGGING && console.log("Worker ready");
+            workerReady = true;
+            break;
+          case "stdout":
+            VideoExport._parseProgressMessage(msg.data, args);
+            ENABLE_LOGGING && console.log("output: ", msg.data);
+            break;
+          case "stderr":
+            ENABLE_LOGGING && console.error("Error:", msg);
+            break;
+          case "done":
+            ENABLE_LOGGING && console.log(msg);
+            onDone(msg.data[0].data);
+            break;
+          case "exit":
+            _worker.terminate();
+            break;
+          case "error":
+            console.error("Video Renderer had an error. Please Try Again")
+            console.error(msg)
+            break;
+          default:
+            break;
+        }
+      }
+
+      let runFFMPEGCommand = (ffmpegArgs, workerMemoryFiles) => {
+        ENABLE_LOGGING && console.log("Running ffmpeg", ffmpegArgs, workerMemoryFiles);
+        _worker.postMessage({
+          type: "command",
+          arguments: ffmpegArgs, 
+          files: workerMemoryFiles,
+          commandName: 'video_render',
+        });
+      }
+    
+      let waitUntilReady = (callback) => {
+        let waitUntilReadyInterval = setInterval(() => {
+          ENABLE_LOGGING && console.log("Waiting on Worker")
+          if(workerReady) {
+            clearInterval(waitUntilReadyInterval);
+            callback();
+          }
+        }, 10);
+      }
 
       onProgress("Rendering Final Video", EXPORT_VIDEO_START);
 
-      for (let i=0; i<images.length; i++) {
-          let image = images[i];
-          let { name, data } = image;
-          await worker.write(name, data);
-      }
+      let allFiles = images;
 
-      let inputs = '-i frame%12d.jpeg';
+      if (audio) allFiles = allFiles.concat([{ data:audio, name:"audio.wav"}]);
+
+      let inputs = ['-i', 'frame%12d.jpeg'];
 
       if (audio) {
-          await worker.write('audio.wav', audio);
-          inputs += ' -i audio.wav';
+          inputs = inputs.concat(['-i', 'audio.wav']);
       }
 
       // Slow down the video if the framerate is less than 6 (framerate <6 causes a corrupted video to render)
@@ -130,40 +173,16 @@ class VideoExport {
       let command = [
           '-r', '' + Math.max(6, project.framerate),
           '-s', dimensions.width + "x" + dimensions.height,
-          inputs,
-          '-profile:v', 'main',
+          ...inputs,
+          '-vcodec', 'mpeg4',
           '-pix_fmt', 'yuv420p',
-          '-c:v', 'libx264',
           '-q:v', '10', //10=good quality, 31=bad quality
+          '-strict', '-2',
           '-filter:v', filterv,
           'out.mp4',
         ]
 
-        await worker.run(command.join(" "), {output: 'out.mp4'});
-        let { data } = await worker.read('out.mp4');
-
-        // Remove Data from worker when done.
-        for (let i=0; i<images.length; i++) {
-          let image = images[i];
-          let { name } = image;
-          await worker.remove(name);
-        }
-
-        if (audio) {
-          await worker.remove('audio.wav', audio);
-        }
-
-        await worker.terminate();
-
-        if(!(data instanceof Uint8Array)) {
-          data = new Uint8Array(data);
-        }
-
-        let blob = new Blob([data]);
-        onProgress("Video Render Complete: Downloading...", 90);
-        onFinish();
-
-        window.saveAs(blob, project.name+'.mp4');
+      waitUntilReady(() => runFFMPEGCommand(command, allFiles));
     }
 
     // ffmpeg does not like odd numbers in the video width/height.
@@ -189,6 +208,7 @@ class VideoExport {
 
     static _parseProgressMessage (message, args) {
         if(!message) return
+        if(! (typeof message === 'string')) return;
         if(!message.includes('pts_time:')) return;
 
         var time;

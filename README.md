@@ -26,7 +26,7 @@ The Wick Editor is a free and open-source tool for creating games, animations, a
 
 ## Getting started
 
-These instructions are for MacOS and Linux, we currently don't have instructions for Windows, but if you need help please feel free to email zach@wickeditor.com.
+These instructions are for MacOS and Linux, we currently don't have instructions for Windows, but if you need help please feel free to email contact@wickeditor.com.
 
 ### Requirements
 

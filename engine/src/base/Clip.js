@@ -746,7 +746,7 @@ Wick.Clip = class extends Wick.Tickable {
             this.playedOnce = false;
             this.timeline.playheadPosition = 1;
         }
-        
+
     }
 
     _onActive() {
