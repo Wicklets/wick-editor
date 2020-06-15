@@ -36,33 +36,6 @@ $outliner-break-size: calc(#{$editor-outline-padding} * .5);
   border-right: 0;
 }
 
-.outliner-tab {
-  box-sizing: border-box;
-  display: inline-block;
-  border-style: none;
-  background-color: $editor-primary-outline; 
-  text-align: center;
-  padding-left: $tab-spacing;
-  padding-right: $tab-spacing;
-  border-top-left-radius: $tab-radius;
-  border-top-right-radius: $tab-radius;  
-  font-size: $tab-font-size;
-  font-weight: bold;
-  color: $editor-secondary-text;
-  margin-left: $tab-spacing;
-}
-
-.outliner-tabs {
-  padding-top: 5px;
-  background-color: $editor-primary-outline;
-}
-
-.current-timeline {
-  background-color: $editor-primary;
-  border-bottom: $editor-green-highlight;
-  color: $editor-primary-property-text;
-}
-
 .outliner-body {
   color: $editor-primary-property-text;
   height: calc(100% - #{$outliner-title-height});
@@ -185,6 +158,11 @@ $outliner-break-size: calc(#{$editor-outline-padding} * .5);
   background: none;
   padding: 0px;
   margin-right: $outliner-icon-spacing;
+  transition: background-color 150ms ease-in-out;
+  border-radius: 3px;
+}
+.widget:hover {
+  background-color: rgba(255,255,255,0.2);
 }
 
 .widget-off {

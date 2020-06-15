@@ -347,7 +347,6 @@ class Editor extends EditorCore {
 
   toggleOutliner = () => {
     this.setState({outlinerPoppedOut: !this.state.outlinerPoppedOut});
-    this.projectDidChange({ skipHistory: true, actionName:"Toggle Outliner" });
   }
 
   onResize = (e) => {
@@ -918,8 +917,8 @@ class Editor extends EditorCore {
                             />
                             {renderSize === "large" && 
                             <OutlinerExpandButton
-                            expanded={this.state.outlinerPoppedOut}
-                            toggleOutliner={this.toggleOutliner}
+                              expanded={this.state.outlinerPoppedOut}
+                              toggleOutliner={this.toggleOutliner}
                             />}
                             <CanvasTransforms
                               onionSkinEnabled={this.project.onionSkinEnabled}

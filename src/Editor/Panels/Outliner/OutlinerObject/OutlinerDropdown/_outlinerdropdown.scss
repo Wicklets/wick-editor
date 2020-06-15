@@ -15,7 +15,12 @@ $outliner-dropdown-size: 15px;
   vertical-align: middle;
   width: $outliner-dropdown-size;
   height: $outliner-dropdown-size;
+  transition: background-color 150ms ease-in-out;
 }
+.outliner-dropdown-icon:hover {
+  background-color: rgba(255,255,255,0.2);
+}
+
 
 .expanded {
   animation-name: rotate;
@@ -24,6 +29,11 @@ $outliner-dropdown-size: 15px;
   animation-fill-mode: forwards;
 }
 
+
 .empty {
   padding: calc(#{$outliner-dropdown-size} * .3);
+  z-index: -1;
+}
+.empty:hover {
+  background: none;
 }
