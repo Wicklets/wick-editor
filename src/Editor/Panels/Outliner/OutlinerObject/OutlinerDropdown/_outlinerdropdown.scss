@@ -3,6 +3,11 @@
 
 $outliner-dropdown-size: 15px;
 
+@keyframes rotate {
+  0% {transform: rotate(0deg);}
+  100% {transform: rotate(90deg);}
+}
+
 .outliner-dropdown-icon {
   position: relative;
   z-index: 0;
@@ -13,7 +18,10 @@ $outliner-dropdown-size: 15px;
 }
 
 .expanded {
-  transform: rotate(90deg);
+  animation-name: rotate;
+  animation-duration: $dropdown-animation-duration;
+  animation-timing-function: ease-in;
+  animation-fill-mode: forwards;
 }
 
 .empty {

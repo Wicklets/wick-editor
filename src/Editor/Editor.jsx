@@ -47,6 +47,7 @@ import CanvasTransforms from './Panels/CanvasTransforms/CanvasTransforms';
 import Toolbox from './Panels/Toolbox/Toolbox';
 import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
 import Outliner from './Panels/Outliner/Outliner';
+import OutlinerExpandButton from './Panels/OutlinerExpandButton/OutlinerExpandButton';
 import PopOutCodeEditor from './PopOuts/PopOutCodeEditor/PopOutCodeEditor';
 
 import EditorWrapper from './EditorWrapper';
@@ -76,6 +77,8 @@ class Editor extends EditorCore {
       showCanvasActions: false,
       showBrushModes: false,
       showCodeErrors: false,
+      popoutOutlinerSize: 250,
+      outlinerPoppedOut: true,
       inspectorSize: 250,
       timelineSize: 175,
       assetLibrarySize: 150,
@@ -143,6 +146,7 @@ class Editor extends EditorCore {
     this.WINDOW_RESIZE_THROTTLE_AMOUNT_MS = 300;
     this.resizeProps = {
       onStopResize: throttle(this.onStopResize, this.resizeThrottleAmount),
+      onStopPopoutOutlinerResize: throttle(this.onStopPopoutOutlinerResize, this.resizeThrottleAmount),
       onStopInspectorResize: throttle(this.onStopInspectorResize, this.resizeThrottleAmount),
       onStopAssetLibraryResize: throttle(this.onStopAssetLibraryResize, this.resizeThrottleAmount),
       onStopTimelineResize: throttle(this.onStopTimelineResize, this.resizeThrottleAmount),
@@ -341,6 +345,11 @@ class Editor extends EditorCore {
     });
   }
 
+  toggleOutliner = () => {
+    this.setState({outlinerPoppedOut: !this.state.outlinerPoppedOut});
+    this.projectDidChange({ skipHistory: true, actionName:"Toggle Outliner" });
+  }
+
   onResize = (e) => {
     this.project.view.resize();
     this.project.guiElement.draw();
@@ -388,6 +397,17 @@ class Editor extends EditorCore {
    */
   onMajorScriptUpdate = () => {
 
+  }
+
+  /**
+   * Called when the outliner is resized.
+   * @param  {DomElement} domElement DOM element containing the outliner
+   * @param  {React.Component} component  React component of the outliner.
+   */
+  onStopPopoutOutlinerResize = ({domElement, component}) => {
+    this.setState({
+      popoutOutlinerSize: this.getSizeHorizontal(domElement)
+    });
   }
 
   /**
@@ -876,36 +896,72 @@ class Editor extends EditorCore {
                 </div>
                 <div className={classNames("editor-canvas-timeline-panel", {'editor-canvas-timeline-panel-medium': renderSize === 'medium'}, {'editor-canvas-timeline-panel-small': renderSize === 'small'})}>
                   <ReflexContainer windowResizeAware={true} orientation="horizontal">
-                    {/*Canvas*/}
-                    <ReflexElement {...this.resizeProps}>
-                      <DockedPanel>
-                        <Canvas
-                          project={this.project}
-                          projectDidChange={this.projectDidChange}
-                          projectData={this.state.project}
-                          paper={this.paper}
-                          previewPlaying={this.state.previewPlaying}
-                          createImageFromAsset={this.createImageFromAsset}
-                          toast={this.toast}
-                          onEyedropperPickedColor={this.onEyedropperPickedColor}
-                          createAssets={this.createAssets}
-                          importProjectAsWickFile={this.importProjectAsWickFile}
-                          onRef={ref => this.canvasComponent = ref}
-                        />
-                        <CanvasTransforms
-                          onionSkinEnabled={this.project.onionSkinEnabled}
-                          toggleOnionSkin={this.toggleOnionSkin}
-                          zoomIn={this.zoomIn}
-                          zoomOut={this.zoomOut}
-                          recenterCanvas={this.recenterCanvas}
-                          activeToolName={this.getActiveTool().name}
-                          setActiveTool={this.setActiveTool}
-                          previewPlaying={this.state.previewPlaying}
-                          togglePreviewPlaying={this.togglePreviewPlaying}
-                        />
-                      </DockedPanel>
+                    
+                    {/* Canvas and Popout Outliner */}
+                    <ReflexElement>
+                      <ReflexContainer windowResizeAware={true} orientation="vertical">
+                        {/*Canvas*/}
+                        <ReflexElement {...this.resizeProps}>
+                          <DockedPanel>
+                            <Canvas
+                              project={this.project}
+                              projectDidChange={this.projectDidChange}
+                              projectData={this.state.project}
+                              paper={this.paper}
+                              previewPlaying={this.state.previewPlaying}
+                              createImageFromAsset={this.createImageFromAsset}
+                              toast={this.toast}
+                              onEyedropperPickedColor={this.onEyedropperPickedColor}
+                              createAssets={this.createAssets}
+                              importProjectAsWickFile={this.importProjectAsWickFile}
+                              onRef={ref => this.canvasComponent = ref}
+                            />
+                            {renderSize === "large" && 
+                            <OutlinerExpandButton
+                            expanded={this.state.outlinerPoppedOut}
+                            toggleOutliner={this.toggleOutliner}
+                            />}
+                            <CanvasTransforms
+                              onionSkinEnabled={this.project.onionSkinEnabled}
+                              toggleOnionSkin={this.toggleOnionSkin}
+                              zoomIn={this.zoomIn}
+                              zoomOut={this.zoomOut}
+                              recenterCanvas={this.recenterCanvas}
+                              activeToolName={this.getActiveTool().name}
+                              setActiveTool={this.setActiveTool}
+                              previewPlaying={this.state.previewPlaying}
+                              togglePreviewPlaying={this.togglePreviewPlaying}
+                            />
+                          </DockedPanel>
+                        </ReflexElement>
+
+                        {/* Popout Outliner */}
+                        {renderSize === "large" && this.state.outlinerPoppedOut && <ReflexSplitter {...this.resizeProps}/>}
+                        {renderSize === "large" && this.state.outlinerPoppedOut && 
+                        <ReflexElement
+                          size={250}
+                          maxSize={300} minSize={200}
+                          onResize={this.resizeProps.onResize}
+                          onStopResize={this.resizeProps.onStopPopoutOutlinerResize}>
+                          <Outliner 
+                            className="popout-outliner"
+                            project={this.project}
+                            selectObjects={this.selectObjects}
+                            deselectObjects={this.deselectObjects}
+                            clearSelection={this.clearSelection}
+                            editScript={this.editScript}
+                            setFocusObject={this.setFocusObject}
+                            setActiveLayerIndex={this.setActiveLayerIndex}
+                            moveSelection={this.moveSelection}
+                            toggleHidden={this.toggleHidden}
+                            toggleLocked={this.toggleLocked}
+                          />
+                        </ReflexElement>}
+                      </ReflexContainer>
                     </ReflexElement>
+
                     <ReflexSplitter {...this.resizeProps}/>
+
                     {/*Timeline*/}
                     <ReflexElement
                       minSize={100}
@@ -970,11 +1026,9 @@ class Editor extends EditorCore {
                   </ReflexElement>
 
           
-
-                  <ReflexSplitter {...this.resizeProps}/>
-
                   {/* Outliner */}
-                  <ReflexElement
+                  {renderSize === 'medium' && <ReflexSplitter {...this.resizeProps}/>}
+                  {renderSize === 'medium' && <ReflexElement
                     minSize={100}>
                     <DockedPanel showOverlay={this.state.previewPlaying}>
                       <Outliner 
@@ -990,7 +1044,7 @@ class Editor extends EditorCore {
                         toggleLocked={this.toggleLocked}
                       />
                     </DockedPanel>
-                  </ReflexElement>
+                  </ReflexElement>}
 
                   <ReflexSplitter {...this.resizeProps}/>
 

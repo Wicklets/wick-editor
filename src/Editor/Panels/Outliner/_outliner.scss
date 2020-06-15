@@ -12,6 +12,8 @@ $outliner-name-size: 16px;
 
 $widget-width: 20px;
 
+$dropdown-animation-duration: 75ms;
+
 $tab-spacing: 5px;
 $tab-radius: 3px;
 $tab-font-size: 20px;
@@ -29,6 +31,9 @@ $outliner-break-size: calc(#{$editor-outline-padding} * .5);
   border-right: $editor-outline-padding solid $editor-primary-outline;
   font-family: 'Nunito Sans';
   overflow: hidden;
+}
+.popout-outliner {
+  border-right: 0;
 }
 
 .outliner-tab {
@@ -143,8 +148,17 @@ $outliner-break-size: calc(#{$editor-outline-padding} * .5);
   margin-bottom: 3px;
 }
 
+@keyframes expand {
+  0% {transform: scaleY(0);}
+  100% {transform: scaleY(1);}
+}
 .indentation {
+  animation-timing-function: ease-in;
   padding-left: $indentation;
+  transform-origin: top;
+  animation-name: expand;
+  animation-duration: $dropdown-animation-duration;
+  animation-fill-mode: forwards;
 }
 
 .outliner-buttons-container {

@@ -7,6 +7,8 @@ import OutlinerDisplay from './OutlinerRow/OutlinerRowTypes/OutlinerDisplay'
 
 import './_outliner.scss';
 
+var classNames = require('classnames');
+
 class Outliner extends Component {
   constructor(props) {
     super(props);
@@ -242,7 +244,7 @@ class Outliner extends Component {
       }
 
       return (
-      <div className="docked-pane outliner">
+      <div className={classNames("docked-pane outliner", this.props.className)}>
           <div className="outliner-title-container">
             <OutlinerTitle/>
           </div>
