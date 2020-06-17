@@ -121,15 +121,25 @@
   height: 100%;
 }
 
+.wick-select-container {
+  font-size: 15px;
+  height: 26px;
+}
+
+.wick-select-inner {
+  font-size: 20px;
+}
+
 .wick-select-control{
   padding: 0 !important; 
   padding-left: 2px !important; 
   display: flex; 
   align-items: center;
-  min-height: 26px; 
+  min-height: 26px;
 }
 
 .wick-select-menu {
+  font-size: 10px;
   background-color: #EAEAEA; 
   color: #1D1921;
 }

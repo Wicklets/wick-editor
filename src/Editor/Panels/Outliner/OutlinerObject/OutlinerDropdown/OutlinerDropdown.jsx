@@ -31,3 +31,17 @@ class OutlinerDropdown extends Component {
 }
 
 export default OutlinerDropdown;
+
+/*  <button
+        className="outliner-dropdown"
+        onClick={(e) => {
+          e.stopPropagation();
+          this.props.toggle();
+        }}
+        >
+          <img
+          className={"outliner-dropdown-icon" + collapsed}
+          src={dropdownIcon}
+          alt="dropdown"
+          />
+        </button>*/

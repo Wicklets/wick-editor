@@ -264,9 +264,17 @@ class ProjectSettings extends Component {
     return (
       <div className="preset-boxes">
         {this.presets.map((preset,i) => {
-          return <div key={"preset-box-" + i}
-                      className={ classNames("project-settings-modal-preset", {"selected" : this.state.preset === preset.name})}
-                      onClick={() => this.selectPreset(preset)}>{preset.name}</div>
+          return <div   //TODO: make this a button
+                      tabIndex="0"
+                      key={"preset-box-" + i}
+                      className={ classNames("div-that-should-be-a-button", "project-settings-modal-preset", {"selected" : this.state.preset === preset.name})}
+                      onClick={() => this.selectPreset(preset)}
+                      onKeyPress={(e) => {
+                        if (e.which === 13) {
+                          this.selectPreset(preset);
+                        }
+                      }
+                      }>{preset.name}</div>
         })}
       </div>
     );

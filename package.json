@@ -50,6 +50,7 @@
     "react-rnd": "^9.1.1",
     "react-scripts": "2.0.5",
     "react-select": "^2.1.0",
+    "react-sizeme": "^2.6.12",
     "react-tabs": "^3.0.0",
     "react-toastify": "^4.5.2",
     "react-tooltip": "^3.9.0",

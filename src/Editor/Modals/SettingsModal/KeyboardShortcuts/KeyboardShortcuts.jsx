@@ -69,7 +69,7 @@ class KeyboardShortcuts extends Component {
 
     // Adds plus signs to keys that are not the last key...
     return (
-      <span className="keyboard-shortcut-key">
+      <button className="keyboard-shortcut-key">
         {sequenceItems.map((key,i) => {
           return (
             <span key={"keyboard-commands-" + key + i} className="keyboard-shortcuts-key-icon-container">
@@ -78,7 +78,7 @@ class KeyboardShortcuts extends Component {
             </span>
           );
         })}
-      </span>
+      </button>
     );
   }
 
@@ -127,8 +127,15 @@ class KeyboardShortcuts extends Component {
       <tr 
         className="keyboard-shortcuts-modal-row" 
         key={name}
-        onClick={() => {this.toggleTab(name)}}>
-        <td className="hotkey-action-column hotkey-header-column">
+        >
+        <td className="hotkey-action-column hotkey-header-column"
+          tabIndex={0}
+          onKeyPress={(e) => {
+            if (e.which === 13) {
+              this.toggleTab(name);
+            }
+          }}
+          onClick={() => {this.toggleTab(name)}}>
           {this.state.openTabs.indexOf(name) === -1 && <i className="wick-brand-arrow arrow-right"/>} 
           {this.state.openTabs.indexOf(name) > -1 && <i className="wick-brand-arrow arrow-down"/>} 
           { name }

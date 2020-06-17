@@ -266,13 +266,14 @@ class Inspector extends Component {
   }
 
   renderFontStyle = () => {
+    let options = [{value: 'normal', label: 'normal'}, {value: 'italic', label: 'italic'}]
     return (
       <InspectorSelector
         tooltip="Style"
         type="select"
         isSearchable={true}
         value={this.getSelectionAttribute('fontStyle')}
-        options={['normal', 'italic']}
+        options={options}
         onChange={(val) => {
           this.setSelectionAttribute('fontStyle', val.value);
         }} />
@@ -280,39 +281,29 @@ class Inspector extends Component {
   }
 
   renderFontWeight = () => {
-    let fontWeights = {
-      'thin': 100,
-      'extra light': 200,
-      'light': 300,
-      'normal': 400,
-      'medium': 500,
-      'semi bold': 600,
-      'bold': 700,
-      'extra bold': 800,
-      'black': 900
-    }
+    let fontWeights = [
+      {label: 'thin', value: 100},
+      {label: 'extra light', value: 200},
+      {label: 'light', value: 300},
+      {label: 'normal', value: 400},
+      {label: 'medium', value: 500},
+      {label: 'semi bold', value: 600},
+      {label: 'bold', value: 700},
+      {label: 'extra bold', value: 800},
+      {label: 'black', value: 900},
+    ];
 
-    let weight = Math.min(Math.max(this.getSelectionAttribute('fontWeight'), 100), Object.keys(fontWeights).length*100)
-
-    let findFontNameByWeight = (weight) => {
-      let finalName = 'normal';
-      Object.keys(fontWeights).forEach((name) =>{
-        if (fontWeights[name] === weight) {
-          finalName = name;
-        }
-      });
-      return finalName;
-    }
+    let weight = Math.min(Math.max(this.getSelectionAttribute('fontWeight'), 100), 900);
 
     return (
       <InspectorSelector
         tooltip="Weight"
         type="select"
         isSearchable={true}
-        value={findFontNameByWeight(weight)}
-        options={Object.keys(fontWeights)}
+        value={weight}
+        options={fontWeights}
         onChange={(val) => {
-          let newWeight = fontWeights[val.value] || 400;
+          let newWeight = val.value || 400;
           this.setSelectionAttribute('fontWeight', newWeight);
         }} />
     )
@@ -605,10 +596,11 @@ class Inspector extends Component {
             val={this.getSelectionAttribute('singleFrameNumber')}
             onChange={(val) => this.setSelectionAttribute('singleFrameNumber', val)} />
           }
+        {this.getSelectionAttribute('animationType') !== "single" &&
         <InspectorCheckbox
           tooltip="Synced" 
           checked={this.getSelectionAttribute('isSynced')}
-          onChange={(val) => this.setSelectionAttribute('isSynced', !this.getSelectionAttribute('isSynced'))}/>
+          onChange={(val) => this.setSelectionAttribute('isSynced', !this.getSelectionAttribute('isSynced'))}/>}
       </div>
     )
   }

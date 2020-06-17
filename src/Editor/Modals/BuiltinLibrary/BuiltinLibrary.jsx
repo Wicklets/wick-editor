@@ -87,14 +87,14 @@ class BuiltinLibrary extends Component {
       <div
         key={"builtin-asset-" + asset.name}
         className='builtin-library-asset'>
-        <div
+        <button
           className='builtin-library-asset-icon-container'
           onClick={(() => this.importAsset(asset.file, asset.name))}>
           <img
             alt='Builtin Asset Icon'
             src={BuiltinLibrary.ROOT_ASSET_PATH + asset.icon}
             className='builtin-library-asset-icon'/>
-        </div>
+        </button>
         <div className='builtin-library-asset-name'>
           {asset.name}
         </div>

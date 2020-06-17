@@ -76,6 +76,10 @@ $outliner-break-size: calc(#{$editor-outline-padding} * .5);
   border-top: $outliner-row-spacing solid $editor-primary;
   border-bottom: $outliner-row-spacing solid $editor-primary;
 }
+.outliner-object:hover {
+  background-color: $editor-tertiary;
+  cursor: pointer;
+}
 
 .outliner-object-selector {
   position: absolute;

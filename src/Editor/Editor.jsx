@@ -31,6 +31,7 @@ import { throttle } from 'underscore';
 import localForage from 'localforage';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from 'react-toastify';
+import { SizeMe } from 'react-sizeme';
 
 import HotKeyInterface from './hotKeyMap';
 import ActionMapInterface from './actionMap';
@@ -902,19 +903,22 @@ class Editor extends EditorCore {
                         {/*Canvas*/}
                         <ReflexElement {...this.resizeProps}>
                           <DockedPanel>
-                            <Canvas
-                              project={this.project}
-                              projectDidChange={this.projectDidChange}
-                              projectData={this.state.project}
-                              paper={this.paper}
-                              previewPlaying={this.state.previewPlaying}
-                              createImageFromAsset={this.createImageFromAsset}
-                              toast={this.toast}
-                              onEyedropperPickedColor={this.onEyedropperPickedColor}
-                              createAssets={this.createAssets}
-                              importProjectAsWickFile={this.importProjectAsWickFile}
-                              onRef={ref => this.canvasComponent = ref}
-                            />
+                            <SizeMe>{({ size }) => {
+                              this.project.view.render();
+                              return (<Canvas
+                                project={this.project}
+                                projectDidChange={this.projectDidChange}
+                                projectData={this.state.project}
+                                paper={this.paper}
+                                previewPlaying={this.state.previewPlaying}
+                                createImageFromAsset={this.createImageFromAsset}
+                                toast={this.toast}
+                                onEyedropperPickedColor={this.onEyedropperPickedColor}
+                                createAssets={this.createAssets}
+                                importProjectAsWickFile={this.importProjectAsWickFile}
+                                onRef={ref => this.canvasComponent = ref}
+                              />);}}
+                            </SizeMe>
                             {renderSize === "large" && 
                             <OutlinerExpandButton
                               expanded={this.state.outlinerPoppedOut}

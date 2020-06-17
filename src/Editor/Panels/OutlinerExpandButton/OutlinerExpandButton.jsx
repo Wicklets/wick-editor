@@ -1,19 +1,24 @@
 import React, { Component } from 'react';
 
-import './_outlinerexpandbutton.scss';
+import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 
-import minusIcon from 'resources/interface/minus.svg';
-import plusIcon from 'resources/interface/plus.svg';
+import './_outlinerexpandbutton.scss';
 
 class OutlinerExpandButton extends Component {
   render () {
-    const image = this.props.expanded ? minusIcon : plusIcon;
+    
     return (
-      <button className="outliner-expand-button"
-      onClick={this.props.toggleOutliner}>
-        <img src={image}
-        alt="expand"/>
-      </button>
+      <ActionButton
+      color="tool"
+      isActive={ () => false }
+      id="outliner-toggle"
+      tooltip={this.props.expanded ? "Hide Outliner" : "Show Outliner"}
+      action={this.props.toggleOutliner}
+      tooltipPlace="left"
+      icon="outliner"
+      className="outliner-expand-button"
+      iconClassName="outliner-toggle-icon"
+      />
     );
   }
 }

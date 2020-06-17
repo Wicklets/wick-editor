@@ -11,8 +11,8 @@ $button-height: 39px;
     color: $editor-primary-text;
     background-color: $editor-primary;
     border: 4px solid $editor-primary-outline;
-    border-top-left-radius: calc(#{$button-height} / 4);
-    border-bottom-left-radius: calc(#{$button-height} / 4);
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
     border-right-width: 0;
     transition: background-color 200ms ease-in-out;
 }

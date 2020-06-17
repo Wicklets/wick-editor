@@ -52,7 +52,7 @@ class ColorPicker extends Component {
   render() {
     let itemID = this.props.id + '-button';
     return(
-      <div
+      <button
         className={"btn-color-picker"}
         id={itemID}
         onClick={this.toggle}
@@ -74,7 +74,7 @@ class ColorPicker extends Component {
             lastColorsUsed={this.props.lastColorsUsed}
           />
         </Popover>
-      </div>
+      </button>
     )
   }
 }

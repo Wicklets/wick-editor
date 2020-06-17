@@ -46,7 +46,16 @@ class WickModal extends Component {
       onRequestClose={this.props.toggle}
       className={classNames("modal-body", this.props.className)}
       overlayClassName={classNames("modal-overlay", this.props.overlayClassName)}>
-      <div id="modal-close-icon-container" onClick={this.props.toggle}>
+      <div 
+      className="div-that-should-be-a-button"    //TODO: make this a button
+      tabIndex="0" 
+      id="modal-close-icon-container" 
+      onClick={this.props.toggle}
+      onKeyPress={(e) => {
+        if (e.which === 13) {
+          this.props.toggle();
+        }
+      }}>
         <ToolIcon name="closemodal" /> 
       </div>
       <div className="modal-generic-container">

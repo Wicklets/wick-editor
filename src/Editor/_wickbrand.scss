@@ -291,3 +291,8 @@ $docked-margin: 6px;
 :export {
   editorCanvasBorder: $editor-canvas-border;
 }
+
+button:focus, input:focus, .div-that-should-be-a-button:focus {
+  outline: none;
+  box-shadow: 0px 0px 5px white;
+}
