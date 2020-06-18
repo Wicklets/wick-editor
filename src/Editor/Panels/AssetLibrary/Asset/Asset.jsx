@@ -71,12 +71,12 @@ class Asset extends Component {
     let icon = this.getIcon(this.props.asset.classname);
 
     return connectDragSource (
-      <div className={classNames("asset-item", {"asset-selected": this.props.isSelected})} onClick={this.props.onClick}>
+      <button className={classNames("asset-item", {"asset-selected": this.props.isSelected})} onClick={this.props.onClick}>
         <div className="asset-icon">
           <ToolIcon name={icon} />
         </div>
         <span className="asset-name-text">{this.props.asset.name}</span>
-      </div>
+      </button>
     )
   }
 }

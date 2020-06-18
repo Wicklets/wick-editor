@@ -713,7 +713,7 @@ class Editor extends EditorCore {
    */
   convertHotkeyArray = (hotkeys) => {
     let keyObj = {};
-
+    
     hotkeys.forEach(key => {
       if (keyObj[key.actionName]) {
         keyObj[key.actionName][key.index] = key.sequence;
@@ -749,7 +749,6 @@ class Editor extends EditorCore {
   syncHotKeys = (hotkeys) => {
     this.hotKeyInterface.setCustomHotKeys(hotkeys);
     localForage.setItem(this.customHotKeysKey, hotkeys);
-
     this.setState({
       customHotKeys: hotkeys
     });
@@ -919,11 +918,7 @@ class Editor extends EditorCore {
                                 onRef={ref => this.canvasComponent = ref}
                               />);}}
                             </SizeMe>
-                            {renderSize === "large" && 
-                            <OutlinerExpandButton
-                              expanded={this.state.outlinerPoppedOut}
-                              toggleOutliner={this.toggleOutliner}
-                            />}
+                            
                             <CanvasTransforms
                               onionSkinEnabled={this.project.onionSkinEnabled}
                               toggleOnionSkin={this.toggleOnionSkin}
@@ -935,6 +930,11 @@ class Editor extends EditorCore {
                               previewPlaying={this.state.previewPlaying}
                               togglePreviewPlaying={this.togglePreviewPlaying}
                             />
+                            {renderSize === "large" && 
+                            <OutlinerExpandButton
+                              expanded={this.state.outlinerPoppedOut}
+                              toggleOutliner={this.toggleOutliner}
+                            />}
                           </DockedPanel>
                         </ReflexElement>
 

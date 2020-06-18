@@ -173,23 +173,32 @@ class WickInput extends Component {
         options={this.props.options}
         styles={{
         option: (provided, state) => {
-          return {
-          ...provided,
-          color: "black",
-          fontSize: "14px",
-          height: "26px",
-          paddingTop: "0px",
-          whiteSpace: "nowrap",
-          fontFamily: state.label,
-          fontStyle: state.label,
-          fontWeight: state.value,
-        }},
-        control: (provided) => ({
-          color: "black",
-          fontSize: "14px",
-          backgroundColor: "white",
-          display: "flex", 
-          height: "26px"})}}
+          let style = {
+            ...provided,
+            color: "black", 
+            fontSize: "14px",
+            height: "26px",
+            paddingTop: "0px",
+            whiteSpace: "nowrap",
+          };
+          if (this.props.className === "font-family") {
+            style.fontFamily = state.label;
+          }
+          return style;
+        },
+        control: () => {
+          let style = {
+            color: "black",
+            fontSize: "14px",
+            backgroundColor: "white",
+            display: "flex", 
+            height: "26px"
+          };
+          if (this.props.className === "font-family") {
+            style.fontFamily = this.props.value;
+          }
+          return style;
+        }}}
         isSearchable={false}
       />
     );

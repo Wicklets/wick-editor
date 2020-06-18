@@ -232,6 +232,7 @@ class Inspector extends Component {
 
     return (
       <InspectorSelector
+        className="font-family"
         value={this.getSelectionAttribute('fontFamily')}
         tooltip="Font Family"
         type="select"
@@ -607,13 +608,16 @@ class Inspector extends Component {
 
   renderTweenEasingType = () => {
     let options = window.Wick.Tween.VALID_EASING_TYPES;
-
+    let optionLabels = [];
+    options.forEach((option) => {
+      optionLabels.push({label: option, value: option});
+    })
     return (
       <div className="inspector-item">
         <InspectorSelector
           tooltip="Easing Type"
           type="select"
-          options={options}
+          options={optionLabels}
           value={this.getSelectionAttribute('easingType')}
           isSearchable={true}
           onChange={(val) => {this.setSelectionAttribute('easingType', val.value)}} />
