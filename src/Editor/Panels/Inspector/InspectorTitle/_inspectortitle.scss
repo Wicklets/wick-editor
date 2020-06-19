@@ -36,7 +36,7 @@
 
 .inspector-title-name {
   font-size: 22px;
-  color: $editor-secondary-text;
+  color: #FFFFFF; //$editor-secondary-text;
   font-family: 'Nunito Sans';
   display: inline-block;
 }
@@ -47,6 +47,6 @@
   align-items: center;
   font-size: 20px;
   font-weight: bold;
-  color: $editor-primary-property-text;
+  color: #BDBDBD; //$editor-primary-property-text;
   margin-left: 8px;
 }

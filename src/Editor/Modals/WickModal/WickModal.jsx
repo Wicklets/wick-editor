@@ -20,6 +20,7 @@
 import React, { Component } from 'react';
 import Modal from 'react-modal';
 import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
+import  ActionButton  from 'Editor/Util/ActionButton/ActionButton';
 
 import './_wickmodal.scss';
 
@@ -46,9 +47,22 @@ class WickModal extends Component {
       onRequestClose={this.props.toggle}
       className={classNames("modal-body", this.props.className)}
       overlayClassName={classNames("modal-overlay", this.props.overlayClassName)}>
-      <div id="modal-close-icon-container" onClick={this.props.toggle}>
+
+      {/* <ActionButton
+        color="tool"
+        action={this.props.toggle}
+        id="modal-close-icon-container"
+        icon="closemodal"/> */}
+      
+      {/* <input 
+      type="image" 
+      id="modal-close-icon-container" 
+      onClick={this.props.toggle} 
+      src="../resources/interface-images/close.svg" /> */}
+
+      <button id="modal-close-icon-container" onClick={this.props.toggle}>
         <ToolIcon name="closemodal" /> 
-      </div>
+      </button>
       <div className="modal-generic-container">
         {this.props.icon && this.renderIcon()}    
         {this.props.children}

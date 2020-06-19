@@ -43,7 +43,7 @@ $filter-height: 40px;
 }
 
 .asset-library-title-text {
-  color: $editor-primary-property-text;
+  color: #FFFFFF; //$editor-primary-property-text;
   font-size: 20px;
   display: inline-flex;
   align-items: center;
@@ -101,9 +101,9 @@ $filter-height: 40px;
 #asset-library-filter-input {
   background: transparent;
   border: none;
-  color: $editor-primary-property-text;
+  color: #CFCFCF; //$editor-primary-property-text;
 }
 
 #asset-library-filter-input::placeholder {
-  color: $editor-primary-property-text;
+  color: #CFCFCF; //$editor-primary-property-text;
 }

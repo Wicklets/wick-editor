@@ -141,9 +141,9 @@ class PopOutCodeEditor extends Component {
                 {'code-editor-error-information':this.codeHasErrors()})}>
               {this.getCodeEditorInfo()} </span>
           </div>
-          <div className="code-editor-close-button" onClick={this.onCloseHandler}>
+          <button className="code-editor-close-button" onClick={this.onCloseHandler}>
             <ToolIcon name="closemodal" />
-          </div>
+          </button>
         </div>
         <div className="code-editor-body">
           <WickCodeDetailsPanel

@@ -22,6 +22,7 @@ import { DragSource } from 'react-dnd';
 import './_asset.scss';
 import DragDropTypes from 'Editor/DragDropTypes.js';
 import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
+import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 
 var classNames = require('classnames');
 
@@ -71,13 +72,24 @@ class Asset extends Component {
     let icon = this.getIcon(this.props.asset.classname);
 
     return connectDragSource (
-      <div className={classNames("asset-item", {"asset-selected": this.props.isSelected})} onClick={this.props.onClick}>
+      <button className={classNames("asset-item", {"asset-selected": this.props.isSelected})} onClick={this.props.onClick}>
         <div className="asset-icon">
           <ToolIcon name={icon} />
         </div>
         <span className="asset-name-text">{this.props.asset.name}</span>
-      </div>
+      </button>
+
     )
+    // <div className="asset-controls">
+    //   <ActionButton
+    //   color="green"
+    //   text="Add"
+    //   />
+    //   <ActionButton
+    //   color="red"
+    //   text="Delete"
+    //   />
+    // </div>
   }
 }
 

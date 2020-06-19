@@ -43,14 +43,14 @@
 }
 
 .wick-numeric-input {
-  padding: 2px;
+  padding: 0 0 0 2px;
   width: 100%;
   height: 100%;
-  border-radius: $interface-input-roundness;
+  border-radius: 3px; //$interface-input-roundness;
   border: none;
-  background-color: $editor-primary;
-  color: $editor-primary-property-text;
-  border: $editor-input-border-width solid $editor-primary-outline;
+  background-color: #4F4F4F; //$editor-primary;
+  color: #FFFFFF; //$editor-primary-property-text;
+  border: none; //$editor-input-border-width solid $editor-primary-outline;
   font-size: 14px;
 }
 
@@ -154,4 +154,6 @@
 .wick-tooltip {
   max-width: 220px; 
   opacity: .9 !important; 
+  background-color: #265A87 !important;
+  border-color: #265A87 !important;
 }

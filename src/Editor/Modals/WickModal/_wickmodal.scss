@@ -20,11 +20,11 @@
 @import 'Editor/_wickbrand.scss';
 
 #modal-close-icon-container {
+  background-color: $editor-modal-gray;
+  border: none;
   position: absolute;
   top: 15px; 
-  right: 15px; 
-  width: 16px;
-  height: 16px;
+  right: 15px;
   -webkit-user-select: none; /* Safari */        
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* IE10+/Edge */

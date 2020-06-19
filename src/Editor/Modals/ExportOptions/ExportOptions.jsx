@@ -180,7 +180,8 @@ class ExportOptions extends Component {
           <div className="export-modal-advanced-option-title">
             Resolution
           </div>
-
+          <div className="export-modal-advanced-option-label">Width (px)</div>
+          <div className="export-modal-advanced-option-label">Height (px)</div>
           <div className="export-modal-resolution-inputs">
             <div className="export-modal-resolution-dropdown-container">
               <WickInput

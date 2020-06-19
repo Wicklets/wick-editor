@@ -206,11 +206,11 @@ class WickInput extends Component {
 
   renderButton = () => {
     return (
-      <div
+      <button
         onClick={this.props.onClick}
         className={classNames("wick-button ", this.props.className)}>
         {this.props.children}
-      </div>
+      </button>
     );
   }
 }

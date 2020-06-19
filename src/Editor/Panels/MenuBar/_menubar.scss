@@ -40,14 +40,14 @@
   cursor: pointer;
 }
 
-.menu-bar-project-name:hover {
-  color: $editor-menubar-option-text;
-}
+// .menu-bar-project-name:hover {
+//   color: $editor-menubar-option-text;
+// }
 
 .menu-bar-actions-container {
   display: flex;
   align-items: center;
-  font-size: 14px;
+  font-size: 16px; //14px;
   font-family: 'Nunito Sans';
   float: right;
   position:absolute;

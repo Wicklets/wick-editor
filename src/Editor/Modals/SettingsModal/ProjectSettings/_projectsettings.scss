@@ -37,6 +37,7 @@
   padding-right: 5px;
   vertical-align: center;
   text-align: center;
+  color: #E6E6E6;
 }
 
 .project-setting-container {
@@ -153,4 +154,12 @@
   height: 100%; 
   display: flex;
   flex-direction: row;
+}
+
+#projectWidth {
+  width: 50%;
+}
+
+#projectHeight {
+  width: 50%;
 }

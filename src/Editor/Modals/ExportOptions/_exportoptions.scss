@@ -127,6 +127,12 @@ $info-left-margin: 12px;
   font-size: 18px;
 }
 
+.export-modal-advanced-option-label {
+  display: inline-flex;
+  color: white;
+  font-size: 18px;
+}
+
 .export-modal-advanced-checkbox-container {
   margin-top: 8px;
   display: flex;
@@ -159,4 +165,5 @@ $info-left-margin: 12px;
   vertical-align: center;
   margin-left: 4px;
   margin-right: 4px;
+  color: white;
 }

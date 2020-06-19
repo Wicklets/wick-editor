@@ -44,8 +44,10 @@ $header-height: 30px;
 
 .tabbed-interface-main-tab {
     margin-left: 15px; 
-    border-bottom: 2px solid $editor-popout-secondary; 
-    color: $editor-popout-tertiary-text; 
+    background-color: $editor-modal-gray;
+    border: none;
+    border-bottom: 2px solid #484747; //$editor-popout-secondary; 
+    color: #CFCFCF; //$editor-popout-tertiary-text; 
     font-size: 16px;
     cursor: pointer;
 }

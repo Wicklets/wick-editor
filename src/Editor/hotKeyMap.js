@@ -91,11 +91,11 @@ class HotKeyInterface extends Object {
       },
       'activate-pan': {
         name: "Activate Pan",
-        sequences: ['space'],
+        sequences: ['n'],
       },
       'deactivate-pan': {
         name: "Deactivate Pan",
-        sequences: [{sequence: "space", action: "keyup"}],
+        sequences: [{sequence: "n", action: "keyup"}],
       },
       'activate-fill': {
         name: "Activate Fill",
@@ -119,11 +119,11 @@ class HotKeyInterface extends Object {
       },
       'preview-play-toggle': {
         name: "Preview Play",
-        sequences: ['enter'],
+        sequences: ['m'],
       },
       'preview-play-from-start': {
         name: "Preview Play from Start",
-        sequences: ['meta+enter'],
+        sequences: ['meta+m'],
       },
       'undo': {
         name: "Undo",

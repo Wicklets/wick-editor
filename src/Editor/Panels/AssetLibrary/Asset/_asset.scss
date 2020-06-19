@@ -19,7 +19,7 @@
 
 @import 'Editor/_wickbrand.scss';
 
-$asset-height: 24px;
+$asset-height: 28px;
 $asset-margin: 4px;
 
 .asset-item {
@@ -28,7 +28,7 @@ $asset-margin: 4px;
   height: $asset-height;
   line-height: $asset-height;
   background-color: $editor-secondary;
-  color: $editor-secondary-text;
+  color: #FFFFFF; //$editor-secondary-text;
   margin-top: $asset-margin;
   margin-left: $asset-margin;
   margin-right: $asset-margin;
@@ -41,11 +41,13 @@ $asset-margin: 4px;
 
   display: flex;
   align-items: center;
+
+  border: none;
 }
 
 .asset-item:hover {
   background-color: $editor-primary;
-  color: $editor-primary-property-text;
+  color: #FFFFFF; //$editor-primary-property-text;
   cursor: grab;
 }
 
@@ -65,5 +67,5 @@ $asset-margin: 4px;
 .asset-item.asset-selected {
   transition: .2s;
   background-color: $editor-primary;
-  color: $editor-primary-property-text;
+  color: #FFFFFF; //$editor-primary-property-text;
 }

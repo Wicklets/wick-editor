@@ -34,7 +34,7 @@ $double-input-unit-width: 40%;
   width: $row-identifier-width;
   max-width: $row-identifier-width;
   height: 100%;
-  color: $editor-primary-property-text;
+  color: #ffffff; //$editor-primary-property-text;
   display: flex;
   align-items: center;
   white-space: nowrap;
@@ -85,7 +85,7 @@ $double-input-unit-width: 40%;
 }
 
 .input-divider {
-  color: $interface-primary-text;
+  color: #FFFFFF; //$interface-primary-text;
   width: $double-input-divider-width;
   text-align: center;
 }

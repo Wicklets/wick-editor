@@ -202,13 +202,40 @@ class ProjectSettings extends Component {
     );
   }
 
-  renderSizeObject = () => {
+  // renderSizeObject = () => {
+  //   return (
+  //     <div className="project-setting-element">
+  //       <div className="project-settings-property-label">
+  //       Width (px) x Height (px)
+  //       </div>
+  //       <div className="project-settings-property-container project-settings-size-input-container">
+  //           <WickInput
+  //             id="projectWidth"
+  //             type="numeric"
+  //             min={this.projectMinWidth}
+  //             value={this.state.width}
+  //             onChange = {this.changeProjectWidth}
+  //             className="project-settings-size-input" />
+  //           <div className="project-settings-split">x</div>
+  //           <WickInput
+  //             id="projectHeight"
+  //             type="numeric"
+  //             min={this.projectMinHeight}
+  //             value={this.state.height}
+  //             onChange={this.changeProjectHeight}
+  //             className="project-settings-size-input" />
+  //       </div>
+  //     </div>
+  //   );
+  // }
+
+  renderWidthObject = () => {
     return (
       <div className="project-setting-element">
         <div className="project-settings-property-label">
-          Size (W x H)
+        Width (px)
         </div>
-        <div className="project-settings-property-container project-settings-size-input-container">
+        <div className="project-settings-property-container">
             <WickInput
               id="projectWidth"
               type="numeric"
@@ -216,7 +243,18 @@ class ProjectSettings extends Component {
               value={this.state.width}
               onChange = {this.changeProjectWidth}
               className="project-settings-size-input" />
-            <div className="project-settings-split">x</div>
+        </div>
+      </div>
+    );
+  }
+
+  renderHeightObject = () => {
+    return (
+      <div className="project-setting-element">
+        <div className="project-settings-property-label">
+        Height (px)
+        </div>
+        <div className="project-settings-property-container">
             <WickInput
               id="projectHeight"
               type="numeric"
@@ -295,7 +333,9 @@ class ProjectSettings extends Component {
               {this.renderBackgroundColorObject()}
             </div>
             <div className="project-settings-modal-row">
-              {this.renderSizeObject()}
+              {/* {this.renderSizeObject()} */}
+              {this.renderWidthObject()}
+              {this.renderHeightObject()}
               {this.renderFramerateObject()}
             </div>
             <div className="project-settings-modal-row">
