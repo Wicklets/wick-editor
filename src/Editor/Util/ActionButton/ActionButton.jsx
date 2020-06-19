@@ -53,7 +53,7 @@ class ActionButton extends Component {
           onClick={this.runAction}
           onTouch={this.runAction}>
           {this.props.icon && <ToolIcon className={classNames(this.props.iconClassName)} name={this.props.icon} />}
-          {this.props.text && <div className={newClassName+'-text'}>{this.props.text}</div>}
+          {this.props.text && <div className={classNames(newClassName+'-text', this.props.textClassName)}>{this.props.text}</div>}
         </WickInput>
       </div>
     )

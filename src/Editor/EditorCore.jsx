@@ -202,6 +202,7 @@ class EditorCore extends Component {
    * Finishes a playhead moving operation.
    */
   finishMovingPlayhead = () => {
+    console.log("dangus");
     this.projectDidChange({ actionName: "Finish Moving Playhead" });
   }
 
@@ -337,7 +338,45 @@ class EditorCore extends Component {
   }
 
   /**
-   * Clears the selection, then adds the given object to the selection.
+   * Sets the active layer
+   * @param {number} index The index to set as active
+   */
+  setActiveLayerIndex = (index) => {
+    this.project.activeTimeline.activeLayerIndex = index;
+    this.projectDidChange({ actionName: "Set Active Layer" });
+  }
+
+  /**
+   * Toggles layer hidden
+   * @param {object} layer The layer to toggle
+   */
+  toggleHidden = (layer) => {
+    layer.hidden = !layer.hidden;
+    this.projectDidChange({ actionName: "Toggle Layer Hidden" });
+  }
+
+  /**
+   * Toggles layer locked
+   * @param {object} layer The layer to toggle
+   */
+  toggleLocked = (layer) => {
+    layer.locked = !layer.locked;
+    this.projectDidChange({ actionName: "Toggle Layer Locked" });
+  }
+
+  /**
+   * Moves selection into target at index
+   * @param {object} target The object to insert into
+   * @param {number} index The index to insert at
+   */
+  moveSelection = (target, index) => {
+    if (this.project.moveSelection(target, index)) {
+      this.projectDidChange({ actionName: "Moved Selection" });
+    }
+  }
+
+  /**
+   * Adds the given object to the selection.
    * @param {object} object - The object to add to the selection.
    */
   selectObject = (object) => {
@@ -346,7 +385,7 @@ class EditorCore extends Component {
   }
 
   /**
-   * Clears the selection, then adds the given objects to the selection. No
+   * Adds the given objects to the selection. No
    * changes will be made if the selection does not change.
    * @param {object[]} objects - The objects to add to the selection.
    */
@@ -355,6 +394,18 @@ class EditorCore extends Component {
       this.project.selection.select(object);
     });
     this.projectDidChange({ actionName: "Select Multiple Objects" });
+  }
+
+  /**
+   * Removes the given objects from the selection. No
+   * changes will be made if the selection does not change.
+   * @param {object[]} objects - The objects to remove from the selection.
+   */
+  deselectObjects = (objects) => {
+    objects.forEach(object => {
+      this.project.selection.deselect(object);
+    });
+    this.projectDidChange({ actionName: "Deselect Multiple Objects" });
   }
 
   /**

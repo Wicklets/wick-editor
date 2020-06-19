@@ -20,7 +20,7 @@
 import React, { Component } from 'react';
 import './_wickinput.scss';
 
-import Dropdown from 'react-dropdown';
+import Select from 'react-select';
 import 'react-dropdown/style.css';
 
 import ColorPicker from 'Editor/Util/ColorPicker/ColorPicker';
@@ -165,14 +165,41 @@ class WickInput extends Component {
   }
 
   renderSelect = () => {
+    let value = this.props.options[this.props.options.map((object) => {return object.value;}).indexOf(this.props.value)];
     return (
-      <Dropdown
-        {...this.props}
-        className={classNames("wick-select", this.props.className)}
-        controlClassName="wick-select-control"
-        placeholderClassName={classNames("wick-select-placeholder", this.props.placeholderClassName)}
-        arrowClassName="wick-select-arrow"
-        menuClassName="wick-select-menu"
+      <Select
+        onChange={this.props.onChange}
+        defaultValue={value}
+        options={this.props.options}
+        styles={{
+        option: (provided, state) => {
+          let style = {
+            ...provided,
+            color: "black", 
+            fontSize: "14px",
+            height: "26px",
+            paddingTop: "0px",
+            whiteSpace: "nowrap",
+          };
+          if (this.props.className === "font-family") {
+            style.fontFamily = state.label;
+          }
+          return style;
+        },
+        control: () => {
+          let style = {
+            color: "black",
+            fontSize: "14px",
+            backgroundColor: "white",
+            display: "flex", 
+            height: "26px"
+          };
+          if (this.props.className === "font-family") {
+            style.fontFamily = this.props.value;
+          }
+          return style;
+        }}}
+        isSearchable={false}
       />
     );
   }
@@ -206,11 +233,11 @@ class WickInput extends Component {
 
   renderButton = () => {
     return (
-      <div
+      <button
         onClick={this.props.onClick}
         className={classNames("wick-button ", this.props.className)}>
         {this.props.children}
-      </div>
+      </button>
     );
   }
 }

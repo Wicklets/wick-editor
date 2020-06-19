@@ -762,6 +762,66 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
+     * Move the current selection above, below, or inside target.
+     * @param {object} target - The target object (to become parent of selection)
+     * @param {number} index - index to insert at
+     * @returns {boolean} - true if project did change
+     */
+    moveSelection(target, index) {
+        // Indices give us a way to order the selection from top to bottom
+        let get_indices = (obj) => {
+            var indices = [];
+            while (obj.parent !== null) {
+                let parent = obj.parent;
+                if (parent.classname === 'Frame') {
+                    indices.unshift(parent.getChildren().length - 1 - parent.getChildren().indexOf(obj));
+                }
+                else {
+                    indices.unshift(parent.getChildren().indexOf(obj));
+                }
+                obj = parent;
+            }
+            return indices;
+        }
+        // Assumes i1, i2 same length, ordering same as outliner
+        let compare_indices = (i1, i2) => {
+            for (let i = 0; i < i1.length; i++) {
+                if (i1[i] < i2[i]) {
+                    return 1;
+                }
+                else if (i1[i] > i2[i]) {
+                    return -1;
+                }
+            }
+            return 0;
+        }
+
+        let selection = this.selection.getSelectedObjects()
+        if (selection.length === 0) {
+            return false;
+        }
+        let selection_indices = selection.map(get_indices);
+        let l = selection_indices[0].length;
+        for (let i = 0; i < selection_indices.length; i++) {
+            if (selection_indices[i].length !== l) {
+                // Must all have the same depth
+                return false;
+            }
+        }
+        let zip = selection_indices.map((o, i) => {return [o, selection[i]]});
+        zip.sort(([i1,], [i2,]) => compare_indices(i1,i2));
+        if (target.classname === 'Frame') {
+            // Render order is reversed for children of frames
+            zip.reverse();
+        }
+        for (let i = 0; i < zip.length; i++) {
+            let [, obj] = zip[i];
+            index -= target.insertChild(obj, index) ? 1 : 0;
+        }
+        return true;
+    }
+
+    /**
      * Cut the currently selected frames.
      */
     cutSelectedFrames() {

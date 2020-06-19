@@ -32,6 +32,11 @@ class EditorSettings extends Component {
   }
 
   render () {
+    let optionsLabels = [];
+    let options = this.props.getToolSettingRestrictions('onionSkinStyle').options;
+    for (let i = 0; i < options.length; i++) {
+      optionsLabels.push({label: options[i], value: options[i]});
+    }
     return (
       <div className="editor-settings-modal-body">
         <div className="editor-settings-group">
@@ -41,9 +46,9 @@ class EditorSettings extends Component {
               type="select"
               id="editor-settings-onion-skinning-type"
               value={this.props.getToolSetting('onionSkinStyle')}
-              options={this.props.getToolSettingRestrictions('onionSkinStyle').options}
-              onChange={(val) => {this.props.setToolSetting('onionSkinStyle', val.value)}}/>
-
+              options={optionsLabels}
+              onChange={(val) => {this.props.setToolSetting('onionSkinStyle', val.value)}}
+            />
           {
             this.props.getToolSetting('onionSkinStyle') !== 'standard' &&
             <div className="editor-settings-row">

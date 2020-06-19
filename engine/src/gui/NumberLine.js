@@ -115,6 +115,10 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement {
         this._movePlayhead();
     }
 
+    onMouseUp (e) {
+        this.projectWasModified();
+    }
+
     get bounds () {
         return {
             x: this.project.scrollX,

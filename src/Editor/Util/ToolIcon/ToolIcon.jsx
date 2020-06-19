@@ -123,6 +123,7 @@ import iconCheck from 'resources/interface-images/check.svg';
 import iconCircle from 'resources/tool-icons/circle.svg';
 import iconCloseTab from 'resources/tool-icons/closetab.svg';
 import iconWarningDelete from 'resources/interface-images/warning_delete.svg';
+import iconOutliner from 'resources/interface/gnurl.svg';
 
 // Timeline
 import iconLock from 'resources/tool-icons/lock.svg';
@@ -246,6 +247,7 @@ class ToolIcon extends Component {
       "brushmodenone": iconBrushModeNone,
       "brushmodeinside": iconBrushModeInside,
       "brushmodeoutside": iconBrushModeOutside,
+      "outliner": iconOutliner,
     }
   }
 

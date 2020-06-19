@@ -30,7 +30,7 @@ class KeyboardShortcuts extends Component {
     super();
     // Instantiate default behavior.
     this.state = {
-      editingAction: {actionName: "", actionIndex: 0}, 
+      editingAction: {name: "", actionName: "", actionIndex: 0}, 
       newActions: [],
       cancelKeyRecording: () => {},
       openTabs: [],
@@ -42,7 +42,7 @@ class KeyboardShortcuts extends Component {
    * @param {string} name - Tab to toggle.
    */
   toggleTab = (name) => {
-    let tabs = this.state.openTabs.concat([]);
+    let tabs = this.state.openTabs.concat([]); 
     let tabIndex = tabs.indexOf(name);
     if (tabIndex > -1) { // Tab is open.
       tabs = tabs.filter(tabName => tabName !== name);
@@ -69,7 +69,7 @@ class KeyboardShortcuts extends Component {
 
     // Adds plus signs to keys that are not the last key...
     return (
-      <span className="keyboard-shortcut-key">
+      <button className="keyboard-shortcut-key">
         {sequenceItems.map((key,i) => {
           return (
             <span key={"keyboard-commands-" + key + i} className="keyboard-shortcuts-key-icon-container">
@@ -78,7 +78,7 @@ class KeyboardShortcuts extends Component {
             </span>
           );
         })}
-      </span>
+      </button>
     );
   }
 
@@ -127,8 +127,15 @@ class KeyboardShortcuts extends Component {
       <tr 
         className="keyboard-shortcuts-modal-row" 
         key={name}
-        onClick={() => {this.toggleTab(name)}}>
-        <td className="hotkey-action-column hotkey-header-column">
+        >
+        <td className="hotkey-action-column hotkey-header-column"
+          tabIndex={0}
+          onKeyPress={(e) => {
+            if (e.which === 13) {
+              this.toggleTab(name);
+            }
+          }}
+          onClick={() => {this.toggleTab(name)}}>
           {this.state.openTabs.indexOf(name) === -1 && <i className="wick-brand-arrow arrow-right"/>} 
           {this.state.openTabs.indexOf(name) > -1 && <i className="wick-brand-arrow arrow-down"/>} 
           { name }
@@ -185,12 +192,19 @@ class KeyboardShortcuts extends Component {
   beginEdit = (actionName, index) => {
     // Begin recording that we are editing a key.
     var cancelKeyRecording =  recordKeyCombination(
-      (sequence) => this.changeKey(actionName, index, sequence)
+      (sequence) => {
+        if (sequence.keys[" "]) {
+          sequence.id = sequence.id.replace(" ", "space");
+          delete sequence.keys[" "];
+          sequence.keys.space = true;
+        }
+        return this.changeKey(actionName, index, sequence);
+      }
     );
 
     // Set that we are editing a key.
     this.setState({
-      editingAction: {actionName: actionName, index: index || 0}, 
+      editingAction: {actionName: actionName, name: actionName, index: index || 0}, 
       cancelKeyRecording: cancelKeyRecording,
     });
 
@@ -205,6 +219,7 @@ class KeyboardShortcuts extends Component {
 
     let newAction = {
       actionName: actionName, 
+      name: actionName,
       index: sequenceIndex,
       sequence: keyCommand,
     }
@@ -215,21 +230,20 @@ class KeyboardShortcuts extends Component {
     Object.keys(this.props.keyMap).forEach(key => {
       let action = this.props.keyMap[key];
 
-      let index = 0;
-      action.sequences.forEach(seq => {
+      action.sequences.forEach((seq, index) => {
         if (typeof seq === "string" && seq.toLowerCase() === keyCommand) {
           // Remove Sequence
           let act = {
             actionName: key, 
+            name: key,
             index: index,
             sequence: "",
           }
 
           actions.push(act);
-          this.props.toast('Key Command Overwritten: ' + action.name +'. Please reset this key command.', 'warning');
+          let name = action.actionName || action.name;
+          this.props.toast('Key Command Overwritten: ' + name +'. Please reset this key command.', 'warning');
         }
-
-        index += 1;
       });
     })
 
@@ -238,13 +252,13 @@ class KeyboardShortcuts extends Component {
     for (var i=0; i<newActionsArray.length; i++) {
       let action = newActionsArray[i];
       if (action.sequence === keyCommand) {
-        
         newActionsArray.splice(i, 1);
-        this.props.toast('Key Command Overwritten: ' + action.name +'. Please reset this key command.', 'warning');
+        let name = action.actionName || action.name;
+        this.props.toast('Key Command Overwritten: ' + name +'. Please reset this key command.', 'warning');
         break;
       }
     }
-
+    
     this.setState({
       newActions: newActionsArray.concat(actions), 
     });
@@ -256,7 +270,7 @@ class KeyboardShortcuts extends Component {
   stopEditingKey = () => {
     this.state.cancelKeyRecording();
     this.setState({
-      editingAction: {actionName: "", actionIndex: 0}, 
+      editingAction: {actionName: "", name: "", actionIndex: 0}, 
       cancelKeyRecording: () => {},
     });
   }

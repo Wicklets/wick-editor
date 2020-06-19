@@ -7,6 +7,7 @@ class WickSwatch extends Component {
         super(props);
         this.state = {
             hovered: false,
+            focused: false,
         }
     }
 
@@ -32,17 +33,26 @@ class WickSwatch extends Component {
         }
 
         let style = {};
-        if (this.state.hovered || selected) {
+        if (this.state.hovered || this.state.focused) {
+            style.border = "2px solid " + contrastColor;
+        }
+        if (selected) {
             style = selectedStyle;
         }
 
         return (
             <div 
+                onFocus={() => {
+                    this.setState({focused: true});
+                }}
+                onBlur={() => {
+                    this.setState({focused: false});
+                }}
                 onMouseEnter={() => this.setHovered(true)}
                 onMouseLeave={() => this.setHovered(false)}
                 className="column-swatch"
                 style={style}>
-                <Swatch  
+                <Swatch
                     color={this.props.color}
                     onClick={(color) => {this.props.onChangeComplete(color)}}  />
             </div>

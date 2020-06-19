@@ -23,6 +23,7 @@ $asset-height: 24px;
 $asset-margin: 4px;
 
 .asset-item {
+  border: none;
   transition: .2s;
   width: calc(100% - 2 * #{$asset-margin});
   height: $asset-height;
@@ -63,6 +64,8 @@ $asset-margin: 4px;
 }
 
 .asset-item.asset-selected {
+  border: 2px solid $editor-green-highlight;
+  margin: calc(#{$asset-margin} - 2px);
   transition: .2s;
   background-color: $editor-primary;
   color: $editor-primary-property-text;

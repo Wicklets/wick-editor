@@ -107,6 +107,16 @@
   margin-right: 0;
 }
 
+.project-settings-modal-preset-text {
+  color: white;
+}
+.project-settings-modal-preset-text.hover {
+  color: $wick-green-text;
+}
+.project-settings-modal-preset-text.selected {
+  color: $wick-green-text; 
+}
+
 .project-settings-modal-preset {
   height: 100%;
   width: 24%;
