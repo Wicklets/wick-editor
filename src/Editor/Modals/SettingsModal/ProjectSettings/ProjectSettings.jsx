@@ -205,25 +205,34 @@ class ProjectSettings extends Component {
   renderSizeObject = () => {
     return (
       <div className="project-setting-element">
-        <div className="project-settings-property-label">
-          Size (W x H)
-        </div>
         <div className="project-settings-property-container project-settings-size-input-container">
+          <span>
+            <div className="project-settings-property-label">
+              Width (px)
+            </div>
             <WickInput
-              id="projectWidth"
-              type="numeric"
-              min={this.projectMinWidth}
-              value={this.state.width}
-              onChange = {this.changeProjectWidth}
-              className="project-settings-size-input" />
-            <div className="project-settings-split">x</div>
+            id="projectWidth"
+            type="numeric"
+            min={this.projectMinWidth}
+            value={this.state.width}
+            onChange = {this.changeProjectWidth}
+            className="project-settings-size-input" 
+            />
+          </span>
+          <span><div className="project-settings-split">x</div></span>
+          <span>
+            <div className="project-settings-property-label">
+              Height (px)
+            </div>
             <WickInput
               id="projectHeight"
               type="numeric"
               min={this.projectMinHeight}
               value={this.state.height}
               onChange={this.changeProjectHeight}
-              className="project-settings-size-input" />
+              className="project-settings-size-input" 
+            />
+          </span>
         </div>
       </div>
     );

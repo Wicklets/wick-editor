@@ -19,8 +19,6 @@
 
  @import 'Editor/_wickbrand.scss';
 
-
-
 #project-settings-modal-title {
   font-size: 18px;
   color: $editor-modal-text-gray;
@@ -33,10 +31,10 @@
 }
 
 .project-settings-split {
+  padding-top: 150%;
   padding-left: 5px; 
   padding-right: 5px;
-  vertical-align: center;
-  text-align: center;
+  color: $editor-modal-text-gray;
 }
 
 .project-setting-container {

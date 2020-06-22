@@ -21,6 +21,7 @@ import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import WickModal from 'Editor/Modals/WickModal/WickModal';
 import TabbedInterface from 'Editor/Util/TabbedInterface/TabbedInterface';
+import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 
 import wickobjects from './wickobjects.js'
 import sounds from './sounds.js'
@@ -75,7 +76,7 @@ class BuiltinLibrary extends Component {
       <div className='builtin-library-asset-grid'>
         {
           assets.map(asset => {
-            return this.renderBuiltinAsset(asset)
+            return this.renderBuiltinAsset(asset);
           })
         }
       </div>
@@ -83,10 +84,56 @@ class BuiltinLibrary extends Component {
   }
 
   renderBuiltinAsset = (asset) => {
+    function _MIMETypeOfString(string) {
+      return string.split(':')[1].split(',')[0].split(';')[0];
+    }
+
     return (
       <div
         key={"builtin-asset-" + asset.name}
         className='builtin-library-asset'>
+        <div className='builtin-library-asset-name'>
+          {asset.name}
+        </div>
+        {asset.icon === 'icons/sound.png' && asset.src &&
+        <audio controls style={{width: "100%"}}>
+          <source src={asset.src} type={asset.MIMEType}/>
+        </audio>
+        }
+        {asset.icon === 'icons/sound.png' && !asset.src &&
+        <ActionButton
+          className="preview-sound-button"
+          textClassName="preview-sound-button-text"
+          action={() => {
+            var path = BuiltinLibrary.ROOT_ASSET_PATH + asset.file;
+
+            fetch (path)
+            .then((response) => response.blob())
+            .then((blob) => {
+              blob.lastModifiedDate = new Date();
+              blob.name = asset.file.split('/').pop();
+              
+              let reader = new FileReader();
+
+              reader.onload = () => {
+                let dataURL = reader.result;
+                asset.src = dataURL;
+                asset.MIMEType = _MIMETypeOfString(dataURL);
+
+                this.setState({});
+              }
+
+              reader.readAsDataURL(blob);
+            })
+            .catch((error) => {
+              console.error("Error while importing builtin asset (" + asset.name + "," + asset.file + "): ")
+              console.log(error);
+            });
+          }}
+          color="sky"
+          text="Preview Sound"/>
+        }
+        {asset.icon !== 'icons/sound.png' &&
         <button
           className='builtin-library-asset-icon-container'
           onClick={(() => this.importAsset(asset.file, asset.name))}>
@@ -95,17 +142,17 @@ class BuiltinLibrary extends Component {
             src={BuiltinLibrary.ROOT_ASSET_PATH + asset.icon}
             className='builtin-library-asset-icon'/>
         </button>
-        <div className='builtin-library-asset-name'>
-          {asset.name}
-        </div>
+        }
+        <ActionButton
+          className="add-as-asset-button"
+          action={() => {
+            // TODO: If it's preloaded by preview, shouldn't import again
+            this.importAsset(asset.file, asset.name);
+          }}
+          text="Add as Asset"
+        />
       </div>
     );
-
-    /*{asset.type === 'sound' &&
-      <div className='builtin-library-asset-sound-preview'>
-        <audio ref="audio_tag" src={BuiltinLibrary.ROOT_ASSET_PATH + asset.file} controls autoPlay/>
-      </div>
-    }*/
   }
 }
 

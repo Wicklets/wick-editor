@@ -913,7 +913,7 @@ class Editor extends EditorCore {
                                 createImageFromAsset={this.createImageFromAsset}
                                 toast={this.toast}
                                 onEyedropperPickedColor={this.onEyedropperPickedColor}
-                                createAssets={this.createAssets}
+                                createAssets={this.createAssets} 
                                 importProjectAsWickFile={this.importProjectAsWickFile}
                                 onRef={ref => this.canvasComponent = ref}
                               />);}}
@@ -1066,6 +1066,12 @@ class Editor extends EditorCore {
                         selectObjects={this.selectObjects}
                         clearSelection={this.clearSelection}
                         isObjectSelected={this.isObjectSelected}
+                        createAssets={this.createAssets} 
+                        importProjectAsWickFile={this.importProjectAsWickFile}
+                        createImageFromAsset={this.createImageFromAsset}
+                        toast={this.toast}
+                        deleteSelectedObjects={this.deleteSelectedObjects}
+                        addSoundToActiveFrame={this.addSoundToActiveFrame}
                       />
                     </DockedPanel>
                   </ReflexElement>

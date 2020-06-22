@@ -66,7 +66,16 @@ class AssetLibrary extends Component {
        onClick={() => {
          this.props.clearSelection();
          this.props.selectObjects([assetObject]);
-      }}/>
+      }}
+        createAssets={this.props.createAssets}
+        importProjectAsWickFile={this.props.importProjectAsWickFile}
+        createImageFromAsset={this.props.createImageFromAsset}
+        toast={this.props.toast}
+        deleteSelectedObjects={this.props.deleteSelectedObjects}
+        clearSelection={this.props.clearSelection}
+        selectObjects={this.props.selectObjects}
+        addSoundToActiveFrame={this.props.addSoundToActiveFrame}
+      />
     )
   }
 

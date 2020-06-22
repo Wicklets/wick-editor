@@ -21,7 +21,7 @@
 
 // Spring 2019 color scheme
 $editor-primary: #303030;
-$editor-primary-text: #AFAFAF;
+$editor-primary-text: white; //#AFAFAF;
 $editor-primary-property-text: $editor-primary-text;
 $editor-primary-outline: #191919;
 
@@ -32,7 +32,7 @@ $editor-menubar-project-text:#DADADA;
 $editor-menubar-option-text: #BABABA;
 
 $editor-secondary: #3B3B3B;
-$editor-secondary-text: #797979;
+$editor-secondary-text: #BDBDBD; //#797979;
 
 $editor-tertiary: #4A4A4A;
 
@@ -169,6 +169,8 @@ $interface-warning-text: #FFFFFF;
 
 $interface-menu-bar-background: black;
 
+$focus-orange: #FF7867;
+
 // Set editor styles.
 a:link {
   color: $editor-green-highlight;
@@ -293,6 +295,5 @@ $docked-margin: 6px;
 }
 
 button:focus, input:focus {
-  outline: none;
-  box-shadow: 0px 0px 5px white;
+  outline: 2px solid $focus-orange;
 }

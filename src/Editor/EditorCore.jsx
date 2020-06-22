@@ -854,6 +854,17 @@ class EditorCore extends Component {
       this.project.guiElement.dragAssetAtPosition(uuid, x, y, drop);
   }
 
+  addSoundToActiveFrame = (soundAsset) => {
+    let frame = this.project.activeFrame;
+    if (frame !== null) {
+      frame.sound = soundAsset;
+      this.projectDidChange({ actionName: "Add Sound to Active Frame" });
+    }
+    else {
+      this.toast('No active frame to add sound to.', 'error');
+    }
+  }
+
   /**
    * Attempts to import an arbitrary asset to the project. Displays an error or success message
    * depending on if the action was successful.

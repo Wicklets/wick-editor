@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.6.15.16.40.38";
+var WICK_ENGINE_BUILD_VERSION = "2020.6.22.15.59.27";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -53594,6 +53594,11 @@ Wick.Asset = class extends Wick.Base {
 
 
   removeAllInstances() {// Implemented by sublasses
+  }
+
+  remove() {
+    console.log("REMOVE");
+    this.removeAllInstances();
   }
 
   get classname() {

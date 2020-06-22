@@ -410,23 +410,8 @@ class Inspector extends Component {
   renderPosition = () => {
     return (
       <InspectorDualNumericInput
-        tooltip="Position"
-        val1={this.getSelectionAttribute('x')}
-        val2={this.getSelectionAttribute('y')}
-        onChange1={(val) => this.setSelectionAttribute('x', val)}
-        onChange2={(val) => this.setSelectionAttribute('y', val)}
-        divider={true}
-        id="inspector-position" />
-    )
-  }
-
-  /**
-   * Renders an inspector row allowing viewing and editing of the selection's origin x y position.
-   */
-  renderOrigin = () => {
-    return (
-      <InspectorDualNumericInput
-        tooltip="Origin"
+        tooltip1="Origin X"
+        tooltip2="Origin Y"
         val1={this.getSelectionAttribute('originX')}
         val2={this.getSelectionAttribute('originY')}
         onChange1={(val) => this.setSelectionAttribute('originX', val)}
@@ -437,12 +422,30 @@ class Inspector extends Component {
   }
 
   /**
+   * Renders an inspector row allowing viewing and editing of the selection's origin x y position.
+   */
+  renderOrigin = () => {
+    return (
+      <InspectorDualNumericInput
+        tooltip1="X"
+        tooltip2="Y"
+        val1={this.getSelectionAttribute('x')}
+        val2={this.getSelectionAttribute('y')}
+        onChange1={(val) => this.setSelectionAttribute('x', val)}
+        onChange2={(val) => this.setSelectionAttribute('y', val)}
+        divider={true}
+        id="inspector-position" />
+    )
+  }
+
+  /**
    * Renders an inspector row allowing viewing and editing of the selection's width and height.
    */
   renderSize = () => {
     return (
       <InspectorDualNumericInput
-        tooltip="Size"
+        tooltip1="Width"
+        tooltip2="Height"
         val1={this.getSelectionAttribute('width')}
         val2={this.getSelectionAttribute('height')}
         onChange1={(val) => this.setSelectionAttribute('width', val)}
@@ -458,7 +461,8 @@ class Inspector extends Component {
   renderScale = () => {
     return (
       <InspectorDualNumericInput
-        tooltip="Scale"
+        tooltip1="Scale W"
+        tooltip2="Scale H"
         val1={this.getSelectionAttribute('scaleX')}
         val2={this.getSelectionAttribute('scaleY')}
         onChange1={(val) => this.setSelectionAttribute('scaleX', val)}
@@ -538,7 +542,7 @@ class Inspector extends Component {
       label: "No Sound",
     });
 
-    let value = mapAsset(this.getSelectionAttribute('sound'));
+    let value = this.getSelectionAttribute('sound');
     return (
       <InspectorSelector
         tooltip="Sound"

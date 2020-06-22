@@ -19,11 +19,43 @@
 
 import React, { Component } from 'react';
 
-import InspectorRow from '../InspectorRow';
+//import InspectorRow from '../InspectorRow';
+import InspectorInput from 'Editor/Panels/Inspector/InspectorRow/InspectorInput/InspectorInput';
+
+import '../_inspectorrow.scss';
+
 
 class InspectorDualNumericInput extends Component {
   render() {
     return(
+      <div className="inspector-row">
+      {/* Identifier1 */}
+      <div className="inspector-row-identifier">
+        {this.props.tooltip1}
+      </div>
+      {/* Input1 */}
+      <div className="inspector-dual-input-container">
+        <InspectorInput 
+          input1={
+            {type: "numeric",
+            value: this.props.val1,
+            onChange: this.props.onChange1}
+          } />
+      </div>
+      {/* Identifier2 */}
+      <div className="inspector-row-identifier">
+        {this.props.tooltip2}
+      </div>
+      {/* Input2 */}
+      <div className="inspector-dual-input-container">
+        <InspectorInput input1={
+            {type: "numeric",
+            value: this.props.val2,
+            onChange: this.props.onChange2}
+          } />
+      </div>
+    </div>
+/*
         <InspectorRow
           {...this.props}
           input1={
@@ -37,7 +69,7 @@ class InspectorDualNumericInput extends Component {
             onChange: this.props.onChange2}
           }
           divider={this.props.divider}
-        />
+        />*/
     )
   }
 }
