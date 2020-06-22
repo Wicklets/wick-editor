@@ -17,8 +17,6 @@
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-const { default: ProjectSettings } = require("../../../../src/Editor/Modals/SettingsModal/ProjectSettings/ProjectSettings");
-
 Wick.Asset = class extends Wick.Base {
 
     /**

@@ -688,12 +688,7 @@ Wick.Project = class extends Wick.Base {
 
         this.activeTimeline.deferFrameGapResolve();
         objects.forEach(object => {
-            if (object.remove) {
-                object.remove();
-            }
-            else if (object.classname.endsWith('Asset')) {
-                this.removeAsset(object);
-            }
+            object.remove && object.remove();
         });
         this.activeTimeline.resolveFrameGaps([]);
     }
