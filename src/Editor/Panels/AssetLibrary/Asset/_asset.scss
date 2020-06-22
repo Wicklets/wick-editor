@@ -24,6 +24,7 @@ $asset-margin: 4px;
 
 .asset-buttons-container {
   margin-bottom: $asset-margin;
+  margin-top: $asset-margin;
   display: flex;
   flex-direction: row;
   align-items: center;

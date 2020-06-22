@@ -58,11 +58,14 @@ $outliner-break-size: calc(#{$editor-outline-padding} * .5);
 }
 
 .outliner-script-icon {
+  vertical-align: top;
+  margin-top: calc(#{$outliner-icon-spacing}/2);
   height: $outliner-name-size;
-  vertical-align: middle;
 }
 
 .outliner-sound-icon {
+  vertical-align: top;
+  margin-top: 0;
   height: 20px;
   margin-right: $outliner-icon-spacing;
 }
@@ -142,6 +145,7 @@ $outliner-break-size: calc(#{$editor-outline-padding} * .5);
   position: relative;
   z-index: 0;
   float: right;
+  margin-top: calc(#{$outliner-icon-spacing} / 2);
 }
 
 .hover-top {
@@ -157,10 +161,13 @@ $outliner-break-size: calc(#{$editor-outline-padding} * .5);
 } 
 
 .widget {
+  vertical-align: top;
   width: $widget-width;
-  border-style: none;
+  height: $widget-width !important; //don't know why this needs to be important, but it does
+  height: 100%;
+  border: none;
   background: none;
-  padding: 0px;
+  padding: 0;
   margin-right: $outliner-icon-spacing;
   transition: background-color 150ms ease-in-out;
   border-radius: 3px;
@@ -170,5 +177,10 @@ $outliner-break-size: calc(#{$editor-outline-padding} * .5);
 }
 
 .widget-off {
+  vertical-align: top;
   opacity: 0.25;
+}
+.widget-on {
+  vertical-align: top;
+  opacity: 1;
 }

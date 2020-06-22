@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.6.22.15.59.27";
+var WICK_ENGINE_BUILD_VERSION = "2020.6.22.17.56.59";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -50025,7 +50025,11 @@ Wick.Project = class extends Wick.Base {
     this.selection.clear();
     this.activeTimeline.deferFrameGapResolve();
     objects.forEach(object => {
-      object.remove && object.remove();
+      if (object.remove) {
+        object.remove();
+      } else if (object.classname.endsWith('Asset')) {
+        this.removeAsset(object);
+      }
     });
     this.activeTimeline.resolveFrameGaps([]);
   }
@@ -53550,6 +53554,10 @@ Wick.Path = class extends Wick.Base {
  * You should have received a copy of the GNU General Public License
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
+const {
+  default: ProjectSettings
+} = require("../../../../src/Editor/Modals/SettingsModal/ProjectSettings/ProjectSettings");
+
 Wick.Asset = class extends Wick.Base {
   /**
    * Creates a new Wick Asset.
