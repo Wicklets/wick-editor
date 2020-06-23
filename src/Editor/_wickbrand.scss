@@ -295,5 +295,9 @@ $docked-margin: 6px;
 }
 
 button:focus, input:focus {
-  outline: 2px solid $focus-orange;
+  border: 2px solid $focus-orange !important;
+  box-sizing: border-box;
+  outline: none;
+  //outline: 2px solid $focus-orange !important;
+  // outline-color: invert !important;
 }
