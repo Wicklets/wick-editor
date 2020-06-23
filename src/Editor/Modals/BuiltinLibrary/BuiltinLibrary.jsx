@@ -96,7 +96,7 @@ class BuiltinLibrary extends Component {
           {asset.name}
         </div>
         {asset.icon === 'icons/sound.png' && asset.src &&
-        <audio controls disabled={true} style={{width: "100%"}}>
+        <audio controls style={{width: "100%"}}>
           <source src={asset.src} type={asset.MIMEType}/>
         </audio>
         }
