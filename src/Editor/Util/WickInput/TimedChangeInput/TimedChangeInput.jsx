@@ -51,7 +51,7 @@ class TimedChangeInput extends Component {
             }
         }
 
-        return (this.state.value !== "") && !stalled && !period;
+        return !stalled && !period; // && (this.state.value !== ""); <-- for asset library filter we want "" as a valid value
     }
 
     /**

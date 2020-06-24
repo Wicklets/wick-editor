@@ -33,20 +33,19 @@ class BuiltinLibrary extends Component {
     return process.env.PUBLIC_URL + '/builtinlibrary/';
   }
 
-  importAsset = (assetPath, assetName) => {
-    var path = BuiltinLibrary.ROOT_ASSET_PATH + assetPath;
+  importAsset = (asset, callback) => {
+    var path = BuiltinLibrary.ROOT_ASSET_PATH + asset.path;
 
     fetch (path)
     .then((response) => response.blob())
     .then((blob) => {
       blob.lastModifiedDate = new Date();
-      blob.name = assetPath.split('/').pop();
-      this.props.importFileAsAsset(blob, () => {
-
-      });
+      blob.name = asset.path.split('/').pop();
+      
+      callback(blob);
     })
     .catch((error) => {
-      console.error("Error while importing builtin asset (" + assetName + "," + assetPath + "): ")
+      console.error("Error while importing builtin asset (" + asset.name + "," + asset.path + "): ")
       console.log(error);
     });
   }
@@ -95,24 +94,14 @@ class BuiltinLibrary extends Component {
         <div className='builtin-library-asset-name'>
           {asset.name}
         </div>
-        {asset.icon === 'icons/sound.png' && asset.src &&
-        <audio controls disabled={true} style={{width: "100%"}}>
-          <source src={asset.src} type={asset.MIMEType}/>
-        </audio>
-        }
-        {asset.icon === 'icons/sound.png' && !asset.src &&
-        <ActionButton
-          className="preview-sound-button"
-          textClassName="preview-sound-button-text"
-          action={() => {
-            var path = BuiltinLibrary.ROOT_ASSET_PATH + asset.file;
+        {asset.icon === 'icons/sound.png' &&
+        <audio controls
+        style={{width: "100%"}}
+        onClick={() => {
+          if (!asset.blob) {
+            this.importAsset(asset, (blob) => {
+              asset.blob = blob;
 
-            fetch (path)
-            .then((response) => response.blob())
-            .then((blob) => {
-              blob.lastModifiedDate = new Date();
-              blob.name = asset.file.split('/').pop();
-              
               let reader = new FileReader();
 
               reader.onload = () => {
@@ -124,19 +113,25 @@ class BuiltinLibrary extends Component {
               }
 
               reader.readAsDataURL(blob);
-            })
-            .catch((error) => {
-              console.error("Error while importing builtin asset (" + asset.name + "," + asset.file + "): ")
-              console.log(error);
             });
-          }}
-          color="sky"
-          text="Preview Sound"/>
+          }
+        }}>
+          <source src={asset.src} type={asset.MIMEType}/>
+        </audio>
         }
         {asset.icon !== 'icons/sound.png' &&
         <button
           className='builtin-library-asset-icon-container'
-          onClick={(() => this.importAsset(asset.file, asset.name))}>
+          onClick={() => {
+            if (asset.blob) {
+              this.props.importFileAsAsset(asset.blob, () => {});
+            }
+            else {
+              this.importAsset(asset, (blob) => {
+                this.props.importFileAsAsset(blob, () => {});
+              });
+            }
+          }}>
           <img
             alt='Builtin Asset Icon'
             src={BuiltinLibrary.ROOT_ASSET_PATH + asset.icon}
@@ -146,8 +141,14 @@ class BuiltinLibrary extends Component {
         <ActionButton
           className="add-as-asset-button"
           action={() => {
-            // TODO: If it's preloaded by preview, shouldn't import again
-            this.importAsset(asset.file, asset.name);
+            if (asset.blob) {
+              this.props.importFileAsAsset(asset.blob, () => {});
+            }
+            else {
+              this.importAsset(asset, (blob) => {
+                this.props.importFileAsAsset(blob, () => {});
+              });
+            }
           }}
           text="Add as Asset"
         />

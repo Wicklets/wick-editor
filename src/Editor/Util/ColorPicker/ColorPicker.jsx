@@ -44,7 +44,7 @@ class ColorPicker extends Component {
 
   getStyle() {
     let style = this.props.stroke
-      ? {borderColor: this.props.color}
+        ? {borderColor: this.props.color}
       : {backgroundColor: this.props.color};
     return style;
   }

@@ -29,9 +29,9 @@ class InspectorRow extends Component {
     return (
       <div className="inspector-row">
         {/* Identifier */}
-        <div className="inspector-row-identifier">
+        <label className="inspector-row-identifier">
           {this.props.tooltip}
-        </div>
+        </label>
         {/* Input or Preview*/}
         <div className="inspector-input-container">
           <InspectorInput {...this.props} />

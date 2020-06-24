@@ -63,11 +63,6 @@ Wick.Asset = class extends Wick.Base {
         // Implemented by sublasses
     }
 
-    remove() {
-        console.log("REMOVE");
-        this.removeAllInstances();
-    }
-
     get classname() {
         return 'Asset';
     }

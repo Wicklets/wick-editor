@@ -25,7 +25,7 @@ class InspectorColorNumericInput extends Component {
   render() {
     return(
         <InspectorRow
-          {...this.props}
+          {...this.props} 
           input1={
             {
               type: "color",

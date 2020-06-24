@@ -165,7 +165,7 @@ class Inspector extends Component {
   /**
    * Renders an inspector row allowing viewing and editing of the selection fill color.
    */
-  renderSelectionFillColor = () => {
+  renderSelectionColor = () => {
     return (
       <div className="inspector-item">
         <InspectorColorNumericInput
@@ -181,15 +181,6 @@ class Inspector extends Component {
           updateLastColors={this.props.updateLastColors}
           lastColorsUsed={this.props.lastColorsUsed}
         />
-      </div>
-    );
-  }
-  /**
-   * Renders an inspector row allowing viewing and editing of the selection stroke color.
-   */
-  renderSelectionStrokeColor = () => {
-    return (
-      <div className="inspector-item">
         <InspectorColorNumericInput
           tooltip="Stroke Color"
 
@@ -416,7 +407,6 @@ class Inspector extends Component {
         val2={this.getSelectionAttribute('originY')}
         onChange1={(val) => this.setSelectionAttribute('originX', val)}
         onChange2={(val) => this.setSelectionAttribute('originY', val)}
-        divider={true}
         id="inspector-origin" />
     )
   }
@@ -433,7 +423,6 @@ class Inspector extends Component {
         val2={this.getSelectionAttribute('y')}
         onChange1={(val) => this.setSelectionAttribute('x', val)}
         onChange2={(val) => this.setSelectionAttribute('y', val)}
-        divider={true}
         id="inspector-position" />
     )
   }
@@ -450,7 +439,6 @@ class Inspector extends Component {
         val2={this.getSelectionAttribute('height')}
         onChange1={(val) => this.setSelectionAttribute('width', val)}
         onChange2={(val) => this.setSelectionAttribute('height', val)}
-        divider={true}
         id="inspector-size" />
     )
   }
@@ -467,7 +455,6 @@ class Inspector extends Component {
         val2={this.getSelectionAttribute('scaleY')}
         onChange1={(val) => this.setSelectionAttribute('scaleX', val)}
         onChange2={(val) => this.setSelectionAttribute('scaleY', val)}
-        divider={true}
         id="inspector-scale" />
     )
   }
@@ -761,8 +748,7 @@ class Inspector extends Component {
     return(
       <div className="inspector-content">
         {this.renderSelectionTransformProperties()}
-        {this.renderSelectionFillColor()}
-        {this.renderSelectionStrokeColor()}
+        {this.renderSelectionColor()}
       </div>
     );
   }
@@ -782,8 +768,7 @@ class Inspector extends Component {
       <div className="inspector-content">
         {this.renderIdentifier()}
         {this.renderSelectionTransformProperties()}
-        {this.renderSelectionFillColor()}
-        {this.renderSelectionStrokeColor()}
+        {this.renderSelectionColor()}
         {this.renderFontContent()}
       </div>
     )
@@ -818,8 +803,7 @@ class Inspector extends Component {
     return (
       <div className="inspector-content">
         {this.renderSelectionTransformProperties()}
-        {this.renderSelectionFillColor()}
-        {this.renderSelectionStrokeColor()}
+        {this.renderSelectionColor()}
         {this.getSelectionAttribute('fontFamily') && this.renderFontContent()}
       </div>
     );

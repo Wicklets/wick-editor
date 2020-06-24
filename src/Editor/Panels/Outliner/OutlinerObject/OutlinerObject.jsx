@@ -74,6 +74,7 @@ export const OutlinerObject = ({clearSelection, selectObjects,
     },
   })
 
+  const [focused, setFocused] = useState(false);
   const [hoverLocation, setHoverLocation] = useState(null);
 
   const [{ isOverCurrent }, drop] = useDrop({
@@ -184,7 +185,7 @@ export const OutlinerObject = ({clearSelection, selectObjects,
   hoverLocation !== 'hover-middle' && isOverCurrent && hoverLocation)}> 
     <div 
     className={classNames("outliner-object", 
-    {"object-selected": data.isSelected},
+    {"object-selected": data.isSelected && !focused},
     {"object-dragging": dragging && (data.isSelected || data.parent.isSelected || data.parent.parent.isSelected) },
     {"highlighted": highlighted === data},
     hoverLocation === 'hover-middle' && isOverCurrent && hoverLocation)}>
@@ -193,6 +194,8 @@ export const OutlinerObject = ({clearSelection, selectObjects,
     className="outliner-object-selector"
     onClick={(e) => {
       toggle(e, [], 'select')}}
+    onFocus={() => setFocused(true)}
+    onBlur={() => setFocused(false)}
       
     onKeyPress={(e) => {
       if (e.which === 13 && e.ctrlKey){

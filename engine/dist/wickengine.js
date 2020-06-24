@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.6.23.10.41.27";
+var WICK_ENGINE_BUILD_VERSION = "2020.6.23.11.11.35";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -50025,7 +50025,11 @@ Wick.Project = class extends Wick.Base {
     this.selection.clear();
     this.activeTimeline.deferFrameGapResolve();
     objects.forEach(object => {
-      object.remove && object.remove();
+      if (object.remove) {
+        object.remove();
+      } else if (['ImageAsset', 'SoundAsset', 'ClipAsset', 'FontAsset', 'SVGAsset'].indexOf(object.classname) !== -1) {
+        this.removeAsset(object);
+      }
     });
     this.activeTimeline.resolveFrameGaps([]);
   }
@@ -53594,11 +53598,6 @@ Wick.Asset = class extends Wick.Base {
 
 
   removeAllInstances() {// Implemented by sublasses
-  }
-
-  remove() {
-    console.log("REMOVE");
-    this.removeAllInstances();
   }
 
   get classname() {

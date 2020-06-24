@@ -29,7 +29,7 @@ class InspectorDualNumericInput extends Component {
   render() {
     return(
       <div className="inspector-row">
-      {/* Identifier1 */}
+      {/* Identifier1 */} 
       <div className="inspector-row-identifier">
         {this.props.tooltip1}
       </div>

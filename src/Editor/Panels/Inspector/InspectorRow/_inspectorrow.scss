@@ -21,7 +21,7 @@
 @import '../_inspector.scss';
 
 $inspector-element-margin: 4px;
-$row-identifier-width: 175px;
+$row-identifier-width: 120px;
 $input-container-margin: 4px;
 $input-margin: calc(2*#{$inspector-element-margin});
 $input-space: calc(calc(100% - #{$row-identifier-width}) - #{$input-margin});
@@ -40,10 +40,8 @@ $double-input-unit-width: 40%;
   font-size: 14px;
   font-weight: bold;
   overflow-x: hidden;
-}
-
-.inspector-row-identifier:hover {
-  overflow: auto;
+  text-align: right;
+  margin-right: 4px;
 }
 
 .inspector-row {
@@ -74,13 +72,9 @@ $double-input-unit-width: 40%;
 .inspector-dual-input-container {
   display: flex;
   align-items: center;
-  width: 100%;
+  width: 60%;
   height: 90%;
   margin-left: $input-container-margin;
-  padding-right: $input-container-margin;
-}
-.inspector-dual-input-container:last-child {
-  padding: 0;
 }
 
 .inspector-input-element {

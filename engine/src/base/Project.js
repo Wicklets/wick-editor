@@ -691,7 +691,7 @@ Wick.Project = class extends Wick.Base {
             if (object.remove) {
                 object.remove();
             }
-            else if (object.classname.endsWith('Asset')) {
+            else if (['ImageAsset', 'SoundAsset', 'ClipAsset', 'FontAsset', 'SVGAsset'].indexOf(object.classname) !== -1) {
                 this.removeAsset(object);
             }
         });

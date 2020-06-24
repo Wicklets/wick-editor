@@ -14,7 +14,7 @@ class OutlinerLayerButtons extends Component {
         this.props.onClick();
       }}>
       <img 
-        className={classNames(this.props.on !== undefined && (this.props.on ? "widget-on" : "widget-off"))}
+        className={classNames(this.props.on === undefined || this.props.on ? "widget-on" : "widget-off")}
         alt={this.props.alt}
         src={this.props.src}
         
