@@ -28,7 +28,7 @@ class InspectorColorNumericInput extends Component {
     return(
       <div className="inspector-row">
       {/* Identifier1 */} 
-      <label for={this.props.tooltip1 + " input"} className="inspector-row-identifier">
+      <label htmlFor={this.props.tooltip1 + " input"} className="inspector-row-identifier">
         {this.props.tooltip1}
       </label>
 
@@ -54,7 +54,7 @@ class InspectorColorNumericInput extends Component {
       </div>
 
       {/* Identifier2 */}
-      <label for={this.props.tooltip2 + " input"} className="inspector-row-identifier">
+      <label htmlFor={this.props.tooltip2 + " input"} className="inspector-row-identifier">
         {this.props.tooltip2}
       </label>
 

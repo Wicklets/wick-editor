@@ -905,6 +905,20 @@ class EditorCore extends Component {
   }
 
   /**
+   * Checks if an asset with filename filename exists
+   * @param {string} filename - name of file
+   */
+  isAssetInLibrary = (filename) => {
+    let assets = this.project.getAssets();
+    for (let i = 0; i < assets.length; i++) {
+      if (assets[i].filename === filename) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Creates and imports Wick Assets from the acceptedFiles list, and displays an alert message for rejected files.
    * @param {File[]} acceptedFiles - Files uploaded by user with supported MIME types to import into the project
    * @param {File[]} rejectedFiles - Files uploaded by user with unsupported MIME types.

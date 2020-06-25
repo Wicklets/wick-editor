@@ -121,6 +121,7 @@ class ModalHandler extends Component {
           importFileAsAsset={this.props.importFileAsAsset}
           builtinPreviews={this.props.builtinPreviews}
           addFileToBuiltinPreviews={this.props.addFileToBuiltinPreviews}
+          isAssetInLibrary={this.props.isAssetInLibrary}
         />
         <EditorInfo
           openModal={this.props.openModal}

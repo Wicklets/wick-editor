@@ -86,11 +86,11 @@ $margin: 3%;
 }
 
 .preview-sound-button {
-  text-align: center;
-  width: 106%;
+  margin-right: auto;
+  margin-left: auto;
+  width: 35%;
   height: 54px;
   margin-bottom: 12px;
-  padding-right: calc(#{$margin} * 2);
 }
 .preview-sound-button-text {
   position: relative;

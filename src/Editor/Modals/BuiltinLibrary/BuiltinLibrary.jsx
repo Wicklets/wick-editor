@@ -101,13 +101,22 @@ class BuiltinLibrary extends Component {
             />
         </div>
 
-        <ActionButton
-          className="add-as-asset-button"
-          action={() => {
-            this.createWickAsset(asset);
-          }}
-          text="Add as Asset"
-        />
+        {this.props.isAssetInLibrary(asset.file.split("/").pop()) ?
+          <ActionButton
+            className="add-as-asset-button"
+            action={() => {}}
+            text="Already Added"
+            color="gray"
+          />
+        :
+          <ActionButton
+            className="add-as-asset-button"
+            action={() => {
+              this.createWickAsset(asset);
+            }}
+            text="Add as Asset"
+          />
+        }
       </div>
     );
   }
@@ -139,15 +148,26 @@ class BuiltinLibrary extends Component {
           className="preview-sound-button"
           action={() => this.importForPreview(asset)}
           color="sky"
-          text="Preview Sound"
+          icon="sound"
           />
         }
 
-        <ActionButton
-        className="add-as-asset-button"
-        action={() => this.createWickAsset(asset)}
-        text="Add as Asset"
-        />
+        {this.props.isAssetInLibrary(asset.file.split("/").pop()) ?
+          <ActionButton
+            className="add-as-asset-button"
+            action={() => {}}
+            text="Already Added"
+            color="gray"
+          />
+        :
+          <ActionButton
+            className="add-as-asset-button"
+            action={() => {
+              this.createWickAsset(asset);
+            }}
+            text="Add as Asset"
+          />
+        }
       </div>
     );
   }

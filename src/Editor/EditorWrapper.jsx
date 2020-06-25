@@ -95,6 +95,7 @@ import ModalHandler from './Modals/ModalHandler/ModalHandler';
                         exportProjectAsImageSVG={this.props.editor.exportProjectAsImageSVG}
                         builtinPreviews={this.props.editor.builtinPreviews}
                         addFileToBuiltinPreviews={this.props.editor.addFileToBuiltinPreviews}
+                        isAssetInLibrary={this.props.editor.isAssetInLibrary}
                         />
                 {this.props.children}
                 </div>

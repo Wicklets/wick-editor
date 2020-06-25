@@ -28,7 +28,7 @@ class InspectorTextInput extends Component {
     return(
       <div className="inspector-row">
         {/* Identifier */} 
-        <label for={this.props.tooltip + " input"} className="inspector-row-identifier">
+        <label htmlFor={this.props.tooltip + " input"} className="inspector-row-identifier">
           {this.props.tooltip}
         </label>
 
@@ -36,7 +36,7 @@ class InspectorTextInput extends Component {
         <div className="inspector-large-input-container">
           <InspectorInput 
             inputProps={{id: this.props.tooltip + " input"}}
-            input1={
+            input={
               {
                 type: "text",
                 value: this.props.val,
