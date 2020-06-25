@@ -19,22 +19,34 @@
 
 import React, { Component } from 'react';
 
-import InspectorRow from '../InspectorRow';
+import InspectorInput from '../InspectorInput/InspectorInput';
+
+import '../_inspectorrow.scss';
 
 class InspectorCheckbox extends Component {
   render() {
     return(
-        <InspectorRow
-          {...this.props}
-          input1={
-            {
-              type: "checkbox",
-              checked: this.props.checked,
-              onChange: this.props.onChange
+      <div className="inspector-row">
+        {/* Identifier */} 
+        <label for={this.props.tooltip + " input"} className="inspector-row-identifier">
+          {this.props.tooltip}
+        </label>
+
+        {/* Checkbox */}
+        <div className="inspector-small-input-container">
+          <InspectorInput 
+            inputProps={{id: this.props.tooltip + " input"}}
+            input={
+              {
+                type: "checkbox",
+                checked: this.props.checked,
+                onChange: this.props.onChange
+              }
             }
-          }
-        />
-    )
+          />
+        </div>
+      </div>
+    );
   }
 }
 

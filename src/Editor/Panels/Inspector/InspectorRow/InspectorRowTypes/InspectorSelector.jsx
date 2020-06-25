@@ -19,24 +19,35 @@
 
 import React, { Component } from 'react';
 
-import InspectorRow from '../InspectorRow';
+import InspectorInput from 'Editor/Panels/Inspector/InspectorRow/InspectorInput/InspectorInput';
+
+import '../_inspectorrow.scss';
 
 class InspectorSelector extends Component {
   render() {
     return(
-        <InspectorRow
-          {...this.props}
-          input1={
-            {
-              type: "select",
-              value: this.props.value,
-              onChange: this.props.onChange,
-              options: this.props.options,
-              className: this.props.className,
-            }
-          }
-        />
-    )
+      <div className="inspector-row">
+        {/* Identifier */} 
+        <label for={this.props.tooltip + " input"} className="inspector-row-identifier">
+          {this.props.tooltip}
+        </label>
+
+        {/* Input */}
+        <div className="inspector-large-input-container">
+          <InspectorInput 
+            inputProps={{id: this.props.tooltip + " input"}}
+            input={
+              {
+                type: "select",
+                value: this.props.value,
+                onChange: this.props.onChange,
+                options: this.props.options,
+                className: this.props.className,
+              }
+            } />
+        </div>
+      </div>
+    );
   }
 }
 

@@ -19,3 +19,7 @@ $button-height: 39px;
 .outliner-expand-button:hover {
     background-color: $editor-secondary;
 }
+
+.outliner-expand-button-closed {
+    transform: scale(-1, 1);
+}

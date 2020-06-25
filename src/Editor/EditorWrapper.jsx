@@ -93,6 +93,8 @@ import ModalHandler from './Modals/ModalHandler/ModalHandler';
                         setToolSetting={this.props.editor.setToolSetting}
                         getToolSettingRestrictions={this.props.editor.getToolSettingRestrictions}
                         exportProjectAsImageSVG={this.props.editor.exportProjectAsImageSVG}
+                        builtinPreviews={this.props.editor.builtinPreviews}
+                        addFileToBuiltinPreviews={this.props.editor.addFileToBuiltinPreviews}
                         />
                 {this.props.children}
                 </div>

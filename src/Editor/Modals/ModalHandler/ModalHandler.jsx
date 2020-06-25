@@ -119,6 +119,8 @@ class ModalHandler extends Component {
           open={this.props.activeModalName === 'BuiltinLibrary'}
           project={this.props.project}
           importFileAsAsset={this.props.importFileAsAsset}
+          builtinPreviews={this.props.builtinPreviews}
+          addFileToBuiltinPreviews={this.props.addFileToBuiltinPreviews}
         />
         <EditorInfo
           openModal={this.props.openModal}

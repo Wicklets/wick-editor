@@ -1,14 +1,20 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="14px" height="14px" viewBox="0 0 14 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!-- Generator: Sketch 53.2 (72643) - https://sketchapp.com -->
-    <title>Group 44 Copy 33</title>
-    <desc>Created with Sketch.</desc>
-    <g id="Code-Editor" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="Artboard-3-Copy-9" transform="translate(-347.000000, -56.000000)" fill="#696969">
-            <g id="Group-44-Copy-33" transform="translate(347.000000, 56.000000)">
-                <path d="M7.01698893,0 L7.01698893,0 C7.50141093,-8.89868772e-17 7.89411255,0.392701619 7.89411255,0.877123617 L7.89411255,12.2797306 C7.89411255,12.7641526 7.50141093,13.1568542 7.01698893,13.1568542 L7.01698893,13.1568542 C6.53256694,13.1568542 6.13986532,12.7641526 6.13986532,12.2797306 L6.13986532,0.877123617 C6.13986532,0.392701619 6.53256694,8.89868772e-17 7.01698893,0 Z" id="Rectangle-40"></path>
-                <rect id="Rectangle-40-Copy" transform="translate(7.016989, 6.578427) rotate(-270.000000) translate(-7.016989, -6.578427) " x="6.13986532" y="0" width="1.75424723" height="13.1568542" rx="0.877123617"></rect>
-            </g>
-        </g>
-    </g>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 23.0.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#FFFFFF;}
+</style>
+<title>Group 44 Copy 33</title>
+<desc>Created with Sketch.</desc>
+<g id="Code-Editor">
+	<g id="Artboard-3-Copy-9" transform="translate(-347.000000, -56.000000)">
+		<g id="Group-44-Copy-33" transform="translate(347.000000, 56.000000)">
+			<path id="Rectangle-40" class="st0" d="M7,0L7,0c0.5,0,0.9,0.4,0.9,0.9v11.4c0,0.5-0.4,0.9-0.9,0.9l0,0c-0.5,0-0.9-0.4-0.9-0.9
+				V0.9C6.1,0.4,6.5,0,7,0z"/>
+			<path id="Rectangle-40-Copy" class="st0" d="M13.6,6.6L13.6,6.6c0,0.5-0.4,0.9-0.9,0.9H1.3c-0.5,0-0.9-0.4-0.9-0.9l0,0
+				c0-0.5,0.4-0.9,0.9-0.9h11.4C13.2,5.7,13.6,6.1,13.6,6.6z"/>
+		</g>
+	</g>
+</g>
 </svg>

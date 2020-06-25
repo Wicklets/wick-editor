@@ -4,6 +4,8 @@ import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 
 import './_outlinerexpandbutton.scss';
 
+var classNames = require("classnames");
+
 class OutlinerExpandButton extends Component {
   render () {
     
@@ -17,7 +19,7 @@ class OutlinerExpandButton extends Component {
       tooltipPlace="left"
       icon="outliner"
       className="outliner-expand-button"
-      iconClassName="outliner-toggle-icon"
+      iconClassName={classNames("outliner-toggle-icon", {"outliner-expand-button-closed": !this.props.expanded})}
       />
     );
   }

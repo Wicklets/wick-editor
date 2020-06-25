@@ -64,17 +64,12 @@ $margin: 3%;
   height: 100px;
   background-color: $editor-modal-dark;
   border: none;
-  cursor: pointer;
   border-radius: 5px;
   overflow: hidden;
   text-align: center;
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.builtin-library-asset-icon-container:hover {
-  border: 2px solid $editor-green-highlight;
 }
 
 .builtin-library-asset-icon {
@@ -100,4 +95,8 @@ $margin: 3%;
 .preview-sound-button-text {
   position: relative;
   top: 25%;
+}
+
+.audio-preview {
+  width: 100%;
 }

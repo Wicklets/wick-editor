@@ -19,24 +19,35 @@
 
 import React, { Component } from 'react';
 
-import InspectorRow from '../InspectorRow';
+import InspectorInput from 'Editor/Panels/Inspector/InspectorRow/InspectorInput/InspectorInput';
+
+import '../_inspectorrow.scss';
 
 class InspectorTextInput extends Component {
   render() {
     return(
-        <InspectorRow
-          {...this.props}
-          input1={
-            {
-              type: "text",
-              value: this.props.val,
-              onChange: this.props.onChange,
-              readOnly: this.props.readOnly,
-              placeholder: this.props.placeholder,
-            }
-          }
-        />
-    )
+      <div className="inspector-row">
+        {/* Identifier */} 
+        <label for={this.props.tooltip + " input"} className="inspector-row-identifier">
+          {this.props.tooltip}
+        </label>
+
+        {/* Input */}
+        <div className="inspector-large-input-container">
+          <InspectorInput 
+            inputProps={{id: this.props.tooltip + " input"}}
+            input1={
+              {
+                type: "text",
+                value: this.props.val,
+                onChange: this.props.onChange,
+                readOnly: this.props.readOnly,
+                placeholder: this.props.placeholder,
+              }
+            } />
+        </div>
+      </div>
+    );
   }
 }
 

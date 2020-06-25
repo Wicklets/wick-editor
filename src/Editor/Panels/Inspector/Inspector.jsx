@@ -169,9 +169,10 @@ class Inspector extends Component {
     return (
       <div className="inspector-item">
         <InspectorColorNumericInput
-          tooltip="Fill Color"
-          val={this.getSelectionAttribute('fillColor').toCSS()}
-          onChange={(col) => this.setSelectionAttribute('fillColor', col)}
+          tooltip1="Fill"
+          tooltip2="Opacity"
+          val1={this.getSelectionAttribute('fillColor').toCSS()}
+          onChange1={(col) => this.setSelectionAttribute('fillColor', col)}
           id={"inspector-selection-fill-color"}
           val2={this.getSelectionAttribute('fillColorOpacity')}
           onChange2={(val) => this.setSelectionAttribute('fillColorOpacity', val)}
@@ -182,10 +183,11 @@ class Inspector extends Component {
           lastColorsUsed={this.props.lastColorsUsed}
         />
         <InspectorColorNumericInput
-          tooltip="Stroke Color"
+          tooltip1="Stroke"
+          tooltip2="Weight"
 
-          val={this.getSelectionAttribute('strokeColor').toCSS()}
-          onChange={(col) => this.setSelectionAttribute('strokeColor', col)}
+          val1={this.getSelectionAttribute('strokeColor').toCSS()}
+          onChange1={(col) => this.setSelectionAttribute('strokeColor', col)}
           id={"inspector-selection-stroke-color"}
           stroke={true}
 
@@ -352,7 +354,7 @@ class Inspector extends Component {
     return (
       <div className="inspector-item">
         <InspectorTextInput
-          tooltip="File Name"
+          tooltip="File"
           val={this.getSelectionAttribute('filename')}
           readOnly={true}
           id="inspector-file-name"/>
@@ -584,7 +586,7 @@ class Inspector extends Component {
           {
             this.getSelectionAttribute('singleFrameNumber') &&
             <InspectorNumericInput
-            tooltip="Frame Number"
+            tooltip="Frame"
             val={this.getSelectionAttribute('singleFrameNumber')}
             onChange={(val) => this.setSelectionAttribute('singleFrameNumber', val)} />
           }

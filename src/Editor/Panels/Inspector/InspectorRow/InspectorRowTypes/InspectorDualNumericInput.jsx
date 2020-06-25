@@ -20,57 +20,47 @@
 import React, { Component } from 'react';
 
 //import InspectorRow from '../InspectorRow';
-import InspectorInput from 'Editor/Panels/Inspector/InspectorRow/InspectorInput/InspectorInput';
+import InspectorInput from '../InspectorInput/InspectorInput';
 
 import '../_inspectorrow.scss';
-
 
 class InspectorDualNumericInput extends Component {
   render() {
     return(
       <div className="inspector-row">
-      {/* Identifier1 */} 
-      <div className="inspector-row-identifier">
-        {this.props.tooltip1}
+        {/* Identifier1 */} 
+        <label for={this.props.tooltip1 + " input"} className="inspector-row-identifier">
+          {this.props.tooltip1}
+        </label>
+
+        {/* Input1 */}
+        <div className="inspector-small-input-container">
+          <InspectorInput 
+            inputProps={{id: this.props.tooltip1 + " input"}}
+            input={
+              {type: "numeric",
+              value: this.props.val1,
+              onChange: this.props.onChange1}
+            } />
+        </div>
+
+        {/* Identifier2 */}
+        <label for={this.props.tooltip2 + " input"} className="inspector-row-identifier">
+          {this.props.tooltip2}
+        </label>
+        
+        {/* Input2 */}
+        <div className="inspector-small-input-container">
+          <InspectorInput 
+            inputProps={{id: this.props.tooltip2 + " input"}}
+            input={
+              {type: "numeric",
+              value: this.props.val2,
+              onChange: this.props.onChange2}
+            } />
+        </div>
       </div>
-      {/* Input1 */}
-      <div className="inspector-dual-input-container">
-        <InspectorInput 
-          input1={
-            {type: "numeric",
-            value: this.props.val1,
-            onChange: this.props.onChange1}
-          } />
-      </div>
-      {/* Identifier2 */}
-      <div className="inspector-row-identifier">
-        {this.props.tooltip2}
-      </div>
-      {/* Input2 */}
-      <div className="inspector-dual-input-container">
-        <InspectorInput input1={
-            {type: "numeric",
-            value: this.props.val2,
-            onChange: this.props.onChange2}
-          } />
-      </div>
-    </div>
-/*
-        <InspectorRow
-          {...this.props}
-          input1={
-            {type: "numeric",
-            value: this.props.val1,
-            onChange: this.props.onChange1}
-          }
-          input2={
-            {type: "numeric",
-            value: this.props.val2,
-            onChange: this.props.onChange2}
-          }
-          divider={this.props.divider}
-        />*/
-    )
+    );
   }
 }
 

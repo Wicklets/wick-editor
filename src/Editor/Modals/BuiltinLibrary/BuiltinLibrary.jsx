@@ -33,23 +33,6 @@ class BuiltinLibrary extends Component {
     return process.env.PUBLIC_URL + '/builtinlibrary/';
   }
 
-  importAsset = (asset, callback) => {
-    var path = BuiltinLibrary.ROOT_ASSET_PATH + asset.path;
-
-    fetch (path)
-    .then((response) => response.blob())
-    .then((blob) => {
-      blob.lastModifiedDate = new Date();
-      blob.name = asset.path.split('/').pop();
-      
-      callback(blob);
-    })
-    .catch((error) => {
-      console.error("Error while importing builtin asset (" + asset.name + "," + asset.path + "): ")
-      console.log(error);
-    });
-  }
-
   render() {
     return (
       <WickModal
@@ -62,95 +45,108 @@ class BuiltinLibrary extends Component {
             Builtin Library (Beta)
           </div>
           <TabbedInterface tabNames={["Clips", "Sounds"]} >
-            {this.renderAssetGroup(wickobjects.name, wickobjects.assets)}
-            {this.renderAssetGroup(sounds.name, sounds.assets)}
+            <div className="builtin-library-asset-grid">{wickobjects.assets.map(this.renderBuiltinAsset)}</div>
+            <div className="builtin-library-asset-grid">{sounds.assets.map(this.renderSoundAsset)}</div>
           </TabbedInterface>
         </div>
       </WickModal>
     );
   }
 
-  renderAssetGroup (name, assets) {
-    return (
-      <div className='builtin-library-asset-grid'>
-        {
-          assets.map(asset => {
-            return this.renderBuiltinAsset(asset);
-          })
-        }
-      </div>
-    )
+  //Fetch file, add to builtinPreviews
+  importForPreview = (asset, callback) => {
+    var path = BuiltinLibrary.ROOT_ASSET_PATH + asset.file;
+
+    fetch (path)
+    .then((response) => response.blob())
+    .then((blob) => {
+        blob.lastModifiedDate = new Date();
+        blob.name = asset.file.split('/').pop();
+
+        this.props.addFileToBuiltinPreviews(asset.file, blob);
+
+        callback && callback(blob);
+    })
+    .catch((error) => {
+        console.error("Error while importing builtin asset (" + asset.name + "," + asset.file + "): ")
+        console.log(error);
+    });
+  }
+
+  //Fetch file to builtinPreviews if necessary, then load into Asset Library
+  createWickAsset = (asset) => {
+    if (!this.props.builtinPreviews[asset.file]) {
+      this.importForPreview(asset, (blob) => {
+        this.props.importFileAsAsset(blob);
+      });
+    }
+    else {
+      this.props.importFileAsAsset(this.props.builtinPreviews[asset.file].blob);
+    }
   }
 
   renderBuiltinAsset = (asset) => {
-    function _MIMETypeOfString(string) {
-      return string.split(':')[1].split(',')[0].split(';')[0];
-    }
-
     return (
-      <div
-        key={"builtin-asset-" + asset.name}
-        className='builtin-library-asset'>
-        <div className='builtin-library-asset-name'>
-          {asset.name}
+      <div key={asset.file} className='builtin-library-asset'>
+        <div className='builtin-library-asset-name'> 
+          {asset.name} 
         </div>
-        {asset.icon === 'icons/sound.png' &&
-        <audio controls
-        style={{width: "100%"}}
-        onClick={() => {
-          if (!asset.blob) {
-            this.importAsset(asset, (blob) => {
-              asset.blob = blob;
-
-              let reader = new FileReader();
-
-              reader.onload = () => {
-                let dataURL = reader.result;
-                asset.src = dataURL;
-                asset.MIMEType = _MIMETypeOfString(dataURL);
-
-                this.setState({});
-              }
-
-              reader.readAsDataURL(blob);
-            });
-          }
-        }}>
-          <source src={asset.src} type={asset.MIMEType}/>
-        </audio>
-        }
-        {asset.icon !== 'icons/sound.png' &&
-        <button
-          className='builtin-library-asset-icon-container'
-          onClick={() => {
-            if (asset.blob) {
-              this.props.importFileAsAsset(asset.blob, () => {});
-            }
-            else {
-              this.importAsset(asset, (blob) => {
-                this.props.importFileAsAsset(blob, () => {});
-              });
-            }
-          }}>
-          <img
+        
+        <div
+          className='builtin-library-asset-icon-container'>
+            <img
             alt='Builtin Asset Icon'
             src={BuiltinLibrary.ROOT_ASSET_PATH + asset.icon}
-            className='builtin-library-asset-icon'/>
-        </button>
-        }
+            className='builtin-library-asset-icon'
+            />
+        </div>
+
         <ActionButton
           className="add-as-asset-button"
           action={() => {
-            if (asset.blob) {
-              this.props.importFileAsAsset(asset.blob, () => {});
-            }
-            else {
-              this.importAsset(asset, (blob) => {
-                this.props.importFileAsAsset(blob, () => {});
-              });
-            }
+            this.createWickAsset(asset);
           }}
           text="Add as Asset"
+        />
+      </div>
+    );
+  }
+
+  renderSoundAsset = (asset) => {
+    let src = undefined, MIMEType = undefined;
+
+    if (this.props.builtinPreviews[asset.file]) {
+      src = this.props.builtinPreviews[asset.file].src;
+      MIMEType = src.split(':')[1].split(',')[0].split(';')[0];
+    }
+
+    return (
+      <div key={asset.file} className='builtin-library-asset'>
+        <div className='builtin-library-asset-name'>
+          {asset.name}
+        </div>
+
+        {src ? 
+          <audio controls
+          ref="audio"
+          className="audio-preview"
+          onCanPlay={() => console.log("dingus")}
+          >
+            <source src={src} type={MIMEType}/>
+          </audio>
+        :
+          <ActionButton 
+          className="preview-sound-button"
+          action={() => this.importForPreview(asset)}
+          color="sky"
+          text="Preview Sound"
+          />
+        }
+
+        <ActionButton
+        className="add-as-asset-button"
+        action={() => this.createWickAsset(asset)}
+        text="Add as Asset"
         />
       </div>
     );

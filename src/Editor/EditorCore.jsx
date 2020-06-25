@@ -885,6 +885,26 @@ class EditorCore extends Component {
   }
 
   /**
+   * Adds fetched file to builtinPreviews
+   * @param {string} filename - name of file
+   * @param {File} file - file to add
+   */
+  addFileToBuiltinPreviews = (filename, file) => {
+    this.builtinPreviews[filename] = {blob: file};
+
+    let reader = new FileReader();
+
+    reader.onload = () => {
+      let dataURL = reader.result;
+      this.builtinPreviews[filename].src = dataURL;
+
+      this.projectDidChange({ skipHistory: true, actionName: "Import File To Builtin Previews"});
+    }
+    
+    reader.readAsDataURL(file);
+  }
+
+  /**
    * Creates and imports Wick Assets from the acceptedFiles list, and displays an alert message for rejected files.
    * @param {File[]} acceptedFiles - Files uploaded by user with supported MIME types to import into the project
    * @param {File[]} rejectedFiles - Files uploaded by user with unsupported MIME types.

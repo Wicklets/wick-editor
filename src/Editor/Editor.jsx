@@ -161,6 +161,8 @@ class Editor extends EditorCore {
     this.timelineComponent = null;
 
     this.lastUsedTool = 'cursor';
+
+    this.builtinPreviews = {};
   }
 
   componentWillMount = () => {

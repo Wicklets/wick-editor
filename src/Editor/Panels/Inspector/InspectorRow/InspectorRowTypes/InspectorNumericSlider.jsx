@@ -19,25 +19,42 @@
 
 import React, { Component } from 'react';
 
-import InspectorRow from '../InspectorRow';
+import InspectorInput from 'Editor/Panels/Inspector/InspectorRow/InspectorInput/InspectorInput';
+
+import '../_inspectorrow.scss';
 
 class InspectorNumericSlider extends Component {
   render() {
     return(
-        <InspectorRow
-          {...this.props}
-          input1={
-            {type: "numeric",
-            value: this.props.val,
-            onChange: this.props.onChange}
-          }
-          input2={
-            {type: "slider",
-             value: this.props.val,
-             onChange: this.props.onChange}
-           }
-           divider={this.props.divider}/>
-    )
+      <div className="inspector-row">
+        {/* Identifier */} 
+        <label for={this.props.tooltip + " input"} className="inspector-row-identifier">
+          {this.props.tooltip}
+        </label>
+
+        {/* Input */}
+        <div className="inspector-small-input-container">
+          <InspectorInput
+            inputProps={{id: this.props.tooltip + " input"}} 
+            input={
+              {type: "numeric",
+              value: this.props.val,
+              onChange: this.props.onChange}
+            } />
+        </div>
+
+        {/* Slider */}
+        <div className="inspector-medium-input-container">
+          <InspectorInput
+            inputProps={{...this.props.inputProps, id: this.props.tooltip}}
+            input={
+              {type: "slider",
+               value: this.props.val,
+               onChange: this.props.onChange}
+            } />
+        </div>
+      </div>
+    );
   }
 }
 

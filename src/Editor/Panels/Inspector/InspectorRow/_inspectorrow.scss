@@ -20,83 +20,74 @@
 @import 'Editor/_wickbrand.scss';
 @import '../_inspector.scss';
 
-$inspector-element-margin: 4px;
-$row-identifier-width: 120px;
-$input-container-margin: 4px;
-$input-margin: calc(2*#{$inspector-element-margin});
-$input-space: calc(calc(100% - #{$row-identifier-width}) - #{$input-margin});
-$single-input-size: 100%;
-$double-input-container-width: $input-space;
-$double-input-divider-width: 20%;
-$double-input-unit-width: 40%;
-
-.inspector-row-identifier {
-  width: $row-identifier-width;
-  max-width: $row-identifier-width;
-  height: 100%;
-  color: $editor-primary-property-text;
-  align-items: center;
-  white-space: nowrap;
-  font-size: 14px;
-  font-weight: bold;
-  overflow-x: hidden;
-  text-align: right;
-  margin-right: 4px;
-}
+$inspector-element-padding: 1.5%;
+$row-identifier-width: 30%;
+$small-input-width: 20%;
+$small-input-min: 30px;
+$medium-input-width: calc(100% - #{$row-identifier-width} - #{$small-input-width});
+$large-input-width: calc(100% - #{$row-identifier-width});
 
 .inspector-row {
   display: flex;
   flex-direction: row;
-  //align-items: center;
   width: 100%;
   height: $inspector-row-height;
   margin-bottom: 4px;
 }
-
 .inspector-row:last-child {
   margin-bottom: 0px;
 }
 
-.inspector-preview-row {
-  height: $inspector-image-preview-size;
+.inspector-row-identifier {
+  display: flex;
+  flex-direction: column;
+  width: $row-identifier-width;
+  max-width: $row-identifier-width;
+  height: 100%;
+  color: $editor-primary-property-text;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: bold;
+  overflow: hidden;
+  text-align: right;
+  padding-right: $inspector-element-padding;
+  padding-left: $inspector-element-padding;
+  margin-top: 3px;
+}
+.inspector-row-identifier:first-child {
+  padding-left: 0;
 }
 
-.inspector-input-container {
+.inspector-small-input-container {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  width: 100%;
+  width: #{$small-input-width};
+  min-width: 30px;
   height: 90%;
-  margin-left: $input-container-margin;
+  //padding-right: $inspector-element-padding;
+  padding-left: $inspector-element-padding;
+}
+.inspector-small-input-container:last-child {
+  padding-right: 0;
 }
 
-.inspector-dual-input-container {
-  display: flex;
-  align-items: center;
-  width: 60%;
-  height: 90%;
-  margin-left: $input-container-margin;
+.inspector-medium-input-container {
+  width: $medium-input-width;
+  padding-right: 0;
+  padding-left: $inspector-element-padding;
+
+}
+
+.inspector-large-input-container {
+  width: $large-input-width;
+  padding-right: 0;
+  padding-left: $inspector-element-padding;
+
 }
 
 .inspector-input-element {
   display: inline-block;
   height: 100%;
-}
-
-.single-input-element {
-  width: $single-input-size;
-}
-
-.double-input-element {
-  width: $double-input-unit-width;
-}
-
-.input-divider {
-  color: $interface-primary-text;
-  width: $double-input-divider-width;
-  text-align: center;
-}
-
-.double-input {
-  height: 100%;
-  display: flex;
+  width: 100%;
 }
