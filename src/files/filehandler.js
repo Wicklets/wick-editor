@@ -23,19 +23,54 @@
  * can be overridden in order to change the saving properties based
  * on the platform.
  * 
- * By default, files are saved in accordance with browser-based file 
+ * If not default handlers are defined, they are defaulted to the 
+ * functions below. Files are saved in accordance with browser-based file 
  * saving libraries.
  */
 
 import { saveAs } from 'file-saver';
 
 export default function initializeDefaultFileHandlers () {
-    window.saveFileFromWick = (file, name) => {
-        saveAs(file, name);
+
+    if (!window.saveFileFromWick) {
+        /**
+         * Attempts to save a file to the device. 
+         * @param {*} file File to save.
+         * @param {*} name Name of file to save, including extension.
+         */
+        window.saveFileFromWick = (file, name) => {
+            saveAs(file, name);
+        }
     }
 
-    
+    if (!window.createFileInput) {
+        /**
+         * Creates a hidden input on the document. Returns a callback that can be used to
+         * activate the input.
+         * 
+         * @param args {object} takes 
+         *  @param onChange {function} function to call when change occurs.
+         *  @param multiple {boolean}  if true, allows multiple elements to be chosen at once.
+         *  @param accept   {string}   a comma separated string of file types to accept. 
+         *                             Accepts all files if not privided.
+         */
+
+        window.createFileInput = (args) => {
+            let onChange = args.onChange || (() => {console.log("Updating Chosen Element")});
+            let input = document.createElement('input');
+            input.type= 'file';
+            input.style.display = 'none';
+            args.accept && (input.accept = args.accept);
+            input.onchange = onChange;
+            args.multiple && (input.multiple = "multiple");
+            input.className="wick-editor-hidden-file-input";
+
+            function clickInput () {
+                input.click();
+            }
+
+            return clickInput;
+        }
+    }
 }
-
-
 
