@@ -20,7 +20,6 @@
 import { Component } from 'react';
 import * as urlParse from 'url-parse/dist/url-parse';
 import queryString from 'query-string';
-import { saveAs } from 'file-saver';
 import VideoExport from './export/VideoExport';
 import GIFExport from './export/GIFExport';
 import GIFImport from './import/GIFImport';
@@ -909,7 +908,9 @@ class EditorCore extends Component {
       this.updateToast(toastID, {
         type: 'success',
         text: "Successfully saved .wick file." });
-      saveAs(file, this.project.name + timeStamp() + '.wick');
+
+      const projectFileName = this.project.name + timeStamp() + '.wick'
+      window.saveFileFromWick(file, projectFileName);
       this.hideWaitOverlay();
     });
   }
@@ -942,7 +943,8 @@ class EditorCore extends Component {
     }
 
     let onFinish = (gifBlob) => {
-      saveAs(gifBlob, outputName + '.gif');
+      const gifFileName = outputName + '.gif';
+      window.saveFileFromWick(gifBlob, gifFileName);
       this.updateToast(toastID, {
         type: 'success',
         text: "Successfully created .gif file." });
@@ -994,7 +996,7 @@ class EditorCore extends Component {
       this.updateToast(toastID, {
         type: 'success',
         text: "Successfully created image sequence." });
-      saveAs(sequenceBlobZip, this.project.name +'_imageSequence.zip');
+      window.saveFileFromWick(sequenceBlobZip, this.project.name +'_imageSequence.zip');
       this.setState({
         exporting: false,
       })
@@ -1092,7 +1094,7 @@ class EditorCore extends Component {
       this.updateToast(toastID, {
         type: 'success',
         text: "Successfully saved .wick file." });
-        saveAs(file, this.project.name + timeStamp() + '.svg');
+        window.saveFileFromWick(file, this.project.name + timeStamp() + '.svg');
         this.hideWaitOverlay();
     }
 
@@ -1114,7 +1116,7 @@ class EditorCore extends Component {
       this.updateToast(toastID, {
         type: 'success',
         text: "Successfully created .zip file." });
-      saveAs(blob, outputName + '.zip');
+      window.saveFileFromWick(blob, outputName + '.zip');
     });
   }
 
@@ -1128,7 +1130,7 @@ class EditorCore extends Component {
       this.updateToast(toastID, {
         type: 'success',
         text: "Successfully created .html file." });
-      saveAs(new Blob([html], {type: "text/plain"}), outputName + '.html');
+      window.saveFileFromWick(new Blob([html], {type: "text/plain"}), outputName + '.html');
     });
   }
 
@@ -1139,7 +1141,7 @@ class EditorCore extends Component {
     AudioExport.generateAudioFile({
       project: this.project,
     }).then((result) => {
-      saveAs(new Blob([result]), 'audiotrack.wav');
+      window.saveFileFromWick(new Blob([result]), 'audiotrack.wav');
     });
   }
 
@@ -1555,7 +1557,7 @@ class EditorCore extends Component {
       if(!(clip instanceof window.Wick.Clip)) return;
 
       window.Wick.WickObjectFile.toWickObjectFile(clip, 'blob', file => {
-          window.saveAs(file, (clip.identifier || 'object') + '.wickobj');
+          window.saveFileFromWick(file, (clip.identifier || 'object') + '.wickobj');
       });
   }
 

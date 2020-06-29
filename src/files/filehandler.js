@@ -17,19 +17,25 @@
  * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import Editor from './Editor/Editor';
-import * as serviceWorker from './serviceWorker';
-import initializeDefaultFileHandlers from './files/filehandler';
 
-// Creates file handlers in the window.
-initializeDefaultFileHandlers();
+/**
+ * filesave.js creates several global save functions in the window that 
+ * can be overridden in order to change the saving properties based
+ * on the platform.
+ * 
+ * By default, files are saved in accordance with browser-based file 
+ * saving libraries.
+ */
 
-ReactDOM.render(<Editor />, document.getElementById('root'));
+import { saveAs } from 'file-saver';
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: http://bit.ly/CRA-PWA
-serviceWorker.unregister();
+export default function initializeDefaultFileHandlers () {
+    window.saveFileFromWick = (file, name) => {
+        saveAs(file, name);
+    }
+
+    
+}
+
+
+
