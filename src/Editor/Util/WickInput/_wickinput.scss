@@ -19,7 +19,7 @@
 
 @import 'Editor/_wickbrand.scss';
 
-$numeric-input-background: #DBDBDB;
+$numeric-input-background: $editor-text-input-background;
 
 .wick-input-container {
   width: 100%;
@@ -33,7 +33,7 @@ $numeric-input-background: #DBDBDB;
   border-radius: $interface-input-roundness;
   border: none;
   background-color: $editor-text-input-background;
-  color: $editor-text-input-text;
+  color: white;
 }
 
 .wick-input-invalid {
@@ -51,7 +51,7 @@ $numeric-input-background: #DBDBDB;
   border-radius: $interface-input-roundness;
   border: none;
   background-color: $numeric-input-background;
-  color: black;
+  color: white;
   //border: $editor-input-border-width solid $editor-primary-outline;
   font-size: 14px;
 }

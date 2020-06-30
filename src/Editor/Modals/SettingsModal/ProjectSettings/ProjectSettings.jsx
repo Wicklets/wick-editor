@@ -168,12 +168,12 @@ class ProjectSettings extends Component {
   renderNameObject = () => {
     return (
       <div className="project-setting-element">
-        <div className="project-settings-property-label">
+        <label htmlFor="project name" className="project-settings-property-label">
           Name
-        </div>
+        </label>
         <div className="project-settings-property-container">
           <WickInput
-              id="projectName"
+              id="project name"
               type="text"
               value={this.state.name}
               placeholder={this.defaultName}
@@ -187,12 +187,12 @@ class ProjectSettings extends Component {
   renderFramerateObject = () => {
     return (
       <div className="project-setting-element">
-        <div className="project-settings-property-label">
+        <label htmlFor="project framerate" className="project-settings-property-label">
         Framerate (FPS)
-        </div>
+        </label>
         <div className="project-settings-property-container">
           <WickInput
-          id="projectFramerate"
+          id="project framerate"
           type="numeric"
           min={this.projectMinFramerate}
           value={this.state.framerate}
@@ -207,11 +207,11 @@ class ProjectSettings extends Component {
       <div className="project-setting-element">
         <div className="project-settings-property-container project-settings-size-input-container">
           <span>
-            <div className="project-settings-property-label">
+            <label htmlFor="project width" className="project-settings-property-label">
               Width (px)
-            </div>
+            </label>
             <WickInput
-            id="projectWidth"
+            id="project width"
             type="numeric"
             min={this.projectMinWidth}
             value={this.state.width}
@@ -221,11 +221,11 @@ class ProjectSettings extends Component {
           </span>
           <span><div className="project-settings-split">x</div></span>
           <span>
-            <div className="project-settings-property-label">
+            <label htmlFor="project height" className="project-settings-property-label">
               Height (px)
-            </div>
+            </label>
             <WickInput
-              id="projectHeight"
+              id="project height"
               type="numeric"
               min={this.projectMinHeight}
               value={this.state.height}
@@ -241,9 +241,9 @@ class ProjectSettings extends Component {
   renderBackgroundColorObject = () => {
     return (
       <div className="project-setting-element">
-        <div className="project-settings-property-label">
+        <label htmlFor="project-background-color-picker" className="project-settings-property-label">
           Background Color
-        </div>
+        </label>
         <div className="project-settings-property-container">
           <WickInput
             type="color"
@@ -275,6 +275,7 @@ class ProjectSettings extends Component {
         {this.presets.map((preset,i) => {
           return (
             <ActionButton
+            buttonProps={{"aria-labelledby": "resolution presets"}}
             key={"preset" + i}
             className="project-settings-modal-preset"
             text={preset.name}
@@ -290,9 +291,9 @@ class ProjectSettings extends Component {
   renderPresets = () => {
     return (
       <div className="project-setting-element project-settings-presets-container">
-        <div className="project-settings-property-label">
+        <label id="resolution presets" className="project-settings-property-label">
           Presets
-        </div>
+        </label>
         <div className="project-settings-presets-body-container">
           {this.renderPresetBoxes()}
         </div>

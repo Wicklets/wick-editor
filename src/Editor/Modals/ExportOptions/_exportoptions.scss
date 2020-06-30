@@ -31,7 +31,7 @@ $info-left-margin: 12px;
 }
 
 .export-modal-body.advanced-options {
-  height: 400px; 
+  height: 420px; 
 }
 
 #export-modal-title {
@@ -138,12 +138,20 @@ $info-left-margin: 12px;
   flex-direction: row;
   align-items: center;
 }
+.export-modal-resolution-label {
+  text-align: left;
+  color: $editor-modal-text-gray; 
+  margin-bottom: 4px;
+}
 
 .export-modal-resolution-input-container {
+  text-align: left;
+  height: 25px;
   width: 50%;
 }
 
 .export-modal-resolution-dropdown-container {
+  vertical-align: middle;
   width: 50%;
 }
 
@@ -155,8 +163,8 @@ $info-left-margin: 12px;
 }
 
 .export-modal-x-symbol {
-  text-align: center;
-  vertical-align: center;
-  margin-left: 4px;
-  margin-right: 4px;
+  padding-top: 150%;
+  padding-left: 5px; 
+  padding-right: 5px;
+  color: $editor-modal-text-gray;
 }

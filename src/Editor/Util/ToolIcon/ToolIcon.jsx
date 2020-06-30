@@ -77,7 +77,6 @@ import iconSubtract from 'resources/tool-icons/subtract.svg';
 import iconIntersect from 'resources/tool-icons/intersect.svg';
 import iconUnite from 'resources/tool-icons/unite.svg';
 
-
 // Assets
 import iconImage from 'resources/tool-icons/image.svg';
 import iconGear from 'resources/tool-icons/settings.svg';
@@ -124,6 +123,8 @@ import iconCircle from 'resources/tool-icons/circle.svg';
 import iconCloseTab from 'resources/tool-icons/closetab.svg';
 import iconWarningDelete from 'resources/interface-images/warning_delete.svg';
 import iconOutliner from 'resources/interface/gnurl.svg';
+import iconPlay from 'resources/interface/play.svg';
+import iconPause from 'resources/interface/pause.svg';
 
 // Timeline
 import iconLock from 'resources/tool-icons/lock.svg';
@@ -248,6 +249,8 @@ class ToolIcon extends Component {
       "brushmodeinside": iconBrushModeInside,
       "brushmodeoutside": iconBrushModeOutside,
       "outliner": iconOutliner,
+      "play": iconPlay,
+      "pause": iconPause,
     }
   }
 

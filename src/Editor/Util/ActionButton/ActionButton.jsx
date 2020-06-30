@@ -45,6 +45,7 @@ class ActionButton extends Component {
     return (
       <div className={newClassName}>
         <WickInput
+          buttonProps={this.props.buttonProps}
           tooltip={this.props.tooltip}
           tooltipID={tooltipID}
           tooltipPlace={this.props.tooltipPlace}

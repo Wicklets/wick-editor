@@ -50,7 +50,7 @@ class ColorPicker extends Component {
   }
 
   render() {
-    let itemID = this.props.id + '-button';
+    let itemID = this.props.id;
     return(
       <button
         className={"btn-color-picker"}

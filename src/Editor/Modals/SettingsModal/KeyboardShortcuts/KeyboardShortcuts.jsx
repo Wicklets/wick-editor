@@ -55,7 +55,7 @@ class KeyboardShortcuts extends Component {
   }
 
   // Creates the key icons to show on each row.
-  makeKey = (sequence) => {
+  makeKey = (sequence, labelledby) => {
     if (sequence === undefined) {
       sequence = '';
     } else if (typeof sequence === 'object') {
@@ -69,7 +69,7 @@ class KeyboardShortcuts extends Component {
 
     // Adds plus signs to keys that are not the last key...
     return (
-      <button className="keyboard-shortcut-key">
+      <button aria-labelledby={labelledby} className="keyboard-shortcut-key">
         {sequenceItems.map((key,i) => {
           return (
             <span key={"keyboard-commands-" + key + i} className="keyboard-shortcuts-key-icon-container">
@@ -162,7 +162,7 @@ class KeyboardShortcuts extends Component {
 
     return (
       <tr className="keyboard-shortcuts-modal-row" key={name}>
-        <td className="hotkey-action-column">
+        <td id={name} className="hotkey-action-column">
           { name }
         </td>
         <td className={classNames("hotkey-column", 
@@ -171,8 +171,8 @@ class KeyboardShortcuts extends Component {
             onClick={() => this.beginEdit(actionName, 0)}>
           { // Displays edited action if it exists...
             action0.edited ? 
-                this.makeKey(action0.edited.sequence) :
-                this.makeKey(sequence1)
+                this.makeKey(action0.edited.sequence, name) :
+                this.makeKey(sequence1, name)
           }
         </td>
         <td className={classNames("hotkey-column",
@@ -181,8 +181,8 @@ class KeyboardShortcuts extends Component {
             onClick={() => this.beginEdit(actionName, 1)}>
             { // Displays edited action if it exists...
               action1.edited ? 
-                  this.makeKey(action1.edited.sequence) :
-                  this.makeKey(sequence2)
+                  this.makeKey(action1.edited.sequence, name) :
+                  this.makeKey(sequence2, name)
             }
         </td>
       </tr>

@@ -168,6 +168,7 @@ class WickInput extends Component {
     let value = this.props.options[this.props.options.map((object) => {return object.value;}).indexOf(this.props.value)];
     return (
       <Select
+        id={this.props.id}
         onChange={this.props.onChange}
         defaultValue={value}
         options={this.props.options}
@@ -176,7 +177,7 @@ class WickInput extends Component {
           let style = {
             ...provided,
             color: "black", 
-            fontSize: "14px",
+            fontSize: "16px",
             height: "26px",
             paddingTop: "0px",
             whiteSpace: "nowrap",
@@ -189,7 +190,7 @@ class WickInput extends Component {
         control: () => {
           let style = {
             color: "black",
-            fontSize: "14px",
+            fontSize: "16px",
             backgroundColor: "white",
             display: "flex", 
             height: "26px"
@@ -234,6 +235,7 @@ class WickInput extends Component {
   renderButton = () => {
     return (
       <button
+        {...this.props.buttonProps}
         onClick={this.props.onClick}
         className={classNames("wick-button ", this.props.className)}>
         {this.props.children}

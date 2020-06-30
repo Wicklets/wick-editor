@@ -21,6 +21,8 @@ import React, { Component } from 'react';
 import './_inspectorpreview.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+import AudioPlayer from 'Editor/Util/AudioPlayer/AudioPlayer';
+
 class InspectorPreview extends Component {
 
   render() {
@@ -33,13 +35,7 @@ class InspectorPreview extends Component {
     } else if (this.props.info.type === 'sound') {
       return (
         <div className="inspector-sound-preview-container">
-          <audio
-            className="inspector-sound-preview"
-            controls
-            src={this.props.info.src}>
-                Your browser does not support the
-                <code>audio</code> element.
-          </audio>
+          <AudioPlayer key={Math.random()} src={this.props.info.src}/>
         </div>
       );
     } else {

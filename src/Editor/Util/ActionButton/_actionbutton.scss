@@ -149,11 +149,6 @@ $action-button-transition-duration: .2s;
   color: $wick-yellow-text;
 }
 
-.action-button-gray {
-  background-color: #888888;
-  color: #000000;
-}
-
 .action-button-tool {
   -webkit-transition-duration: $action-button-transition-duration; /* Safari */
   transition-duration: $action-button-transition-duration;

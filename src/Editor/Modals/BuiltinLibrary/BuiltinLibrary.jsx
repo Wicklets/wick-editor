@@ -22,6 +22,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import WickModal from 'Editor/Modals/WickModal/WickModal';
 import TabbedInterface from 'Editor/Util/TabbedInterface/TabbedInterface';
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
+import AudioPlayer from 'Editor/Util/AudioPlayer/AudioPlayer';
 
 import wickobjects from './wickobjects.js'
 import sounds from './sounds.js'
@@ -29,6 +30,12 @@ import sounds from './sounds.js'
 import './_builtinlibrary.scss';
 
 class BuiltinLibrary extends Component {
+  constructor (props) {
+    super(props);
+
+    this.toPlay = null;
+  }
+
   static get ROOT_ASSET_PATH () {
     return process.env.PUBLIC_URL + '/builtinlibrary/';
   }
@@ -122,11 +129,10 @@ class BuiltinLibrary extends Component {
   }
 
   renderSoundAsset = (asset) => {
-    let src = undefined, MIMEType = undefined;
+    let src = undefined;
 
     if (this.props.builtinPreviews[asset.file]) {
       src = this.props.builtinPreviews[asset.file].src;
-      MIMEType = src.split(':')[1].split(',')[0].split(';')[0];
     }
 
     return (
@@ -135,22 +141,13 @@ class BuiltinLibrary extends Component {
           {asset.name}
         </div>
 
-        {src ? 
-          <audio controls
-          ref="audio"
-          className="audio-preview"
-          onCanPlay={() => console.log("dingus")}
-          >
-            <source src={src} type={MIMEType}/>
-          </audio>
-        :
-          <ActionButton 
-          className="preview-sound-button"
-          action={() => this.importForPreview(asset)}
-          color="sky"
-          icon="sound"
-          />
-        }
+        <div className="audio-preview">
+        <AudioPlayer 
+          key={asset.file}
+          src={src}
+          loadSrc={() => this.importForPreview(asset, () => {})}
+        />
+        </div>
 
         {this.props.isAssetInLibrary(asset.file.split("/").pop()) ?
           <ActionButton

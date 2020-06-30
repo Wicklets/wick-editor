@@ -165,6 +165,9 @@ class ExportOptions extends Component {
   }
 
   renderAdvancedOptions = () => {
+    let optionsValues = Object.keys(this.advancedSizes).concat([this.customSizeTag]);
+    let options = optionsValues.map((val) => {return {label: val, value: val}});
+
     return (
       <div className="export-modal-advanced-options">
         <div className="export-modal-advanced-checkbox-container">
@@ -177,36 +180,44 @@ class ExportOptions extends Component {
         {this.state.useAdvanced &&
           <div className="export-modal-advanced-options-content">
 
-          <div className="export-modal-advanced-option-title">
+          <label htmlFor="resolution" className="export-modal-advanced-option-title">
             Resolution
-          </div>
+          </label>
 
           <div className="export-modal-resolution-inputs">
             <div className="export-modal-resolution-dropdown-container">
               <WickInput
+                inputProps={{id: "resolution"}}
                 type="select"
                 value={this.state.exportResolution}
-                options={Object.keys(this.advancedSizes).concat([this.customSizeTag])}
+                options={options}
                 onChange={(val) => {this.updateExportResolutionType(val)}} />
             </div>
+
             <div className="export-modal-resolution-inputs-container">
-              <div className="export-modal-resolution-input-container">
+              <span className="export-modal-resolution-input-container">
+                <label htmlFor="export width" className="export-modal-resolution-label">
+                  Width (px)
+                </label>
                 <WickInput
-                  type="numeric"
-                  value={this.state.exportWidth}
-                  onChange={(val) => {this.updateExportSize(val, this.state.exportHeight)}}
-                  />
-              </div>
-              <div className="export-modal-x-symbol">
-                x
-              </div>
-              <div className="export-modal-resolution-input-container">
+                id="export width"
+                type="numeric"
+                value={this.state.exportWidth}
+                onChange={(val) => {this.updateExportSize(val, this.state.exportWidth)}}
+                />
+              </span>
+              <span><div className="export-modal-x-symbol">x</div></span>
+              <span className="export-modal-resolution-input-container">
+                <label htmlFor="export height" className="export-modal-resolution-label">
+                  Height (px)
+                </label>
                 <WickInput
-                  type="numeric"
-                  value={this.state.exportHeight}
-                  onChange={(val) => {this.updateExportSize(this.state.exportWidth, val)}}
-                  />
-              </div>
+                id="export height"
+                type="numeric"
+                value={this.state.exportHeight}
+                onChange={(val) => {this.updateExportSize(this.state.exportHeight, val)}}
+                />
+              </span>
             </div>
           </div>
         </div>

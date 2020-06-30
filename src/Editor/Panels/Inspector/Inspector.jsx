@@ -389,7 +389,7 @@ class Inspector extends Component {
     return (
       <div className="inspector-item">
         <InspectorNumericInput
-          tooltip="Frame Length"
+          tooltip="Length"
           val={this.getSelectionAttribute('frameLength')}
           onChange={(val) => this.setSelectionAttribute('frameLength', val)}
           id="inspector-frame-length" />
