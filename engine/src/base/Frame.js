@@ -506,7 +506,7 @@ Wick.Frame = class extends Wick.Tickable {
     /**
      * Get the tween at the given playhead position. Returns null if there is no tween.
      * @param {number} playheadPosition - the playhead position to look for tweens at.
-     * @returns {Wick.Tween} the tween at the given playhead position.
+     * @returns {Wick.Tween || null} the tween at the given playhead position.
      */
     getTweenAtPosition(playheadPosition) {
         return this.tweens.find(tween => {
@@ -515,8 +515,17 @@ Wick.Frame = class extends Wick.Tickable {
     }
 
     /**
+     * Returns the tween at the current playhead position, if one exists on the frame. Null otherwise.
+     * @returns {Wick.Tween || null}
+     */
+    getTweenAtCurrentPlayheadPosition() {
+        let playheadPosition = this.getRelativePlayheadPosition();
+        return this.getTweenAtPosition(playheadPosition);
+    }
+
+    /**
      * The tween being used to transform the objects on the frame.
-     * @returns {Wick.Tween} tween - the active tween. Null if there is no active tween.
+     * @returns {Wick.Tween || null} tween - the active tween. Null if there is no active tween.
      */
     getActiveTween() {
         if (!this.parentTimeline) return null;
@@ -532,7 +541,7 @@ Wick.Frame = class extends Wick.Tickable {
         var seekForwardsTween = this.seekTweenInFront(playheadPosition);
 
         if (seekBackwardsTween && seekForwardsTween) {
-            return Wick.Tween.interpolate(seekBackwardsTween, seekForwardsTween, playheadPosition);
+           return Wick.Tween.interpolate(seekBackwardsTween, seekForwardsTween, playheadPosition);
         } else if (seekForwardsTween) {
             return seekForwardsTween;
         } else if (seekBackwardsTween) {

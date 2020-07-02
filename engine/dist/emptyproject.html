@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.6.19.12.13.2";
+var WICK_ENGINE_BUILD_VERSION = "2020.7.2.14.55.1";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -45876,7 +45876,6 @@ Wick.History = class {
 
     this._recoverState(currentState);
 
-    console.log(this._undoStack);
     return true;
   }
   /**
@@ -52746,7 +52745,7 @@ Wick.Tween = class extends Wick.Base {
     if (!args) args = {};
     super(args);
     this._playheadPosition = args.playheadPosition || 1;
-    this.transformation = args.transformation || new Wick.Transformation();
+    this._transformation = args.transformation || new Wick.Transformation();
     this.fullRotations = args.fullRotations === undefined ? 0 : args.fullRotations;
     this.easingType = args.easingType || 'none';
     this._originalLayerIndex = -1;
@@ -52798,7 +52797,7 @@ Wick.Tween = class extends Wick.Base {
     var data = super._serialize(args);
 
     data.playheadPosition = this.playheadPosition;
-    data.transformation = this.transformation.values;
+    data.transformation = this._transformation.values;
     data.fullRotations = this.fullRotations;
     data.easingType = this.easingType;
     data.originalLayerIndex = this.layerIndex !== -1 ? this.layerIndex : this._originalLayerIndex;
@@ -52809,7 +52808,7 @@ Wick.Tween = class extends Wick.Base {
     super._deserialize(data);
 
     this.playheadPosition = data.playheadPosition;
-    this.transformation = new Wick.Transformation(data.transformation);
+    this._transformation = new Wick.Transformation(data.transformation);
     this.fullRotations = data.fullRotations;
     this.easingType = data.easingType;
     this._originalLayerIndex = data.originalLayerIndex;
@@ -52826,6 +52825,19 @@ Wick.Tween = class extends Wick.Base {
 
   set playheadPosition(playheadPosition) {
     this._playheadPosition = playheadPosition;
+  }
+  /**
+   * The transformation representing the position, rotation and other elements of the tween.
+   * @type {object} 
+   */
+
+
+  get transformation() {
+    return this._transformation;
+  }
+
+  set transformation(transformation) {
+    this._transformation = transformation;
   }
   /**
    * The type of interpolation to use for easing.
@@ -55804,7 +55816,7 @@ Wick.Frame = class extends Wick.Tickable {
   /**
    * Get the tween at the given playhead position. Returns null if there is no tween.
    * @param {number} playheadPosition - the playhead position to look for tweens at.
-   * @returns {Wick.Tween} the tween at the given playhead position.
+   * @returns {Wick.Tween || null} the tween at the given playhead position.
    */
 
 
@@ -55814,8 +55826,18 @@ Wick.Frame = class extends Wick.Tickable {
     }) || null;
   }
   /**
+   * Returns the tween at the current playhead position, if one exists on the frame. Null otherwise.
+   * @returns {Wick.Tween || null}
+   */
+
+
+  getTweenAtCurrentPlayheadPosition() {
+    let playheadPosition = this.getRelativePlayheadPosition();
+    return this.getTweenAtPosition(playheadPosition);
+  }
+  /**
    * The tween being used to transform the objects on the frame.
-   * @returns {Wick.Tween} tween - the active tween. Null if there is no active tween.
+   * @returns {Wick.Tween || null} tween - the active tween. Null if there is no active tween.
    */
 
 
@@ -56564,7 +56586,9 @@ Wick.Clip = class extends Wick.Tickable {
     this._transformation = transformation; // When the transformation changes, update the current tween, if one exists
 
     if (this.parentFrame) {
-      var tween = this.parentFrame.getActiveTween();
+      // This tween must only ever be the tween over the current playhead position.
+      // Altering the active tween will overwrite tweens when moving between frames.
+      var tween = this.parentFrame.getTweenAtCurrentPlayheadPosition();
 
       if (tween) {
         tween.transformation = this._transformation.copy();
