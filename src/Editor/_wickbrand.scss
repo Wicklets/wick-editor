@@ -106,7 +106,7 @@ $flame-text: white;
 $wick-red: #FD384C;
 $wick-red-light: #FF5372;
 $wick-red-dark: #E61E07;
-$wick-red-text: white;
+$wick-red-text: black;
 
 $wick-yellow: #FFC835;
 $wick-yellow-light: #FFE243;
@@ -217,6 +217,10 @@ a:hover {
   background-color: rgba(0,0,0,0.6);
 }
 
+.mobile-menu-overlay {
+  background-color: rgba(48, 48, 48, 0.95);
+}
+
 .wick-brand-arrow {
   border: solid $wick-green;
   border-width: 0 3px 3px 0;
@@ -290,4 +294,13 @@ $docked-margin: 6px;
 // Export some colors to be used in JS in some places (canvas, timeline)
 :export {
   editorCanvasBorder: $editor-canvas-border;
+}
+
+.popover .arrow {
+  display: none;
+  height: 0;
+}
+.bs-popover-bottom {
+  margin-top: 2px;
+  margin-left: 2px;
 }

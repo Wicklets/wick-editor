@@ -1,9 +1,22 @@
 @import 'Editor/_wickbrand.scss';
 
 .toolbox-break {
+  height: 70%;
   width: 3px;
   min-width: 3px;
   background-color: $editor-primary-outline;
   margin-left: 8px;
   margin-right: 8px;
+}
+.toolbox-break-vertical {
+  width: 25px;
+  height: 3px;
+  min-height: 3px;
+  background-color: $editor-primary-outline;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+.toolbox-break.mobile {
+  margin-left: 4px;
+  margin-right: 4px;
 }

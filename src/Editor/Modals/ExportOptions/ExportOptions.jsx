@@ -172,7 +172,7 @@ class ExportOptions extends Component {
             type="checkbox"
             checked={this.state.useAdvanced}
             onChange={this.toggleAdvancedOptionsCheckbox}
-            label="Use Advanced Options"/>
+            label="Resolution Options"/>
         </div>
         {this.state.useAdvanced &&
           <div className="export-modal-advanced-options-content">
@@ -219,8 +219,8 @@ class ExportOptions extends Component {
   renderAnimatedInfo = () => {
     return (
       <div>
-        <div className="export-info-container">
-          <div className="export-info-item">
+        <div className={classNames("export-info-container", this.props.isMobile && "mobile")}>
+          <div className={classNames("export-info-item", this.props.isMobile && "mobile")}>
             <ObjectInfo
               className="export-object-info"
               title="Animated GIF"
@@ -237,7 +237,7 @@ class ExportOptions extends Component {
                 />
             </div>
           </div>
-          <div className="export-info-item">
+          <div className={classNames("export-info-item", this.props.isMobile && "mobile")}>
             <ObjectInfo
               className="export-object-info"
               title="Video (Beta)"
@@ -309,8 +309,8 @@ class ExportOptions extends Component {
     renderImageInfo = () => {
       return (
         <div>
-          <div className="export-info-container">
-            <div className="export-info-item">
+          <div className={classNames("export-info-container", this.props.isMobile && "mobile")}>
+            <div className={classNames("export-info-item", this.props.isMobile && "mobile")}>
               <ObjectInfo
                 className="export-object-info"
                 title="Image Sequence"
@@ -336,7 +336,7 @@ class ExportOptions extends Component {
                 />
               </div>
             </div>
-            <div className="export-info-item">
+            <div className={classNames("export-info-item", this.props.isMobile && "mobile")}>
               <ObjectInfo
                 className="export-object-info"
                 title="Image SVG"
@@ -374,7 +374,7 @@ class ExportOptions extends Component {
         <div className="wide-export-info-item">
           <ObjectInfo
             className="export-object-info"
-            title="Audio Track"
+            title="Audio"
             rows={[
               {
                 text: "Creates a .wav file of all audio in the project",
@@ -389,7 +389,7 @@ class ExportOptions extends Component {
           <ActionButton
             color='gray-green'
             action={() => { this.createAndToggle('AUDIO_TRACK') }}
-            text="Export Audio Track"
+            text="Export Audio"
             />
           </div>
         </div>
@@ -397,7 +397,7 @@ class ExportOptions extends Component {
     );
   }
 
-  render() {
+  renderDesktop = () => {
     return (
       <WickModal
       open={this.props.open}
@@ -414,7 +414,7 @@ class ExportOptions extends Component {
               placeholder={this.placeholderName} />
           </div>
           <TabbedInterface
-            tabNames={["Animation", "Interactive", "Images", "Audio Track"]}
+            tabNames={["Animation", "Interactive", "Images", "Audio"]}
             onTabSelect={this.setSubTab}>
             {this.renderAnimatedInfo()}
             {this.renderInteractiveInfo()}
@@ -424,6 +424,42 @@ class ExportOptions extends Component {
         </div>
       </WickModal>
     );
+  }
+
+  renderMobile = () => {
+    return (
+      <WickModal
+      open={this.props.open}
+      toggle={this.props.toggle}
+      className={classNames("export-modal-body", {"advanced-options": (this.state.useAdvanced && (this.state.subTab === "Animation" || this.state.subTab === "Images"))}, "mobile")}
+      overlayClassName={classNames("export-modal-overlay", "mobile")}>
+        <div id="export-modal-interior-content">
+          <div id="export-modal-title">Export</div>
+          <div id="export-modal-name-input">
+            <WickInput
+              type="text"
+              value={this.state.name}
+              onChange={this.updateExportName}
+              placeholder={this.placeholderName} />
+          </div>
+          <TabbedInterface
+            tabNames={["Animation", "Images"]}
+            onTabSelect={this.setSubTab}>
+            {this.renderAnimatedInfo()}
+            {this.renderImageInfo()}
+          </TabbedInterface>
+        </div>
+      </WickModal>
+    );
+  }
+
+  render() {
+    if (this.props.isMobile) {
+      return this.renderMobile();
+    }
+    else {
+      return this.renderDesktop();
+    }
   }
 }
 

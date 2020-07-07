@@ -25,7 +25,7 @@ import './_toolboxbreak.scss';
 class ToolboxBreak extends Component {
   render() {
     return (
-      <div className="toolbox-break"></div>
+      <div className={this.props.vertical ? "toolbox-break-vertical" : this.props.className ? this.props.className : "toolbox-break"}></div>
     )
   }
 }

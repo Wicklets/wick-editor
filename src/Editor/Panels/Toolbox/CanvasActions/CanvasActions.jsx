@@ -5,6 +5,8 @@ import ToolboxBreak from '../ToolboxBreak/ToolboxBreak';
 import PopupMenu from 'Editor/Util/PopupMenu/PopupMenu';
 import './_canvasactions.scss';
 
+var classNames = require("classnames");
+
 class CanvasActions extends Component {
   renderActionButton(action) {
     return (
@@ -21,15 +23,15 @@ class CanvasActions extends Component {
 
   renderActions = () => {
     return (
-      <div className='actions-container'>
+      <div className={classNames('actions-container', this.props.renderSize === "small" && "vertical")}>
         {this.renderActionButton(this.props.editorActions.sendToBack)}
         {this.renderActionButton(this.props.editorActions.sendBackward)}
         {this.renderActionButton(this.props.editorActions.sendForward)}
         {this.renderActionButton(this.props.editorActions.sendToFront)}
-        <ToolboxBreak className="toolbox-item"/>
+        <ToolboxBreak vertical={this.props.renderSize === "small"}/>
         {this.renderActionButton(this.props.editorActions.flipHorizontal)}
         {this.renderActionButton(this.props.editorActions.flipVertical)}
-        <ToolboxBreak className="toolbox-item"/>
+        <ToolboxBreak vertical={this.props.renderSize === "small"}/>
         {this.renderActionButton(this.props.editorActions.booleanUnite)}
         {this.renderActionButton(this.props.editorActions.booleanSubtract)}
         {this.renderActionButton(this.props.editorActions.booleanIntersect)}
@@ -45,7 +47,7 @@ class CanvasActions extends Component {
         target="more-canvas-actions-popover-button"
         className={"more-canvas-actions-popover"}
       >
-        <div className="canvas-actions-widget">
+        <div className={classNames("canvas-actions-widget", this.props.renderSize === "small" && "vertical")}>
           {!this.props.previewPlaying && this.renderActions()}
         </div>
       </PopupMenu>

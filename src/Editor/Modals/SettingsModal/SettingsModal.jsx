@@ -26,6 +26,7 @@ import KeyboardShortcuts from './KeyboardShortcuts/KeyboardShortcuts';
 
 import './_settingsmodal.scss';
 
+var classNames = require("classnames");
 
 class SettingsModal extends Component {
   renderProjectSettings = () => {
@@ -46,7 +47,7 @@ class SettingsModal extends Component {
     )
   }
 
-  render() {
+  renderDesktop = () => {
     return (
       <WickModal
       open={this.props.open} 
@@ -86,6 +87,50 @@ class SettingsModal extends Component {
         </div>
       </WickModal>
     );
+  }
+
+  renderMobile = () => {
+    return (
+      <WickModal
+      open={this.props.open} 
+      toggle={this.props.toggle}
+      className={classNames("settings-modal-container", this.props.isMobile && "mobile")}
+      overlayClassName="settings-modal-overlay">
+        <div className="settings-modal-title">
+          Settings
+        </div>
+        <div className="settings-modal-body">
+          <TabbedInterface tabNames={["Project", "Editor"]} >
+            <ProjectSettings
+              isMobile={true}
+              project={this.props.project}
+              updateProjectSettings={this.props.updateProjectSettings}
+              colorPickerType={this.props.colorPickerType}
+              changeColorPickerType={this.props.changeColorPickerType}
+              updateLastColors={this.props.updateLastColors}
+              lastColorsUsed={this.props.lastColorsUsed}/>
+            <EditorSettings 
+              isMobile={true}
+              colorPickerType={this.props.colorPickerType}
+              changeColorPickerType={this.props.changeColorPickerType}
+              updateLastColors={this.props.updateLastColors}
+              lastColorsUsed={this.props.lastColorsUsed}
+              getToolSetting={this.props.getToolSetting}
+              setToolSetting={this.props.setToolSetting}
+              getToolSettingRestrictions={this.props.getToolSettingRestrictions}/>
+          </TabbedInterface>
+        </div>
+      </WickModal>
+    );
+  }
+
+  render() {
+    if (this.props.isMobile) {
+      return this.renderMobile();
+    }
+    else {
+      return this.renderDesktop();
+    }
   }
 }
 

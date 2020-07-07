@@ -19,32 +19,42 @@
 
  @import 'Editor/_wickbrand.scss';
 
- $settings-modal-height: 375px;
- $settings-title-height: 32px;
- $modal-margin: 15px;
- $settings-body-height: $settings-modal-height - $settings-title-height - (2 * $modal-margin);
+.mobile-menu-close {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+}
 
-.settings-modal-title {
-    height: $settings-title-height;
-    min-height: $settings-title-height; 
-    font-size: 18px;
-    color: $editor-modal-text-gray;
-    font-weight: bold; 
+.mobile-menu-close-icon {
+    width: 30px;
+}
+
+.no-bg {
+    background: none;
+}
+
+.mobile-menu-icon {
+    width: 60px;
+    height: 60px;
+    fill: white;
+    margin-left: 20px;
+}
+
+.mobile-menu-options-container {
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    height: calc(100vh - 20px);
+}
+
+.mobile-menu-option-text {
+    font-family: "Nunito";
+    color: white;
+    font-size: 40px;
     text-align: left;
-    width: 100%;
-}
-
-.settings-modal-body {
-    width: 100%;
-    height: $settings-body-height;
-}
-
-.settings-modal-container {
-    width: 500px;
-    height: $settings-modal-height;
-}
-.settings-modal-container.mobile {
-    width: 80%;
-    max-width: 400px;
-    height: 500px;
+    position: relative;
+    left: 10%;
+    width: 70%;
+    height: 60%;
 }

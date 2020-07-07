@@ -23,13 +23,15 @@ import WickModal from 'Editor/Modals/WickModal/WickModal';
 
 import './_opensourcenotices.scss';
 
+var classNames = require("classnames");
+
 class OpenSourceNotices extends Component {
     render () {
         return (
             <WickModal
             open={this.props.open} 
             toggle={this.props.toggle}
-            className="open-source-notices-modal-container"
+            className={classNames("open-source-notices-modal-container", this.props.isMobile && "mobile")}
             overlayClassName="open-source-notices-modal-overlay">
                 <div className="open-source-notices-body">                
                     <h1> Wick Editor Open Source Notices </h1>

@@ -35,7 +35,7 @@
 .editor-settings-row {
   height: 40px;
   color: white;
-  margin-top: 4px; 
+  margin-top: 15px; 
 }
 
 .editor-settings-color-containers-row {
@@ -43,6 +43,10 @@
   flex: 1 1 auto;
   justify-content: space-between;
   height: 30px;
+}
+.editor-settings-color-containers-row.mobile {
+  flex-direction: column;
+  width: 100%;
 }
 
 .editor-settings-color-container {
@@ -54,6 +58,15 @@
   color: $editor-modal-text-gray;
   flex-direction: row;
   margin-left: 4px;
+  margin-bottom: 4px;
+}
+.editor-settings-color-container.mobile {
+  width: 100%;
+}
+
+.backwards-forwards-icon {
+  height: 25px;
+  margin-right: 4px;
 }
 
 .editor-settings-group-title {

@@ -181,11 +181,12 @@ class WickInput extends Component {
     return (
       <div className="wick-checkbox-container">
         {this.props.label && 
-          <div className="wick-checkbox-label">
+          <label id={this.props.label} className="wick-checkbox-label">
             {this.props.label}
-          </div>
+          </label>
         }
         <input 
+          aria-labelledby={this.props.label}
           className="wick-checkbox"
           {...this.props} 
           type="checkbox" />
@@ -206,11 +207,12 @@ class WickInput extends Component {
 
   renderButton = () => {
     return (
-      <div
+      <button
+        onContextMenu={(e) => {e.preventDefault(); this.props.secondaryAction && this.props.secondaryAction()}}
         onClick={this.props.onClick}
         className={classNames("wick-button ", this.props.className)}>
         {this.props.children}
-      </div>
+      </button>
     );
   }
 }

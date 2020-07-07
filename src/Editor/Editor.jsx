@@ -23,8 +23,8 @@ import ReactGA from 'react-ga';
 import './_editor.scss';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-import HTML5Backend from 'react-dnd-html5-backend'
-import { DragDropContext } from "react-dnd";
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { DndProvider } from "react-dnd";
 import 'react-reflex/styles.css'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import { throttle } from 'underscore';
@@ -49,7 +49,6 @@ import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
 import PopOutCodeEditor from './PopOuts/PopOutCodeEditor/PopOutCodeEditor';
 
 import EditorWrapper from './EditorWrapper';
-
 
 var classNames = require('classnames');
 
@@ -649,7 +648,9 @@ class Editor extends EditorCore {
       cancelAction: args.cancelAction || (() => {console.warn("No cancel action implemented.")}),
       finalAction: args.finalAction || (() => {console.warn("No final action implemented.")}),
       acceptText: args.acceptText || "Accept",
+      acceptIcon: args.acceptIcon,
       cancelText: args.cancelText || "Cancel",
+      cancelIcon: args.cancelIcon,
     }
 
     this.setState({
@@ -816,6 +817,7 @@ class Editor extends EditorCore {
     let renderSize = this.getRenderSize();
 
     return (
+      <DndProvider backend={HTML5Backend}>
       <EditorWrapper editor={this}>
         {/* Menu Bar */}
 
@@ -823,6 +825,7 @@ class Editor extends EditorCore {
           {/* Header */}
           <DockedPanel showOverlay={this.state.previewPlaying}>
             <MenuBar
+              renderSize={renderSize}
               openModal={this.openModal}
               projectName={this.project.name}
               openProjectFileDialog={this.openProjectFileDialog}
@@ -830,7 +833,7 @@ class Editor extends EditorCore {
               exportProjectAsWickFile={this.exportProjectAsWickFile}
               importProjectAsWickFile={this.importProjectAsWickFile}
               exporting={this.state.exporting}
-              toast={this.toast}
+              toast={this.toast} 
               openExportMedia={() => {this.openModal('ExportMedia')}}
               openExportOptions={() => {this.openModal('ExportOptions')}}
             />
@@ -889,6 +892,7 @@ class Editor extends EditorCore {
                           onRef={ref => this.canvasComponent = ref}
                         />
                         <CanvasTransforms
+                          renderSize={renderSize}
                           onionSkinEnabled={this.project.onionSkinEnabled}
                           toggleOnionSkin={this.toggleOnionSkin}
                           zoomIn={this.zoomIn}
@@ -1010,8 +1014,9 @@ class Editor extends EditorCore {
             />}
         </div>
       </EditorWrapper>
+      </DndProvider>
       )
     }
   }
 
-export default DragDropContext(HTML5Backend)(Editor)
+export default Editor

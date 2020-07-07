@@ -48,6 +48,16 @@
   flex-direction: row;
 }
 
+.project-settings-size-input-container.mobile {
+  margin-bottom: 4px;
+}
+
+.mobile-size {
+  width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
 #project-settings-modal-interior-content {
   display: flex;
   flex-direction: column;
@@ -76,16 +86,22 @@
   flex-direction: row;
  }
 
- #project-settings-modal-cancel {
+ .project-settings-modal-cancel {
    width: 80px; 
    height: 100%; 
  }
+ .project-settings-modal-cancel.mobile {
+    width: calc(50% - 8px);
+ }
  
- #project-settings-modal-accept {
+ .project-settings-modal-accept {
    width: 80px;
    height: 100%; 
    margin-left: 8px;
  } 
+ .project-settings-modal-accept.mobile {
+   width: calc(50% - 8px);
+ }
  
 .project-settings-modal-row {
   display: flex;
@@ -101,6 +117,9 @@
   width: 47.5%;
   margin-right: 5%;
   margin-top: 15px; 
+}
+.project-setting-element.mobile {
+  width: 100%;
 }
 
 .project-setting-element:last-child {

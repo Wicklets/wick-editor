@@ -22,6 +22,11 @@ import React, { Component } from 'react';
 import './_editorsettings.scss';
 import WickInput from 'Editor/Util/WickInput/WickInput';
 
+import iconBackwards from 'resources/timeline-icons/backwards.svg';
+import iconForwards from 'resources/timeline-icons/forwards.svg';
+
+var classNames = require("classnames");
+
 class EditorSettings extends Component {
   constructor () {
     super();
@@ -48,9 +53,9 @@ class EditorSettings extends Component {
             this.props.getToolSetting('onionSkinStyle') !== 'standard' &&
             <div className="editor-settings-row">
               Outline Colors:
-              <div className="editor-settings-color-containers-row">
-                <div className="editor-settings-color-container">
-                  B:
+              <div className={classNames("editor-settings-color-containers-row", this.props.isMobile && "mobile")}>
+                <div className={classNames("editor-settings-color-container", this.props.isMobile && "mobile")}>
+                  <img className="backwards-forwards-icon" alt="Backwards" src={iconBackwards}/>
 
                   <WickInput
                   type="color"
@@ -65,8 +70,8 @@ class EditorSettings extends Component {
                   lastColorsUsed={this.props.lastColorsUsed} />
                 </div>
 
-                <div className="editor-settings-color-container">
-                  F:
+                <div className={classNames("editor-settings-color-container", this.props.isMobile && "mobile")}>
+                  <img className="backwards-forwards-icon" alt="Forwards" src={iconForwards}/>
 
                   <WickInput
                   type="color"
