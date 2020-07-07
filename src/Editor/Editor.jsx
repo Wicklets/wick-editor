@@ -894,6 +894,7 @@ class Editor extends EditorCore {
                         />
                         {renderSize === "small" &&
                         <DeleteCopyPaste
+                          previewPlaying={this.state.previewPlaying}
                           selectionEmpty={this.project.selection.getSelectedObjects().length === 0}
                           editorActions={this.actionMapInterface.editorActions}
                         />}
