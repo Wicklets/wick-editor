@@ -205,9 +205,6 @@ class ProjectSettings extends Component {
   renderSizeObject = () => {
     return (
       <div className={classNames("project-setting-element", this.props.isMobile && "mobile")}>
-        <div className="project-settings-property-label">
-          Size (W x H)
-        </div>
         <div className="project-settings-property-container project-settings-size-input-container">
           <span>
             <label htmlFor="project width" className="project-settings-property-label">
