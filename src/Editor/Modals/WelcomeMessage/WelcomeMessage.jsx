@@ -139,7 +139,7 @@ class WelcomeModal extends Component {
       overlayClassName: "modal-overlay welcome-modal-overlay",
     };
 
-    if (window.innerWidth < 800) {
+    if (this.props.isMobile) {
       return this.renderMobileModal(modalProps);
     } else {
       return this.renderDesktopModal(modalProps);

@@ -62,7 +62,7 @@ class ScriptWindowRow extends Component {
         <div className="script-row-item inspector-script-window-row-delete">
             <ActionButton 
                 id={"inspector-script-window-row-delete" + this.props.name}
-                icon="delete"
+                icon="delete-black"
                 tooltip="Delete"
                 tooltipPlace="left"
                 color="red"

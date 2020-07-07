@@ -123,7 +123,7 @@ Wick.Project = class extends Wick.Base {
      */
     initialize () {
         // Fixing all clip positions... This should be done in an internal method when the project is done loading...
-        this.activeFrame.clips.forEach(clip => {
+        this.activeFrame && this.activeFrame.clips.forEach(clip => {
             clip.applySingleFramePosition();
         });
     }

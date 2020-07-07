@@ -2,10 +2,15 @@
     width: 600px;
     height: 400px;
 }
+.open-source-notices-modal-container.mobile {
+    width: 80%;
+    max-width: 400px;
+}
 
 .open-source-notices-body {
     margin-top: 25px;
     overflow: scroll;
     color: white; 
     overflow-x: hidden; 
+    width: 100%;
 }

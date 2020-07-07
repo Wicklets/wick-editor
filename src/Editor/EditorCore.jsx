@@ -1288,8 +1288,10 @@ class EditorCore extends Component {
       finalAction: (() => {
 
       }),
-      acceptText: "Accept",
+      acceptText: "Create",
+      acceptIcon: "create",
       cancelText: "Cancel",
+      cancelIcon: "cancel-white"
     });
   }
 

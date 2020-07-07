@@ -20,7 +20,7 @@
 @import 'Editor/_wickbrand.scss';
 
 $tool-button-margin: 3px;
-$toolbox-min-button-size: 30px;
+$toolbox-max-button-size: 30px;
 
 .tool-box {
   width: 100%;
@@ -75,23 +75,23 @@ $toolbox-min-button-size: 30px;
   height: 100%;
 }
 
-.tool-button {
-  float: left;
-  min-width: $toolbox-min-button-size;
-  width: $toolbox-min-button-size;
-  height: $toolbox-min-button-size;
-}
-
-.toolbox-break {
-  height: 70%;
-}
-
 .toolbox-item {
-  width: $toolbox-min-button-size;
-  min-width: $toolbox-min-button-size;
-  height: $toolbox-min-button-size;
+  width: $toolbox-max-button-size;
+  max-width: $toolbox-max-button-size;
+  height: $toolbox-max-button-size;
   margin-left: $tool-button-margin;
   margin-right: $tool-button-margin;
+}
+.toolbox-item.mobile {
+  margin-right: 0;
+}
+
+.tool-selector-item {
+  margin-top: $tool-button-margin;
+  margin-bottom: $tool-button-margin;
+}
+.tool-selector-item:last-child {
+  margin-bottom: 0;
 }
 
 .toolbox-actions-center {
@@ -103,10 +103,10 @@ $toolbox-min-button-size: 30px;
 
 .color-container {
   cursor: pointer;
-  width: calc(#{$toolbox-min-button-size} * .85);
-  height: calc(#{$toolbox-min-button-size} * .85);
+  width: calc(#{$toolbox-max-button-size} * .85);
+  height: calc(#{$toolbox-max-button-size} * .85);
   float: left;
-  min-width:  calc(#{$toolbox-min-button-size} * .85);
+  min-width:  calc(#{$toolbox-max-button-size} * .85);
 }
 
 #tool-box-stroke-color-button {
@@ -140,4 +140,8 @@ $toolbox-min-button-size: 30px;
   margin-left: auto; 
   align-items: center;
   height: 100%;
+}
+
+.bump-up-no-dropdown {
+  margin-bottom: 2.5px;
 }

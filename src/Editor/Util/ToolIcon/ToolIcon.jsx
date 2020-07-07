@@ -80,6 +80,7 @@ import iconUnite from 'resources/tool-icons/unite.svg';
 // Assets
 import iconImage from 'resources/tool-icons/image.svg';
 import iconGear from 'resources/tool-icons/settings.svg';
+import iconGearWhite from 'resources/tool-icons/settings-white.png';
 import iconGroup from 'resources/tool-icons/group.svg';
 import iconSearch from 'resources/tool-icons/search.svg';
 import iconClip from 'resources/asset-library-icons/clip.svg';
@@ -125,6 +126,14 @@ import iconWarningDelete from 'resources/interface-images/warning_delete.svg';
 import iconOutliner from 'resources/interface/gnurl.svg';
 import iconPlay from 'resources/interface/play.svg';
 import iconPause from 'resources/interface/pause.svg';
+import iconLoad from 'resources/interface/load.svg';
+import iconLoadWhite from 'resources/interface/load-white.svg';
+import iconDeleteBlack from 'resources/interface/delete.svg';
+import iconCreate from 'resources/interface/create.svg';
+import iconCreateWhite from 'resources/interface/create-white.svg';
+import iconCancelWhite from 'resources/interface/cancel.svg';
+import iconHamburger from 'resources/interface/hamburger.svg';
+import iconExport from 'resources/interface/export.svg';
 
 // Timeline
 import iconLock from 'resources/tool-icons/lock.svg';
@@ -136,6 +145,7 @@ import iconSplit from 'resources/tool-icons/split.svg';
 import iconLayerTween from 'resources/tool-icons/layerTween.svg';
 
 // Marks
+import mascotMarkWhite from 'resources/logo-icons/mascot-mark-white.svg';
 import mascotMarkDark from 'resources/logo-icons/mascot-mark-dark.svg';
 import mascotMark from 'resources/logo-icons/mascot-mark.svg';
 import mascot from 'resources/logo-icons/mascot.svg';
@@ -207,6 +217,7 @@ class ToolIcon extends Component {
       "bringToFront": iconBringToFront,
       "bringForwards": iconBringForwards,
       "gear": iconGear,
+      "gear-white": iconGearWhite,
       "recenter": iconRecenter,
       "size": iconSize,
       "sound": iconSound,
@@ -244,6 +255,7 @@ class ToolIcon extends Component {
       "group": iconGroup,
       "mascotmark": mascotMark,
       "mascotmarkdark": mascotMarkDark,
+      "mascotmarkwhite": mascotMarkWhite,
       "mascot": mascot,
       "brushmodenone": iconBrushModeNone,
       "brushmodeinside": iconBrushModeInside,
@@ -251,6 +263,14 @@ class ToolIcon extends Component {
       "outliner": iconOutliner,
       "play": iconPlay,
       "pause": iconPause,
+      "load": iconLoad,
+      "load-white": iconLoadWhite,
+      "delete-black": iconDeleteBlack,
+      "create": iconCreate,
+      "create-white": iconCreateWhite,
+      "cancel-white": iconCancelWhite,
+      "hamburger": iconHamburger,
+      "export": iconExport,
     }
   }
 

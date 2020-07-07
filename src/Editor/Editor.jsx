@@ -44,6 +44,7 @@ import Canvas from './Panels/Canvas/Canvas';
 import Inspector from './Panels/Inspector/Inspector';
 import MenuBar from './Panels/MenuBar/MenuBar';
 import Timeline from './Panels/Timeline/Timeline';
+import DeleteCopyPaste from './Panels/DeleteCopyPaste/DeleteCopyPaste';
 import CanvasTransforms from './Panels/CanvasTransforms/CanvasTransforms';
 import Toolbox from './Panels/Toolbox/Toolbox';
 import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
@@ -52,7 +53,6 @@ import OutlinerExpandButton from './Panels/OutlinerExpandButton/OutlinerExpandBu
 import PopOutCodeEditor from './PopOuts/PopOutCodeEditor/PopOutCodeEditor';
 
 import EditorWrapper from './EditorWrapper';
-
 
 var classNames = require('classnames');
 
@@ -674,7 +674,9 @@ class Editor extends EditorCore {
       cancelAction: args.cancelAction || (() => {console.warn("No cancel action implemented.")}),
       finalAction: args.finalAction || (() => {console.warn("No final action implemented.")}),
       acceptText: args.acceptText || "Accept",
+      acceptIcon: args.acceptIcon,
       cancelText: args.cancelText || "Cancel",
+      cancelIcon: args.cancelIcon,
     }
 
     this.setState({
@@ -848,6 +850,7 @@ class Editor extends EditorCore {
           {/* Header */}
           <DockedPanel showOverlay={this.state.previewPlaying}>
             <MenuBar
+              renderSize={renderSize}
               openModal={this.openModal}
               projectName={this.project.name}
               openProjectFileDialog={this.openProjectFileDialog}
@@ -855,7 +858,7 @@ class Editor extends EditorCore {
               exportProjectAsWickFile={this.exportProjectAsWickFile}
               importProjectAsWickFile={this.importProjectAsWickFile}
               exporting={this.state.exporting}
-              toast={this.toast}
+              toast={this.toast} 
               openExportMedia={() => {this.openModal('ExportMedia')}}
               openExportOptions={() => {this.openModal('ExportOptions')}}
             />
@@ -897,7 +900,6 @@ class Editor extends EditorCore {
                 </div>
                 <div className={classNames("editor-canvas-timeline-panel", {'editor-canvas-timeline-panel-medium': renderSize === 'medium'}, {'editor-canvas-timeline-panel-small': renderSize === 'small'})}>
                   <ReflexContainer windowResizeAware={true} orientation="horizontal">
-                    
                     {/* Canvas and Popout Outliner */}
                     <ReflexElement>
                       <ReflexContainer windowResizeAware={true} orientation="vertical">
@@ -932,6 +934,12 @@ class Editor extends EditorCore {
                               previewPlaying={this.state.previewPlaying}
                               togglePreviewPlaying={this.togglePreviewPlaying}
                             />
+                            {renderSize === "small" &&
+                            <DeleteCopyPaste
+                              previewPlaying={this.state.previewPlaying}
+                              selectionEmpty={this.project.selection.getSelectedObjects().length === 0}
+                              editorActions={this.actionMapInterface.editorActions}
+                            />}
                             {renderSize === "large" && 
                             <OutlinerExpandButton
                               expanded={this.state.outlinerPoppedOut}

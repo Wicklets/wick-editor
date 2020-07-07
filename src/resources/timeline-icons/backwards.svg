@@ -11,24 +11,24 @@
 </style>
 <g>
 	
-		<linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="12.1621" y1="9.4468" x2="35.7665" y2="9.4468" gradientTransform="matrix(1 0 0 1 -10.1621 0)">
+		<linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="7.8621" y1="21.483" x2="31.4621" y2="21.483" gradientTransform="matrix(1 0 0 -1 -5.5621 36)">
 		<stop  offset="0" style="stop-color:#CCCCCC"/>
 		<stop  offset="1" style="stop-color:#CCCCCC;stop-opacity:0"/>
 	</linearGradient>
-	<polygon class="st0" points="25.6,17.4 7.4,17.4 2,12 2,1.5 20.7,1.5 	"/>
+	<polygon class="st0" points="25.9,22.5 7.7,22.5 2.3,17.1 2.3,6.6 21,6.6 	"/>
 </g>
-<polygon class="st1" points="20.5,1.1 33.4,1.1 33.4,12.9 27,19.3 20.5,12.9 "/>
-<line class="st2" x1="27" y1="33.8" x2="27" y2="19.3"/>
-<line class="st3" x1="22.6" y1="3" x2="31.3" y2="3"/>
-<line class="st3" x1="22.6" y1="5.7" x2="31.3" y2="5.7"/>
-<line class="st3" x1="22.6" y1="8.4" x2="31.3" y2="8.4"/>
-<linearGradient id="SVGID_2_" gradientUnits="userSpaceOnUse" x1="30.6449" y1="1.0638" x2="30.6449" y2="1.0638" gradientTransform="matrix(1 0 0 1 -10.1621 0)">
+<polygon class="st1" points="20.8,6.2 33.7,6.2 33.7,18 27.3,24.4 20.8,18 "/>
+<line class="st2" x1="27.3" y1="29.8" x2="27.3" y2="24.4"/>
+<line class="st3" x1="22.9" y1="8.1" x2="31.6" y2="8.1"/>
+<line class="st3" x1="22.9" y1="10.8" x2="31.6" y2="10.8"/>
+<line class="st3" x1="22.9" y1="13.5" x2="31.6" y2="13.5"/>
+<linearGradient id="SVGID_2_" gradientUnits="userSpaceOnUse" x1="26.3621" y1="29.833" x2="26.3621" y2="29.833" gradientTransform="matrix(1 0 0 -1 -5.5621 36)">
 	<stop  offset="0" style="stop-color:#CCCCCC"/>
 	<stop  offset="1" style="stop-color:#CCCCCC"/>
 </linearGradient>
-<linearGradient id="SVGID_3_" gradientUnits="userSpaceOnUse" x1="30.6449" y1="1.0638" x2="30.6449" y2="1.0638" gradientTransform="matrix(1 0 0 1 -10.1621 0)">
+<linearGradient id="SVGID_3_" gradientUnits="userSpaceOnUse" x1="26.3621" y1="29.833" x2="26.3621" y2="29.833" gradientTransform="matrix(1 0 0 -1 -5.5621 36)">
 	<stop  offset="0" style="stop-color:#999999"/>
 	<stop  offset="1" style="stop-color:#999999;stop-opacity:0"/>
 </linearGradient>
-<path class="st4" d="M20.5,1.1"/>
+<path class="st4" d="M20.8,6.2"/>
 </svg>

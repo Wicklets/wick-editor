@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.6.23.11.11.35";
+var WICK_ENGINE_BUILD_VERSION = "2020.7.7.17.12.9";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -49431,7 +49431,7 @@ Wick.Project = class extends Wick.Base {
 
   initialize() {
     // Fixing all clip positions... This should be done in an internal method when the project is done loading...
-    this.activeFrame.clips.forEach(clip => {
+    this.activeFrame && this.activeFrame.clips.forEach(clip => {
       clip.applySingleFramePosition();
     });
   }

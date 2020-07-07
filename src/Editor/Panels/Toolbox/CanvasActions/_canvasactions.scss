@@ -8,12 +8,18 @@ $canvas-action-size: 35px;
   align-items: center;
   margin: 1px;
 }
+.canvas-actions-widget.vertical {
+  height: unset;
+}
 
 .actions-container {
   height: 100%;
   display: flex;
   flex-direction: row;
   align-items: center;
+}
+.actions-container.vertical {
+  flex-direction: column;
 }
 
 .canvas-action-button {

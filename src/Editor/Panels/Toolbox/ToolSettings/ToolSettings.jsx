@@ -137,7 +137,7 @@ class ToolSettings extends Component {
 
   renderEnablePressure = () => {
     return (
-      <ToolSettingsInput
+      <ToolSettingsInput renderSize={this.props.renderSize}
         name='Enable Pressure'
         icon='brushpressure'
         type='checkbox'
@@ -148,7 +148,7 @@ class ToolSettings extends Component {
 
   renderEnableRelativeBrushSize = () => {
     return (
-      <ToolSettingsInput
+      <ToolSettingsInput renderSize={this.props.renderSize}
         name='Relative Brush Size'
         icon='brushrelativesize'
         type='checkbox'
@@ -169,7 +169,7 @@ class ToolSettings extends Component {
 
     return (
         <div id="brush-modes-popover-button">
-          <ToolSettingsInput
+          <ToolSettingsInput renderSize={this.props.renderSize}
             name='Brush Modes'
             icon={brushModeIcon}
             type='checkbox'
@@ -182,19 +182,19 @@ class ToolSettings extends Component {
             className={"more-canvas-actions-popover"}>
             <div className="brush-modes-widget">
               <div className='actions-container'>
-                <ToolSettingsInput
+                <ToolSettingsInput renderSize={this.props.renderSize}
                   name='None'
                   icon='brushmodenone'
                   type='checkbox'
                   value={this.props.getToolSetting('brushMode') === 'none'}
                   onChange={() => this.props.setToolSetting('brushMode', 'none')}/>
-                <ToolSettingsInput
+                <ToolSettingsInput renderSize={this.props.renderSize}
                   name='Inside'
                   icon='brushmodeinside'
                   type='checkbox'
                   value={this.props.getToolSetting('brushMode') === 'inside'}
                   onChange={() => this.props.setToolSetting('brushMode', 'inside')}/>
-                <ToolSettingsInput
+                <ToolSettingsInput renderSize={this.props.renderSize}
                   name='Outside'
                   icon='brushmodeoutside'
                   type='checkbox'
@@ -209,7 +209,8 @@ class ToolSettings extends Component {
 
   renderCornerRadius = () => {
     return (
-      <ToolSettingsInput
+      <ToolSettingsInput renderSize={this.props.renderSize}
+        isMobile={this.props.isMobile}
         name='Corner Radius'
         icon='cornerradius'
         type='numeric'
@@ -221,7 +222,8 @@ class ToolSettings extends Component {
 
   renderBrushSmoothing = () => {
     return (
-      <ToolSettingsInput
+      <ToolSettingsInput renderSize={this.props.renderSize}
+        isMobile={this.props.isMobile}
         name='Brush Smoothing'
         icon='brushsmoothness'
         type='numeric'
@@ -233,7 +235,8 @@ class ToolSettings extends Component {
 
   renderFontSize = () => {
     return (
-      <ToolSettingsInput
+      <ToolSettingsInput renderSize={this.props.renderSize}
+        isMobile={this.props.isMobile}
         name='Font Size'
         icon='fontsize'
         type='numeric'
@@ -245,7 +248,8 @@ class ToolSettings extends Component {
 
   renderEraserSize = () => {
     return (
-      <ToolSettingsInput
+      <ToolSettingsInput renderSize={this.props.renderSize}
+        isMobile={this.props.isMobile}
         name='Eraser Size'
         icon='eraser'
         type='numeric'
@@ -257,7 +261,8 @@ class ToolSettings extends Component {
 
   renderStrokeWidth = () => {
     return (
-      <ToolSettingsInput
+      <ToolSettingsInput renderSize={this.props.renderSize}
+        isMobile={this.props.isMobile}
         name='Stroke Width'
         icon='strokewidth'
         type='numeric'
@@ -269,7 +274,7 @@ class ToolSettings extends Component {
 
   renderDropperMode = () => {
     return (
-      <ToolSettingsInput
+      <ToolSettingsInput renderSize={this.props.renderSize}
         name='Pixel'
         icon='pixel'
         type='checkbox'
@@ -280,7 +285,7 @@ class ToolSettings extends Component {
 
   renderFontFamily = () => {
     return (
-      <ToolSettingsInput
+      <ToolSettingsInput renderSize={this.props.renderSize}
         name='Font'
         icon='fontfamily'
         type='dropdown'
@@ -291,7 +296,8 @@ class ToolSettings extends Component {
 
   renderBrushSize = () => {
     return (
-      <ToolSettingsInput
+      <ToolSettingsInput renderSize={this.props.renderSize}
+        isMobile={this.props.isMobile}
         name='Brush Size'
         icon='brushsize'
         type='numeric'
@@ -303,7 +309,8 @@ class ToolSettings extends Component {
 
   renderGapFillAmount = () => {
     return (
-      <ToolSettingsInput
+      <ToolSettingsInput renderSize={this.props.renderSize}
+        isMobile={this.props.isMobile}
         name='Gap Fill Amount'
         icon='gapfillamount'
         type='numeric'

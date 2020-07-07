@@ -23,6 +23,8 @@ import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 
 import './_toolbutton.scss';
 
+var classNames = require("classnames");
+
 class ToolButton extends Component {
   constructor (props) {
     super(props);
@@ -38,10 +40,12 @@ class ToolButton extends Component {
         id={"tool-button-" + this.props.name}
         tooltip={this.props.tooltip}
         action={this.props.action ? this.props.action : this.actionDefault}
+        secondaryAction={this.props.secondaryAction}
         tooltipPlace={this.props.tooltipPlace ? this.props.tooltipPlace : "bottom"}
         icon={this.props.name}
         className="tool-button-select"
-        iconClassName="tool-button-icon"
+        iconClassName={classNames("tool-button-icon", this.props.iconClassName)}
+        dropdown={this.props.dropdown}
         />
     )
   }

@@ -7,6 +7,8 @@ import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
 
 import './_settingsnumericslider.scss';
 
+var classNames = require("classnames");
+
 class SettingsNumericSlider extends Component {
   constructor(props) {
     super(props);
@@ -73,7 +75,7 @@ class SettingsNumericSlider extends Component {
         <div
         onMouseLeave = {this.closeSlider}
         onMouseOver = {() => {clearTimeout(this.sliderTimeout)}}
-        className="settings-numeric-slider-container">
+        className={classNames("settings-numeric-slider-container", this.props.isMobile && "mobile")}>
           <Popover
           isOpen={this.state.sliderOn}
           preferPlace='below'
@@ -104,7 +106,7 @@ class SettingsNumericSlider extends Component {
                   onMouseOver = {() => this.setSlider(true)}>
                     <WickInput
                       type="numeric"
-                      containerclassname="settings-numeric-wick-input-container"
+                      containerclassname={classNames("settings-numeric-wick-input-container", this.props.isMobile && "mobile")}
                       className="settings-numeric-input"
                       onChange={this.props.onChange}
                       onFocus={() => {this.setSlider(true)}}
