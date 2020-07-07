@@ -107,7 +107,7 @@ class CanvasTransforms extends Component {
 
   render () {
     return (
-      <div className="canvas-transforms-widget">
+      <div className={classNames("canvas-transforms-widget", this.props.renderSize === "small" && "mobile")}>
         {!this.props.previewPlaying && this.renderTransformations()}
         <div className="play-button-container">
           <PlayButton

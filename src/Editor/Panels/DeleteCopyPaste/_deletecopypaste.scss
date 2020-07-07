@@ -1,0 +1,26 @@
+@import 'Editor/_wickbrand.scss';
+@import '../CanvasTransforms/canvastransforms';
+
+.delete-copy-paste-widget {
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    height: $canvas-transforms-size;
+    margin-right: 15px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    background-color: $editor-primary-outline;
+    border-radius: 4px;
+}
+
+.delete-copy-paste-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-right: 2px;
+  }
+
+.disabled {
+    opacity: 0.25;
+}

@@ -43,6 +43,7 @@ import Canvas from './Panels/Canvas/Canvas';
 import Inspector from './Panels/Inspector/Inspector';
 import MenuBar from './Panels/MenuBar/MenuBar';
 import Timeline from './Panels/Timeline/Timeline';
+import DeleteCopyPaste from './Panels/DeleteCopyPaste/DeleteCopyPaste';
 import CanvasTransforms from './Panels/CanvasTransforms/CanvasTransforms';
 import Toolbox from './Panels/Toolbox/Toolbox';
 import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
@@ -891,6 +892,11 @@ class Editor extends EditorCore {
                           importProjectAsWickFile={this.importProjectAsWickFile}
                           onRef={ref => this.canvasComponent = ref}
                         />
+                        {renderSize === "small" &&
+                        <DeleteCopyPaste
+                          selectionEmpty={this.project.selection.getSelectedObjects().length === 0}
+                          editorActions={this.actionMapInterface.editorActions}
+                        />}
                         <CanvasTransforms
                           renderSize={renderSize}
                           onionSkinEnabled={this.project.onionSkinEnabled}
