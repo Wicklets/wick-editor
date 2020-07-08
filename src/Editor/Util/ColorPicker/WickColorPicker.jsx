@@ -105,6 +105,7 @@ class WickColorPicker extends Component {
                             className="wick-color-picker-small-swatch">
                             <Swatch
                                 color={color}
+                                style={{default: {}, ":focus": {outline: "2px solid white"}}}
                                 onClick={(color) => {this.props.onChangeComplete(color)}}  />
                         </div>
                     );

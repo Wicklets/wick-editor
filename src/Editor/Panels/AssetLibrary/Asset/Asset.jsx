@@ -22,6 +22,8 @@ import { DragSource } from 'react-dnd';
 import './_asset.scss';
 import DragDropTypes from 'Editor/DragDropTypes.js';
 import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
+import ActionButton from 'Editor/Util/ActionButton/ActionButton';
+//import sounds from '../../../Modals/BuiltinLibrary/sounds';
 
 var classNames = require('classnames');
 
@@ -64,6 +66,24 @@ class Asset extends Component {
     }
   }
 
+  addToCanvas = () => {
+    let draggedItem = this.props.asset;
+    if(draggedItem.files && draggedItem.files.length > 0) {
+      // Dropped a file from native filesystem
+      if(draggedItem.files[0].name.endsWith('.wick')) {
+        // Wick Project (.wick file)
+        var file = draggedItem.files[0];
+        this.props.importProjectAsWickFile(file);
+      } else {
+        // Assets (images, sounds, etc)
+        this.props.createAssets(draggedItem.files, []);
+      }
+    } else {
+      // Dropped an asset from the asset library
+      this.props.createImageFromAsset(draggedItem.uuid, 0, 0, true);
+    }
+  }
+
   render() {
     // These props are injected by React DnD, as defined by the `collect` function above:
     const { connectDragSource } = this.props;
@@ -71,11 +91,32 @@ class Asset extends Component {
     let icon = this.getIcon(this.props.asset.classname);
 
     return connectDragSource (
-      <div className={classNames("asset-item", {"asset-selected": this.props.isSelected})} onClick={this.props.onClick}>
-        <div className="asset-icon">
-          <ToolIcon name={icon} />
+      <div 
+      className={classNames("asset-item", {"asset-selected": this.props.isSelected})}>
+      <button 
+        className="select"
+        onClick={this.props.onClick}
+        >
+        <div className="asset-name-text">
+          <span><ToolIcon className="asset-icon" name={icon}/></span>
+          <span>{this.props.asset.name}</span>
         </div>
-        <span className="asset-name-text">{this.props.asset.name}</span>
+      </button>
+      {this.props.isSelected &&
+      <div className="asset-buttons-container">
+        {this.props.asset.classname === "SoundAsset" &&
+        <span className="asset-button add"><ActionButton classsName="add" color="green" text="Add to Frame" action={() => this.props.addSoundToActiveFrame(this.props.asset)}/></span>
+        }
+        {this.props.asset.classname !== "SoundAsset" &&
+        <span className="asset-button add"><ActionButton classsName="add" color="green" text="Add to Canvas" action={this.addToCanvas}/></span>
+        }
+        <span className="asset-button delete"><ActionButton classsName="delete" color="red" icon="delete" 
+        action={() => {
+          this.props.clearSelection();
+          this.props.selectObjects([this.props.asset]);
+          this.props.deleteSelectedObjects();
+        }}/></span>
+      </div>}
       </div>
     )
   }

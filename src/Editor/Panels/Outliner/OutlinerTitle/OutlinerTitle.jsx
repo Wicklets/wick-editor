@@ -18,27 +18,18 @@
  */
 
 import React, { Component } from 'react';
+import './_outlinertitle.scss';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-import InspectorRow from '../InspectorRow';
+class OutlinerTitle extends Component {
 
-class InspectorColorPicker extends Component {
   render() {
     return(
-        <InspectorRow
-          {...this.props}
-          input1={
-            {
-              type: "color",
-              color: this.props.val,
-              onChange: this.props.onChange,
-              id: this.props.id,
-              stroke: !this.props.stroke ? false : this.props.stroke,
-              placement: "left",
-            }
-          }
-        />
+      <div className="outliner-title">
+        <div className="outliner-title-name">Outliner</div>
+      </div>
     )
   }
 }
 
-export default InspectorColorPicker
+export default OutlinerTitle

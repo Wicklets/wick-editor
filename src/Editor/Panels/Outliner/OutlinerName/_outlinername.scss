@@ -1,0 +1,32 @@
+@import 'Editor/_wickbrand.scss';
+
+.outliner-name {
+    display: inline-block;
+    position: relative;
+}
+
+// .outliner-name {
+//     font-family: Arial;
+//     color: black; 
+//     font-weight: 600;
+//     padding-left: 8px;
+// }
+
+
+
+.outliner-name-layer {
+    display: inline-block;
+    left: 10px;
+}
+
+.outliner-name-frame {
+    display: inline-block;
+    left: 20px;
+}
+
+.outliner-name-object {
+    display: inline-block;
+    left: 30px;
+}
+
+// <div className={classNames("outliner-name", "indented")} />

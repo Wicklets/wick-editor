@@ -23,14 +23,15 @@ import ReactGA from 'react-ga';
 import './_editor.scss';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-import HTML5Backend from 'react-dnd-html5-backend'
-import { DragDropContext } from "react-dnd";
+import { HTML5Backend } from 'react-dnd-html5-backend'
+import { DndProvider } from 'react-dnd'
 import 'react-reflex/styles.css'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import { throttle } from 'underscore';
 import localForage from 'localforage';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from 'react-toastify';
+import { SizeMe } from 'react-sizeme';
 
 import HotKeyInterface from './hotKeyMap';
 import ActionMapInterface from './actionMap';
@@ -43,13 +44,15 @@ import Canvas from './Panels/Canvas/Canvas';
 import Inspector from './Panels/Inspector/Inspector';
 import MenuBar from './Panels/MenuBar/MenuBar';
 import Timeline from './Panels/Timeline/Timeline';
+import DeleteCopyPaste from './Panels/DeleteCopyPaste/DeleteCopyPaste';
 import CanvasTransforms from './Panels/CanvasTransforms/CanvasTransforms';
 import Toolbox from './Panels/Toolbox/Toolbox';
 import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
+import Outliner from './Panels/Outliner/Outliner';
+import OutlinerExpandButton from './Panels/OutlinerExpandButton/OutlinerExpandButton';
 import PopOutCodeEditor from './PopOuts/PopOutCodeEditor/PopOutCodeEditor';
 
 import EditorWrapper from './EditorWrapper';
-
 
 var classNames = require('classnames');
 
@@ -75,6 +78,8 @@ class Editor extends EditorCore {
       showCanvasActions: false,
       showBrushModes: false,
       showCodeErrors: false,
+      popoutOutlinerSize: 250,
+      outlinerPoppedOut: true,
       inspectorSize: 250,
       timelineSize: 175,
       assetLibrarySize: 150,
@@ -142,6 +147,7 @@ class Editor extends EditorCore {
     this.WINDOW_RESIZE_THROTTLE_AMOUNT_MS = 300;
     this.resizeProps = {
       onStopResize: throttle(this.onStopResize, this.resizeThrottleAmount),
+      onStopPopoutOutlinerResize: throttle(this.onStopPopoutOutlinerResize, this.resizeThrottleAmount),
       onStopInspectorResize: throttle(this.onStopInspectorResize, this.resizeThrottleAmount),
       onStopAssetLibraryResize: throttle(this.onStopAssetLibraryResize, this.resizeThrottleAmount),
       onStopTimelineResize: throttle(this.onStopTimelineResize, this.resizeThrottleAmount),
@@ -153,6 +159,10 @@ class Editor extends EditorCore {
 
     this.canvasComponent = null;
     this.timelineComponent = null;
+
+    this.lastUsedTool = 'cursor';
+
+    this.builtinPreviews = {};
   }
 
   componentWillMount = () => {
@@ -338,6 +348,10 @@ class Editor extends EditorCore {
     });
   }
 
+  toggleOutliner = () => {
+    this.setState({outlinerPoppedOut: !this.state.outlinerPoppedOut});
+  }
+
   onResize = (e) => {
     this.project.view.resize();
     this.project.guiElement.draw();
@@ -385,6 +399,17 @@ class Editor extends EditorCore {
    */
   onMajorScriptUpdate = () => {
 
+  }
+
+  /**
+   * Called when the outliner is resized.
+   * @param  {DomElement} domElement DOM element containing the outliner
+   * @param  {React.Component} component  React component of the outliner.
+   */
+  onStopPopoutOutlinerResize = ({domElement, component}) => {
+    this.setState({
+      popoutOutlinerSize: this.getSizeHorizontal(domElement)
+    });
   }
 
   /**
@@ -649,7 +674,9 @@ class Editor extends EditorCore {
       cancelAction: args.cancelAction || (() => {console.warn("No cancel action implemented.")}),
       finalAction: args.finalAction || (() => {console.warn("No final action implemented.")}),
       acceptText: args.acceptText || "Accept",
+      acceptIcon: args.acceptIcon,
       cancelText: args.cancelText || "Cancel",
+      cancelIcon: args.cancelIcon,
     }
 
     this.setState({
@@ -690,7 +717,7 @@ class Editor extends EditorCore {
    */
   convertHotkeyArray = (hotkeys) => {
     let keyObj = {};
-
+    
     hotkeys.forEach(key => {
       if (keyObj[key.actionName]) {
         keyObj[key.actionName][key.index] = key.sequence;
@@ -726,7 +753,6 @@ class Editor extends EditorCore {
   syncHotKeys = (hotkeys) => {
     this.hotKeyInterface.setCustomHotKeys(hotkeys);
     localForage.setItem(this.customHotKeysKey, hotkeys);
-
     this.setState({
       customHotKeys: hotkeys
     });
@@ -816,6 +842,7 @@ class Editor extends EditorCore {
     let renderSize = this.getRenderSize();
 
     return (
+      <DndProvider backend={HTML5Backend}>
       <EditorWrapper editor={this}>
         {/* Menu Bar */}
 
@@ -823,6 +850,7 @@ class Editor extends EditorCore {
           {/* Header */}
           <DockedPanel showOverlay={this.state.previewPlaying}>
             <MenuBar
+              renderSize={renderSize}
               openModal={this.openModal}
               projectName={this.project.name}
               openProjectFileDialog={this.openProjectFileDialog}
@@ -830,7 +858,7 @@ class Editor extends EditorCore {
               exportProjectAsWickFile={this.exportProjectAsWickFile}
               importProjectAsWickFile={this.importProjectAsWickFile}
               exporting={this.state.exporting}
-              toast={this.toast}
+              toast={this.toast} 
               openExportMedia={() => {this.openModal('ExportMedia')}}
               openExportOptions={() => {this.openModal('ExportOptions')}}
             />
@@ -872,36 +900,81 @@ class Editor extends EditorCore {
                 </div>
                 <div className={classNames("editor-canvas-timeline-panel", {'editor-canvas-timeline-panel-medium': renderSize === 'medium'}, {'editor-canvas-timeline-panel-small': renderSize === 'small'})}>
                   <ReflexContainer windowResizeAware={true} orientation="horizontal">
-                    {/*Canvas*/}
-                    <ReflexElement {...this.resizeProps}>
-                      <DockedPanel>
-                        <Canvas
-                          project={this.project}
-                          projectDidChange={this.projectDidChange}
-                          projectData={this.state.project}
-                          paper={this.paper}
-                          previewPlaying={this.state.previewPlaying}
-                          createImageFromAsset={this.createImageFromAsset}
-                          toast={this.toast}
-                          onEyedropperPickedColor={this.onEyedropperPickedColor}
-                          createAssets={this.createAssets}
-                          importProjectAsWickFile={this.importProjectAsWickFile}
-                          onRef={ref => this.canvasComponent = ref}
-                        />
-                        <CanvasTransforms
-                          onionSkinEnabled={this.project.onionSkinEnabled}
-                          toggleOnionSkin={this.toggleOnionSkin}
-                          zoomIn={this.zoomIn}
-                          zoomOut={this.zoomOut}
-                          recenterCanvas={this.recenterCanvas}
-                          activeToolName={this.getActiveTool().name}
-                          setActiveTool={this.setActiveTool}
-                          previewPlaying={this.state.previewPlaying}
-                          togglePreviewPlaying={this.togglePreviewPlaying}
-                        />
-                      </DockedPanel>
+                    {/* Canvas and Popout Outliner */}
+                    <ReflexElement>
+                      <ReflexContainer windowResizeAware={true} orientation="vertical">
+                        {/*Canvas*/}
+                        <ReflexElement {...this.resizeProps}>
+                          <DockedPanel>
+                            <SizeMe>{({ size }) => {
+                              this.project.view.render();
+                              return (<Canvas
+                                project={this.project}
+                                projectDidChange={this.projectDidChange}
+                                projectData={this.state.project}
+                                paper={this.paper}
+                                previewPlaying={this.state.previewPlaying}
+                                createImageFromAsset={this.createImageFromAsset}
+                                toast={this.toast}
+                                onEyedropperPickedColor={this.onEyedropperPickedColor}
+                                createAssets={this.createAssets} 
+                                importProjectAsWickFile={this.importProjectAsWickFile}
+                                onRef={ref => this.canvasComponent = ref}
+                              />);}}
+                            </SizeMe>
+                            
+                            <CanvasTransforms
+                              onionSkinEnabled={this.project.onionSkinEnabled}
+                              toggleOnionSkin={this.toggleOnionSkin}
+                              zoomIn={this.zoomIn}
+                              zoomOut={this.zoomOut}
+                              recenterCanvas={this.recenterCanvas}
+                              activeToolName={this.getActiveTool().name}
+                              setActiveTool={this.setActiveTool}
+                              previewPlaying={this.state.previewPlaying}
+                              togglePreviewPlaying={this.togglePreviewPlaying}
+                            />
+                            {renderSize === "small" &&
+                            <DeleteCopyPaste
+                              previewPlaying={this.state.previewPlaying}
+                              selectionEmpty={this.project.selection.getSelectedObjects().length === 0}
+                              editorActions={this.actionMapInterface.editorActions}
+                            />}
+                            {renderSize === "large" && 
+                            <OutlinerExpandButton
+                              expanded={this.state.outlinerPoppedOut}
+                              toggleOutliner={this.toggleOutliner}
+                            />}
+                          </DockedPanel>
+                        </ReflexElement>
+
+                        {/* Popout Outliner */}
+                        {renderSize === "large" && this.state.outlinerPoppedOut && <ReflexSplitter {...this.resizeProps}/>}
+                        {renderSize === "large" && this.state.outlinerPoppedOut && 
+                        <ReflexElement
+                          size={250}
+                          maxSize={300} minSize={200}
+                          onResize={this.resizeProps.onResize}
+                          onStopResize={this.resizeProps.onStopPopoutOutlinerResize}>
+                          <Outliner 
+                            className="popout-outliner"
+                            project={this.project}
+                            selectObjects={this.selectObjects}
+                            deselectObjects={this.deselectObjects}
+                            clearSelection={this.clearSelection}
+                            editScript={this.editScript}
+                            setFocusObject={this.setFocusObject}
+                            setActiveLayerIndex={this.setActiveLayerIndex}
+                            moveSelection={this.moveSelection}
+                            toggleHidden={this.toggleHidden}
+                            toggleLocked={this.toggleLocked}
+                          />
+                        </ReflexElement>}
+                      </ReflexContainer>
                     </ReflexElement>
+
                     <ReflexSplitter {...this.resizeProps}/>
+
                     {/*Timeline*/}
                     <ReflexElement
                       minSize={100}
@@ -965,12 +1038,33 @@ class Editor extends EditorCore {
                     </DockedPanel>
                   </ReflexElement>
 
+          
+                  {/* Outliner */}
+                  {renderSize === 'medium' && <ReflexSplitter {...this.resizeProps}/>}
+                  {renderSize === 'medium' && <ReflexElement
+                    minSize={100}>
+                    <DockedPanel showOverlay={this.state.previewPlaying}>
+                      <Outliner 
+                        project={this.project}
+                        selectObjects={this.selectObjects}
+                        deselectObjects={this.deselectObjects}
+                        clearSelection={this.clearSelection}
+                        editScript={this.editScript}
+                        setFocusObject={this.setFocusObject}
+                        setActiveLayerIndex={this.setActiveLayerIndex}
+                        moveSelection={this.moveSelection}
+                        toggleHidden={this.toggleHidden}
+                        toggleLocked={this.toggleLocked}
+                      />
+                    </DockedPanel>
+                  </ReflexElement>}
+
                   <ReflexSplitter {...this.resizeProps}/>
 
                   {/* Asset Library */}
                   <ReflexElement
                     minSize={100}
-                    size={this.state.assetLibrarySize}
+                    size={500}
                     onResize={this.resizeProps.onResize}
                     onStopResize={this.resizeProps.onStopAssetLibraryResize}>
                     <DockedPanel showOverlay={this.state.previewPlaying}>
@@ -982,6 +1076,12 @@ class Editor extends EditorCore {
                         selectObjects={this.selectObjects}
                         clearSelection={this.clearSelection}
                         isObjectSelected={this.isObjectSelected}
+                        createAssets={this.createAssets} 
+                        importProjectAsWickFile={this.importProjectAsWickFile}
+                        createImageFromAsset={this.createImageFromAsset}
+                        toast={this.toast}
+                        deleteSelectedObjects={this.deleteSelectedObjects}
+                        addSoundToActiveFrame={this.addSoundToActiveFrame}
                       />
                     </DockedPanel>
                   </ReflexElement>
@@ -1010,8 +1110,9 @@ class Editor extends EditorCore {
             />}
         </div>
       </EditorWrapper>
+      </DndProvider>
       )
     }
   }
 
-export default DragDropContext(HTML5Backend)(Editor)
+export default Editor

@@ -39,6 +39,16 @@
   color: $editor-menubar-project-text;
   cursor: pointer;
 }
+.menu-bar-project-name-mobile {
+  transition: .4s;
+  font-size: 18px;
+  font-family: 'Nunito Sans';
+  color: $editor-menubar-project-text;
+  position: absolute;
+  width: calc(100% - 100px);
+  left: 50px;
+  text-align: center;
+}
 
 .menu-bar-project-name:hover {
   color: $editor-menubar-option-text;

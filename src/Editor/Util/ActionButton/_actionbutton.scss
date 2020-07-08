@@ -468,3 +468,14 @@ $action-button-transition-duration: .2s;
   background-color: $flame-dark;
   color: $flame-text;
 }
+
+.dropdown-extra-icon {
+  height: 7px;
+  margin-top: 1px;
+}
+
+.icons-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}

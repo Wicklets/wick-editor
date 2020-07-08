@@ -43,3 +43,8 @@
     width: 500px;
     height: $settings-modal-height;
 }
+.settings-modal-container.mobile {
+    width: 80%;
+    max-width: 400px;
+    height: 500px;
+}

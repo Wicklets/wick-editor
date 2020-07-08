@@ -19,18 +19,28 @@
 
 import React, { Component } from 'react';
 
-import InspectorRow from '../InspectorRow';
+import InspectorInput from 'Editor/Panels/Inspector/InspectorRow/InspectorInput/InspectorInput';
+
+import '../_inspectorrow.scss';
 
 class InspectorColorNumericInput extends Component {
   render() {
     return(
-        <InspectorRow
-          {...this.props}
-          input1={
+      <div className="inspector-row">
+      {/* Identifier1 */} 
+      <label htmlFor={this.props.tooltip1 + " input"} className="inspector-row-identifier">
+        {this.props.tooltip1}
+      </label>
+
+      {/* Input1 */}
+      <div className="inspector-small-input-container">
+        <InspectorInput 
+          inputProps={{id: this.props.tooltip1 + " input"}}
+          input={
             {
               type: "color",
-              color: this.props.val,
-              onChange: this.props.onChange,
+              color: this.props.val1,
+              onChange: this.props.onChange1,
               id: this.props.id,
               stroke: !this.props.stroke ? false : this.props.stroke,
               placement: "left",
@@ -40,14 +50,26 @@ class InspectorColorNumericInput extends Component {
               lastColorsUsed:this.props.lastColorsUsed,
             }
           }
-          input2={
+        />
+      </div>
+
+      {/* Identifier2 */}
+      <label htmlFor={this.props.tooltip2 + " input"} className="inspector-row-identifier">
+        {this.props.tooltip2}
+      </label>
+
+      {/* Input2 */}
+      <div className="inspector-small-input-container">
+        <InspectorInput 
+          inputProps={{id: this.props.tooltip2 + " input"}}
+          input={
             {type: "numeric",
             value: this.props.val2,
             onChange: this.props.onChange2}
-          }
-          divider={this.props.divider}
-        />
-    )
+          } />
+      </div>
+    </div>
+    );
   }
 }
 

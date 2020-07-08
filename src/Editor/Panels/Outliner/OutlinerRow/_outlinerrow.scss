@@ -1,0 +1,66 @@
+/*
+ * Copyright 2020 WICKLETS LLC
+ *
+ * This file is part of Wick Editor.
+ *
+ * Wick Editor is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Editor is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+ @import 'Editor/_wickbrand.scss';
+ @import '../_outliner.scss';
+ 
+ $outliner-element-padding: 1%;
+ $row-identifier-width: 30%;
+ $input-container-margin: 4px;
+
+ $outliner-row-height: 26px;
+ 
+.outliner-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: $outliner-row-height;
+  margin-bottom: 0px;
+}
+
+.outliner-row-identifier {
+  display: flex;
+  flex-direction: column;
+  width: $row-identifier-width;
+  max-width: $row-identifier-width;
+  height: 100%;
+  color: $editor-primary-property-text;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: bold;
+  overflow: hidden;
+  text-align: right;
+  padding-right: $outliner-element-padding;
+  padding-left: 0;
+  margin-top: 3px;
+}
+
+.outliner-input-container {
+  display: flex;
+  align-items: center;
+  width: 70%;
+  height: 90%;
+  margin-left: $input-container-margin;
+}
+
+.outliner-input-element {
+  display: inline-block;
+  height: 100%;
+  width: 100%;
+}

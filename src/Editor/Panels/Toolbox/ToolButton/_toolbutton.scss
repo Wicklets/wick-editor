@@ -20,8 +20,8 @@
 @import 'Editor/_wickbrand.scss';
 @import '../_toolbox.scss';
 
-$tool-button-container-width: $toolbox-min-button-size;
-$tool-button-container-height: $toolbox-min-button-size;
+$tool-button-container-width: $toolbox-max-button-size;
+$tool-button-container-height: $toolbox-max-button-size;
 $tool-button-select-container-height: $tool-button-container-height;
 
 .tool-button-container {
@@ -39,5 +39,5 @@ $tool-button-select-container-height: $tool-button-container-height;
 }
 
 .tool-button-icon {
-  height: 80%; 
+  height: 80%;
 }

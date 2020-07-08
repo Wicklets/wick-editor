@@ -18,28 +18,20 @@
  */
 
 import React, { Component } from 'react';
-import './_inspectorrow.scss';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import '../_outlinerrow.scss';
 
-import InspectorInput from 'Editor/Panels/Inspector/InspectorRow/InspectorInput/InspectorInput';
+import WickInput from 'Editor/Util/WickInput/WickInput';
 
-class InspectorRow extends Component {
-
+class OutlinerInput extends Component {
   render() {
-    return (
-      <div className="inspector-row">
-        {/* Identifier */}
-        <div className="inspector-row-identifier">
-          {this.props.tooltip}
-        </div>
-        {/* Input or Preview*/}
-        <div className="inspector-input-container">
-          <InspectorInput {...this.props} />
-        </div>
-
-      </div>
-    )
+      
+    return(
+    <div  className="single-input-element outliner-input-element">
+        <WickInput 
+        {...this.props.input1}
+        key={this.props.input1.id}/>
+    </div>);
   }
 }
 
-export default InspectorRow
+export default OutlinerInput

@@ -22,6 +22,9 @@ import React, { Component } from 'react';
 import './_editorsettings.scss';
 import WickInput from 'Editor/Util/WickInput/WickInput';
 
+import iconBackwards from 'resources/timeline-icons/backwards.svg';
+import iconForwards from 'resources/timeline-icons/forwards.svg';
+
 class EditorSettings extends Component {
   constructor () {
     super();
@@ -32,25 +35,30 @@ class EditorSettings extends Component {
   }
 
   render () {
+    let optionsLabels = [];
+    let options = this.props.getToolSettingRestrictions('onionSkinStyle').options;
+    for (let i = 0; i < options.length; i++) {
+      optionsLabels.push({label: options[i], value: options[i]});
+    }
     return (
       <div className="editor-settings-modal-body">
         <div className="editor-settings-group">
-          <div className="editor-settings-group-title">Onion Skinning</div>
+          <label htmlFor="onion skin style" className="editor-settings-group-title">Onion Skinning</label>
             Style:
             <WickInput
               type="select"
-              id="editor-settings-onion-skinning-type"
+              id="onion skin style"
               value={this.props.getToolSetting('onionSkinStyle')}
-              options={this.props.getToolSettingRestrictions('onionSkinStyle').options}
-              onChange={(val) => {this.props.setToolSetting('onionSkinStyle', val.value)}}/>
-
+              options={optionsLabels}
+              onChange={(val) => {this.props.setToolSetting('onionSkinStyle', val.value)}}
+            />
           {
             this.props.getToolSetting('onionSkinStyle') !== 'standard' &&
             <div className="editor-settings-row">
               Outline Colors:
               <div className="editor-settings-color-containers-row">
                 <div className="editor-settings-color-container">
-                  B:
+                  <img className="forward-backward-icon" alt="B:" src={iconBackwards}/>
 
                   <WickInput
                   type="color"
@@ -66,7 +74,7 @@ class EditorSettings extends Component {
                 </div>
 
                 <div className="editor-settings-color-container">
-                  F:
+                  <img className="forward-backward-icon" alt="F:" src={iconForwards}/>
 
                   <WickInput
                   type="color"

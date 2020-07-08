@@ -22,10 +22,47 @@
 $asset-height: 24px;
 $asset-margin: 4px;
 
+.asset-buttons-container {
+  margin-bottom: $asset-margin;
+  margin-top: $asset-margin;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1;
+}
+.asset-button {
+  height: $asset-height;
+  //margin-right: $asset-margin;
+  //width:20%;
+  padding: none;
+  margin-right: $asset-margin;
+}
+.add {
+  width: calc(100% - 25px - 2 * #{$asset-margin});
+}
+.audio-player {
+  width: calc(100% - 25px - 2 * #{$asset-margin});
+  height: $asset-height;
+}
+.delete {
+  padding: none;
+  width: 25px;
+}
+.select {
+  color: unset;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  padding-left: 0;
+}
+
 .asset-item {
+  border: none;
   transition: .2s;
   width: calc(100% - 2 * #{$asset-margin});
-  height: $asset-height;
+  //height: $asset-height;
   line-height: $asset-height;
   background-color: $editor-secondary;
   color: $editor-secondary-text;
@@ -34,13 +71,10 @@ $asset-margin: 4px;
   margin-right: $asset-margin;
   padding-left: $asset-margin;
   padding-right: $asset-margin;
-  vertical-align: center;
   border-radius: $interface-roundness-primary;
   overflow: hidden;
-  box-sizing: border-box;
-
-  display: flex;
-  align-items: center;
+  text-align: left;
+  vertical-align: center;
 }
 
 .asset-item:hover {
@@ -50,8 +84,10 @@ $asset-margin: 4px;
 }
 
 .asset-icon {
+  display: inline-flex;
   width: calc(#{$asset-height} * .8);
   height: calc(#{$asset-height} * .8);
+  margin-right: 5px;
 }
 
 .asset-name-text {
@@ -63,6 +99,8 @@ $asset-margin: 4px;
 }
 
 .asset-item.asset-selected {
+  border: 2px solid $editor-green-highlight;
+  margin: calc(#{$asset-margin} - 2px);
   transition: .2s;
   background-color: $editor-primary;
   color: $editor-primary-property-text;

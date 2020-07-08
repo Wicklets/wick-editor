@@ -21,18 +21,18 @@
 
 // Spring 2019 color scheme
 $editor-primary: #303030;
-$editor-primary-text: #AFAFAF;
+$editor-primary-text: white; //#AFAFAF;
 $editor-primary-property-text: $editor-primary-text;
 $editor-primary-outline: #191919;
 
-$editor-text-input-background: #D8D8D8;
+$editor-text-input-background: #4F4F4F;
 $editor-text-input-text: #000000;
 
 $editor-menubar-project-text:#DADADA;
 $editor-menubar-option-text: #BABABA;
 
 $editor-secondary: #3B3B3B;
-$editor-secondary-text: #797979;
+$editor-secondary-text: #BDBDBD; //#797979;
 
 $editor-tertiary: #4A4A4A;
 
@@ -106,7 +106,7 @@ $flame-text: white;
 $wick-red: #FD384C;
 $wick-red-light: #FF5372;
 $wick-red-dark: #E61E07;
-$wick-red-text: white;
+$wick-red-text: black;
 
 $wick-yellow: #FFC835;
 $wick-yellow-light: #FFE243;
@@ -169,6 +169,8 @@ $interface-warning-text: #FFFFFF;
 
 $interface-menu-bar-background: black;
 
+$focus-orange: #FF7867;
+
 // Set editor styles.
 a:link {
   color: $editor-green-highlight;
@@ -215,6 +217,10 @@ a:hover {
   right: 0;
   bottom: 0;
   background-color: rgba(0,0,0,0.6);
+}
+
+.mobile-menu-overlay {
+  background-color: rgba(48, 48, 48, 0.95);
 }
 
 .wick-brand-arrow {
@@ -290,4 +296,19 @@ $docked-margin: 6px;
 // Export some colors to be used in JS in some places (canvas, timeline)
 :export {
   editorCanvasBorder: $editor-canvas-border;
+}
+
+button:focus, input:focus {
+  border: 2px solid $focus-orange !important;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.popover .arrow {
+  display: none;
+  height: 0;
+}
+.bs-popover-bottom {
+  margin-top: 2px;
+  margin-left: 2px;
 }

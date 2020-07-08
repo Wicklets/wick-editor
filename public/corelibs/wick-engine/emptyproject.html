@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.5.22.12.56.21";
+var WICK_ENGINE_BUILD_VERSION = "2020.7.7.17.12.9";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -48828,6 +48828,56 @@ Wick.Base = class {
     this._children.push(child);
   }
   /**
+   * Insert a child into this at specified index.
+   * 
+   * The insertion is performed as if there is a dummy object placed
+   * at index, then the child is moved one index past the dummy,
+   * then the dummy is deleted. Therefore if the child starts out
+   * inside this._children below index, then insertChild returns true and
+   * this._children.indexOf(child) == index - 1. Otherwise, returns false and
+   * this._children.indexOf(child) == index.
+   * 
+   * @param {Wick.Base} child - the child to add.
+   * @param {number} index - where to add the child
+   * @returns {boolean} - true if an item before index was moved
+   */
+
+
+  insertChild(child, index) {
+    var classname = child.classname;
+
+    if (child._parent === this) {
+      let result = 0;
+
+      let old_index = this._children.indexOf(child);
+
+      if (old_index < index) {
+        index--;
+        result = 1;
+      }
+
+      this._children.splice(index, 0, this._children.splice(old_index, 1)[0]);
+
+      return result;
+    }
+
+    if (child._parent) {
+      child._parent.removeChild(child);
+    }
+
+    if (!this._children) {
+      this._children = [];
+    }
+
+    child._parent = this;
+
+    child._setProject(this.project);
+
+    this._children.splice(index, 0, child);
+
+    return 0;
+  }
+  /**
    * Remove a child from this object.
    * @param {Wick.Base} child - the child to remove.
    */
@@ -49396,7 +49446,7 @@ Wick.Project = class extends Wick.Base {
 
   initialize() {
     // Fixing all clip positions... This should be done in an internal method when the project is done loading...
-    this.activeFrame.clips.forEach(clip => {
+    this.activeFrame && this.activeFrame.clips.forEach(clip => {
       clip.applySingleFramePosition();
     });
   }
@@ -49990,7 +50040,11 @@ Wick.Project = class extends Wick.Base {
     this.selection.clear();
     this.activeTimeline.deferFrameGapResolve();
     objects.forEach(object => {
-      object.remove && object.remove();
+      if (object.remove) {
+        object.remove();
+      } else if (['ImageAsset', 'SoundAsset', 'ClipAsset', 'FontAsset', 'SVGAsset'].indexOf(object.classname) !== -1) {
+        this.removeAsset(object);
+      }
     });
     this.activeTimeline.resolveFrameGaps([]);
   }
@@ -50066,6 +50120,80 @@ Wick.Project = class extends Wick.Base {
     } else {
       return this.pasteClipboardContents();
     }
+  }
+  /**
+   * Move the current selection above, below, or inside target.
+   * @param {object} target - The target object (to become parent of selection)
+   * @param {number} index - index to insert at
+   * @returns {boolean} - true if project did change
+   */
+
+
+  moveSelection(target, index) {
+    // Indices give us a way to order the selection from top to bottom
+    let get_indices = obj => {
+      var indices = [];
+
+      while (obj.parent !== null) {
+        let parent = obj.parent;
+
+        if (parent.classname === 'Frame') {
+          indices.unshift(parent.getChildren().length - 1 - parent.getChildren().indexOf(obj));
+        } else {
+          indices.unshift(parent.getChildren().indexOf(obj));
+        }
+
+        obj = parent;
+      }
+
+      return indices;
+    }; // Assumes i1, i2 same length, ordering same as outliner
+
+
+    let compare_indices = (i1, i2) => {
+      for (let i = 0; i < i1.length; i++) {
+        if (i1[i] < i2[i]) {
+          return 1;
+        } else if (i1[i] > i2[i]) {
+          return -1;
+        }
+      }
+
+      return 0;
+    };
+
+    let selection = this.selection.getSelectedObjects();
+
+    if (selection.length === 0) {
+      return false;
+    }
+
+    let selection_indices = selection.map(get_indices);
+    let l = selection_indices[0].length;
+
+    for (let i = 0; i < selection_indices.length; i++) {
+      if (selection_indices[i].length !== l) {
+        // Must all have the same depth
+        return false;
+      }
+    }
+
+    let zip = selection_indices.map((o, i) => {
+      return [o, selection[i]];
+    });
+    zip.sort(([i1], [i2]) => compare_indices(i1, i2));
+
+    if (target.classname === 'Frame') {
+      // Render order is reversed for children of frames
+      zip.reverse();
+    }
+
+    for (let i = 0; i < zip.length; i++) {
+      let [, obj] = zip[i];
+      index -= target.insertChild(obj, index) ? 1 : 0;
+    }
+
+    return true;
   }
   /**
    * Cut the currently selected frames.
@@ -62130,7 +62258,7 @@ Wick.View.Frame = class extends Wick.View {
     var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
     var pathJSON = Wick.View.Path.exportJSON(child);
     var wickPath = new Wick.Path({json:pathJSON});
-     this.model.addPath(wickPath);
+      this.model.addPath(wickPath);
     wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
     wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
     wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;
@@ -64296,6 +64424,10 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement {
 
   onMouseDrag(e) {
     this._movePlayhead();
+  }
+
+  onMouseUp(e) {
+    this.projectWasModified();
   }
 
   get bounds() {

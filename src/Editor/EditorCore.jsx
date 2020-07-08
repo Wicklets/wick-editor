@@ -202,6 +202,7 @@ class EditorCore extends Component {
    * Finishes a playhead moving operation.
    */
   finishMovingPlayhead = () => {
+    console.log("dangus");
     this.projectDidChange({ actionName: "Finish Moving Playhead" });
   }
 
@@ -337,7 +338,45 @@ class EditorCore extends Component {
   }
 
   /**
-   * Clears the selection, then adds the given object to the selection.
+   * Sets the active layer
+   * @param {number} index The index to set as active
+   */
+  setActiveLayerIndex = (index) => {
+    this.project.activeTimeline.activeLayerIndex = index;
+    this.projectDidChange({ actionName: "Set Active Layer" });
+  }
+
+  /**
+   * Toggles layer hidden
+   * @param {object} layer The layer to toggle
+   */
+  toggleHidden = (layer) => {
+    layer.hidden = !layer.hidden;
+    this.projectDidChange({ actionName: "Toggle Layer Hidden" });
+  }
+
+  /**
+   * Toggles layer locked
+   * @param {object} layer The layer to toggle
+   */
+  toggleLocked = (layer) => {
+    layer.locked = !layer.locked;
+    this.projectDidChange({ actionName: "Toggle Layer Locked" });
+  }
+
+  /**
+   * Moves selection into target at index
+   * @param {object} target The object to insert into
+   * @param {number} index The index to insert at
+   */
+  moveSelection = (target, index) => {
+    if (this.project.moveSelection(target, index)) {
+      this.projectDidChange({ actionName: "Moved Selection" });
+    }
+  }
+
+  /**
+   * Adds the given object to the selection.
    * @param {object} object - The object to add to the selection.
    */
   selectObject = (object) => {
@@ -346,7 +385,7 @@ class EditorCore extends Component {
   }
 
   /**
-   * Clears the selection, then adds the given objects to the selection. No
+   * Adds the given objects to the selection. No
    * changes will be made if the selection does not change.
    * @param {object[]} objects - The objects to add to the selection.
    */
@@ -355,6 +394,18 @@ class EditorCore extends Component {
       this.project.selection.select(object);
     });
     this.projectDidChange({ actionName: "Select Multiple Objects" });
+  }
+
+  /**
+   * Removes the given objects from the selection. No
+   * changes will be made if the selection does not change.
+   * @param {object[]} objects - The objects to remove from the selection.
+   */
+  deselectObjects = (objects) => {
+    objects.forEach(object => {
+      this.project.selection.deselect(object);
+    });
+    this.projectDidChange({ actionName: "Deselect Multiple Objects" });
   }
 
   /**
@@ -803,6 +854,17 @@ class EditorCore extends Component {
       this.project.guiElement.dragAssetAtPosition(uuid, x, y, drop);
   }
 
+  addSoundToActiveFrame = (soundAsset) => {
+    let frame = this.project.activeFrame;
+    if (frame !== null) {
+      frame.sound = soundAsset;
+      this.projectDidChange({ actionName: "Add Sound to Active Frame" });
+    }
+    else {
+      this.toast('No active frame to add sound to.', 'error');
+    }
+  }
+
   /**
    * Attempts to import an arbitrary asset to the project. Displays an error or success message
    * depending on if the action was successful.
@@ -820,6 +882,40 @@ class EditorCore extends Component {
         this.projectDidChange({ actionName: "Import File As Asset" });
       }
     });
+  }
+
+  /**
+   * Adds fetched file to builtinPreviews
+   * @param {string} filename - name of file
+   * @param {File} file - file to add
+   */
+  addFileToBuiltinPreviews = (filename, file) => {
+    this.builtinPreviews[filename] = {blob: file};
+
+    let reader = new FileReader();
+
+    reader.onload = () => {
+      let dataURL = reader.result;
+      this.builtinPreviews[filename].src = dataURL;
+
+      this.projectDidChange({ skipHistory: true, actionName: "Import File To Builtin Previews"});
+    }
+    
+    reader.readAsDataURL(file);
+  }
+
+  /**
+   * Checks if an asset with filename filename exists
+   * @param {string} filename - name of file
+   */
+  isAssetInLibrary = (filename) => {
+    let assets = this.project.getAssets();
+    for (let i = 0; i < assets.length; i++) {
+      if (assets[i].filename === filename) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -1192,8 +1288,10 @@ class EditorCore extends Component {
       finalAction: (() => {
 
       }),
-      acceptText: "Accept",
+      acceptText: "Create",
+      acceptIcon: "create",
       cancelText: "Cancel",
+      cancelIcon: "cancel-white"
     });
   }
 

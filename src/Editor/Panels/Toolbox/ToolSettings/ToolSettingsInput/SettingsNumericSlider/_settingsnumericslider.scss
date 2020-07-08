@@ -20,11 +20,12 @@
 @import 'Editor/_wickbrand.scss';
 @import '../toolsettingsinput.scss';
 
-$tool-settings-size: $toolbox-min-button-size;
+$tool-settings-size: $toolbox-max-button-size;
 $tool-settings-bottom-container-height: calc(2 * #{$tool-settings-size});
 
-.settings-numeric-slider-container {
-
+.settings-numeric-slider-container.mobile {
+    width: 60px;
+    overflow: hidden;
 }
 
 .settings-numeric-top-container {
@@ -36,12 +37,14 @@ $tool-settings-bottom-container-height: calc(2 * #{$tool-settings-size});
 .settings-numeric-slider-icon {
     height: calc(#{$tool-settings-size} * .6);
     width: 50%;
-    margin-right: 5px;
 }
 
 .settings-numeric-wick-input-container {
     height: $tool-settings-size;
     width: 50%;
+}
+.settings-numeric-wick-input-container.mobile {
+    max-width: 30px;
 }
 
 .settings-numeric-bottom-container {

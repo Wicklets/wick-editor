@@ -30,9 +30,11 @@ import SettingsModal from '../SettingsModal/SettingsModal';
 import BuiltinLibrary from '../BuiltinLibrary/BuiltinLibrary';
 import EditorInfo from '../EditorInfo/EditorInfo';
 import OpenSourceNotices from '../OpenSourceNotices/OpenSourceNotices';
+import MobileMenu from '../MobileMenu/MobileMenu';
 
 class ModalHandler extends Component {
   render() {
+    let isMobile = this.props.getRenderSize() === "small";
     return (
       <div>
         <MakeAnimated
@@ -56,12 +58,14 @@ class ModalHandler extends Component {
             clearAutoSavedProject={this.props.clearAutoSavedProject}
         />
         <WelcomeMessage
+          isMobile={isMobile}
           openModal={this.props.openModal}
           toggle={this.props.closeActiveModal}
           open={this.props.activeModalName === 'WelcomeMessage'}
           editorVersion={this.props.editorVersion}
         />
         <ExportOptions
+          isMobile={isMobile}
           openModal={this.props.openModal}
           closeActiveModal={this.props.closeActiveModal}
           queueModal={this.props.queueModal}
@@ -93,6 +97,7 @@ class ModalHandler extends Component {
           project={this.props.project}
         />
         <SettingsModal
+          isMobile={isMobile}
           openModal={this.props.openModal}
           toggle={this.props.closeActiveModal}
           open={this.props.activeModalName === 'SettingsModal'}
@@ -119,6 +124,9 @@ class ModalHandler extends Component {
           open={this.props.activeModalName === 'BuiltinLibrary'}
           project={this.props.project}
           importFileAsAsset={this.props.importFileAsAsset}
+          builtinPreviews={this.props.builtinPreviews}
+          addFileToBuiltinPreviews={this.props.addFileToBuiltinPreviews}
+          isAssetInLibrary={this.props.isAssetInLibrary}
         />
         <EditorInfo
           openModal={this.props.openModal}
@@ -127,10 +135,18 @@ class ModalHandler extends Component {
           editorVersion={this.props.editorVersion}
         />
         <OpenSourceNotices
+          isMobile={isMobile}
           openModal={this.props.openModal}
           toggle={this.props.closeActiveModal}
           open={this.props.activeModalName === 'OpenSourceNotices'}
           />
+        <MobileMenu
+          openProjectFileDialog={this.props.openProjectFileDialog}
+          openNewProjectConfirmation={this.props.openNewProjectConfirmation}
+          openModal={this.props.openModal}
+          toggle={this.props.closeActiveModal}
+          open={this.props.activeModalName === 'MobileMenuModal'}
+        />
       </div>
     );
   }
