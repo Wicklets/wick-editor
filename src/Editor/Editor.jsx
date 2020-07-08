@@ -65,7 +65,7 @@ class Editor extends EditorCore {
     // "Live" editor states
     this.project = null;
     this.paper = null;
-    this.editorVersion = "1.17.3";
+    this.editorVersion = "1.18";
 
     // GUI state
     this.state = {
@@ -79,7 +79,7 @@ class Editor extends EditorCore {
       showBrushModes: false,
       showCodeErrors: false,
       popoutOutlinerSize: 250,
-      outlinerPoppedOut: true,
+      outlinerPoppedOut: false,
       inspectorSize: 250,
       timelineSize: 175,
       assetLibrarySize: 150,
@@ -168,6 +168,8 @@ class Editor extends EditorCore {
   componentWillMount = () => {
     ReactGA.initialize('UA-88233944-1');
     ReactGA.pageview(window.location.pathname + window.location.search);
+
+    document.title =  `Wick Editor ${this.editorVersion}`;
     // Initialize "live" engine state
     this.project = new window.Wick.Project();
     this.attachErrorHandlers();
