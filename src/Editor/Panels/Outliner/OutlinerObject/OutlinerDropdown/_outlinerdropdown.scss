@@ -1,0 +1,38 @@
+@import 'Editor/_wickbrand.scss';
+@import '../../outliner';
+
+$outliner-dropdown-size: 15px;
+
+@keyframes rotate {
+  0% {transform: rotate(0deg);}
+  100% {transform: rotate(90deg);}
+}
+
+.outliner-dropdown-icon {
+  position: relative;
+  z-index: 0;
+  margin-left: $outliner-icon-spacing;
+  vertical-align: middle;
+  width: $outliner-dropdown-size;
+  height: $outliner-dropdown-size;
+  transition: background-color 150ms ease-in-out;
+}
+.outliner-dropdown-icon:hover {
+  background-color: rgba(255,255,255,0.2);
+}
+
+.expanded {
+  animation-name: rotate;
+  animation-duration: $dropdown-animation-duration;
+  animation-timing-function: ease-in;
+  animation-fill-mode: forwards;
+}
+
+
+.empty {
+  padding: calc(#{$outliner-dropdown-size} * .3);
+  z-index: -1;
+}
+.empty:hover {
+  background: none;
+}

@@ -51,9 +51,9 @@ class AssetLibrary extends Component {
   }
 
   filterArray = (array) => {
+    let filterText = this.state.filterText.toLowerCase();
     return array.filter( item => {
-        return item.name.toLowerCase().includes(this.state.filterText.toLowerCase())
-            && !item.isGifImage;
+        return !item.isGifImage && item.name.toLowerCase().includes(filterText);
     });
   }
 
@@ -66,7 +66,16 @@ class AssetLibrary extends Component {
        onClick={() => {
          this.props.clearSelection();
          this.props.selectObjects([assetObject]);
-      }}/>
+      }}
+        createAssets={this.props.createAssets}
+        importProjectAsWickFile={this.props.importProjectAsWickFile}
+        createImageFromAsset={this.props.createImageFromAsset}
+        toast={this.props.toast}
+        deleteSelectedObjects={this.props.deleteSelectedObjects}
+        clearSelection={this.props.clearSelection}
+        selectObjects={this.props.selectObjects}
+        addSoundToActiveFrame={this.props.addSoundToActiveFrame}
+      />
     )
   }
 
@@ -110,7 +119,7 @@ class AssetLibrary extends Component {
   }
 
   render() {
-    let filteredAssets = this.filterArray(this.props.assets)
+    let filteredAssets = this.filterArray(this.props.assets);
     let sortedFilteredAssets = this.sortAssets(filteredAssets);
     return(
       <div className="docked-pane asset-library">

@@ -45,10 +45,7 @@ class AutosaveWarning extends Component {
       className="autosave-modal-body"
       overlayClassName="autosave-modal-overlay">
         <div id="autosave-modal-interior-content">
-          <div id="autosave-modal-title">Autosave Found</div>
-          <div id="autosave-modal-message">
-          Would you like to load the autosaved project?
-          </div>
+          <div id="autosave-modal-title">Load Autosave?</div>
           <div id="autosave-modal-footer">
             <div id="autosave-modal-cancel">
                 <ActionButton
@@ -56,6 +53,8 @@ class AutosaveWarning extends Component {
                   color='red'
                   action={this.deleteAndToggle}
                   text="Delete"
+                  icon="delete-black"
+                  iconClassName="autosave-icon"
                   />
               </div>
               <div id="autosave-modal-accept">
@@ -64,6 +63,8 @@ class AutosaveWarning extends Component {
                   color='green'
                   action={this.loadAndToggle}
                   text="Load"
+                  icon="load"
+                  iconClassName="autosave-icon"
                   />
               </div>
           </div>

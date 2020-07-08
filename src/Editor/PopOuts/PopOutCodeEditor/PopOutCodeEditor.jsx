@@ -22,7 +22,7 @@ import { Rnd } from "react-rnd";
 
 import WickTabCodeEditor from './WickTabCodeEditor/WickTabCodeEditor';
 import WickCodeDetailsPanel from './WickCodeDetailsPanel/WickCodeDetailsPanel';
-import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
+import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import missingImage from 'resources/interface/missing.jpg';
 
 // Import Ace Editor themes.
@@ -141,8 +141,8 @@ class PopOutCodeEditor extends Component {
                 {'code-editor-error-information':this.codeHasErrors()})}>
               {this.getCodeEditorInfo()} </span>
           </div>
-          <div className="code-editor-close-button" onClick={this.onCloseHandler}>
-            <ToolIcon name="closemodal" />
+          <div className="code-editor-close-button">
+            <ActionButton color="tool" icon="closemodal" action={this.onCloseHandler}/> {/*<ToolIcon name="closemodal" />*/}
           </div>
         </div>
         <div className="code-editor-body">

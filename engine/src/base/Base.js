@@ -475,6 +475,49 @@ Wick.Base = class {
     }
 
     /**
+     * Insert a child into this at specified index.
+     * 
+     * The insertion is performed as if there is a dummy object placed
+     * at index, then the child is moved one index past the dummy,
+     * then the dummy is deleted. Therefore if the child starts out
+     * inside this._children below index, then insertChild returns true and
+     * this._children.indexOf(child) == index - 1. Otherwise, returns false and
+     * this._children.indexOf(child) == index.
+     * 
+     * @param {Wick.Base} child - the child to add.
+     * @param {number} index - where to add the child
+     * @returns {boolean} - true if an item before index was moved
+     */
+    insertChild(child, index) {
+        var classname = child.classname;
+
+        if (child._parent === this) {
+            let result = 0;
+            let old_index = this._children.indexOf(child);
+            if (old_index < index) {
+                index --;
+                result = 1;
+            }
+            this._children.splice(index, 0, this._children.splice(old_index, 1)[0]);
+            return result;
+        }
+
+        if (child._parent) {
+            child._parent.removeChild(child);
+        }
+
+        if (!this._children) {
+            this._children = [];
+        }
+
+        child._parent = this;
+        child._setProject(this.project);
+
+        this._children.splice(index, 0, child);
+        return 0;
+    }
+
+    /**
      * Remove a child from this object.
      * @param {Wick.Base} child - the child to remove.
      */

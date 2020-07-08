@@ -39,6 +39,8 @@
 }
 
 .keyboard-shortcut-key {
+  background: none;
+  border: none;
   margin: 1px; 
 }
 
@@ -93,6 +95,9 @@ kbd {
  }
 
  .hotkey-header-column {
+  text-align: left;
+  width: 100%;
+  border: none;
   font-size: 20px;
   padding-left: .5em; 
   background-color: $editor-popout-primary; 

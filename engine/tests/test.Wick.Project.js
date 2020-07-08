@@ -1912,6 +1912,46 @@ describe('Wick.Project', function() {
         });
     });
 
+    describe('#moveSelection', function () {
+        it('should move selection', function () {
+            var project = new Wick.Project();
+            project.activeFrame.remove();
+            project.activeTimeline.addLayer(new Wick.Layer());
+
+            var frame0 = new Wick.Frame({start:1, end:10});
+            var frame1 = new Wick.Frame({start:1, end:10});
+            project.activeTimeline.layers[0].addFrame(frame0);
+            project.activeTimeline.layers[1].addFrame(frame1);
+
+            var path0 = new Wick.Path({
+                json: TestUtils.TEST_PATH_JSON_BLUE_SQUARE,
+            });
+            var path1 = new Wick.Path({
+                json: TestUtils.TEST_PATH_JSON_RED_SQUARE
+            });
+            frame0.addPath(path0);
+            frame1.addPath(path1);
+
+            project.selection.select(path0);
+
+            project.moveSelection(frame1, 1);
+
+            expect(frame0.getChildren().length).to.equal(0);
+            expect(frame1.getChildren().length).to.equal(2);
+            expect(frame1.getChildren()[0]).to.equal(path1);
+            expect(frame1.getChildren()[1]).to.equal(path0);
+
+            project.selection.select(path1);
+
+            project.moveSelection(frame0, 0);
+
+            expect(frame0.getChildren().length).to.equal(2);
+            expect(frame1.getChildren().length).to.equal(0);
+            expect(frame0.getChildren()[0]).to.equal(path1);
+            expect(frame0.getChildren()[1]).to.equal(path0);
+        })
+    });
+
     describe('#cutSelectedFrames', function () {
         it('should cut selected frames', function () {
             // TODO

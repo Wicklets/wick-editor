@@ -1,0 +1,186 @@
+@import 'Editor/_wickbrand.scss';
+
+$outliner-title-height: 36px;
+
+$outliner-padding: 10px;
+$outliner-row-height: 24px;
+$outliner-row-spacing: 2px;
+
+$outliner-icon-spacing: 4px;
+$outliner-icon-width: 14px;
+$outliner-name-size: 16px;
+
+$widget-width: 20px;
+
+$dropdown-animation-duration: 75ms;
+
+$tab-spacing: 5px;
+$tab-radius: 3px;
+$tab-font-size: 20px;
+
+$indentation: 25px;
+
+$outliner-break-size: calc(#{$editor-outline-padding} * .5);
+
+.outliner {
+  background-color: $editor-primary;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  box-sizing: border-box;
+  border-right: $editor-outline-padding solid $editor-primary-outline;
+  font-family: 'Nunito Sans';
+  overflow: hidden;
+}
+.popout-outliner {
+  border-right: 0;
+}
+
+.outliner-body {
+  color: $editor-primary-property-text;
+  height: calc(100% - #{$outliner-title-height});
+  width: 100%;
+  overflow: hidden;
+}
+
+.outliner-body:hover {
+  overflow-y: auto;
+}
+
+.outliner-item {
+  padding-left: $outliner-padding;
+  padding-right: $outliner-padding;
+  padding-top: calc(#{$outliner-padding} / 2);
+  padding-bottom: calc(#{$outliner-padding} / 2);
+  border-bottom: $outliner-break-size solid $editor-primary-outline;
+  display: flex;
+  flex-direction: column;
+}
+
+.outliner-script-icon {
+  vertical-align: top;
+  margin-top: calc(#{$outliner-icon-spacing}/2);
+  height: $outliner-name-size;
+}
+
+.outliner-sound-icon {
+  vertical-align: top;
+  margin-top: 0;
+  height: 20px;
+  margin-right: $outliner-icon-spacing;
+}
+
+.outliner-object {
+  align-content: flex-start;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 0;
+  background-color: $editor-secondary;
+  border-top: $outliner-row-spacing solid $editor-primary;
+  border-bottom: $outliner-row-spacing solid $editor-primary;
+}
+.outliner-object:hover {
+  background-color: $editor-tertiary;
+  cursor: pointer;
+}
+
+.outliner-object-selector {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: $outliner-row-height;
+  width: 100%;
+  border-style: none;
+  background-color: transparent;
+}
+
+.object-selected {
+  border: $outliner-row-spacing solid $editor-green-highlight;
+}
+
+.object-dragging {
+  opacity: 0.5;
+}
+
+.outliner-object-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.highlighted {
+  background-color: $editor-tertiary;
+}
+  
+.outliner-name {
+  position: relative;
+  z-index: -1;
+  color: $editor-primary-property-text;
+  font-size: $outliner-name-size;
+  margin-left: calc(#{$outliner-icon-spacing} * 2);
+}
+
+.row-icon {
+  position: relative;
+  z-index: -1;
+  width: $outliner-icon-width;
+  margin-left: $outliner-icon-spacing;
+  margin-bottom: 3px;
+}
+
+@keyframes expand {
+  0% {transform: scaleY(0);}
+  100% {transform: scaleY(1);}
+}
+.indentation {
+  animation-timing-function: ease-in;
+  padding-left: $indentation;
+  transform-origin: top;
+  animation-name: expand;
+  animation-duration: $dropdown-animation-duration;
+  animation-fill-mode: forwards;
+}
+
+.outliner-buttons-container {
+  position: relative;
+  z-index: 0;
+  float: right;
+  margin-top: calc(#{$outliner-icon-spacing} / 2);
+}
+
+.hover-top {
+  border-top: calc(#{$outliner-row-spacing} * 2) $wick-active-blue solid;
+}
+
+.hover-middle {
+  background-color: $wick-active-blue; 
+}
+
+.hover-bottom {
+  border-bottom: calc(#{$outliner-row-spacing} * 2) $wick-active-blue solid;
+} 
+
+.widget {
+  vertical-align: top;
+  width: $widget-width;
+  height: $widget-width !important; //don't know why this needs to be important, but it does
+  height: 100%;
+  border: none;
+  background: none;
+  padding: 0;
+  margin-right: $outliner-icon-spacing;
+  transition: background-color 150ms ease-in-out;
+  border-radius: 3px;
+}
+.widget:hover {
+  background-color: rgba(255,255,255,0.2);
+}
+
+.widget-off {
+  vertical-align: top;
+  opacity: 0.25;
+}
+.widget-on {
+  vertical-align: top;
+  opacity: 1;
+}

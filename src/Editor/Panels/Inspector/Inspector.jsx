@@ -165,13 +165,14 @@ class Inspector extends Component {
   /**
    * Renders an inspector row allowing viewing and editing of the selection fill color.
    */
-  renderSelectionFillColor = () => {
+  renderSelectionColor = () => {
     return (
       <div className="inspector-item">
         <InspectorColorNumericInput
-          tooltip="Fill Color"
-          val={this.getSelectionAttribute('fillColor').toCSS()}
-          onChange={(col) => this.setSelectionAttribute('fillColor', col)}
+          tooltip1="Fill"
+          tooltip2="Opacity"
+          val1={this.getSelectionAttribute('fillColor').toCSS()}
+          onChange1={(col) => this.setSelectionAttribute('fillColor', col)}
           id={"inspector-selection-fill-color"}
           val2={this.getSelectionAttribute('fillColorOpacity')}
           onChange2={(val) => this.setSelectionAttribute('fillColorOpacity', val)}
@@ -181,20 +182,12 @@ class Inspector extends Component {
           updateLastColors={this.props.updateLastColors}
           lastColorsUsed={this.props.lastColorsUsed}
         />
-      </div>
-    );
-  }
-  /**
-   * Renders an inspector row allowing viewing and editing of the selection stroke color.
-   */
-  renderSelectionStrokeColor = () => {
-    return (
-      <div className="inspector-item">
         <InspectorColorNumericInput
-          tooltip="Stroke Color"
+          tooltip1="Stroke"
+          tooltip2="Weight"
 
-          val={this.getSelectionAttribute('strokeColor').toCSS()}
-          onChange={(col) => this.setSelectionAttribute('strokeColor', col)}
+          val1={this.getSelectionAttribute('strokeColor').toCSS()}
+          onChange1={(col) => this.setSelectionAttribute('strokeColor', col)}
           id={"inspector-selection-stroke-color"}
           stroke={true}
 
@@ -232,6 +225,7 @@ class Inspector extends Component {
 
     return (
       <InspectorSelector
+        className="font-family"
         value={this.getSelectionAttribute('fontFamily')}
         tooltip="Font Family"
         type="select"
@@ -266,13 +260,14 @@ class Inspector extends Component {
   }
 
   renderFontStyle = () => {
+    let options = [{value: 'normal', label: 'normal'}, {value: 'italic', label: 'italic'}]
     return (
       <InspectorSelector
         tooltip="Style"
         type="select"
         isSearchable={true}
         value={this.getSelectionAttribute('fontStyle')}
-        options={['normal', 'italic']}
+        options={options}
         onChange={(val) => {
           this.setSelectionAttribute('fontStyle', val.value);
         }} />
@@ -280,39 +275,29 @@ class Inspector extends Component {
   }
 
   renderFontWeight = () => {
-    let fontWeights = {
-      'thin': 100,
-      'extra light': 200,
-      'light': 300,
-      'normal': 400,
-      'medium': 500,
-      'semi bold': 600,
-      'bold': 700,
-      'extra bold': 800,
-      'black': 900
-    }
+    let fontWeights = [
+      {label: 'thin', value: 100},
+      {label: 'extra light', value: 200},
+      {label: 'light', value: 300},
+      {label: 'normal', value: 400},
+      {label: 'medium', value: 500},
+      {label: 'semi bold', value: 600},
+      {label: 'bold', value: 700},
+      {label: 'extra bold', value: 800},
+      {label: 'black', value: 900},
+    ];
 
-    let weight = Math.min(Math.max(this.getSelectionAttribute('fontWeight'), 100), Object.keys(fontWeights).length*100)
-
-    let findFontNameByWeight = (weight) => {
-      let finalName = 'normal';
-      Object.keys(fontWeights).forEach((name) =>{
-        if (fontWeights[name] === weight) {
-          finalName = name;
-        }
-      });
-      return finalName;
-    }
+    let weight = Math.min(Math.max(this.getSelectionAttribute('fontWeight'), 100), 900);
 
     return (
       <InspectorSelector
         tooltip="Weight"
         type="select"
         isSearchable={true}
-        value={findFontNameByWeight(weight)}
-        options={Object.keys(fontWeights)}
+        value={weight}
+        options={fontWeights}
         onChange={(val) => {
-          let newWeight = fontWeights[val.value] || 400;
+          let newWeight = val.value || 400;
           this.setSelectionAttribute('fontWeight', newWeight);
         }} />
     )
@@ -369,7 +354,7 @@ class Inspector extends Component {
     return (
       <div className="inspector-item">
         <InspectorTextInput
-          tooltip="File Name"
+          tooltip="File"
           val={this.getSelectionAttribute('filename')}
           readOnly={true}
           id="inspector-file-name"/>
@@ -404,7 +389,7 @@ class Inspector extends Component {
     return (
       <div className="inspector-item">
         <InspectorNumericInput
-          tooltip="Frame Length"
+          tooltip="Length"
           val={this.getSelectionAttribute('frameLength')}
           onChange={(val) => this.setSelectionAttribute('frameLength', val)}
           id="inspector-frame-length" />
@@ -418,13 +403,13 @@ class Inspector extends Component {
   renderPosition = () => {
     return (
       <InspectorDualNumericInput
-        tooltip="Position"
-        val1={this.getSelectionAttribute('x')}
-        val2={this.getSelectionAttribute('y')}
-        onChange1={(val) => this.setSelectionAttribute('x', val)}
-        onChange2={(val) => this.setSelectionAttribute('y', val)}
-        divider={true}
-        id="inspector-position" />
+        tooltip1="Origin X"
+        tooltip2="Origin Y"
+        val1={this.getSelectionAttribute('originX')}
+        val2={this.getSelectionAttribute('originY')}
+        onChange1={(val) => this.setSelectionAttribute('originX', val)}
+        onChange2={(val) => this.setSelectionAttribute('originY', val)}
+        id="inspector-origin" />
     )
   }
 
@@ -434,13 +419,13 @@ class Inspector extends Component {
   renderOrigin = () => {
     return (
       <InspectorDualNumericInput
-        tooltip="Origin"
-        val1={this.getSelectionAttribute('originX')}
-        val2={this.getSelectionAttribute('originY')}
-        onChange1={(val) => this.setSelectionAttribute('originX', val)}
-        onChange2={(val) => this.setSelectionAttribute('originY', val)}
-        divider={true}
-        id="inspector-origin" />
+        tooltip1="X"
+        tooltip2="Y"
+        val1={this.getSelectionAttribute('x')}
+        val2={this.getSelectionAttribute('y')}
+        onChange1={(val) => this.setSelectionAttribute('x', val)}
+        onChange2={(val) => this.setSelectionAttribute('y', val)}
+        id="inspector-position" />
     )
   }
 
@@ -450,12 +435,12 @@ class Inspector extends Component {
   renderSize = () => {
     return (
       <InspectorDualNumericInput
-        tooltip="Size"
+        tooltip1="Width"
+        tooltip2="Height"
         val1={this.getSelectionAttribute('width')}
         val2={this.getSelectionAttribute('height')}
         onChange1={(val) => this.setSelectionAttribute('width', val)}
         onChange2={(val) => this.setSelectionAttribute('height', val)}
-        divider={true}
         id="inspector-size" />
     )
   }
@@ -466,12 +451,12 @@ class Inspector extends Component {
   renderScale = () => {
     return (
       <InspectorDualNumericInput
-        tooltip="Scale"
+        tooltip1="Scale W"
+        tooltip2="Scale H"
         val1={this.getSelectionAttribute('scaleX')}
         val2={this.getSelectionAttribute('scaleY')}
         onChange1={(val) => this.setSelectionAttribute('scaleX', val)}
         onChange2={(val) => this.setSelectionAttribute('scaleY', val)}
-        divider={true}
         id="inspector-scale" />
     )
   }
@@ -546,7 +531,7 @@ class Inspector extends Component {
       label: "No Sound",
     });
 
-    let value = mapAsset(this.getSelectionAttribute('sound'));
+    let value = this.getSelectionAttribute('sound');
     return (
       <InspectorSelector
         tooltip="Sound"
@@ -601,27 +586,31 @@ class Inspector extends Component {
           {
             this.getSelectionAttribute('singleFrameNumber') &&
             <InspectorNumericInput
-            tooltip="Frame Number"
+            tooltip="Frame"
             val={this.getSelectionAttribute('singleFrameNumber')}
             onChange={(val) => this.setSelectionAttribute('singleFrameNumber', val)} />
           }
+        {this.getSelectionAttribute('animationType') !== "single" &&
         <InspectorCheckbox
           tooltip="Synced" 
           checked={this.getSelectionAttribute('isSynced')}
-          onChange={(val) => this.setSelectionAttribute('isSynced', !this.getSelectionAttribute('isSynced'))}/>
+          onChange={(val) => this.setSelectionAttribute('isSynced', !this.getSelectionAttribute('isSynced'))}/>}
       </div>
     )
   }
 
   renderTweenEasingType = () => {
     let options = window.Wick.Tween.VALID_EASING_TYPES;
-
+    let optionLabels = [];
+    options.forEach((option) => {
+      optionLabels.push({label: option, value: option});
+    })
     return (
       <div className="inspector-item">
         <InspectorSelector
           tooltip="Easing Type"
           type="select"
-          options={options}
+          options={optionLabels}
           value={this.getSelectionAttribute('easingType')}
           isSearchable={true}
           onChange={(val) => {this.setSelectionAttribute('easingType', val.value)}} />
@@ -761,8 +750,7 @@ class Inspector extends Component {
     return(
       <div className="inspector-content">
         {this.renderSelectionTransformProperties()}
-        {this.renderSelectionFillColor()}
-        {this.renderSelectionStrokeColor()}
+        {this.renderSelectionColor()}
       </div>
     );
   }
@@ -782,8 +770,7 @@ class Inspector extends Component {
       <div className="inspector-content">
         {this.renderIdentifier()}
         {this.renderSelectionTransformProperties()}
-        {this.renderSelectionFillColor()}
-        {this.renderSelectionStrokeColor()}
+        {this.renderSelectionColor()}
         {this.renderFontContent()}
       </div>
     )
@@ -818,8 +805,7 @@ class Inspector extends Component {
     return (
       <div className="inspector-content">
         {this.renderSelectionTransformProperties()}
-        {this.renderSelectionFillColor()}
-        {this.renderSelectionStrokeColor()}
+        {this.renderSelectionColor()}
         {this.getSelectionAttribute('fontFamily') && this.renderFontContent()}
       </div>
     );

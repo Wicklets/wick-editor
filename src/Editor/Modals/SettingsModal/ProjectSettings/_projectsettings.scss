@@ -19,8 +19,6 @@
 
  @import 'Editor/_wickbrand.scss';
 
-
-
 #project-settings-modal-title {
   font-size: 18px;
   color: $editor-modal-text-gray;
@@ -30,13 +28,14 @@
 
 .project-settings-property-label {
   color: $editor-modal-text-gray; 
+  margin-bottom: 0;
 }
 
 .project-settings-split {
+  padding-top: 150%;
   padding-left: 5px; 
   padding-right: 5px;
-  vertical-align: center;
-  text-align: center;
+  color: $editor-modal-text-gray;
 }
 
 .project-setting-container {
@@ -46,6 +45,16 @@
 .project-settings-size-input-container {
   display: flex;
   flex-direction: row;
+}
+
+.project-settings-size-input-container.mobile {
+  margin-bottom: 4px;
+}
+
+.mobile-size {
+  width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 #project-settings-modal-interior-content {
@@ -76,16 +85,22 @@
   flex-direction: row;
  }
 
- #project-settings-modal-cancel {
+ .project-settings-modal-cancel {
    width: 80px; 
    height: 100%; 
  }
+ .project-settings-modal-cancel.mobile {
+    width: calc(50% - 8px);
+ }
  
- #project-settings-modal-accept {
+ .project-settings-modal-accept {
    width: 80px;
    height: 100%; 
    margin-left: 8px;
  } 
+ .project-settings-modal-accept.mobile {
+   width: calc(50% - 8px);
+ }
  
 .project-settings-modal-row {
   display: flex;
@@ -102,9 +117,22 @@
   margin-right: 5%;
   margin-top: 15px; 
 }
+.project-setting-element.mobile {
+  width: 100%;
+}
 
 .project-setting-element:last-child {
   margin-right: 0;
+}
+
+.project-settings-modal-preset-text {
+  color: white;
+}
+.project-settings-modal-preset-text.hover {
+  color: $wick-green-text;
+}
+.project-settings-modal-preset-text.selected {
+  color: $wick-green-text; 
 }
 
 .project-settings-modal-preset {

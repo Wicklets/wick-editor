@@ -28,7 +28,7 @@ class MenuBar extends Component {
     super();
   }
 
-  render() {
+  renderDesktop = () => {
     return(
       <div className="docked-pane menu-bar">
         <MenuBarIconButton
@@ -71,6 +71,35 @@ class MenuBar extends Component {
         </div>
       </div>
     )
+  }
+  
+  renderMobile = () => {
+    return (
+      <div className="docked-pane menu-bar">
+        <MenuBarIconButton icon="hamburger" action={() => this.props.openModal('MobileMenuModal')}/>
+        
+        <div className="menu-bar-project-name-mobile">
+          {this.props.projectName}
+        </div>
+
+        <div className="menu-bar-actions-container">
+          <MenuBarButton
+            text="save"
+            action={this.props.exportProjectAsWickFile}
+            color='save'
+          />
+        </div>
+      </div>
+    );
+  }
+
+  render() {
+    if (this.props.renderSize === "small") {
+      return this.renderMobile();
+    }
+    else {
+      return this.renderDesktop();
+    }
   }
 }
 

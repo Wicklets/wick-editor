@@ -18,51 +18,18 @@
  */
 
 import React, { Component } from 'react';
+
 import '../_inspectorrow.scss';
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 import WickInput from 'Editor/Util/WickInput/WickInput';
 
-// Quick documentation...
-// input1: object: input information, all props passed to child
-// input2: object: input information, all props passed to child
-// divider: boolean: show x or don't show x, default to show x.
-
 class InspectorInput extends Component {
-
-  renderSingleComponent() {
+  render() {
     return (
-      <div  className="single-input-element inspector-input-element">
-        <WickInput {...this.props.input1}/>
+      <div  className="inspector-input-element">
+        <WickInput {...this.props.inputProps} {...this.props.input}/>
       </div>
     );
-  }
-
-  renderDoubleComponent() {
-    let divider = (this.props.divider || this.props.divider === undefined) ? "x" : "";
-
-    return (
-        <div className="double-input">
-          {/* Left Element */}
-          <div className="double-input-element inspector-input-element">
-            <WickInput {...this.props.inputProps} {...this.props.input1}/>
-          </div>
-          {/* Divider */}
-          <div className="input-divider inspector-input-element">{divider}</div>
-          {/* Right Element */}
-          <div className="double-input-element inspector-input-element">
-            <WickInput {...this.props.inputProps} {...this.props.input2}/>
-          </div>
-        </div>
-    )
-  }
-
-  render() {
-    if (this.props.input2 === undefined) {
-      return(this.renderSingleComponent());
-    } else {
-      return(this.renderDoubleComponent());
-    }
   }
 }
 

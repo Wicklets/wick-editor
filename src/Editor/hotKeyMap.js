@@ -91,11 +91,11 @@ class HotKeyInterface extends Object {
       },
       'activate-pan': {
         name: "Activate Pan",
-        sequences: ['space'],
+        sequences: ['x'],
       },
       'deactivate-pan': {
         name: "Deactivate Pan",
-        sequences: [{sequence: "space", action: "keyup"}],
+        sequences: [{sequence: "x", action: "keyup"}],
       },
       'activate-fill': {
         name: "Activate Fill",
@@ -119,11 +119,11 @@ class HotKeyInterface extends Object {
       },
       'preview-play-toggle': {
         name: "Preview Play",
-        sequences: ['enter'],
+        sequences: ['k'],
       },
       'preview-play-from-start': {
         name: "Preview Play from Start",
-        sequences: ['meta+enter'],
+        sequences: ['meta+k'],
       },
       'undo': {
         name: "Undo",
@@ -301,7 +301,7 @@ class HotKeyInterface extends Object {
       }, 
       'export-project-to-new-window': {
         name: "Export Project to New Window",
-        sequences: ['alt+enter']
+        sequences: ['alt+k']
       },
       'toggle-onion-skinning': {
         name: "Toggle Onion Skinning",
@@ -614,7 +614,7 @@ class HotKeyInterface extends Object {
         name: keyMap[actionName].name,
         sequences: oldSequences, // Ensure we get a deep copy of this array, avoid reference errors.
       }
-
+      
       // Update keymap with new attributes.
       if (customKeys[actionName]) {
         let customSequences = customKeys[actionName];
@@ -626,6 +626,23 @@ class HotKeyInterface extends Object {
         if (customSequences[1] || customSequences[1] === "") {
           newKeyMap[actionName].sequences[1] = customSequences[1];
         }
+      }
+    });
+
+    let keyup_exceptions = ["activate-pan", 'activate-eyedropper'];
+    keyup_exceptions.forEach((exception) => {
+      if (customKeys[exception]) {
+        Object.keys(customKeys[exception]).forEach((key, i) => {
+          let customSequence = customKeys[exception][key];
+          if ((customSequence || customSequence === "") && newKeyMap["de" + exception]) {
+            if (typeof customSequence === "string") {
+              newKeyMap["de" + exception].sequences[i] = {sequence: customSequence, action: "keyup"};
+            }
+            else if (typeof customSequence === "object") {
+              newKeyMap["de" + exception].sequences[i] = {...customSequence, action: "keyup"};
+            }
+          }
+        });
       }
     });
 

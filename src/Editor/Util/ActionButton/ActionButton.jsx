@@ -45,15 +45,23 @@ class ActionButton extends Component {
     return (
       <div className={newClassName}>
         <WickInput
+          buttonProps={this.props.buttonProps}
           tooltip={this.props.tooltip}
           tooltipID={tooltipID}
           tooltipPlace={this.props.tooltipPlace}
           className={finalColorClassName}
           type="button"
+          secondaryAction={this.props.secondaryAction}
           onClick={this.runAction}
           onTouch={this.runAction}>
-          {this.props.icon && <ToolIcon className={classNames(this.props.iconClassName)} name={this.props.icon} />}
-          {this.props.text && <div className={newClassName+'-text'}>{this.props.text}</div>}
+          {this.props.dropdown ? 
+          <div className="icons-container">
+            {this.props.icon && <ToolIcon className={classNames(this.props.iconClassName)} name={this.props.icon} />}
+            {this.props.dropdown && <ToolIcon className="dropdown-extra-icon" name="moreactions"/>}
+          </div>
+          :
+          this.props.icon && <ToolIcon className={classNames(this.props.iconClassName)} name={this.props.icon} />}
+          {this.props.text && <div className={classNames(newClassName+'-text', this.props.textClassName)}>{this.props.text}</div>}
         </WickInput>
       </div>
     )
