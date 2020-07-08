@@ -135,8 +135,17 @@ class Editor extends EditorCore {
     this.scriptInfoInterface = new ScriptInfoInterface();
 
     // Wick file input
-    this.openFileRef = React.createRef();
-    this.importAssetRef = React.createRef();
+    this.openProjectFileFromClient = window.createFileInput({
+      accept: '.zip, .wick',
+      onChange: this.handleWickFileLoad,
+    });
+
+    // Wick file input
+    this.openAssetFileFromClient = window.createFileInput({
+      accept: window.Wick.FileAsset.getValidExtensions().join(', '),
+      onChange: this.handleAssetFileImport,
+      multiple: true,
+    });
 
     // Set up color picker
     this.maxLastColors = 8;
@@ -782,6 +791,7 @@ class Editor extends EditorCore {
       console.warn('handleWickFileLoad: no files recieved');
       return;
     }
+
     this.importProjectAsWickFile(file);
   }
 
@@ -790,11 +800,11 @@ class Editor extends EditorCore {
   }
 
   openProjectFileDialog = () => {
-    this.openFileRef.current.click();
+    this.openProjectFileFromClient();
   }
 
   openImportAssetFileDialog = () => {
-    this.importAssetRef.current.click();
+    this.openAssetFileFromClient();
   }
 
   /**
