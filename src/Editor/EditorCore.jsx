@@ -24,7 +24,6 @@ import VideoExport from './export/VideoExport';
 import GIFExport from './export/GIFExport';
 import GIFImport from './import/GIFImport';
 import AudioExport from './export/AudioExport';
-import timeStamp from './Util/DataFunctions/timestamp';
 
 class EditorCore extends Component {
 
@@ -905,12 +904,19 @@ class EditorCore extends Component {
         return;
       }
 
-      this.updateToast(toastID, {
-        type: 'success',
-        text: "Successfully saved .wick file." });
+      if (window.saveFileFromWick(file, this.project.name, '.wick')) {
+        this.updateToast(toastID, {
+          type: 'success',
+          text: "Successfully saved .wick file." });
+      } else {
+        this.updateToast(toastID, {
+          type: 'error',
+          text: "Error saving .wick file. Please try again." });
+      }
 
-      const projectFileName = this.project.name + timeStamp() + '.wick'
-      window.saveFileFromWick(file, projectFileName);
+
+
+
       this.hideWaitOverlay();
     });
   }
@@ -943,11 +949,16 @@ class EditorCore extends Component {
     }
 
     let onFinish = (gifBlob) => {
-      const gifFileName = outputName + '.gif';
-      window.saveFileFromWick(gifBlob, gifFileName);
-      this.updateToast(toastID, {
-        type: 'success',
-        text: "Successfully created .gif file." });
+      if (window.saveFileFromWick(gifBlob, outputName, '.gif')) {
+        this.updateToast(toastID, {
+          type: 'success',
+          text: "Successfully created .gif file." });
+      } else {
+        this.updateToast(toastID, {
+          type: 'error',
+          text: "Error saving .gif file. Please try again." });
+      }
+
       this.setState({
         renderStatusMessage: 'Finished exporting GIF.',
         renderProgress: 100
@@ -993,10 +1004,17 @@ class EditorCore extends Component {
     }
 
     let onFinish = (sequenceBlobZip) => {
-      this.updateToast(toastID, {
-        type: 'success',
-        text: "Successfully created image sequence." });
-      window.saveFileFromWick(sequenceBlobZip, this.project.name +'_imageSequence.zip');
+
+      if (window.saveFileFromWick(sequenceBlobZip, this.project.name+'_imageSequence', '.zip')) {
+        this.updateToast(toastID, {
+          type: 'success',
+          text: "Successfully created image sequence." });
+      } else {
+        this.updateToast(toastID, {
+          type: 'error',
+          text: "Error saving image sequence. Please try again." });
+      }
+
       this.setState({
         exporting: false,
       })
@@ -1091,10 +1109,15 @@ class EditorCore extends Component {
     }
 
     let onFinish = (file) => {
-      this.updateToast(toastID, {
-        type: 'success',
-        text: "Successfully saved .wick file." });
-        window.saveFileFromWick(file, this.project.name + timeStamp() + '.svg');
+        if (window.saveFileFromWick(file, this.project.name, '.svg')) {
+          this.updateToast(toastID, {
+            type: 'success',
+            text: "Successfully saved .svg file" });
+        } else {
+          this.updateToast(toastID, {
+            type: 'error',
+            text: "Error saving .svg file." });
+        }
         this.hideWaitOverlay();
     }
 
@@ -1113,10 +1136,17 @@ class EditorCore extends Component {
     let toastID = this.toast('Exporting project as ZIP...', 'info');
     let outputName = args.name || this.project.name;
     window.Wick.ZIPExport.bundleProject(this.project, blob => {
-      this.updateToast(toastID, {
-        type: 'success',
-        text: "Successfully created .zip file." });
-      window.saveFileFromWick(blob, outputName + '.zip');
+
+      if (window.saveFileFromWick(blob, outputName + '.zip')) {
+        this.updateToast(toastID, {
+          type: 'success',
+          text: "Successfully created .zip file." });
+      } else {
+        this.updateToast(toastID, {
+          type: 'error',
+          text: "Error saving .zip file." });
+      }
+
     });
   }
 
@@ -1127,10 +1157,16 @@ class EditorCore extends Component {
     let toastID = this.toast('Exporting project as HTML...', 'info');
     let outputName = args.name || this.project.name;
     window.Wick.HTMLExport.bundleProject(this.project, html => {
-      this.updateToast(toastID, {
-        type: 'success',
-        text: "Successfully created .html file." });
-      window.saveFileFromWick(new Blob([html], {type: "text/plain"}), outputName + '.html');
+
+      if (window.saveFileFromWick(new Blob([html], {type: "text/plain"}), outputName,'.html')) {
+        this.updateToast(toastID, {
+          type: 'success',
+          text: "Successfully saved .html file." });
+      } else {
+        this.updateToast(toastID, {
+          type: 'error',
+          text: "Error saving .html file." });
+      }
     });
   }
 
@@ -1141,7 +1177,7 @@ class EditorCore extends Component {
     AudioExport.generateAudioFile({
       project: this.project,
     }).then((result) => {
-      window.saveFileFromWick(new Blob([result]), 'audiotrack.wav');
+      window.saveFileFromWick(new Blob([result]), 'audiotrack', '.wav');
     });
   }
 
@@ -1557,7 +1593,7 @@ class EditorCore extends Component {
       if(!(clip instanceof window.Wick.Clip)) return;
 
       window.Wick.WickObjectFile.toWickObjectFile(clip, 'blob', file => {
-          window.saveFileFromWick(file, (clip.identifier || 'object') + '.wickobj');
+          window.saveFileFromWick(file, (clip.identifier || 'object'), '.wickobj');
       });
   }
 
