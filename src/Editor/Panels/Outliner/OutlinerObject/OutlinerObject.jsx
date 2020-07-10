@@ -148,7 +148,7 @@ export const OutlinerObject = ({clearSelection, selectObjects,
     },
   })
 
-  const name = data.classname === "Layer" ? data.name : data.identifier;
+  const object_name = data.classname === "Layer" ? data.name : data.identifier;
 
   let empty = true;
   const children = data.getChildren();
@@ -209,10 +209,10 @@ export const OutlinerObject = ({clearSelection, selectObjects,
     alt={data.classname}
     />
 
-    {/* {name && 
+    {object_name && 
     <span className="outliner-name">
-      {name}
-    </span>} */}
+      {object_name}
+    </span>}
 
     <span className="outliner-buttons-container">
       {data.classname === 'Layer' &&
@@ -222,7 +222,7 @@ export const OutlinerObject = ({clearSelection, selectObjects,
         <OutlinerWidget onClick={(e) => {toggle(e, [], 'locked')}} on={!data.locked} icon="outliner-lock" tooltip="Lock Layer"/>
       }
       {(data.classname === 'Button' || data.classname === 'Clip') &&
-        <OutlinerWidget key={Math.random()} onClick={() => {setFocusObject(data)}} icon="edit-timeline" tooltip="Edit Timeline"/>
+        <OutlinerWidget key={Math.random()} onClick={() => {console.log("yangus"); setFocusObject(data)}} icon="edit-timeline" tooltip="Edit Timeline"/>
       }
       {data.sound && 
         <img className="outliner-sound-icon" src={soundIcon} alt="sound"/>}
