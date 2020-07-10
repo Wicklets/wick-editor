@@ -42,9 +42,11 @@ $tool-settings-bottom-container-height: calc(2 * #{$tool-settings-size});
 .settings-numeric-wick-input-container {
     height: $tool-settings-size;
     width: 50%;
+    margin-left: 8px;
 }
 .settings-numeric-wick-input-container.mobile {
     max-width: 30px;
+    margin-left: 0;
 }
 
 .settings-numeric-bottom-container {

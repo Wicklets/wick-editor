@@ -77,6 +77,7 @@ class SettingsNumericSlider extends Component {
         onMouseOver = {() => {clearTimeout(this.sliderTimeout)}}
         className={classNames("settings-numeric-slider-container", this.props.isMobile && "mobile")}>
           <Popover
+          className={this.props.isMobile && "mobile"}
           isOpen={this.state.sliderOn}
           preferPlace='below'
           enterExitTransitionDurationMs={200}

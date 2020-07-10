@@ -23,19 +23,13 @@ import '../_outlinerrow.scss'
 
 import OutlinerWidget from '../../OutlinerWidget/OutlinerWidget';
 
-import pathIcon from 'resources/object-icons/path.svg';
-import buttonIcon from 'resources/object-icons/button.svg';
-import clipIcon from 'resources/object-icons/clip.svg';
-import textIcon from 'resources/object-icons/text.svg';
-import imageIcon from'resources/object-icons/image.svg';
-
 class OutlinerDisplay extends Component {
   render() {
-    const items = {path: pathIcon,
-      button: buttonIcon,
-      clip: clipIcon,
-      text: textIcon,
-      image: imageIcon};
+    const items = {path: "path-object",
+      button: "button-object",
+      clip: "clip-object",
+      text: "text-object",
+      image: "image-object"}; 
     
     return(
       <div className="outliner-row">
@@ -48,14 +42,14 @@ class OutlinerDisplay extends Component {
           {Object.keys(items).map((item) => {
             return (
             <OutlinerWidget
+              tooltip={(this.props.display[item] ? "Hide " : "Show ") + item.charAt(0).toUpperCase() + item.slice(1) + " Objects"}
               key={item}
               onClick={() => {
                 var newDisplay = {...this.props.display};
                 newDisplay[item] = !newDisplay[item];
                 this.props.onChange(newDisplay);
               }} 
-              src={items[item]} 
-              alt={item}
+              icon={items[item]}
               on={this.props.display[item]}
             />);
           })}

@@ -57,7 +57,7 @@ class GeneralWarning extends Component {
                   action={this.cancelAndToggle}
                   text={this.props.info.cancelText}
                   icon={this.props.info.cancelIcon}
-                  iconClassName="warning-icon"
+                  iconClassName="cancel-icon"
                   />
               </div>
               <div id="general-warning-modal-accept">
@@ -67,7 +67,7 @@ class GeneralWarning extends Component {
                   action={this.acceptAndToggle}
                   text={this.props.info.acceptText}
                   icon={this.props.info.acceptIcon}
-                  iconClassName="warning-icon"
+                  iconClassName="create-icon"
                   />
               </div>
            </div>

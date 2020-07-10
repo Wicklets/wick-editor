@@ -28,8 +28,8 @@ var classNames = require('classnames');
 
 class ActionButton extends Component {
 
-  runAction = () => {
-    if (!this.props.disabled) this.props.action();
+  runAction = (e) => {
+    if (!this.props.disabled) this.props.action(e);
   }
 
   render() {

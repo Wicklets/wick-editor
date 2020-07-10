@@ -27,10 +27,6 @@ import imageImage from 'resources/object-icons/image.png';
 import scriptIcon from 'resources/outliner-icons/script.svg';
 import soundIcon from 'resources/outliner-icons/sound.svg';
 
-import editTimelineIcon from 'resources/outliner-icons/edit_timeline.svg';
-import hiddenIcon from 'resources/outliner-icons/hidden.svg';
-import lockedIcon from 'resources/outliner-icons/locked.svg';
-
 let icons = {layer: layerIcon, frame: frameIcon, path: pathIcon, button: buttonIcon, 
   clip: clipIcon, text: textIcon, image: imageIcon};
 
@@ -213,18 +209,20 @@ export const OutlinerObject = ({clearSelection, selectObjects,
     alt={data.classname}
     />
 
+    {/* {name && 
     <span className="outliner-name">
-    {name}
-    </span>
+      {name}
+    </span>} */}
+
     <span className="outliner-buttons-container">
       {data.classname === 'Layer' &&
-        <OutlinerWidget onClick={(e) => {toggle(e, [], 'hidden')}} on={!data.hidden} src={hiddenIcon} alt="hidden"/>
+        <OutlinerWidget onClick={(e) => {toggle(e, [], 'hidden')}} on={!data.hidden} icon="outliner-hide" tooltip="Hide Layer"/>
       }
       {data.classname === 'Layer' &&
-        <OutlinerWidget onClick={(e) => {toggle(e, [], 'locked')}} on={!data.locked} src={lockedIcon} alt="locked"/>
+        <OutlinerWidget onClick={(e) => {toggle(e, [], 'locked')}} on={!data.locked} icon="outliner-lock" tooltip="Lock Layer"/>
       }
       {(data.classname === 'Button' || data.classname === 'Clip') &&
-        <OutlinerWidget onClick={() => {setFocusObject(data)}} src={editTimelineIcon} alt="edit timeline"/>
+        <OutlinerWidget key={Math.random()} onClick={() => {setFocusObject(data)}} icon="edit-timeline" tooltip="Edit Timeline"/>
       }
       {data.sound && 
         <img className="outliner-sound-icon" src={soundIcon} alt="sound"/>}

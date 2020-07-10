@@ -299,16 +299,19 @@ $docked-margin: 6px;
 }
 
 button:focus, input:focus {
-  border: 2px solid $focus-orange !important;
-  box-sizing: border-box;
-  outline: none;
+  //We went with outlines to avoid sizing weirdness,
+  //borders may be good to fit around rounded elements, but 
+  //will require some finagling
+  //border: 2px solid $focus-orange !important;
+  //box-sizing: border-box;
+  outline: 2px solid $focus-orange;
 }
 
-.popover .arrow {
+.popover.mobile .arrow {
   display: none;
   height: 0;
 }
-.bs-popover-bottom {
+.mobile.bs-popover-bottom {
   margin-top: 2px;
   margin-left: 2px;
 }
