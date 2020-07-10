@@ -61,7 +61,7 @@ class InspectorColorNumericInput extends Component {
       {/* Input2 */}
       <div className="inspector-small-input-container">
         <InspectorInput 
-          inputProps={{id: this.props.tooltip2 + " input"}}
+          inputProps={{id: this.props.tooltip2 + " color numeric input"}}
           input={
             {type: "numeric",
             value: this.props.val2,
