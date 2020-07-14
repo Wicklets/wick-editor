@@ -438,7 +438,35 @@ var OffsetUtils = new function() {
 
     const MAX_NEST = 10;
     const MAX_ITERS = 1000;
-    const EPSILON = 0.000001;
+    const EPSILON = 0.001;
+
+    function positiveMod(a, b) {
+        return ((a % b) + b) % b;
+    }
+    
+    function cleanup(item, epsilon) {
+        var paths;
+        if (item._class === 'Path') {
+            paths = [item];
+        }
+        else {
+            paths = item.children;
+        }
+
+        for (let p = 0; p < paths.length; p++) {
+            path = paths[p];
+            for (let i = 0; i < path.segments.length; ) {
+                if (pointsEqual(path.segments[i].point, path.segments[(i + 1) % path.segments.length].point, epsilon)) {
+                    let removed = path.removeSegment(i);
+                    console.log(path.segments.length, i);
+                    path.segments[i % path.segments.length].handleIn = removed.handleIn;
+                }
+                else {
+                    i++;
+                }
+            }
+        }
+    }
 
     function fillHole () {
         layerGroup = new paper.Group({insert:false});
@@ -448,11 +476,6 @@ var OffsetUtils = new function() {
 
                 var clone = child.clone({insert:false});
 
-                if (clone._class === 'Path') {
-                    if (pointsEqual(clone.firstSegment.point, clone.lastSegment.point)) {
-                        clone.removeSegment(0);
-                    }
-                }
                 
 
                 if (clone.hasStroke()) {
@@ -467,26 +490,29 @@ var OffsetUtils = new function() {
                         layerGroup.addChild(clone);
                     }
                     else {
-                        res = OffsetUtils.joinOffsets(outerPath, innerPath, clone, offset);
+                        res = OffsetUtils.joinOffsets(outerPath.clone(), innerPath.clone(), clone, offset);
                     }
                     //res.remove();
                     res.strokeWeight = 0;
                     res.fillColor = clone.strokeColor;
 
+                    //innerPath.strokeColor = 'black';
+                    //outerPath.strokeColor = 'black';
+                    //onFinish(innerPath);
+                    onFinish(outerPath);
+
                     clone.strokeWidth = 0;
 
                     res.reorient();
                     
-                    if (pointsEqual(res.firstSegment.point, res.lastSegment.point)) {
-                        res.removeSegment(0);
-                    }
+                    cleanup(res, 1);
                     layerGroup.addChild(res);
                 }
                 else {
-                    layerGroup.addChild(clone);
+                    clone.closed && layerGroup.addChild(clone);
                 }
 
-                
+                cleanup(clone, EPSILON);
             });
         });
         if(layerGroup.children.length === 0) {
@@ -566,27 +592,18 @@ var OffsetUtils = new function() {
                 : getMinTimeIntersection(intersector, intersection ? intersection.time : -1);
             
             if (intersection === null) {
-                //console.log("no intersection");
-                if (direction < 0) {
-                    if (intersector.previous) {
-                        intersector = intersector.previous
-                    }
-                    else {
-                        intersector = intersector.path.lastCurve;
-                    }
-                }
-                else {
-                    if (intersector.next) {
-                        intersector = intersector.next
-                    }
-                    else {
-                        intersector = intersector.path.firstCurve;
-                    }
-                }
+                console.log("no intersection");
+                var temp = intersector;
+                //console.log(temp);
+                intersector = direction === 1 ? 
+                    (intersector.next ? intersector.next : intersector.firstSegment) : 
+                    (intersector.previous ? intersector.previous : intersector.lastSegment)
+                //intersector.path.curves[positiveMod(intersector.index + direction, intersector.path.curves.length)];
                 
                 var p = direction < 0 ? intersector.point2 : intersector.point1;
-                var hIn = direction < 0 ? intersector.next.handle1 : intersector.previous.handle2;
+                var hIn = direction < 0 ? temp.handle1 : temp.handle2;
                 var hOut = direction < 0 ? intersector.handle2 : intersector.handle1;
+                console.log(p.toString());
                 points.push(new paper.Segment(p, hIn, hOut));
             }
             else {
@@ -594,6 +611,7 @@ var OffsetUtils = new function() {
                 var p = intersection.point;
                 var hIn = intersection.tangent.multiply(-1);
                 var hOut = intersection.intersection.tangent;
+                console.log(p.toString());
                 points.push(new paper.Segment(p, hIn, hOut));
                 
                 var incoming = intersection.tangent.multiply(direction);
@@ -602,7 +620,7 @@ var OffsetUtils = new function() {
                 intersector = intersection.curve;
             }
             n++;
-            ended = points.length >= 2 && pointsEqual(points[points.length - 1].point ? points[points.length - 1].point : points[points.length - 1], points[0].point ? points[0].point : points[0]);
+            ended = points.length >= 2 && pointsEqual(points[points.length - 1].point ? points[points.length - 1].point : points[points.length - 1], points[0].point ? points[0].point : points[0], EPSILON);
         } while (n < MAX_ITERS && !ended);
 
         console.log("iters: " + n);
@@ -610,8 +628,7 @@ var OffsetUtils = new function() {
         points.pop();
         var path = new paper.Path(points);
         path.closePath();
-        
-        console.log("good path");
+
         return path;
     }
 
@@ -633,15 +650,14 @@ var OffsetUtils = new function() {
 
         for (var i = 0; i < items.length; i++) {
             for (var j = 0; j < items[i].curves.length; j++) {
-                if (curve === items[i].curves[j]) {
-                    console.log("dungus");
-                }
-                var intersections = curve.getIntersections(items[i].curves[j]);
-                for (var k = 0; k < intersections.length; k++) {
-                    if (intersections[k].time > min_t + EPSILON && intersections[k].time < min_t_object.time) {
-                        min_t_object = intersections[k];
+                //if (curve !== items[i].curves[j]) {
+                    var intersections = curve.getIntersections(items[i].curves[j]);
+                    for (var k = 0; k < intersections.length; k++) {
+                        if (intersections[k].time > min_t + EPSILON && intersections[k].time < min_t_object.time) {
+                            min_t_object = intersections[k];
+                        }
                     }
-                }
+                //}
             }
         }
         
@@ -664,15 +680,14 @@ var OffsetUtils = new function() {
         
         for (var i = 0; i < items.length; i++) {
             for (var j = 0; j < items[i].curves.length; j++) {
-                if (curve === items[i].curves[j]) {
-                    console.log("dangus");
-                }
-                var intersections = curve.getIntersections(items[i].curves[j]);
-                for (var k = 0; k < intersections.length; k++) {
-                    if (intersections[k].time < max_t - EPSILON && intersections[k].time > max_t_object.time) {
-                        max_t_object = intersections[k];
+                //if (curve === items[i].curves[j]) {
+                    var intersections = curve.getIntersections(items[i].curves[j]);
+                    for (var k = 0; k < intersections.length; k++) {
+                        if (intersections[k].time < max_t - EPSILON && intersections[k].time > max_t_object.time) {
+                            max_t_object = intersections[k];
+                        }
                     }
-                }
+                //}
             }
         }
         
@@ -684,8 +699,8 @@ var OffsetUtils = new function() {
     }
 
     // Check whether the locations of p1, p2, are equal within the tolerance of EPSILON
-    function pointsEqual(p1, p2) {
-        return Math.abs(p1.x - p2.x) < EPSILON && Math.abs(p1.y - p2.y) < EPSILON;
+    function pointsEqual(p1, p2, epsilon) {
+        return Math.abs(p1.x - p2.x) < epsilon && Math.abs(p1.y - p2.y) < epsilon;
     }
 
     /* Add hole() method to paper */
