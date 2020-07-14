@@ -28,7 +28,7 @@ var OffsetUtils = new function() {
         enforeArcs = false;
 
     function offsetPath(path, offset, dontMerge) {
-        var result = new paper.Path({ insert: false }),
+        var result = new Path({ insert: false }),
             curves = path.getCurves(),
             strokeJoin = path.getStrokeJoin(),
             miterLimit = path.getMiterLimit();
@@ -84,7 +84,7 @@ var OffsetUtils = new function() {
                     // decide if the join is inside or outside the stroke
                     // by checking on which side of the line connecting pt1 
                     // and pt2 the center lies.
-                    || new paper.Line(pt1, pt2).getSignedDistance(center)
+                    || new Line(pt1, pt2).getSignedDistance(center)
                         * offset <= geomEpsilon) {
                 // Calculate the through point based on the vectors from center
                 // to pt1 / pt2
@@ -104,11 +104,11 @@ var OffsetUtils = new function() {
                     path.arcTo(through, pt2);
                     break;
                 case 'miter':
-                    paper.Path._addBevelJoin(originSegment, 'miter', radius, 4,
+                    Path._addBevelJoin(originSegment, 'miter', radius, 4,
                             null, null, addPoint);
                     break;
                 case 'square':
-                    paper.Path._addSquareCap(originSegment, 'square', radius,
+                    Path._addSquareCap(originSegment, 'square', radius,
                             null, null, addPoint);
                     break;
                 default: // 'bevel' / 'butt'
@@ -172,7 +172,7 @@ var OffsetUtils = new function() {
             var n = curve.getNormalAtTime(0.5).multiply(offset),
                 p1 = curve.point1.add(n),
                 p2 = curve.point2.add(n);
-            return [new paper.Segment(p1), new paper.Segment(p2)];
+            return [new Segment(p1), new Segment(p2)];
         } else {
             var curves = splitCurveForOffseting(curve),
                 segments = [];
@@ -199,8 +199,8 @@ var OffsetUtils = new function() {
         var radius = abs(offset);
 
         function getOffsetPoint(v, t) {
-            return paper.Curve.getPoint(v, t).add(
-                    paper.Curve.getNormal(v, t).multiply(offset));
+            return Curve.getPoint(v, t).add(
+                    Curve.getNormal(v, t).multiply(offset));
          }
 
         /**
@@ -211,7 +211,7 @@ var OffsetUtils = new function() {
         function offsetAndSubdivide(curve, curves) {
             var v = curve.getValues(),
                 ps = [getOffsetPoint(v, 0), getOffsetPoint(v, 1)],
-                ts = [paper.Curve.getTangent(v, 0), paper.Curve.getTangent(v, 1)],
+                ts = [Curve.getTangent(v, 0), Curve.getTangent(v, 1)],
                 pt = getOffsetPoint(v, 0.5),
                 div = ts[0].cross(ts[1]) * 3 / 4,
                 d = pt.add(pt).subtract(ps[0].add(ps[1])),
@@ -228,8 +228,8 @@ var OffsetUtils = new function() {
                     i2 = i1 ^ 1, // index of the shorter handle
                     p = ps[i1],
                     h = hs[i1],
-                    cross = new paper.Line(p, h, true).intersect(
-                        new paper.Line(ps[i2], ts[i2], true), true);
+                    cross = new Line(p, h, true).intersect(
+                        new Line(ps[i2], ts[i2], true), true);
                 // Reset the shorter handle.
                 hs[i2] = null;
                 // See if the longer handle crosses the other tangent, and if so
@@ -245,7 +245,7 @@ var OffsetUtils = new function() {
 
             // Now create the offset curve, sample the maximum error, and keep
             // subdividing if it is too large.
-            var offsetCurve = new paper.Curve(ps[0], hs[0], hs[1], ps[1]),
+            var offsetCurve = new Curve(ps[0], hs[0], hs[1], ps[1]),
                 error = getOffsetError(v, offsetCurve.getValues(), radius);
             if (error > errorThreshold
                     // If the whole curve is shorter than the error, ignore
@@ -270,13 +270,13 @@ var OffsetUtils = new function() {
             error = 0;
         for (var i = 1; i < count; i++) {
             var t = i / count,
-                p = paper.Curve.getPoint(cv, t),
-                n = paper.Curve.getNormal(cv, t),
-                roots = paper.Curve.getCurveLineIntersections(ov,
+                p = Curve.getPoint(cv, t),
+                n = Curve.getNormal(cv, t),
+                roots = Curve.getCurveLineIntersections(ov,
                         p.x, p.y, n.x, n.y),
                 dist = 2 * radius;
             for (var j = 0, l = roots.length; j < l; j++) {
-                var d = paper.Curve.getPoint(ov, roots[j]).getDistance(p);
+                var d = Curve.getPoint(ov, roots[j]).getDistance(p);
                 if (d < dist)
                     dist = d;
             }
@@ -314,8 +314,8 @@ var OffsetUtils = new function() {
         function splitLargeAngles(index, recursion) {
             var curve = curves[index],
                 v = curve.getValues(),
-                n1 = paper.Curve.getNormal(v, 0),
-                n2 = paper.Curve.getNormal(v, 1).negate(),
+                n1 = Curve.getNormal(v, 0),
+                n2 = Curve.getNormal(v, 1).negate(),
                 cos = n1.dot(n2);
             if (cos > -0.5 && ++recursion < 4) {
                 curves.splice(index + 1, 0,
@@ -333,7 +333,7 @@ var OffsetUtils = new function() {
         }
 
         // Split sub-curves at peaks.
-        var getPeaks = paper.Curve.getPeaks;
+        var getPeaks = Curve.getPeaks;
         for (var i = curves.length - 1; i >= 0; i--) {
             splitAtRoots(i, getPeaks(curves[i].getValues()));
         }
@@ -350,9 +350,9 @@ var OffsetUtils = new function() {
      * direction as the average of the tangents at its beginning and end.
      */
     function getAverageTangentTime(v) {
-        var tan = paper.Curve.getTangent(v, 0).add(
-                    paper.Curve.getTangent(v, 0.5)).add(
-                    paper.Curve.getTangent(v, 1)),
+        var tan = Curve.getTangent(v, 0).add(
+                    Curve.getTangent(v, 0.5)).add(
+                    Curve.getTangent(v, 1)),
             tx = tan.x,
             ty = tan.y,
             flip = abs(ty) < abs(tx),
@@ -370,8 +370,8 @@ var OffsetUtils = new function() {
             oB =  3 * o0 - 6 * o1 + 3 * o2,
             oC = -3 * o0 + 3 * o1,
             roots = [],
-            epsilon = paper.Numerical.CURVETIME_EPSILON,
-            count = paper.Numerical.solveQuadratic(
+            epsilon = Numerical.CURVETIME_EPSILON,
+            count = Numerical.solveQuadratic(
                     3 * (aA - s * oA),
                     2 * (aB - s * oB),
                     aC - s * oC, roots,
@@ -387,325 +387,4 @@ var OffsetUtils = new function() {
     };
 };
 
-
-
-
-
-
-
-/*
- * Copyright 2020 WICKLETS LLC
- *
- * This file is part of Paper.js-drawing-tools.
- *
- * Paper.js-drawing-tools is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Paper.js-drawing-tools is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-/*
-    paper-hole.js
-    Adds hole() to the paper Layer class which finds the shape of the hole
-    at a certain point. Use this to make a vector fill bucket!
-
-    This version uses a flood fill + potrace method of filling holes.
-
-    Adapted from the FillBucket tool from old Wick
-
-    by zrispo (github.com/zrispo) (zach@wickeditor.com)
- */
-
-
-
-(function () {
-    var onError;
-    var onFinish;
-
-    var layers;
-    var layerGroup;
-
-    var x;
-    var y;
-
-    const MAX_NEST = 10;
-    const MAX_ITERS = 1000;
-    const EPSILON = 0.000001;
-
-    function fillHole () {
-        layerGroup = new paper.Group({insert:false});
-        layers.reverse().forEach(layer => {
-            layer.children.forEach(function (child) {
-                if(child._class !== 'Path' && child._class !== 'CompoundPath') return;
-
-                var clone = child.clone({insert:false});
-
-                if (clone._class === 'Path') {
-                    if (pointsEqual(clone.firstSegment.point, clone.lastSegment.point)) {
-                        clone.removeSegment(0);
-                    }
-                }
-                
-
-                if (clone.hasStroke()) {
-                    var offset = clone.strokeWidth / 2,
-                        outerPath = OffsetUtils.offsetPath(clone, offset, true),
-                        innerPath = OffsetUtils.offsetPath(clone, -offset, true),
-                        res;
-                    if (clone.closed) {
-                        res = outerPath.subtract(innerPath);
-                        innerPath.remove();
-                        outerPath.remove();
-                        layerGroup.addChild(clone);
-                    }
-                    else {
-                        res = OffsetUtils.joinOffsets(outerPath, innerPath, clone, offset);
-                    }
-                    //res.remove();
-                    res.strokeWeight = 0;
-                    res.fillColor = clone.strokeColor;
-
-                    clone.strokeWidth = 0;
-
-                    res.reorient();
-                    
-                    if (pointsEqual(res.firstSegment.point, res.lastSegment.point)) {
-                        res.removeSegment(0);
-                    }
-                    layerGroup.addChild(res);
-                }
-                else {
-                    layerGroup.addChild(clone);
-                }
-
-                
-            });
-        });
-        if(layerGroup.children.length === 0) {
-            onError('NO_PATHS');
-            return;
-        }
-        console.log(layerGroup);
-        
-        var p = new paper.Point(x, y);
-        //var hit = layerGroup.hitTest(p);
-
-        for (var i = 0; i < MAX_NEST; i++) {
-            console.log("nest");
-            var path = getShapeAroundPoint(p);
-            
-            if (path === null) {
-                onError('LEAKY_HOLE');
-                return;
-            }
-            
-            if (path.clockwise) {
-                //path = removeInteriorShapes(path);
-                path.fillColor = 'green';
-                console.log("done");
-                onFinish(path);
-                return;
-            }
-
-            p = path.getNearestPoint(path.bounds.leftCenter).add(new paper.Point(-1, 0));
-            path.remove();
-        }
-    }
-
-    // Cut out all of the objects inside path
-    function removeInteriorShapes(path) {
-        console.log("removing interior");
-        var items = layerGroup.getItems({
-            inside: path.bounds.expand(-1),
-            class: paper.Path
-        });
-        console.log(items);
-        for (var i = 0; i < items.length; i++) {
-            var newPath = path.subtract(items[i]);	
-            path.remove();
-            path = newPath;
-        }
-        return path;
-    }
-
-    // Get the fill shape which contains the startingPoint
-    function getShapeAroundPoint(startingPoint) {
-        console.log("get shape around point");
-        var intersector = new paper.Curve(
-            startingPoint, 
-            startingPoint.add(new paper.Point(-10000, 0)));
-        
-        var origin = getMinTimeIntersection(intersector, -1);
-        var points = [];
-        
-        if (origin === null) {
-            console.log("first intersect bad")
-            return null;	
-        }
-        
-        var intersection = origin.intersection;
-        intersector = intersection.curve;
-        //direction is -1 for backwards along paths, 1 for forwards along paths
-        var direction = intersection.normal.dot(new paper.Point(-1, 0)) > 0 ? 1 : -1; 
-        var n = 0;
-        var ended = false;
-        do {
-            //console.log("iter");
-            if (n === 1) points = [];
-            
-            intersection = direction < 0 ? 
-                getMaxTimeIntersection(intersector, intersection ? intersection.time : 2)
-                : getMinTimeIntersection(intersector, intersection ? intersection.time : -1);
-            
-            if (intersection === null) {
-                //console.log("no intersection");
-                if (direction < 0) {
-                    if (intersector.previous) {
-                        intersector = intersector.previous
-                    }
-                    else {
-                        intersector = intersector.path.lastCurve;
-                    }
-                }
-                else {
-                    if (intersector.next) {
-                        intersector = intersector.next
-                    }
-                    else {
-                        intersector = intersector.path.firstCurve;
-                    }
-                }
-                
-                var p = direction < 0 ? intersector.point2 : intersector.point1;
-                var hIn = direction < 0 ? intersector.next.handle1 : intersector.previous.handle2;
-                var hOut = direction < 0 ? intersector.handle2 : intersector.handle1;
-                points.push(new paper.Segment(p, hIn, hOut));
-            }
-            else {
-                console.log("yes intersection");
-                var p = intersection.point;
-                var hIn = intersection.tangent.multiply(-1);
-                var hOut = intersection.intersection.tangent;
-                points.push(new paper.Segment(p, hIn, hOut));
-                
-                var incoming = intersection.tangent.multiply(direction);
-                intersection = intersection.intersection;
-                direction = intersection.normal.dot(incoming) > 0 ? 1 : -1;
-                intersector = intersection.curve;
-            }
-            n++;
-            ended = points.length >= 2 && pointsEqual(points[points.length - 1].point ? points[points.length - 1].point : points[points.length - 1], points[0].point ? points[0].point : points[0]);
-        } while (n < MAX_ITERS && !ended);
-
-        console.log("iters: " + n);
-        
-        points.pop();
-        var path = new paper.Path(points);
-        path.closePath();
-        
-        console.log("good path");
-        return path;
-    }
-
-
-    // Gets the first intersection past the point on the curve at time min_t
-    function getMinTimeIntersection(curve, min_t) {
-        //console.log("forward");
-        var rect = curve.bounds;
-        var items = layerGroup.getItems({
-            overlapping: rect,
-            class: paper.Path
-        });
-        //if (curve.path) {
-        //    items = items.filter(function (item) {return item.isAbove(curve.path)});
-        //}
-        //console.log("items: " + items.length);
-
-        var min_t_object = {time: 2};
-
-        for (var i = 0; i < items.length; i++) {
-            for (var j = 0; j < items[i].curves.length; j++) {
-                if (curve === items[i].curves[j]) {
-                    console.log("dungus");
-                }
-                var intersections = curve.getIntersections(items[i].curves[j]);
-                for (var k = 0; k < intersections.length; k++) {
-                    if (intersections[k].time > min_t + EPSILON && intersections[k].time < min_t_object.time) {
-                        min_t_object = intersections[k];
-                    }
-                }
-            }
-        }
-        
-        if (min_t_object.time > 1) {
-            return null;
-        }
-        
-        return min_t_object;
-    }
-        
-    // Gets the first intersection before the point on the curve at time max_t
-    function getMaxTimeIntersection(curve, max_t) {
-        //console.log("backward");
-        var rect = curve.bounds;
-        var items = layerGroup.getItems({
-            overlapping: rect,
-            class: paper.Path
-        });
-        var max_t_object = {time: -1};
-        
-        for (var i = 0; i < items.length; i++) {
-            for (var j = 0; j < items[i].curves.length; j++) {
-                if (curve === items[i].curves[j]) {
-                    console.log("dangus");
-                }
-                var intersections = curve.getIntersections(items[i].curves[j]);
-                for (var k = 0; k < intersections.length; k++) {
-                    if (intersections[k].time < max_t - EPSILON && intersections[k].time > max_t_object.time) {
-                        max_t_object = intersections[k];
-                    }
-                }
-            }
-        }
-        
-        if (max_t_object.time < 0) {
-            return null;
-        }
-        
-        return max_t_object;
-    }
-
-    // Check whether the locations of p1, p2, are equal within the tolerance of EPSILON
-    function pointsEqual(p1, p2) {
-        return Math.abs(p1.x - p2.x) < EPSILON && Math.abs(p1.y - p2.y) < EPSILON;
-    }
-
-    /* Add hole() method to paper */
-    paper.PaperScope.inject({
-        hole: function(args) {
-            if(!args) console.error('paper.hole: args is required');
-            if(!args.point) console.error('paper.hole: args.point is required');
-            if(!args.onFinish) console.error('paper.hole: args.onFinish is required');
-            if(!args.onError) console.error('paper.hole: args.onError is required');
-            if(!args.layers) console.error('paper.hole: args.layers is required');
-
-            onError = args.onError;
-            onFinish = args.onFinish;
-
-            layers = args.layers;
-            x = args.point.x;
-            y = args.point.y;
-
-            console.log("-----------------starting---------------------");
-            fillHole();
-        }
-    });
-})();
+export default OffsetUtils;
