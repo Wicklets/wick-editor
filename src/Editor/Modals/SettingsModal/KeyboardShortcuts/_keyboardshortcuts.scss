@@ -22,6 +22,13 @@
  $keyboard-shortcuts-modal-height : 350px;
  $action-column-width: 45%;
 
+.keyboard-shortcuts-modal-button {
+  height: 28px;
+}
+.keyboard-shortcuts-modal-button-text {
+  height: 24px;
+}
+
 .keyboard-shortcuts-modal-body {
   width: 100%;
   height: 100%;
@@ -60,7 +67,7 @@
   margin-left: 8px; 
 }
 
-#keyboard-shortcuts-modal-reset {
+#keyboard-shortcuts-modal-reset { 
   margin-left: 0; 
 }
 

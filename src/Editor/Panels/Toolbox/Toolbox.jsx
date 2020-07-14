@@ -265,6 +265,7 @@ class Toolbox extends Component {
                 name={val.active}
                 dropdown={true}/>
               <PopupMenu
+                mobile={true}
                 isOpen={this.state.dropdownSelector === key}
                 toggle={() => this.toggleDropdownSelector(key)}
                 target={id}

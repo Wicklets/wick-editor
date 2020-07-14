@@ -85,6 +85,13 @@ import iconGroup from 'resources/tool-icons/group.svg';
 import iconSearch from 'resources/tool-icons/search.svg';
 import iconClip from 'resources/asset-library-icons/clip.svg';
 
+// Objects
+import iconPathObject from 'resources/object-icons/path.svg';
+import iconButtonObject from 'resources/object-icons/button.svg';
+import iconClipObject from 'resources/object-icons/clip.svg';
+import iconTextObject from 'resources/object-icons/text.svg';
+import iconImageObject from'resources/object-icons/image.svg';
+
 // Rows
 import iconBrushSize from "resources/inspector-icons/property-icons/brushsize.svg";
 import iconGapFillAmount from "resources/inspector-icons/property-icons/gapfillamount.png";
@@ -113,6 +120,11 @@ import iconVolume from "resources/inspector-icons/property-icons/volume.svg";
 import iconUnknown from 'resources/inspector-icons/selection-icons/unknown.svg';
 import iconTween from 'resources/tool-icons/tween.svg';
 import iconFont from 'resources/tool-icons/font.svg';
+
+// Outliner
+import iconEditTimeline from 'resources/outliner-icons/edit_timeline.svg';
+import iconHideOutliner from 'resources/outliner-icons/hidden.svg';
+import iconLockOutliner from 'resources/outliner-icons/locked.svg';
 
 // Interface
 import iconCloseModal from 'resources/interface-images/close.svg';
@@ -271,6 +283,14 @@ class ToolIcon extends Component {
       "cancel-white": iconCancelWhite,
       "hamburger": iconHamburger,
       "export": iconExport,
+      "path-object": iconPathObject,
+      "button-object": iconButtonObject,
+      "clip-object": iconClipObject,
+      "image-object": iconImageObject,
+      "text-object": iconTextObject,
+      "edit-timeline": iconEditTimeline,
+      "outliner-lock": iconLockOutliner,
+      "outliner-hide": iconHideOutliner,
     }
   }
 

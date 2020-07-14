@@ -176,6 +176,7 @@ class ToolSettings extends Component {
             value={this.props.showBrushModes}
             onChange={this.props.toggleBrushModes}/>
           <PopupMenu
+            mobile={this.props.isMobile}
             isOpen={this.props.showBrushModes && !this.props.previewPlaying}
             toggle={this.props.toggleBrushModes}
             target="brush-modes-popover-button"

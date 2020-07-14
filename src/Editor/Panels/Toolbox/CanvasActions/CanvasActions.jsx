@@ -42,6 +42,7 @@ class CanvasActions extends Component {
   render () {
     return (
       <PopupMenu
+        mobile={this.props.renderSize === "small"}
         isOpen={this.props.showCanvasActions}
         toggle={this.props.toggleCanvasActions}
         target="more-canvas-actions-popover-button"

@@ -945,6 +945,7 @@ class Editor extends EditorCore {
                               setActiveTool={this.setActiveTool}
                               previewPlaying={this.state.previewPlaying}
                               togglePreviewPlaying={this.togglePreviewPlaying}
+                              renderSize={renderSize}
                             />
                             {renderSize === "small" &&
                             <DeleteCopyPaste

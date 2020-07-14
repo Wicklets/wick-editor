@@ -167,7 +167,7 @@ class ProjectSettings extends Component {
 
   renderNameObject = () => {
     return (
-      <div className="project-setting-element">
+      <div className={classNames("project-setting-element", this.props.isMobile && "mobile")}>
         <label htmlFor="project name" className="project-settings-property-label">
           Name
         </label>
@@ -186,7 +186,7 @@ class ProjectSettings extends Component {
 
   renderFramerateObject = () => {
     return (
-      <div className="project-setting-element">
+      <div className={classNames("project-setting-element", this.props.isMobile && "mobile")}>
         <label htmlFor="project framerate" className="project-settings-property-label">
         Framerate (FPS)
         </label>
@@ -271,7 +271,7 @@ class ProjectSettings extends Component {
 
   renderBackgroundColorObject = () => {
     return (
-      <div className="project-setting-element">
+      <div className={classNames("project-setting-element", this.props.isMobile && "mobile")}>
         <label htmlFor="project-background-color-picker" className="project-settings-property-label">
           Background Color
         </label>

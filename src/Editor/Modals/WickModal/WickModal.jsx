@@ -52,7 +52,7 @@ class WickModal extends Component {
       <div id="modal-close-icon-container">
         <ActionButton 
           color="tool" 
-          icon="closemodal" 
+          icon="cancel-white" 
           action={this.props.toggle}
         />
       </div>
