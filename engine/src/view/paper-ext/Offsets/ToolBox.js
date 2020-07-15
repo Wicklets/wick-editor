@@ -1,10 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const util_1 = require("util");
-const util = require('util');
-const fs = require('fs');
-const paper = require('paper-jsdom');
-const constants = require('./Consts');
+
+const offsets_constants = require('./Consts');
 function IsClose(a, b, Precision) {
     var diff = Math.abs(a - b);
     return diff < Precision;
@@ -31,11 +28,11 @@ function GetCurveLine(p1, p2, asvector = false) {
     if (asvector == true) {
         p2 = p2.add(p1);
     }
-    return new paper.Curve(p1, (p1.Lerp(p2, constants.ONE_THIRD)).subtract(p1), (p1.Lerp(p2, constants.TWO_THIRD)).subtract(p2), p2);
+    return new paper.Curve(p1, (p1.Lerp(p2, offsets_constants.ONE_THIRD)).subtract(p1), (p1.Lerp(p2, offsets_constants.TWO_THIRD)).subtract(p2), p2);
 }
 exports.GetCurveLine = GetCurveLine;
 // makes a path from segments, combines close segments into one
-function MakePathFromSegments(segments, tolerance = constants.MY_EPSILON) {
+function MakePathFromSegments(segments, tolerance = offsets_constants.MY_EPSILON) {
     for (var i = 0; i < segments.length - 1; i++) {
         if (segments[i].point.isClose(segments[i + 1].point, tolerance)) {
             segments[i].handleOut = segments[i + 1].handleOut;
@@ -154,7 +151,7 @@ function GetTrimTimesForCurvePair(curve1, curve2, radius) {
                 p2 = curve2.getNearestPoint(newpos);
             }
             var count = 50;
-            while (!newpos.isClose(oldpos, constants.MY_EPSILON) && newpos != null && count > 0) {
+            while (!newpos.isClose(oldpos, offsets_constants.MY_EPSILON) && newpos != null && count > 0) {
                 count--;
                 oldpos = newpos;
                 newpos = GetCircleCenter(p1, p2, radius);
@@ -462,12 +459,12 @@ exports.SetAngleSign = SetAngleSign;
 // simply makes a arc
 function GetArc(middle, radius, pointorangle1, pointorangle2) {
     var absradius = Math.abs(radius);
-    if (util_1.isNumber(pointorangle1)) {
+    if (util.isNumber(pointorangle1)) {
         var tpoint = new paper.Point(absradius, 0);
         tpoint = tpoint.rotate(pointorangle1);
         pointorangle1 = tpoint.add(middle);
     }
-    if (util_1.isNumber(pointorangle2)) {
+    if (util.isNumber(pointorangle2)) {
         var tpoint = new paper.Point(absradius, 0);
         tpoint = tpoint.rotate(pointorangle2);
         pointorangle2 = tpoint.add(middle);
