@@ -34,14 +34,14 @@ class WelcomeModal extends Component {
     super();
     this.forumPost = "https://forum.wickeditor.com/t/wick-editor-version-1-17-new-clip-options-editor-options-onion-skinning-and-more/2450";
     this.updates = [
-      "Animation Types for Clips",
-      "Advanced Export Options",
-      "And So Much More!",
+      "New Outliner Tool!",
+      "Accessibility Updates!",
+      "Downloadable Editor and More!",
     ] // No More than 3
 
-    let t1 = ["Hyun's Dojo", "Guy de Bree", "Dimp", "Pablosaurs910"]
+    let t1 = ["Hyun's Dojo", "Guy de Bree", "Dimp"]
     let t2 = ["Constance Ye", "Victoria Rojas"]
-    let t3 = ["Gautaum Bose", "Ji Heon Han"]
+    let t3 = ["Pablosaurs910", "Gautaum Bose", "Ji Heon Han", "Trevor"]
     let t4 = ["Golan Levin", "ThisPodcastIsInEnglish", "Daniel Sun", "Benjamin Briand", "Anonymous"]
     let t5 = ["Joe", "Karlin Fox"]
     this.patreonSupporters = t1.concat(t2, t3, t4, t5)
