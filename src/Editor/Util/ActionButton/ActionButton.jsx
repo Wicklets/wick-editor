@@ -56,7 +56,7 @@ class ActionButton extends Component {
           onTouch={this.runAction}>
           {this.props.dropdown ? 
           <div className="icons-container">
-            {this.props.icon && <ToolIcon className={classNames(this.props.iconClassName)} name={this.props.icon} />}
+            {this.props.icon && <ToolIcon className={classNames(this.props.iconClassName, this.props.dropdown && "dropdown-action-button-icon")} name={this.props.icon} />}
             {this.props.dropdown && <ToolIcon className="dropdown-extra-icon" name="moreactions"/>}
           </div>
           :
