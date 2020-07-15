@@ -473,6 +473,10 @@ $action-button-transition-duration: .2s;
   height: 7px;
   margin-top: 1px;
 }
+.dropdown-action-button-icon {
+  align-self: center;
+  width: calc(100% - 7px);
+}
 
 .icons-container {
   height: 100%;

@@ -50,6 +50,7 @@ class ToolSettingsInput extends Component {
           id={"settings-input-id-" + this.props.name}
           tooltip={this.props.name}
           action={() => this.props.onChange(!this.props.value)}
+          iconClassName="toolbox-input-icon"
           />
       </div>
     );
