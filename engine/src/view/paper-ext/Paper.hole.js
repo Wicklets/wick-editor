@@ -48,8 +48,48 @@
 
     var holeColor = null;
 
-    function positiveMod(a, b) {
-        return ((a % b) + b) % b;
+    function colorAt(p) {
+        var hit = layerGroup.hitTest(p);
+        if (hit === null) {
+            return null;
+        }
+        else if (hit.type === "stroke") {
+            return hit.item.strokeColor;
+        }
+        else if (hit.type === "fill") {
+            return hit.item.fillColor;
+        }
+    }
+
+    function colorsEqual(c1, c2) {
+        if (c1 === null || c2 === null) {
+            return c1 === null && c2 === null;
+        }
+        return c1.red === c2.red && c1.green === c2.green && c1.blue === c2.blue;
+    }
+
+    function tangentsEqual(t1, t2) {
+        return (t1.x === 0 && t2.x === 0) ||
+                (t1.y === 0 && t2.y === 0) ||
+                (t1.x !== 0 && t2.y !== 0 && 
+                Math.abs(t1.y / t1.x * t2.x / t2.y - 1) < 0.05);
+    }
+
+    // Check whether the locations of p1, p2, are equal within the tolerance of EPSILON
+    function pointsEqual(p1, p2, epsilon) {
+        return Math.abs(p1.x - p2.x) < epsilon && Math.abs(p1.y - p2.y) < epsilon;
+    }
+
+    function curveColor(c) {
+        if (!c.path) {
+            return null;
+        }
+        else if (c.path.parent._class === 'CompoundPath') {
+            return c.path.parent.fillColor;
+        }
+        else {
+            return c.path.fillColor;
+        }
     }
     
     function cleanup(item, epsilon) {
@@ -108,13 +148,8 @@
         console.log(layerGroup);
         
         var p = new paper.Point(x, y);
-        var hit = layerGroup.hitTest(p);
-        if (hit.type === "stroke") {
-            holeColor = hit.item.fillColor;
-        }
-        else if (hit.type === "fill") {
-            holeColor = hit.item.strokeColor;
-        }
+        holeColor = colorAt(p);
+        console.log("hole color", holeColor);
 
         for (var i = 0; i < MAX_NEST; i++) {
             console.log("nest");
@@ -125,54 +160,100 @@
                 return;
             }
             
-            if (path.clockwise) {
-                //path = removeInteriorShapes(path);
+            if (!path.clockwise) {
+                if (holeColor === null) {
+                    path = removeInteriorShapes(path);
+                }
+                else {
+                    path = constructShape(path);
+                }
                 path.fillColor = 'green';
-                console.log("done");
+                console.log("done", path);
                 onFinish(path);
                 return;
             }
 
-            p = path.getNearestPoint(path.bounds.leftCenter).add(new paper.Point(-1, 0));
+            p = path.getNearestLocation(path.bounds.leftCenter).point.add(new paper.Point(-1, 0));
+            console.log("starting at ", i, p.toString())
             path.remove();
         }
     }
 
-    // Cut out all of the objects inside path
     function removeInteriorShapes(path) {
-        console.log("removing interior");
         var items = layerGroup.getItems({
             inside: path.bounds.expand(-1),
             class: paper.Path
         });
         console.log(items);
         for (var i = 0; i < items.length; i++) {
-            var newPath = path.subtract(items[i]);	
-            path.remove();
-            path = newPath;
+            path = path.subtract(items[i], {insert: false});
         }
         return path;
     }
 
+    // Cut out all of the objects inside path
+    function constructShape(path) {
+        console.log("removing interior");
+        var items = layerGroup.getItems({
+            overlapping: path.bounds,
+            match: (item) => {
+                if (item._class === 'Path') {
+                    return item.parent._class !== 'CompoundPath';
+                }
+                return item._class === 'CompoundPath';
+            }
+        });
+        var p = items[0]
+        for (var i = 1; i < items.length; i++) {
+            let item = items[i];
+            if (colorsEqual(holeColor, item.fillColor)) {
+                p = p.unite(item,{insert: false});
+            }
+            else {
+                p = p.subtract(item, {insert: false});
+            }
+        }
+        return p.intersect(path, {insert: false});
+    }
+
     // Get the fill shape which contains the startingPoint
     function getShapeAroundPoint(startingPoint) {
-        console.log("get shape around point");
+        console.log("get shape around pointtt");
         var intersector = new paper.Curve(
             startingPoint, 
             startingPoint.add(new paper.Point(-10000, 0)));
+
+        var rect = intersector.bounds;
+        var items = layerGroup.getItems({
+            overlapping: rect,
+            class: paper.Path
+        });
+
+        var intersection = {time: 2}
+
+        for (var i = 0; i < items.length; i++) {
+            for (var j = 0; j < items[i].curves.length; j++) {
+                var intersections = intersector.getIntersections(items[i].curves[j]);
+                for (var k = 0; k < intersections.length; k++) {
+                    if (intersections[k].time < intersection.time &&
+                        !colorsEqual(holeColor, colorAt(intersections[k].point.add(new paper.Point(-1, 0))))) {
+                        intersection = intersections[k];
+                    }
+                }
+            }
+        }
         
-        var origin = getMinTimeIntersection(intersector, -1);
         var points = [];
         
-        if (origin === null) {
+        if (intersection.time > 1) {
             console.log("first intersect bad")
             return null;	
         }
         
-        var intersection = origin.intersection;
+        var intersection = intersection.intersection;
         intersector = intersection.curve;
         //direction is -1 for backwards along paths, 1 for forwards along paths
-        var direction = intersection.normal.dot(new paper.Point(-1, 0)) > 0 ? 1 : -1; 
+        var direction = intersection.normal.dot(new paper.Point(-1, 0)) > 0 ? -1 : 1; 
         var n = 0;
         var ended = false;
         do {
@@ -199,20 +280,46 @@
                 points.push(new paper.Segment(p, hIn, hOut));
             }
             else {
-                console.log("yes intersection");
-                var p = intersection.point;
-                var hIn = intersection.tangent.multiply(-1);
-                var hOut = intersection.intersection.tangent;
-                console.log(p.toString());
-                points.push(new paper.Segment(p, hIn, hOut));
+                console.log("yes intersection", intersection, direction);
+                var ray_direction = intersection.tangent.multiply(direction);
+                var wall_normal = intersection.intersection.normal.multiply(-1);
+                var inside = ray_direction.dot(wall_normal) > 0;
+                var same_fill = colorsEqual(holeColor, curveColor(intersection.intersection.curve));
+                var above = (holeColor === null) || intersection.intersection.curve.path.isAbove(intersection.curve.path);
+                console.log("rangis", above, inside, same_fill);
+                if (!(!above && !same_fill)) {
+                    //not forward
+                    var turn_multiplier = 1;
                 
-                var incoming = intersection.tangent.multiply(direction);
-                intersection = intersection.intersection;
-                direction = intersection.normal.dot(incoming) > 0 ? 1 : -1;
-                intersector = intersection.curve;
+                    if (above && !inside && !same_fill) {
+                        turn_multiplier = 1;
+                        console.log("subtract")
+                    }
+                    else if (!inside && same_fill) {
+                        console.log("union")
+                        turn_multiplier = -1;
+                    }
+                    else {
+                        console.log("!!!!!!!!!");
+                    }
+
+                    var p = intersection.point;
+                    var hIn = intersection.tangent;
+                    var hOut = intersection.intersection.tangent.multiply(-1);
+                    console.log(p.toString());
+                    points.push(new paper.Segment(p, hIn, hOut));
+                    
+                    var incoming = intersection.tangent.multiply(direction);
+                    intersection = intersection.intersection;
+                    direction = turn_multiplier * (intersection.normal.dot(incoming) > 0 ? -1 : 1);
+                    intersector = intersection.curve;
+                }
+                else {
+                    console.log("forward")
+                }
             }
             n++;
-            ended = points.length >= 2 && pointsEqual(points[points.length - 1].point ? points[points.length - 1].point : points[points.length - 1], points[0].point ? points[0].point : points[0], EPSILON);
+            ended = points.length >= 2 && pointsEqual(points[points.length - 1].point, points[0].point, EPSILON);
         } while (n < MAX_ITERS && !ended);
 
         console.log("iters: " + n);
@@ -233,23 +340,19 @@
             overlapping: rect,
             class: paper.Path
         });
-        //if (curve.path) {
-        //    items = items.filter(function (item) {return item.isAbove(curve.path)});
-        //}
-        //console.log("items: " + items.length);
 
         var min_t_object = {time: 2};
 
         for (var i = 0; i < items.length; i++) {
             for (var j = 0; j < items[i].curves.length; j++) {
-                //if (curve !== items[i].curves[j]) {
-                    var intersections = curve.getIntersections(items[i].curves[j]);
-                    for (var k = 0; k < intersections.length; k++) {
-                        if (intersections[k].time > min_t + EPSILON && intersections[k].time < min_t_object.time) {
-                            min_t_object = intersections[k];
-                        }
+                var intersections = curve.getIntersections(items[i].curves[j]);
+                for (var k = 0; k < intersections.length; k++) {
+                    if (intersections[k].time > min_t + EPSILON && 
+                        intersections[k].time < min_t_object.time &&
+                        !tangentsEqual(intersections[k].tangent, intersections[k].intersection.tangent)) {
+                        min_t_object = intersections[k];
                     }
-                //}
+                }
             }
         }
         
@@ -272,14 +375,14 @@
         
         for (var i = 0; i < items.length; i++) {
             for (var j = 0; j < items[i].curves.length; j++) {
-                //if (curve === items[i].curves[j]) {
-                    var intersections = curve.getIntersections(items[i].curves[j]);
-                    for (var k = 0; k < intersections.length; k++) {
-                        if (intersections[k].time < max_t - EPSILON && intersections[k].time > max_t_object.time) {
-                            max_t_object = intersections[k];
-                        }
+                var intersections = curve.getIntersections(items[i].curves[j]);
+                for (var k = 0; k < intersections.length; k++) {
+                    if (intersections[k].time < max_t - EPSILON && 
+                        intersections[k].time > max_t_object.time &&
+                        !tangentsEqual(intersections[k].tangent, intersections[k].intersection.tangent)) {
+                        max_t_object = intersections[k];
                     }
-                //}
+                }
             }
         }
         
@@ -288,11 +391,6 @@
         }
         
         return max_t_object;
-    }
-
-    // Check whether the locations of p1, p2, are equal within the tolerance of EPSILON
-    function pointsEqual(p1, p2, epsilon) {
-        return Math.abs(p1.x - p2.x) < epsilon && Math.abs(p1.y - p2.y) < epsilon;
     }
 
     /* Add hole() method to paper */
