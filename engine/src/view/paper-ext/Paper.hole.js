@@ -93,6 +93,7 @@
     }
     
     function cleanup(item, epsilon) {
+        item.reorient(false, false);
         var paths;
         if (item._class === 'Path') {
             paths = [item];
@@ -107,7 +108,9 @@
                 if (pointsEqual(path.segments[i].point, path.segments[(i + 1) % path.segments.length].point, epsilon)) {
                     let removed = path.removeSegment(i);
                     console.log(path.segments.length, i);
-                    path.segments[i % path.segments.length].handleIn = removed.handleIn;
+                    if (path.segments.length) {
+                        path.segments[i % path.segments.length].handleIn = removed.handleIn;
+                    }
                 }
                 else {
                     i++;
@@ -161,13 +164,14 @@
             }
             
             if (!path.clockwise) {
+                path.remove();
+                path.fillColor = 'green';
                 if (holeColor === null) {
                     path = removeInteriorShapes(path);
                 }
                 else {
                     path = constructShape(path);
                 }
-                path.fillColor = 'green';
                 console.log("done", path);
                 onFinish(path);
                 return;
@@ -180,20 +184,25 @@
     }
 
     function removeInteriorShapes(path) {
+        let originalArea = path.area;
         var items = layerGroup.getItems({
             inside: path.bounds.expand(-1),
             class: paper.Path
         });
-        console.log(items);
         for (var i = 0; i < items.length; i++) {
             path = path.subtract(items[i], {insert: false});
+        }
+
+        if (path._class === 'CompoundPath') {
+            cleanupAreas(path, originalArea);
         }
         return path;
     }
 
     // Cut out all of the objects inside path
     function constructShape(path) {
-        console.log("removing interior");
+        console.log("constructing shape");
+        let originalArea = path.area;
         var items = layerGroup.getItems({
             overlapping: path.bounds,
             match: (item) => {
@@ -203,17 +212,36 @@
                 return item._class === 'CompoundPath';
             }
         });
-        var p = items[0]
-        for (var i = 1; i < items.length; i++) {
+        var p = new paper.Path({insert: false});
+        items.sort((a,b) => a.isAbove(b) ? 1 : -1);
+        for (var i = 0; i < items.length; i++) {
             let item = items[i];
-            if (colorsEqual(holeColor, item.fillColor)) {
-                p = p.unite(item,{insert: false});
-            }
-            else {
-                p = p.subtract(item, {insert: false});
+            if (item !== path) {
+                if (colorsEqual(holeColor, item.fillColor)) {
+                    p = p.unite(item,{insert: false});
+                }
+                else {
+                    p = p.subtract(item, {insert: false});
+                }
             }
         }
-        return p.intersect(path, {insert: false});
+        p = p.intersect(path, {insert: false});
+        if (p._class === 'CompoundPath') {
+            cleanupAreas(p, originalArea);
+        }
+        return p;
+    }
+
+    function cleanupAreas(path, minArea) {
+        for (let i = 0; i < path.children.length; ) {
+            if (Math.abs(path.children[i].area) < 1 || (path.children[i].area > 0 && Math.abs(minArea / path.children[i].area) > 1.01)) {
+                path.children[i].remove();
+                console.log("rembove");
+            }
+            else {
+                i++;
+            }
+        }
     }
 
     // Get the fill shape which contains the startingPoint
@@ -292,12 +320,14 @@
                     var turn_multiplier = 1;
                 
                     if (above && !inside && !same_fill) {
-                        turn_multiplier = 1;
                         console.log("subtract")
                     }
                     else if (!inside && same_fill) {
                         console.log("union")
                         turn_multiplier = -1;
+                    }
+                    else if (!above && inside && same_fill && colorsEqual(holeColor, colorAt(intersection.point.add(ray_direction.add(intersection.normal))))) {
+                        console.log("turn");
                     }
                     else {
                         console.log("!!!!!!!!!");

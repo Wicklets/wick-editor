@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.7.15.20.50.11";
+var WICK_ENGINE_BUILD_VERSION = "2020.7.16.15.9.5";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -58562,14 +58562,8 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
             path.fillColor = this.getSetting('fillColor').rgba;
             path.name = null;
             this.addPathToProject();
-
-            if (e.item) {
-              path.insertAbove(e.item);
-            } else {
-              this.paper.project.activeLayer.addChild(path);
-              this.paper.OrderingUtils.sendToBack([path]);
-            }
-
+            this.paper.project.activeLayer.addChild(path);
+            this.paper.OrderingUtils.bringToFront([path]);
             this.fireEvent('canvasModified');
           }
         },
@@ -59769,6 +59763,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
   }
 
   function cleanup(item, epsilon) {
+    item.reorient(false, false);
     var paths;
 
     if (item._class === 'Path') {
@@ -59784,7 +59779,10 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         if (pointsEqual(path.segments[i].point, path.segments[(i + 1) % path.segments.length].point, epsilon)) {
           let removed = path.removeSegment(i);
           console.log(path.segments.length, i);
-          path.segments[i % path.segments.length].handleIn = removed.handleIn;
+
+          if (path.segments.length) {
+            path.segments[i % path.segments.length].handleIn = removed.handleIn;
+          }
         } else {
           i++;
         }
@@ -59837,13 +59835,15 @@ Wick.Tools.Zoom = class extends Wick.Tool {
       }
 
       if (!path.clockwise) {
+        path.remove();
+        path.fillColor = 'green';
+
         if (holeColor === null) {
           path = removeInteriorShapes(path);
         } else {
           path = constructShape(path);
         }
 
-        path.fillColor = 'green';
         console.log("done", path);
         onFinish(path);
         return;
@@ -59856,11 +59856,11 @@ Wick.Tools.Zoom = class extends Wick.Tool {
   }
 
   function removeInteriorShapes(path) {
+    let originalArea = path.area;
     var items = layerGroup.getItems({
       inside: path.bounds.expand(-1),
       class: paper.Path
     });
-    console.log(items);
 
     for (var i = 0; i < items.length; i++) {
       path = path.subtract(items[i], {
@@ -59868,12 +59868,17 @@ Wick.Tools.Zoom = class extends Wick.Tool {
       });
     }
 
+    if (path._class === 'CompoundPath') {
+      cleanupAreas(path, originalArea);
+    }
+
     return path;
   } // Cut out all of the objects inside path
 
 
   function constructShape(path) {
-    console.log("removing interior");
+    console.log("constructing shape");
+    let originalArea = path.area;
     var items = layerGroup.getItems({
       overlapping: path.bounds,
       match: item => {
@@ -59884,25 +59889,47 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         return item._class === 'CompoundPath';
       }
     });
-    var p = items[0];
+    var p = new paper.Path({
+      insert: false
+    });
+    items.sort((a, b) => a.isAbove(b) ? 1 : -1);
 
-    for (var i = 1; i < items.length; i++) {
+    for (var i = 0; i < items.length; i++) {
       let item = items[i];
 
-      if (colorsEqual(holeColor, item.fillColor)) {
-        p = p.unite(item, {
-          insert: false
-        });
-      } else {
-        p = p.subtract(item, {
-          insert: false
-        });
+      if (item !== path) {
+        if (colorsEqual(holeColor, item.fillColor)) {
+          p = p.unite(item, {
+            insert: false
+          });
+        } else {
+          p = p.subtract(item, {
+            insert: false
+          });
+        }
       }
     }
 
-    return p.intersect(path, {
+    p = p.intersect(path, {
       insert: false
     });
+
+    if (p._class === 'CompoundPath') {
+      cleanupAreas(p, originalArea);
+    }
+
+    return p;
+  }
+
+  function cleanupAreas(path, minArea) {
+    for (let i = 0; i < path.children.length;) {
+      if (Math.abs(path.children[i].area) < 1 || path.children[i].area > 0 && Math.abs(minArea / path.children[i].area) > 1.01) {
+        path.children[i].remove();
+        console.log("rembove");
+      } else {
+        i++;
+      }
+    }
   } // Get the fill shape which contains the startingPoint
 
 
@@ -59974,11 +60001,12 @@ Wick.Tools.Zoom = class extends Wick.Tool {
           var turn_multiplier = 1;
 
           if (above && !inside && !same_fill) {
-            turn_multiplier = 1;
             console.log("subtract");
           } else if (!inside && same_fill) {
             console.log("union");
             turn_multiplier = -1;
+          } else if (!above && inside && same_fill && colorsEqual(holeColor, colorAt(intersection.point.add(ray_direction.add(intersection.normal))))) {
+            console.log("turn");
           } else {
             console.log("!!!!!!!!!");
           }
