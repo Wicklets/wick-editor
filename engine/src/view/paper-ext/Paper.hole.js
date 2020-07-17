@@ -59,6 +59,7 @@
         else if (hit.type === "fill") {
             return hit.item.fillColor;
         }
+        return null;
     }
 
     function colorsEqual(c1, c2) {
@@ -93,7 +94,7 @@
     }
     
     function cleanup(item, epsilon) {
-        item.reorient(false, false);
+        item.reorient(false, true);
         var paths;
         if (item._class === 'Path') {
             paths = [item];
@@ -163,7 +164,7 @@
                 return;
             }
             
-            if (!path.clockwise) {
+            if (path.clockwise) {
                 path.remove();
                 path.fillColor = 'green';
                 if (holeColor === null) {
@@ -204,7 +205,7 @@
         console.log("constructing shape");
         let originalArea = path.area;
         var items = layerGroup.getItems({
-            overlapping: path.bounds,
+            inside: path.bounds, //overlapping?
             match: (item) => {
                 if (item._class === 'Path') {
                     return item.parent._class !== 'CompoundPath';
@@ -216,13 +217,12 @@
         items.sort((a,b) => a.isAbove(b) ? 1 : -1);
         for (var i = 0; i < items.length; i++) {
             let item = items[i];
-            if (item !== path) {
-                if (colorsEqual(holeColor, item.fillColor)) {
-                    p = p.unite(item,{insert: false});
-                }
-                else {
-                    p = p.subtract(item, {insert: false});
-                }
+            if (item === path) console.log("YANGUS");
+            if (colorsEqual(holeColor, item.fillColor)) {
+                p = p.unite(item,{insert: false});
+            }
+            else {
+                p = p.subtract(item, {insert: false});
             }
         }
         p = p.intersect(path, {insert: false});
@@ -235,8 +235,18 @@
     function cleanupAreas(path, minArea) {
         for (let i = 0; i < path.children.length; ) {
             if (Math.abs(path.children[i].area) < 1 || (path.children[i].area > 0 && Math.abs(minArea / path.children[i].area) > 1.01)) {
+                var bounds = path.children[i].bounds;
                 path.children[i].remove();
-                console.log("rembove");
+                console.log("removed shape")
+                for (let j = 0; j < path.children.length;) {
+                    if (bounds.contains(path.children[j].bounds) && path.children[j].area < 0) {
+                        path.children[j].remove();
+                        console.log("removed hole");
+                    }
+                    else {
+                        j++;
+                    }
+                }
             }
             else {
                 i++;
@@ -281,7 +291,8 @@
         var intersection = intersection.intersection;
         intersector = intersection.curve;
         //direction is -1 for backwards along paths, 1 for forwards along paths
-        var direction = intersection.normal.dot(new paper.Point(-1, 0)) > 0 ? -1 : 1; 
+        //assuming clockwise areas, counterclockwise holes, this method moves up from initial intersection
+        var direction = intersection.normal.dot(new paper.Point(-1, 0)) > 0 ? 1 : -1; 
         var n = 0;
         var ended = false;
         do {
@@ -289,18 +300,40 @@
             if (n === 1) points = [];
             
             intersection = direction < 0 ? 
-                getMaxTimeIntersection(intersector, intersection ? intersection.time : 2)
-                : getMinTimeIntersection(intersector, intersection ? intersection.time : -1);
+                getMaxTimeIntersection(intersector, intersection ? intersection.time : 1)
+                : getMinTimeIntersection(intersector, intersection ? intersection.time : 0);
             
             if (intersection === null) {
                 console.log("no intersection");
                 var temp = intersector;
-                //console.log(temp);
-                intersector = direction === 1 ? 
+                if (direction === 1) {
+                    if (intersector.next) {
+                        intersector = intersector.next;
+                    }
+                    else if (intersector.path.closed) {
+                        intersector = intersector.firstSegment;
+                    }
+                    else {
+                        intersector = intersector.previous;
+                        direction = -1;
+                    }
+                }
+                else {
+                    if (intersector.previous) {
+                        intersector = intersector.previous;
+                    }
+                    else if (intersector.path.closed) {
+                        intersector = intersector.lastSegment;
+                    }
+                    else {
+                        intersector = intersector.next;
+                        direction = 1;
+                    }
+                }
+                /*intersector = direction === 1 ? 
                     (intersector.next ? intersector.next : intersector.firstSegment) : 
-                    (intersector.previous ? intersector.previous : intersector.lastSegment)
-                //intersector.path.curves[positiveMod(intersector.index + direction, intersector.path.curves.length)];
-                
+                    (intersector.previous ? intersector.previous : intersector.lastSegment)*/
+                                
                 var p = direction < 0 ? intersector.point2 : intersector.point1;
                 var hIn = direction < 0 ? temp.handle1 : temp.handle2;
                 var hOut = direction < 0 ? intersector.handle2 : intersector.handle1;
@@ -310,12 +343,14 @@
             else {
                 console.log("yes intersection", intersection, direction);
                 var ray_direction = intersection.tangent.multiply(direction);
-                var wall_normal = intersection.intersection.normal.multiply(-1);
+                var wall_normal = intersection.intersection.normal; //.multiply(-1)
                 var inside = ray_direction.dot(wall_normal) > 0;
                 var same_fill = colorsEqual(holeColor, curveColor(intersection.intersection.curve));
                 var above = (holeColor === null) || intersection.intersection.curve.path.isAbove(intersection.curve.path);
-                console.log("rangis", above, inside, same_fill);
-                if (!(!above && !same_fill)) {
+                //console.log(intersection.point.add(ray_direction.add(intersection.normal)).toString());
+                //var noChange = colorsEqual(holeColor, colorAt(intersection.point.add(ray_direction.add(intersection.intersection.tangent.multiply(inside ? 1 : -1)))));
+                console.log("rangis", above, inside, same_fill/*, noChange*/);
+                if (!((!above && !same_fill)/* || noChange*/)) {
                     //not forward
                     var turn_multiplier = 1;
                 
@@ -326,11 +361,12 @@
                         console.log("union")
                         turn_multiplier = -1;
                     }
-                    else if (!above && inside && same_fill && colorsEqual(holeColor, colorAt(intersection.point.add(ray_direction.add(intersection.normal))))) {
+                    /*else if (!above && inside && same_fill) {
                         console.log("turn");
-                    }
+                    }*/
                     else {
                         console.log("!!!!!!!!!");
+                        turn_multiplier = -1;
                     }
 
                     var p = intersection.point;
@@ -341,7 +377,7 @@
                     
                     var incoming = intersection.tangent.multiply(direction);
                     intersection = intersection.intersection;
-                    direction = turn_multiplier * (intersection.normal.dot(incoming) > 0 ? -1 : 1);
+                    direction = turn_multiplier * (intersection.normal.dot(incoming) > 0 ? 1 : -1);
                     intersector = intersection.curve;
                 }
                 else {
@@ -353,6 +389,10 @@
         } while (n < MAX_ITERS && !ended);
 
         console.log("iters: " + n);
+        if (n === MAX_ITERS) {
+            console.log("oy");
+            return null;
+        }
         
         points.pop();
         var path = new paper.Path(points);
