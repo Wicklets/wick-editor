@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.7.8.12.24.13";
+var WICK_ENGINE_BUILD_VERSION = "2020.7.17.14.40.5";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -55032,10 +55032,31 @@ Wick.Tickable = class extends Wick.Base {
 
 
   getScript(name) {
-    if (Wick.Tickable.possibleScripts.indexOf(name) === -1) console.error(name + ' is not a valid script!');
-    return this._scripts.find(script => {
-      return script.name === name;
-    });
+    if (Wick.Tickable.possibleScripts.indexOf(name) === -1) {
+      console.error(name + ' is not a valid script!');
+      return null;
+    } else {
+      // Get expected script.
+      let script = this._scripts.find(script => {
+        return script.name === name;
+      });
+
+      if (!script) {
+        // Create the script if it doesn't exist.
+        script = {
+          name: name,
+          src: ""
+        };
+        return script;
+      } // If the script is missing, add an empty.
+
+
+      if (!script.src) {
+        script.src = "";
+      }
+
+      return script;
+    }
   }
   /**
    * Returns a list of script names which are not currently in use for this object.
@@ -55054,7 +55075,13 @@ Wick.Tickable = class extends Wick.Base {
 
 
   hasScript(name) {
-    return this.getScript(name) !== undefined;
+    let script = this.scripts.find(script => script.name === name);
+
+    if (script) {
+      return true;
+    }
+
+    return false;
   }
   /**
    * Check if the object has a non-empty script with a given name.
@@ -55069,7 +55096,12 @@ Wick.Tickable = class extends Wick.Base {
     }
 
     var script = this.getScript(name);
-    return script.src.trim() !== '';
+
+    if (script && script.src.trim() !== '') {
+      return true;
+    }
+
+    return false;
   }
   /**
    * Changes the source of the script with the given event name.
@@ -55079,6 +55111,8 @@ Wick.Tickable = class extends Wick.Base {
 
 
   updateScript(name, src) {
+    if (!src) src = ""; // Reset script if it is not defined.
+
     this.getScript(name).src = src;
     delete this._cachedScripts[name];
   }
