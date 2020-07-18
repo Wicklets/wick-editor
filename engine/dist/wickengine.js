@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.7.17.13.31.8";
+var WICK_ENGINE_BUILD_VERSION = "2020.7.17.21.3.0";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -59706,20 +59706,32 @@ Wick.Tools.Zoom = class extends Wick.Tool {
   const MAX_NEST = 10;
   const MAX_ITERS = 1000;
   const EPSILON = 0.001;
+  const RADIUS = 0.1;
+  const STEP_RATIO = 0.001;
   var holeColor = null;
 
-  function colorAt(p) {
-    var hit = layerGroup.hitTest(p);
+  function getDirection(location, vector) {
+    return location.tangent.dot(vector) > 0 ? 1 : -1;
+  }
 
-    if (hit === null) {
-      return null;
-    } else if (hit.type === "stroke") {
-      return hit.item.strokeColor;
-    } else if (hit.type === "fill") {
-      return hit.item.fillColor;
+  function getPathStroke(p) {
+    if (p.hasStroke && p.strokeWidth > 0 && p.strokeColor) {
+      return p.strokeColor;
     }
 
     return null;
+  }
+
+  function getColorAt(p) {
+    var hit = layerGroup.hitTest(p, {
+      fill: true
+    });
+
+    if (hit === null) {
+      return null;
+    }
+
+    return hit.item.fillColor;
   }
 
   function colorsEqual(c1, c2) {
@@ -59728,28 +59740,14 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     }
 
     return c1.red === c2.red && c1.green === c2.green && c1.blue === c2.blue;
-  }
-
-  function tangentsEqual(t1, t2) {
-    return t1.x === 0 && t2.x === 0 || t1.y === 0 && t2.y === 0 || t1.x !== 0 && t2.y !== 0 && Math.abs(t1.y / t1.x * t2.x / t2.y - 1) < 0.05;
   } // Check whether the locations of p1, p2, are equal within the tolerance of EPSILON
 
 
-  function pointsEqual(p1, p2, epsilon) {
-    return Math.abs(p1.x - p2.x) < epsilon && Math.abs(p1.y - p2.y) < epsilon;
+  function pointsEqual(p1, p2) {
+    return Math.abs(p1.x - p2.x) < EPSILON && Math.abs(p1.y - p2.y) < EPSILON;
   }
 
-  function curveColor(c) {
-    if (!c.path) {
-      return null;
-    } else if (c.path.parent._class === 'CompoundPath') {
-      return c.path.parent.fillColor;
-    } else {
-      return c.path.fillColor;
-    }
-  }
-
-  function cleanup(item, epsilon) {
+  function cleanup(item) {
     item.reorient(false, true);
     var paths;
 
@@ -59763,7 +59761,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
       path = paths[p];
 
       for (let i = 0; i < path.segments.length;) {
-        if (pointsEqual(path.segments[i].point, path.segments[(i + 1) % path.segments.length].point, epsilon)) {
+        if (pointsEqual(path.segments[i].point, path.segments[(i + 1) % path.segments.length].point)) {
           let removed = path.removeSegment(i);
           console.log(path.segments.length, i);
 
@@ -59787,17 +59785,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         var clone = child.clone({
           insert: false
         });
-        /*if (clone.hasStroke()) {
-            //var res1 = clone.Offset(clone.strokeWidth/2, clone.strokeWidth/2);
-            var res = clone.Offset(-clone.strokeWidth/2, -clone.strokeWidth/2);
-            //var res = res1.unite(res2);
-            res.remove();
-              //onFinish(res);
-              clone.strokeWidth = 0;
-              layerGroup.addChild(res);
-        }*/
-
-        cleanup(clone, EPSILON);
+        cleanup(clone);
         layerGroup.addChild(clone);
       });
     });
@@ -59809,7 +59797,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
     console.log(layerGroup);
     var p = new paper.Point(x, y);
-    holeColor = colorAt(p);
+    holeColor = getColorAt(p);
     console.log("hole color", holeColor);
 
     for (var i = 0; i < MAX_NEST; i++) {
@@ -59824,12 +59812,12 @@ Wick.Tools.Zoom = class extends Wick.Tool {
       if (path.clockwise) {
         path.remove();
         path.fillColor = 'green';
-
-        if (holeColor === null) {
-          path = removeInteriorShapes(path);
-        } else {
-          path = constructShape(path);
+        /*if (holeColor === null) {
+            path = removeInteriorShapes(path);
         }
+        else {
+            path = constructShape(path);
+        }*/
 
         console.log("done", path);
         onFinish(path);
@@ -59867,8 +59855,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     console.log("constructing shape");
     let originalArea = path.area;
     var items = layerGroup.getItems({
-      inside: path.bounds,
-      //overlapping?
+      overlapping: path.bounds,
       match: item => {
         if (item._class === 'Path') {
           return item.parent._class !== 'CompoundPath';
@@ -59932,130 +59919,204 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
   function getShapeAroundPoint(startingPoint) {
     console.log("get shape around pointtt");
-    var intersector = new paper.Curve(startingPoint, startingPoint.add(new paper.Point(-10000, 0)));
-    var rect = intersector.bounds;
+    var currentCurve = new paper.Curve(startingPoint, startingPoint.add(new paper.Point(-10000, 0)));
     var items = layerGroup.getItems({
-      overlapping: rect,
-      class: paper.Path
+      class: paper.Path,
+      overlapping: currentCurve.bounds
     });
-    var intersection = {
-      time: 2
-    };
+    var crossings = [];
 
-    for (var i = 0; i < items.length; i++) {
-      for (var j = 0; j < items[i].curves.length; j++) {
-        var intersections = intersector.getIntersections(items[i].curves[j]);
-
-        for (var k = 0; k < intersections.length; k++) {
-          if (intersections[k].time < intersection.time && !colorsEqual(holeColor, colorAt(intersections[k].point.add(new paper.Point(-1, 0))))) {
-            intersection = intersections[k];
-          }
-        }
+    for (let i = 0; i < items.length; i++) {
+      for (let c = 0; c < items[i].curves.length; c++) {
+        crossings = crossings.concat(currentCurve.getIntersections(items[i].curves[c]));
       }
     }
 
-    var points = [];
+    crossings.sort((a, b) => {
+      let diff = a.time - b.time;
 
-    if (intersection.time > 1) {
-      console.log("first intersect bad");
+      if (diff === 0) {
+        if (a.intersection.path === b.intersection.path) {
+          console.log("!!! crazy intersection");
+        }
+
+        return a.intersection.path.isAbove(b.intersection.path) ? -1 : 1;
+      } else {
+        return diff;
+      }
+    });
+    var currentIntersection = null;
+
+    for (let c = 0; c < crossings.length; c++) {
+      let crossing = crossings[c];
+      let colorBefore = getColorAt(crossing.point.add(new paper.Point(EPSILON, 0)));
+
+      if (!colorsEqual(holeColor, colorBefore)) {
+        console.log("!!! unexpected color change");
+      }
+
+      let colorAt = getPathStroke(crossing.intersection.path);
+      let colorAfter = getColorAt(crossing.point.add(new paper.Point(-EPSILON, 0)));
+
+      if (colorAt && !colorsEqual(holeColor, colorAt) || !colorsEqual(holeColor, colorAfter)) {
+        currentIntersection = crossing.intersection;
+        currentCurve = currentIntersection.curve;
+        var currentDirection = getDirection(currentIntersection, new paper.Point(0, -1));
+        break;
+      }
+    }
+
+    if (currentIntersection === null) {
       return null;
     }
 
-    var intersection = intersection.intersection;
-    intersector = intersection.curve; //direction is -1 for backwards along paths, 1 for forwards along paths
-    //assuming clockwise areas, counterclockwise holes, this method moves up from initial intersection
-
-    var direction = intersection.normal.dot(new paper.Point(-1, 0)) > 0 ? 1 : -1;
+    var points = [];
     var n = 0;
     var ended = false;
+    var startingDirection;
 
-    do {
-      //console.log("iter");
-      if (n === 1) points = [];
-      intersection = direction < 0 ? getMaxTimeIntersection(intersector, intersection ? intersection.time : 1) : getMinTimeIntersection(intersector, intersection ? intersection.time : 0);
+    while (n < MAX_ITERS && !ended) {
+      console.log("--------------------------------------------------");
 
-      if (intersection === null) {
-        console.log("no intersection");
-        var temp = intersector;
+      if (n === 1) {
+        startingDirection = currentDirection;
+      }
 
-        if (direction === 1) {
-          if (intersector.next) {
-            intersector = intersector.next;
-          } else if (intersector.path.closed) {
-            intersector = intersector.firstSegment;
-          } else {
-            intersector = intersector.previous;
-            direction = -1;
-          }
-        } else {
-          if (intersector.previous) {
-            intersector = intersector.previous;
-          } else if (intersector.path.closed) {
-            intersector = intersector.lastSegment;
-          } else {
-            intersector = intersector.next;
-            direction = 1;
-          }
-        }
-        /*intersector = direction === 1 ? 
-            (intersector.next ? intersector.next : intersector.firstSegment) : 
-            (intersector.previous ? intersector.previous : intersector.lastSegment)*/
+      var pathsToIntersect = layerGroup.getItems({
+        class: paper.Path,
+        overlapping: currentCurve.bounds
+      });
+      let currentTime = currentIntersection ? currentIntersection.time : currentDirection === -1 ? 1 : 0;
+      currentIntersection = null;
 
+      for (let i = 0; i < pathsToIntersect.length; i++) {
+        for (let c = 0; c < pathsToIntersect[i].curves.length; c++) {
+          let intersectionsWithCurve = currentCurve.getIntersections(pathsToIntersect[i].curves[c]);
 
-        var p = direction < 0 ? intersector.point2 : intersector.point1;
-        var hIn = direction < 0 ? temp.handle1 : temp.handle2;
-        var hOut = direction < 0 ? intersector.handle2 : intersector.handle1;
-        console.log(p.toString());
-        points.push(new paper.Segment(p, hIn, hOut));
-      } else {
-        console.log("yes intersection", intersection, direction);
-        var ray_direction = intersection.tangent.multiply(direction);
-        var wall_normal = intersection.intersection.normal; //.multiply(-1)
-
-        var inside = ray_direction.dot(wall_normal) > 0;
-        var same_fill = colorsEqual(holeColor, curveColor(intersection.intersection.curve));
-        var above = holeColor === null || intersection.intersection.curve.path.isAbove(intersection.curve.path); //console.log(intersection.point.add(ray_direction.add(intersection.normal)).toString());
-        //var noChange = colorsEqual(holeColor, colorAt(intersection.point.add(ray_direction.add(intersection.intersection.tangent.multiply(inside ? 1 : -1)))));
-
-        console.log("rangis", above, inside, same_fill
-        /*, noChange*/
-        );
-
-        if (!(!above && !same_fill)) {
-          //not forward
-          var turn_multiplier = 1;
-
-          if (above && !inside && !same_fill) {
-            console.log("subtract");
-          } else if (!inside && same_fill) {
-            console.log("union");
-            turn_multiplier = -1;
-          }
-          /*else if (!above && inside && same_fill) {
-              console.log("turn");
-          }*/
-          else {
-              console.log("!!!!!!!!!");
-              turn_multiplier = -1;
+          for (let j = 0; j < intersectionsWithCurve.length; j++) {
+            if (currentDirection * intersectionsWithCurve[j].time > currentDirection * currentTime + EPSILON && (!currentIntersection || currentDirection * intersectionsWithCurve[j].time < currentDirection * currentIntersection.time)) {
+              currentIntersection = intersectionsWithCurve[j];
             }
-
-          var p = intersection.point;
-          var hIn = intersection.tangent;
-          var hOut = intersection.intersection.tangent.multiply(-1);
-          console.log(p.toString());
-          points.push(new paper.Segment(p, hIn, hOut));
-          var incoming = intersection.tangent.multiply(direction);
-          intersection = intersection.intersection;
-          direction = turn_multiplier * (intersection.normal.dot(incoming) > 0 ? 1 : -1);
-          intersector = intersection.curve;
-        } else {
-          console.log("forward");
+          }
         }
       }
 
+      if (currentIntersection === null) {
+        console.log("no intersection");
+        var previousCurve = currentCurve;
+
+        if (currentDirection === 1) {
+          if (currentCurve.next) {
+            currentCurve = currentCurve.next;
+          } else if (currentCurve.path.closed) {
+            console.log("!!! closed but no next");
+            currentCurve = currentCurve.firstSegment;
+          } else {
+            currentDirection = -1;
+          }
+        } else {
+          if (currentCurve.previous) {
+            currentCurve = currentCurve.previous;
+          } else if (currentCurve.path.closed) {
+            console.log("!!! closed but no previous");
+            currentCurve = currentCurve.lastSegment;
+          } else {
+            currentDirection = 1;
+          }
+        }
+
+        console.log("id " + currentCurve.path.id);
+        var p = currentDirection < 0 ? currentCurve.point2 : currentCurve.point1;
+        var hIn = currentDirection < 0 ? previousCurve.handle1 : previousCurve.handle2;
+        var hOut = currentDirection < 0 ? currentCurve.handle2 : currentCurve.handle1;
+        console.log(p.toString());
+        points.push(new paper.Segment(p, hIn, hOut));
+      } else {
+        console.log("yes intersection"); //TODO make sure the first point of circle is on the currentCurve
+
+        let circleStartVector = currentIntersection.tangent.multiply(-currentDirection).rotate(EPSILON).normalize(RADIUS);
+        var circle = new paper.Path([circleStartVector, circleStartVector.rotate(-90), circleStartVector.rotate(-180), circleStartVector.rotate(-270)]);
+        circle.translate(currentIntersection.point);
+        circle.closePath();
+        circle.smooth('continuous');
+        if (circle.clockwise) console.log("WWWWAUT");
+        var crossings = [];
+        var items = layerGroup.getItems({
+          overlapping: circle.bounds.expand(1),
+          class: paper.Path
+        });
+
+        for (let i = 0; i < items.length; i++) {
+          crossings = crossings.concat(circle.getCrossings(items[i]));
+        }
+
+        crossings.sort((a, b) => {
+          let diff = a.index + a.time - b.index - b.time;
+
+          if (diff === 0) {
+            if (a.intersection.path === b.intersection.path) {
+              console.log("!!! crazy circle intersection");
+            }
+
+            return a.intersection.path.isAbove(b.intersection.path) ? -1 : 1;
+          } else {
+            return diff;
+          }
+        });
+        let previousIntersection = null;
+        let previousDirection = null;
+        console.log("crossings", crossings);
+        crossings.map(crossing => console.log(crossing.point.toString(), crossing.index + crossing.time));
+
+        for (var i = 0; i < crossings.length; i++) {
+          let crossing = crossings[i];
+
+          if (crossing.intersection.curve === currentIntersection.curve && currentDirection !== getDirection(crossing.intersection, crossing.point.subtract(currentIntersection.point))) {
+            console.log("dangus");
+          } else {
+            let colorAt = getPathStroke(crossing.intersection.path);
+            let colorAfter = getColorAt(crossing.point.add(crossing.tangent.normalize(RADIUS * STEP_RATIO))); //debugging
+
+            let colorBefore = getColorAt(crossing.point.subtract(crossing.tangent.normalize(RADIUS * STEP_RATIO)));
+            /*if (i === 0) {
+                if ((colorAt === null || colorsEqual(colorAt, holeColor)) && colorsEqual(holeColor, colorBefore)) {
+                    console.log("!!! BAD NEWS, not diff color to the left");
+                }
+                if (!colorsEqual(colorAfter, holeColor)) {
+                    console.log("!!! BAD NEWS, diff color to the right");
+                }
+            }*/
+
+            if (colorAt && !colorsEqual(holeColor, colorAt) || !colorsEqual(holeColor, colorAfter)) {
+              console.log("colors", colorBefore ? colorBefore.components : null, colorAt ? colorAt.components : null, colorAfter ? colorAfter.components : null);
+              previousIntersection = currentIntersection;
+              previousDirection = currentDirection;
+              currentIntersection = crossing.intersection;
+              currentCurve = crossing.intersection.curve;
+              console.log("id " + currentCurve.path.id);
+              currentDirection = getDirection(crossing.intersection, crossing.point.subtract(previousIntersection.point));
+              console.log(crossing.point.subtract(previousIntersection.point).toString(), currentDirection);
+              break;
+            }
+          }
+        }
+
+        if (previousIntersection === null) {
+          console.log("!!! BAD NEWS, circle didn't have any legit intersections");
+        }
+
+        var p = currentIntersection.point;
+        var hIn = previousIntersection.tangent.multiply(previousDirection);
+        var hOut = currentIntersection.tangent.multiply(currentDirection);
+        console.log(p.toString());
+        points.push(new paper.Segment(p, hIn, hOut));
+        circle.remove();
+      }
+
       n++;
-      ended = points.length >= 2 && pointsEqual(points[points.length - 1].point, points[0].point, EPSILON);
-    } while (n < MAX_ITERS && !ended);
+      ended = points.length >= 2 && pointsEqual(points[points.length - 1].point, points[0].point) && currentDirection === startingDirection;
+    } //points.shift();
+
 
     console.log("iters: " + n);
 
@@ -60068,68 +60129,6 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     var path = new paper.Path(points);
     path.closePath();
     return path;
-  } // Gets the first intersection past the point on the curve at time min_t
-
-
-  function getMinTimeIntersection(curve, min_t) {
-    //console.log("forward");
-    var rect = curve.bounds;
-    var items = layerGroup.getItems({
-      overlapping: rect,
-      class: paper.Path
-    });
-    var min_t_object = {
-      time: 2
-    };
-
-    for (var i = 0; i < items.length; i++) {
-      for (var j = 0; j < items[i].curves.length; j++) {
-        var intersections = curve.getIntersections(items[i].curves[j]);
-
-        for (var k = 0; k < intersections.length; k++) {
-          if (intersections[k].time > min_t + EPSILON && intersections[k].time < min_t_object.time && !tangentsEqual(intersections[k].tangent, intersections[k].intersection.tangent)) {
-            min_t_object = intersections[k];
-          }
-        }
-      }
-    }
-
-    if (min_t_object.time > 1) {
-      return null;
-    }
-
-    return min_t_object;
-  } // Gets the first intersection before the point on the curve at time max_t
-
-
-  function getMaxTimeIntersection(curve, max_t) {
-    //console.log("backward");
-    var rect = curve.bounds;
-    var items = layerGroup.getItems({
-      overlapping: rect,
-      class: paper.Path
-    });
-    var max_t_object = {
-      time: -1
-    };
-
-    for (var i = 0; i < items.length; i++) {
-      for (var j = 0; j < items[i].curves.length; j++) {
-        var intersections = curve.getIntersections(items[i].curves[j]);
-
-        for (var k = 0; k < intersections.length; k++) {
-          if (intersections[k].time < max_t - EPSILON && intersections[k].time > max_t_object.time && !tangentsEqual(intersections[k].tangent, intersections[k].intersection.tangent)) {
-            max_t_object = intersections[k];
-          }
-        }
-      }
-    }
-
-    if (max_t_object.time < 0) {
-      return null;
-    }
-
-    return max_t_object;
   }
   /* Add hole() method to paper */
 
