@@ -19,18 +19,11 @@
 
 /*
     paper-hole.js
-    Adds hole() to the paper Layer class which finds the shape of the hole
+    Adds hole() to paper, which finds the shape of the hole
     at a certain point. Use this to make a vector fill bucket!
 
-    This version uses a flood fill + potrace method of filling holes.
-
-    Adapted from the FillBucket tool from old Wick
-
-    by zrispo (github.com/zrispo) (zach@wickeditor.com)
- */
-
-//const toolbox = require('./Offsets/ToolBox');
-//const extensions = require('./Offsets/PaperJsExtensions');
+    by Nikolas Diamant (nick@wickeditor.com)
+*/
 
 (function () {
     var onError;
@@ -119,7 +112,8 @@
                 var clone = child.clone({insert:false});
 
                 cleanup(clone);
-                layerGroup.addChild(clone);
+
+                if (!clone.closed || Math.abs(clone.area) > 0.01) layerGroup.addChild(clone);
             });
         });
         if(layerGroup.children.length === 0) {
@@ -362,7 +356,7 @@
                 console.log("yes intersection");
                 
                 //TODO make sure the first point of circle is on the currentCurve
-                let circleStartVector = currentIntersection.tangent.multiply(-currentDirection).rotate(EPSILON).normalize(RADIUS);
+                let circleStartVector = currentIntersection.tangent.multiply(-currentDirection).rotate(-EPSILON * 10).normalize(RADIUS);
                 var circle = new paper.Path([circleStartVector, circleStartVector.rotate(-90), circleStartVector.rotate(-180), circleStartVector.rotate(-270)]);
                 circle.translate(currentIntersection.point);
                 circle.closePath();
