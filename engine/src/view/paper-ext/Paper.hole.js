@@ -144,13 +144,14 @@
             if (path.clockwise) {
                 path.remove();
                 path.fillColor = 'green';
-                /*if (holeColor === null) {
+                if (holeColor === null) {
                     path = removeInteriorShapes(path);
                 }
                 else {
                     path = constructShape(path);
-                }*/
+                }
                 console.log("done", path);
+                path.strokeWidth = 0;
                 onFinish(path);
                 return;
             }
@@ -168,7 +169,9 @@
             class: paper.Path
         });
         for (var i = 0; i < items.length; i++) {
-            path = path.subtract(items[i], {insert: false});
+            if (items[i].closed) {
+                path = path.subtract(items[i], {insert: false});
+            }
         }
 
         if (path._class === 'CompoundPath') {
@@ -194,12 +197,13 @@
         items.sort((a,b) => a.isAbove(b) ? 1 : -1);
         for (var i = 0; i < items.length; i++) {
             let item = items[i];
-            if (item === path) console.log("YANGUS");
-            if (colorsEqual(holeColor, item.fillColor)) {
-                p = p.unite(item,{insert: false});
-            }
-            else {
-                p = p.subtract(item, {insert: false});
+            if (item.closed) {
+                if (colorsEqual(holeColor, item.fillColor)) {
+                    p = p.unite(item,{insert: false});
+                }
+                else {
+                    p = p.subtract(item, {insert: false});
+                }
             }
         }
         p = p.intersect(path, {insert: false});
@@ -318,6 +322,7 @@
             if (currentIntersection === null) {
                 console.log("no intersection");
                 var previousCurve = currentCurve;
+                var turnAround = 1;
                 if (currentDirection === 1) {
                     if (currentCurve.next) {
                         currentCurve = currentCurve.next;
@@ -328,6 +333,7 @@
                     }
                     else {
                         currentDirection = -1;
+                        turnAround = -1;
                     }
                 }
                 else {
@@ -340,15 +346,17 @@
                     }
                     else {
                         currentDirection = 1;
+                        turnAround = -1;
                     }
                 }
                 console.log("id " + currentCurve.path.id);
                                 
-                var p = currentDirection < 0 ? currentCurve.point2 : currentCurve.point1;
+                /*var p = currentDirection < 0 ? currentCurve.point2 : currentCurve.point1;
                 var hIn = currentDirection < 0 ? previousCurve.handle1 : previousCurve.handle2;
                 var hOut = currentDirection < 0 ? currentCurve.handle2 : currentCurve.handle1;
                 console.log(p.toString());
-                points.push(new paper.Segment(p, hIn, hOut));
+                points.push(new paper.Segment(p, hIn, hOut));*/
+                points.push({curve1: previousCurve, time1: turnAround * currentDirection < 0 ? 0 : 1, curve2: currentCurve, time2: currentDirection < 0 ? 1 : 0});
             }
             else {
                 console.log("yes intersection");
@@ -383,6 +391,7 @@
                     }
                 })
 
+                let previousCurve = null;
                 let previousIntersection = null;
                 let previousDirection = null;
 
@@ -414,6 +423,7 @@
                             console.log("colors", colorBefore ? colorBefore.components : null, colorAt ? colorAt.components : null, colorAfter ? colorAfter.components : null);
                             previousIntersection = currentIntersection;
                             previousDirection = currentDirection;
+                            previousCurve = currentCurve;
 
                             currentIntersection = crossing.intersection;
                             currentCurve = crossing.intersection.curve;
@@ -429,29 +439,53 @@
                     console.log("!!! BAD NEWS, circle didn't have any legit intersections");
                 }
 
-                var p = currentIntersection.point;
+                /*var p = currentIntersection.point;
                 var hIn = previousIntersection.tangent.multiply(previousDirection);
                 var hOut = currentIntersection.tangent.multiply(currentDirection);
                 console.log(p.toString());
-                points.push(new paper.Segment(p, hIn, hOut));
+                points.push(new paper.Segment(p, hIn, hOut));*/
+                points.push({curve1: previousCurve, time1: previousIntersection.time, curve2: currentCurve, time2: currentIntersection.time});
 
                 circle.remove();
             }
             n++;
-            ended = points.length >= 2 && pointsEqual(points[points.length - 1].point, points[0].point) && currentDirection === startingDirection;
+            ended = points.length >= 2 && 
+                points[0].curve2 === points[points.length - 1].curve2 && 
+                Math.abs(points[0].time2 - points[points.length - 1].time2) < EPSILON && 
+                currentDirection === startingDirection;
         }
-        //points.shift();
 
         console.log("iters: " + n);
         if (n === MAX_ITERS) {
             console.log("oy");
             return null;
         }
-        
+        /*
         points.pop();
         var path = new paper.Path(points);
         path.closePath();
+        */
+        return pathFromPoints(points);
+    }
 
+    function pathFromPoints(points) {
+        let curves = [];
+        for (let i = 0; i < points.length; i++) {
+            let p1 = points[i];
+            let p2 = points[(i + 1) % points.length];
+            curves.push(p1.curve2.getPart(p1.time2, p2.time1));
+        }
+        let segments = [];
+        for (let c = 0; c < curves.length; c++) {
+            let c1 = curves[c];
+            let c2 = curves[(c + 1) % curves.length];
+            let p = c1.point2;
+            let hIn = c1.handle2;
+            let hOut = c2.handle1;
+            segments.push(new paper.Segment(p, hIn, hOut));
+        }
+        let path = new paper.Path(segments);
+        path.closePath();
         return path;
     }
 

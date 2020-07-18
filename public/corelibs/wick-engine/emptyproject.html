@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.7.17.21.3.0";
+var WICK_ENGINE_BUILD_VERSION = "2020.7.17.21.50.39";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -59827,14 +59827,15 @@ Wick.Tools.Zoom = class extends Wick.Tool {
       if (path.clockwise) {
         path.remove();
         path.fillColor = 'green';
-        /*if (holeColor === null) {
-            path = removeInteriorShapes(path);
+
+        if (holeColor === null) {
+          path = removeInteriorShapes(path);
+        } else {
+          path = constructShape(path);
         }
-        else {
-            path = constructShape(path);
-        }*/
 
         console.log("done", path);
+        path.strokeWidth = 0;
         onFinish(path);
         return;
       }
@@ -59853,9 +59854,11 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     });
 
     for (var i = 0; i < items.length; i++) {
-      path = path.subtract(items[i], {
-        insert: false
-      });
+      if (items[i].closed) {
+        path = path.subtract(items[i], {
+          insert: false
+        });
+      }
     }
 
     if (path._class === 'CompoundPath') {
@@ -59886,16 +59889,17 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
     for (var i = 0; i < items.length; i++) {
       let item = items[i];
-      if (item === path) console.log("YANGUS");
 
-      if (colorsEqual(holeColor, item.fillColor)) {
-        p = p.unite(item, {
-          insert: false
-        });
-      } else {
-        p = p.subtract(item, {
-          insert: false
-        });
+      if (item.closed) {
+        if (colorsEqual(holeColor, item.fillColor)) {
+          p = p.unite(item, {
+            insert: false
+          });
+        } else {
+          p = p.subtract(item, {
+            insert: false
+          });
+        }
       }
     }
 
@@ -60019,6 +60023,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
       if (currentIntersection === null) {
         console.log("no intersection");
         var previousCurve = currentCurve;
+        var turnAround = 1;
 
         if (currentDirection === 1) {
           if (currentCurve.next) {
@@ -60028,6 +60033,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
             currentCurve = currentCurve.firstSegment;
           } else {
             currentDirection = -1;
+            turnAround = -1;
           }
         } else {
           if (currentCurve.previous) {
@@ -60037,15 +60043,23 @@ Wick.Tools.Zoom = class extends Wick.Tool {
             currentCurve = currentCurve.lastSegment;
           } else {
             currentDirection = 1;
+            turnAround = -1;
           }
         }
 
         console.log("id " + currentCurve.path.id);
-        var p = currentDirection < 0 ? currentCurve.point2 : currentCurve.point1;
+        /*var p = currentDirection < 0 ? currentCurve.point2 : currentCurve.point1;
         var hIn = currentDirection < 0 ? previousCurve.handle1 : previousCurve.handle2;
         var hOut = currentDirection < 0 ? currentCurve.handle2 : currentCurve.handle1;
         console.log(p.toString());
-        points.push(new paper.Segment(p, hIn, hOut));
+        points.push(new paper.Segment(p, hIn, hOut));*/
+
+        points.push({
+          curve1: previousCurve,
+          time1: turnAround * currentDirection < 0 ? 0 : 1,
+          curve2: currentCurve,
+          time2: currentDirection < 0 ? 1 : 0
+        });
       } else {
         console.log("yes intersection"); //TODO make sure the first point of circle is on the currentCurve
 
@@ -60078,6 +60092,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
             return diff;
           }
         });
+        let previousCurve = null;
         let previousIntersection = null;
         let previousDirection = null;
         console.log("crossings", crossings);
@@ -60106,6 +60121,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
               console.log("colors", colorBefore ? colorBefore.components : null, colorAt ? colorAt.components : null, colorAfter ? colorAfter.components : null);
               previousIntersection = currentIntersection;
               previousDirection = currentDirection;
+              previousCurve = currentCurve;
               currentIntersection = crossing.intersection;
               currentCurve = crossing.intersection.curve;
               console.log("id " + currentCurve.path.id);
@@ -60119,19 +60135,25 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         if (previousIntersection === null) {
           console.log("!!! BAD NEWS, circle didn't have any legit intersections");
         }
-
-        var p = currentIntersection.point;
+        /*var p = currentIntersection.point;
         var hIn = previousIntersection.tangent.multiply(previousDirection);
         var hOut = currentIntersection.tangent.multiply(currentDirection);
         console.log(p.toString());
-        points.push(new paper.Segment(p, hIn, hOut));
+        points.push(new paper.Segment(p, hIn, hOut));*/
+
+
+        points.push({
+          curve1: previousCurve,
+          time1: previousIntersection.time,
+          curve2: currentCurve,
+          time2: currentIntersection.time
+        });
         circle.remove();
       }
 
       n++;
-      ended = points.length >= 2 && pointsEqual(points[points.length - 1].point, points[0].point) && currentDirection === startingDirection;
-    } //points.shift();
-
+      ended = points.length >= 2 && points[0].curve2 === points[points.length - 1].curve2 && Math.abs(points[0].time2 - points[points.length - 1].time2) < EPSILON && currentDirection === startingDirection;
+    }
 
     console.log("iters: " + n);
 
@@ -60139,9 +60161,37 @@ Wick.Tools.Zoom = class extends Wick.Tool {
       console.log("oy");
       return null;
     }
-
+    /*
     points.pop();
     var path = new paper.Path(points);
+    path.closePath();
+    */
+
+
+    return pathFromPoints(points);
+  }
+
+  function pathFromPoints(points) {
+    let curves = [];
+
+    for (let i = 0; i < points.length; i++) {
+      let p1 = points[i];
+      let p2 = points[(i + 1) % points.length];
+      curves.push(p1.curve2.getPart(p1.time2, p2.time1));
+    }
+
+    let segments = [];
+
+    for (let c = 0; c < curves.length; c++) {
+      let c1 = curves[c];
+      let c2 = curves[(c + 1) % curves.length];
+      let p = c1.point2;
+      let hIn = c1.handle2;
+      let hOut = c2.handle1;
+      segments.push(new paper.Segment(p, hIn, hOut));
+    }
+
+    let path = new paper.Path(segments);
     path.closePath();
     return path;
   }
