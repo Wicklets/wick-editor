@@ -465,19 +465,19 @@ Wick.Frame = class extends Wick.Tickable {
         }
 
         // If more than one object exists on the frame, or if there is only one path, create a clip from those objects
-        var numClips = this.clips.length;
-        var numPaths = this.paths.length;
-        if ((numClips === 0 && numPaths === 1) || numClips + numPaths > 1) {
-            var allObjects = this.paths.concat(this.clips);
-            var center = this.project.selection.view._getObjectsBounds(allObjects).center;
+        var clips = this.clips;
+        var paths = this.paths;
+        if ((clips.length === 0 && paths.length === 1) || (clips.length + paths.length) > 1) {
+            var allDrawables = paths.concat(clips);
+            var center = this.project.selection.view._getObjectsBounds(allDrawables).center;
             var clip = new Wick.Clip({
-                objects: this.paths.concat(this.clips),
                 transformation: new Wick.Transformation({
                     x: center.x,
                     y: center.y,
                 }),
             });
             this.addClip(clip);
+            clip.addObjects(allDrawables);
         }
 
         // Create the tween (if there's not already a tween at the current playhead position)
