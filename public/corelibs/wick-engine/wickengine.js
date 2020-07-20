@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.7.17.14.40.5";
+var WICK_ENGINE_BUILD_VERSION = "2020.7.20.15.14.18";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -48780,7 +48780,13 @@ Wick.Base = class {
 
 
   get project() {
-    return this._project;
+    if (this._project) {
+      return this._project;
+    } else if (this.parent) {
+      return this.parent.project;
+    } else {
+      return null;
+    }
   }
   /**
    * Check if an object is selected or not.
@@ -50446,13 +50452,14 @@ Wick.Project = class extends Wick.Base {
 
     var clip = new Wick[args.type]({
       identifier: args.identifier,
-      objects: this.selection.getSelectedObjects('Canvas'),
       transformation: new Wick.Transformation({
         x: this.selection.x + this.selection.width / 2,
         y: this.selection.y + this.selection.height / 2
       })
-    });
-    this.activeFrame.addClip(clip); // TODO add to asset library
+    }); // Add the clip to the frame prior to adding objects.
+
+    this.activeFrame.addClip(clip);
+    clip.addObjects(this.selection.getSelectedObjects('Canvas')); // TODO add to asset library
 
     this.selection.clear();
     this.selection.select(clip);
@@ -51128,7 +51135,6 @@ Wick.Project = class extends Wick.Base {
     var renderFrame = () => {
       var currentPos = renderCopy.focus.timeline.playheadPosition;
       args.onProgress(currentPos, numMaxFrameImages);
-      console.log(currentPos);
 
       if (currentPos >= numMaxFrameImages) {
         // reset autoUpdate back to normal

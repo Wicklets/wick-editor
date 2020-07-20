@@ -1071,13 +1071,16 @@ Wick.Project = class extends Wick.Base {
 
         var clip = new Wick[args.type]({
             identifier: args.identifier,
-            objects: this.selection.getSelectedObjects('Canvas'),
             transformation: new Wick.Transformation({
                 x: this.selection.x + this.selection.width / 2,
                 y: this.selection.y + this.selection.height / 2,
             }),
         });
+
+        // Add the clip to the frame prior to adding objects.
         this.activeFrame.addClip(clip);
+        clip.addObjects(this.selection.getSelectedObjects('Canvas'));
+
         // TODO add to asset library
         this.selection.clear();
         this.selection.select(clip);
@@ -1746,8 +1749,6 @@ Wick.Project = class extends Wick.Base {
         var renderFrame = () => {
             var currentPos = renderCopy.focus.timeline.playheadPosition;
             args.onProgress(currentPos, numMaxFrameImages);
-
-            console.log(currentPos);
 
             if(currentPos >= numMaxFrameImages) {
                 // reset autoUpdate back to normal

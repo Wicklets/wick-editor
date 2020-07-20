@@ -398,9 +398,11 @@ Wick.Frame = class extends Wick.Tickable {
      * @param {Wick.Clip} clip - the clip to add.
      */
     addClip(clip) {
+
         if (clip.parent) {
             clip.remove();
         }
+
         this.addChild(clip);
 
         // Pre-render the clip's frames
