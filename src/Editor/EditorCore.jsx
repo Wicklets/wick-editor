@@ -1352,6 +1352,12 @@ class EditorCore extends Component {
       console.log(message)
       if(message === 'OUT_OF_BOUNDS' || message === 'LEAKY_HOLE') {
         this.toast('The shape you are trying to fill has a gap.', 'warning');
+      } else if (message === 'LOOPING') {
+        this.toast('Fill bucket failed.', 'warning');
+      } else if (message === 'TOO_COMPLEX') {
+        this.toast('Shape is too complex.', 'warning');
+      } else if (message === 'NO_VALID_CROSSINGS') {
+        this.toast('Fill bucket failed. Circle added at failure location.', 'warning');
       } else if (message === 'NO_PATHS') {
         this.toast('There is no hole to fill.', 'warning');
       } else if (message === 'CLICK_NOT_ALLOWED_LAYER_LOCKED') {

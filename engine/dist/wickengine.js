@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.7.17.23.15.22";
+var WICK_ENGINE_BUILD_VERSION = "2020.7.22.12.26.20";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -59741,6 +59741,10 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     return Math.abs(p1.x - p2.x) < EPSILON && Math.abs(p1.y - p2.y) < EPSILON;
   }
 
+  function tangentsEqual(t1, t2) {
+    return t1.x === 0 && t2.x === 0 || t1.y === 0 && t2.y === 0 || t1.x !== 0 && t2.y !== 0 && Math.abs(t1.y / t1.x * t2.x / t2.y - 1) < 0.01;
+  }
+
   function cleanup(item) {
     item.reorient(false, true);
     var paths;
@@ -59756,7 +59760,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
       for (let i = 0; i < path.segments.length;) {
         if (pointsEqual(path.segments[i].point, path.segments[(i + 1) % path.segments.length].point)) {
-          let removed = path.removeSegment(i); //console.log(path.segments.length, i);
+          let removed = path.removeSegment(i);
 
           if (path.segments.length) {
             path.segments[i % path.segments.length].handleIn = removed.handleIn;
@@ -59786,18 +59790,18 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     if (layerGroup.children.length === 0) {
       onError('NO_PATHS');
       return;
-    } //console.log(layerGroup);
+    }
 
-
+    console.log(layerGroup);
     var p = new paper.Point(x, y);
-    holeColor = getColorAt(p); //console.log("hole color", holeColor);
+    holeColor = getColorAt(p);
+    console.log("hole color", holeColor);
 
     for (var i = 0; i < MAX_NEST; i++) {
-      //console.log("nest");
+      console.log("starting at ", i, p.toString());
       var path = getShapeAroundPoint(p);
 
       if (path === null) {
-        onError('LEAKY_HOLE');
         return;
       }
 
@@ -59809,17 +59813,42 @@ Wick.Tools.Zoom = class extends Wick.Tool {
           path = removeInteriorShapes(path);
         } else {
           path = constructShape(path);
-        } //console.log("done", path);
+        }
 
+        path.strokeWidth = 0; //bumpOut(path, );
 
-        path.strokeWidth = 0;
+        console.log("done", path);
         onFinish(path);
         return;
       }
 
-      p = path.getNearestLocation(path.bounds.leftCenter).point.add(new paper.Point(-1, 0)); //console.log("starting at ", i, p.toString())
-
+      p = path.getNearestLocation(path.bounds.leftCenter).point.add(new paper.Point(-1, 0));
       path.remove();
+    }
+  }
+
+  function bumpOut(p, ammount) {
+    var paths;
+
+    if (p._class === 'Path') {
+      paths = [p];
+    } else {
+      paths = p.children;
+    }
+
+    for (let i = 0; i < paths.length; i++) {
+      path = paths[i];
+
+      for (let j = 0; j < path.segments.length; j++) {
+        let segment = path.segments[j];
+        let theta1 = Math.atan2(segment.handleIn.y, segment.handleIn.x);
+        let theta2 = Math.atan2(segment.handleOut.y, segment.handleOut.x);
+        let d_theta = (theta2 - theta1 + Math.PI * 2) % (Math.PI * 2);
+        let theta = theta1 + d_theta / 2;
+        let normal = new paper.Point(Math.cos(theta), Math.sin(theta)).multiply(ammount);
+        console.log("bump normal", normal.toString());
+        segment.point = segment.point.add(normal);
+      }
     }
   }
 
@@ -59847,7 +59876,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
 
   function constructShape(path) {
-    //console.log("constructing shape");
+    console.log("constructing shape");
     let originalArea = path.area;
     var items = layerGroup.getItems({
       overlapping: path.bounds,
@@ -59895,11 +59924,13 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     for (let i = 0; i < path.children.length;) {
       if (Math.abs(path.children[i].area) < 1 || path.children[i].area > 0 && Math.abs(minArea / path.children[i].area) > 1.01) {
         var bounds = path.children[i].bounds;
-        path.children[i].remove(); //console.log("removed shape")
+        path.children[i].remove();
+        console.log("removed shape");
 
         for (let j = 0; j < path.children.length;) {
           if (bounds.contains(path.children[j].bounds) && path.children[j].area < 0) {
-            path.children[j].remove(); //console.log("removed hole");
+            path.children[j].remove();
+            console.log("removed hole");
           } else {
             j++;
           }
@@ -59912,7 +59943,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
 
   function getShapeAroundPoint(startingPoint) {
-    //console.log("get shape around pointtt");
+    console.log("get shape around point");
     var currentCurve = new paper.Curve(startingPoint, startingPoint.add(new paper.Point(-10000, 0)));
     var items = layerGroup.getItems({
       class: paper.Path,
@@ -59930,7 +59961,8 @@ Wick.Tools.Zoom = class extends Wick.Tool {
       let diff = a.time - b.time;
 
       if (diff === 0) {
-        if (a.intersection.path === b.intersection.path) {//console.log("!!! crazy intersection");
+        if (a.intersection.path === b.intersection.path) {
+          console.log("!!! crazy intersection");
         }
 
         return a.intersection.path.isAbove(b.intersection.path) ? -1 : 1;
@@ -59944,7 +59976,8 @@ Wick.Tools.Zoom = class extends Wick.Tool {
       let crossing = crossings[c];
       let colorBefore = getColorAt(crossing.point.add(new paper.Point(EPSILON, 0)));
 
-      if (!colorsEqual(holeColor, colorBefore)) {//console.log("!!! unexpected color change");
+      if (!colorsEqual(holeColor, colorBefore)) {
+        console.log("!!! unexpected color change");
       }
 
       let colorAt = getPathStroke(crossing.intersection.path);
@@ -59959,6 +59992,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     }
 
     if (currentIntersection === null) {
+      onError('LEAKY_HOLE');
       return null;
     }
 
@@ -59968,7 +60002,8 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     var startingDirection;
 
     while (n < MAX_ITERS && !ended) {
-      //console.log("--------------------------------------------------")
+      console.log("--------------------------------------------------");
+
       if (n === 1) {
         startingDirection = currentDirection;
       }
@@ -59977,23 +60012,34 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         class: paper.Path,
         overlapping: currentCurve.bounds
       });
-      let currentTime = currentIntersection ? currentIntersection.time : currentDirection === -1 ? 1 : 0;
+      let currentTime = (currentIntersection ? currentIntersection.time : (currentDirection === -1 ? 1 : 0) + currentCurve.index) % currentCurve.path.curves.length; //2 : -1);
+
+      let closestTime;
       currentIntersection = null;
+      console.log("current id", currentCurve.path.id, currentCurve.index, currentCurve.point1.toString(), currentCurve.point2.toString());
 
       for (let i = 0; i < pathsToIntersect.length; i++) {
         for (let c = 0; c < pathsToIntersect[i].curves.length; c++) {
           let intersectionsWithCurve = currentCurve.getIntersections(pathsToIntersect[i].curves[c]);
 
           for (let j = 0; j < intersectionsWithCurve.length; j++) {
-            if (currentDirection * intersectionsWithCurve[j].time > currentDirection * currentTime + EPSILON && (!currentIntersection || currentDirection * intersectionsWithCurve[j].time < currentDirection * currentIntersection.time)) {
-              currentIntersection = intersectionsWithCurve[j];
+            let intersectionCurrentWithNext = intersectionsWithCurve[j];
+            let timeAtThisIntersection = (intersectionCurrentWithNext.time + intersectionCurrentWithNext.index) % currentCurve.path.curves.length;
+            console.log("intersection", intersectionCurrentWithNext, intersectionCurrentWithNext.point.toString(), intersectionCurrentWithNext.tangent.toString(), intersectionCurrentWithNext.intersection.tangent.toString(), intersectionCurrentWithNext.path.id, intersectionCurrentWithNext.curve.index, timeAtThisIntersection, intersectionCurrentWithNext.intersection.path.id, intersectionCurrentWithNext.intersection.curve.index);
+
+            if (!tangentsEqual(intersectionCurrentWithNext.tangent, intersectionCurrentWithNext.intersection.tangent) && currentDirection * timeAtThisIntersection > currentDirection * currentTime && (!currentIntersection || currentDirection * timeAtThisIntersection < currentDirection * closestTime)) {
+              currentIntersection = intersectionCurrentWithNext;
+              closestTime = timeAtThisIntersection;
             }
           }
         }
       }
 
+      console.log("chosen intersection", currentIntersection);
+      currentIntersection && console.log(currentIntersection.path, currentIntersection.curve.index, currentIntersection.intersection.path, currentIntersection.intersection.curve.index);
+
       if (currentIntersection === null) {
-        //console.log("no intersection");
+        console.log("no intersection");
         var previousCurve = currentCurve;
         var turnAround = 1;
 
@@ -60001,7 +60047,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
           if (currentCurve.next) {
             currentCurve = currentCurve.next;
           } else if (currentCurve.path.closed) {
-            //console.log("!!! closed but no next")
+            console.log("!!! closed but no next");
             currentCurve = currentCurve.firstSegment;
           } else {
             currentDirection = -1;
@@ -60011,21 +60057,17 @@ Wick.Tools.Zoom = class extends Wick.Tool {
           if (currentCurve.previous) {
             currentCurve = currentCurve.previous;
           } else if (currentCurve.path.closed) {
-            //console.log("!!! closed but no previous")
+            console.log("!!! closed but no previous");
             currentCurve = currentCurve.lastSegment;
           } else {
             currentDirection = 1;
             turnAround = -1;
           }
-        } //console.log("id " + currentCurve.path.id);
+        }
 
-        /*var p = currentDirection < 0 ? currentCurve.point2 : currentCurve.point1;
-        var hIn = currentDirection < 0 ? previousCurve.handle1 : previousCurve.handle2;
-        var hOut = currentDirection < 0 ? currentCurve.handle2 : currentCurve.handle1;
-        console.log(p.toString());
-        points.push(new paper.Segment(p, hIn, hOut));*/
-
-
+        console.log("id " + currentCurve.path.id);
+        console.log(currentDirection < 0 ? currentCurve.point2.toString() : currentCurve.point1.toString());
+        onFinish(new paper.Path.Circle(currentDirection < 0 ? currentCurve.point2 : currentCurve.point1, 2));
         points.push({
           curve1: previousCurve,
           time1: turnAround * currentDirection < 0 ? 0 : 1,
@@ -60033,13 +60075,16 @@ Wick.Tools.Zoom = class extends Wick.Tool {
           time2: currentDirection < 0 ? 1 : 0
         });
       } else {
-        //console.log("yes intersection");
-        //TODO make sure the first point of circle is on the currentCurve
+        console.log("yes intersection"); //TODO make sure the first point of circle is on the currentCurve
+
         let circleStartVector = currentIntersection.tangent.multiply(-currentDirection).rotate(-1).normalize(RADIUS);
         var circle = new paper.Path([circleStartVector, circleStartVector.rotate(-90), circleStartVector.rotate(-180), circleStartVector.rotate(-270)]);
         circle.translate(currentIntersection.point);
         circle.closePath();
         circle.smooth('continuous');
+        let dingus = circle.clone().scale(10);
+        onFinish(dingus);
+        dingus.remove();
         var crossings = [];
         var items = layerGroup.getItems({
           overlapping: circle.bounds.expand(1),
@@ -60049,12 +60094,19 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         for (let i = 0; i < items.length; i++) {
           crossings = crossings.concat(circle.getCrossings(items[i]));
         }
+        /*crossings.filter((crossing) => {
+            let a = currentCurve.path === crossing.intersection.path || !tangentsEqual(currentIntersection.tangent, crossing.intersection.tangent)
+            if (!a) console.log("ignored because parallel", crossing);
+            return a;
+        });*/
+
 
         crossings.sort((a, b) => {
           let diff = a.index + a.time - b.index - b.time;
 
           if (diff === 0) {
-            if (a.intersection.path === b.intersection.path) {//console.log("!!! crazy circle intersection");
+            if (a.intersection.path === b.intersection.path) {
+              console.log("!!! crazy circle intersection");
             }
 
             return a.intersection.path.isAbove(b.intersection.path) ? -1 : 1;
@@ -60063,49 +60115,40 @@ Wick.Tools.Zoom = class extends Wick.Tool {
           }
         });
         let previousCurve = null;
-        let previousIntersection = null; //console.log("crossings", crossings);
-        //crossings.map((crossing) => console.log(crossing.point.toString(), crossing.index + crossing.time));
+        let previousIntersection = null;
+        console.log("crossings", crossings);
+        crossings.map(crossing => console.log(crossing.point.toString(), crossing.index + crossing.time, crossing.intersection.path.id));
 
         for (var i = 0; i < crossings.length; i++) {
           let crossing = crossings[i];
 
-          if (crossing.intersection.curve === currentIntersection.curve && currentDirection !== getDirection(crossing.intersection, crossing.point.subtract(currentIntersection.point))) {//console.log("dangus");
+          if (crossing.intersection.curve === currentIntersection.curve && currentDirection !== getDirection(crossing.intersection, crossing.point.subtract(currentIntersection.point))) {
+            console.log("intersect self, didn't rotate clockwise enough?");
           } else {
-            let colorAt = getPathStroke(crossing.intersection.path);
-            let colorAfter = getColorAt(crossing.point.add(crossing.tangent.normalize(RADIUS * STEP_RATIO))); //debugging
-
             let colorBefore = getColorAt(crossing.point.subtract(crossing.tangent.normalize(RADIUS * STEP_RATIO)));
-            /*if (i === 0) {
-                if ((colorAt === null || colorsEqual(colorAt, holeColor)) && colorsEqual(holeColor, colorBefore)) {
-                    console.log("!!! BAD NEWS, not diff color to the left");
-                }
-                if (!colorsEqual(colorAfter, holeColor)) {
-                    console.log("!!! BAD NEWS, diff color to the right");
-                }
-            }*/
+            let colorAt = getPathStroke(crossing.intersection.path);
+            let colorAfter = getColorAt(crossing.point.add(crossing.tangent.normalize(RADIUS * STEP_RATIO)));
+            console.log(colorBefore && colorBefore.components, colorAt && colorAt.components, colorAfter && colorAfter.components);
 
             if (colorAt && !colorsEqual(holeColor, colorAt) || !colorsEqual(holeColor, colorAfter)) {
               //console.log("colors", colorBefore ? colorBefore.components : null, colorAt ? colorAt.components : null, colorAfter ? colorAfter.components : null);
               previousIntersection = currentIntersection;
               previousCurve = currentCurve;
               currentIntersection = crossing.intersection;
-              currentCurve = crossing.intersection.curve; //console.log("id " + currentCurve.path.id);
-
-              currentDirection = getDirection(crossing.intersection, crossing.point.subtract(previousIntersection.point)); //console.log(crossing.point.subtract(previousIntersection.point).toString(), currentDirection);
-
+              currentCurve = crossing.intersection.curve;
+              console.log("id " + currentCurve.path.id);
+              currentDirection = getDirection(crossing.intersection, crossing.point.subtract(previousIntersection.point));
+              console.log("turn direction", crossing.point.subtract(previousIntersection.point).toString(), currentDirection);
               break;
             }
           }
         }
 
-        if (previousIntersection === null) {} //console.log("!!! BAD NEWS, circle didn't have any legit intersections");
-
-        /*var p = currentIntersection.point;
-        var hIn = previousIntersection.tangent.multiply(previousDirection);
-        var hOut = currentIntersection.tangent.multiply(currentDirection);
-        console.log(p.toString());
-        points.push(new paper.Segment(p, hIn, hOut));*/
-
+        if (previousIntersection === null) {
+          onFinish(circle.clone().scale(100));
+          onError('NO_VALID_CROSSINGS');
+          return null;
+        }
 
         points.push({
           curve1: previousCurve,
@@ -60113,16 +60156,29 @@ Wick.Tools.Zoom = class extends Wick.Tool {
           curve2: currentCurve,
           time2: currentIntersection.time
         });
+        console.log("abc", points[points.length - 1]);
         circle.remove();
       }
 
       n++;
       ended = points.length >= 2 && points[0].curve2 === points[points.length - 1].curve2 && Math.abs(points[0].time2 - points[points.length - 1].time2) < EPSILON && currentDirection === startingDirection;
-    } //console.log("iters: " + n);
 
+      if (!ended) {
+        let p = points[points.length - 1];
+
+        for (let i = 0; i < points.length - 1; i++) {
+          if (p.curve1 === points[i].curve1 && p.curve2 === points[i].curve2 && Math.abs(p.time2 - points[i].time2) < EPSILON) {
+            onError('LOOPING');
+            return null;
+          }
+        }
+      }
+    }
+
+    console.log("iters: " + n);
 
     if (n === MAX_ITERS) {
-      //console.log("oy");
+      onError('TOO_COMPLEX');
       return null;
     }
 
@@ -60130,12 +60186,14 @@ Wick.Tools.Zoom = class extends Wick.Tool {
   }
 
   function pathFromPoints(points) {
+    points.shift();
     let curves = [];
 
     for (let i = 0; i < points.length; i++) {
       let p1 = points[i];
       let p2 = points[(i + 1) % points.length];
       curves.push(p1.curve2.getPart(p1.time2, p2.time1));
+      if (p1.curve2 !== p2.curve1) console.log("!!!!!");
     }
 
     let segments = [];
@@ -60167,8 +60225,8 @@ Wick.Tools.Zoom = class extends Wick.Tool {
       onFinish = args.onFinish;
       layers = args.layers;
       x = args.point.x;
-      y = args.point.y; //console.log("-----------------starting---------------------");
-
+      y = args.point.y;
+      console.log("-----------------starting---------------------");
       fillHole();
     }
   });
