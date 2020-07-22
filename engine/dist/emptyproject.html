@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.7.20.15.51.3";
+var WICK_ENGINE_BUILD_VERSION = "2020.7.22.12.9.1";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -61415,20 +61415,28 @@ Wick.View.Project = class extends Wick.View {
     var hr = h / this.model.height;
     return Math.min(wr, hr);
   }
+  /**
+   *  This is a hacky way to create scroll-to-zoom functionality
+   *  (Using https://github.com/jquery/jquery-mousewheel for cross-browser mousewheel event)
+   * @param {*} event - jquery mousewheel event.
+   */
+
+
+  scrollToZoom(event) {
+    if (!this.model.isPublished) {
+      var d = e.deltaY * e.deltaFactor * 0.001;
+      this.paper.view.zoom = Math.max(0.1, this.paper.view.zoom + d);
+
+      this._applyZoomAndPanChangesFromPaper();
+    }
+  }
 
   _setupTools() {
-    // This is a hacky way to create scroll-to-zoom functionality.
-    // (Using https://github.com/jquery/jquery-mousewheel for cross-browser mousewheel event)
-    if (!this.model.isPublished) {
-      $(this._svgCanvas).on('mousewheel', e => {
-        e.preventDefault();
-        var d = e.deltaY * e.deltaFactor * 0.001;
-        this.paper.view.zoom = Math.max(0.1, this.paper.view.zoom + d);
-
-        this._applyZoomAndPanChangesFromPaper();
-      });
-    } // Connect all Wick Tools into the paper.js project
-
+    // Attach scroll to zoom event.
+    $(this._svgCanvas).on('mousewheel', e => {
+      e.preventDefault();
+      this.scrollToZoom(e);
+    }); // Connect all Wick Tools into the paper.js project
 
     for (var toolName in this.model.tools) {
       var tool = this.model.tools[toolName];
@@ -65271,14 +65279,22 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
       this._doAutoScroll(target);
     }
   }
+  /**
+   * Refers to mousewheel events on the timeline.
+   * @param {*} e 
+   */
+
 
   _onMouseWheel(e) {
     e.preventDefault();
-    var dx = e.deltaX * e.deltaFactor * 0.5;
-    var dy = e.deltaY * e.deltaFactor * 0.5;
-    this.scrollX += dx;
-    this.scrollY -= dy;
-    this.draw();
+
+    if (!this.model.isPublished) {
+      var dx = e.deltaX * e.deltaFactor * 0.5;
+      var dy = e.deltaY * e.deltaFactor * 0.5;
+      this.scrollX += dx;
+      this.scrollY -= dy;
+      this.draw();
+    }
   }
 
   _getTopMouseTarget() {
