@@ -246,7 +246,7 @@ Wick.View.Project = class extends Wick.View {
      */
     scrollToZoom (event) {
         if (!this.model.isPublished) {
-            var d = e.deltaY * e.deltaFactor * 0.001;
+            var d = event.deltaY * event.deltaFactor * 0.001;
             this.paper.view.zoom = Math.max(0.1, this.paper.view.zoom + d);
             this._applyZoomAndPanChangesFromPaper();
         }

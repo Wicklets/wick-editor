@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.7.22.12.9.1";
+var WICK_ENGINE_BUILD_VERSION = "2020.7.22.13.55.52";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -61409,7 +61409,7 @@ Wick.View.Project = class extends Wick.View {
 
   scrollToZoom(event) {
     if (!this.model.isPublished) {
-      var d = e.deltaY * e.deltaFactor * 0.001;
+      var d = event.deltaY * event.deltaFactor * 0.001;
       this.paper.view.zoom = Math.max(0.1, this.paper.view.zoom + d);
 
       this._applyZoomAndPanChangesFromPaper();
