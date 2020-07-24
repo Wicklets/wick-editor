@@ -1309,6 +1309,7 @@ class EditorCore extends Component {
 
     this.projectDidChange({ actionName: "Setup New Project" });
     this.hideWaitOverlay();
+    this.project.recenter();
     this.project.view.prerender();
     this.project.view.render();
   }

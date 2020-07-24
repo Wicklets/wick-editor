@@ -241,6 +241,7 @@ class Editor extends EditorCore {
     if(!this.tryToParseProjectURL()) {
       this.showAutosavedProjects();
     }
+    this.recenterCanvas();
   }
 
   componentDidUpdate = (prevProps, prevState) => {
@@ -921,6 +922,7 @@ class Editor extends EditorCore {
                             <SizeMe>{({ size }) => {
                               this.project.view.render();
                               return (<Canvas
+                                editor={this}
                                 project={this.project}
                                 projectDidChange={this.projectDidChange}
                                 projectData={this.state.project}

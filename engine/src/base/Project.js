@@ -40,7 +40,7 @@ Wick.Project = class extends Wick.Base {
         this._backgroundColor = args.backgroundColor || new Wick.Color('#ffffff');
 
         this.pan = { x: 0, y: 0 };
-        this.zoom = 1.0;
+        this._zoom = 1.0;
         this.rotation = 0.0;
 
         this._onionSkinEnabled = false;
@@ -312,6 +312,19 @@ Wick.Project = class extends Wick.Base {
 
     set history(history) {
         this._history = history;
+    }
+
+    /**
+     * Value used to determine the zoom of the canvas.
+     */
+    get zoom () {
+        return this._zoom;
+    }
+
+    set zoom(z) {
+        const max = this.view.calculateFitZoom() * 10;
+        const min = .10;
+        this._zoom = Math.max(min, Math.min(max, z));
     }
 
     /**

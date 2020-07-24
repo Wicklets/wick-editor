@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.7.22.13.55.52";
+var WICK_ENGINE_BUILD_VERSION = "2020.7.24.13.5.49";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -47862,6 +47862,7 @@ Wick.WickFile = class {
       timeline.resolveFrameGaps();
       timeline.fillGapsMethod = oldFrameGapFillMethod;
     });
+    project.recenter();
   }
 
 };
@@ -49352,7 +49353,7 @@ Wick.Project = class extends Wick.Base {
       x: 0,
       y: 0
     };
-    this.zoom = 1.0;
+    this._zoom = 1.0;
     this.rotation = 0.0;
     this._onionSkinEnabled = false;
     this.onionSkinSeekBackwards = 1;
@@ -49632,6 +49633,20 @@ Wick.Project = class extends Wick.Base {
 
   set history(history) {
     this._history = history;
+  }
+  /**
+   * Value used to determine the zoom of the canvas.
+   */
+
+
+  get zoom() {
+    return this._zoom;
+  }
+
+  set zoom(z) {
+    const max = this.view.calculateFitZoom() * 10;
+    const min = .10;
+    this._zoom = Math.max(min, Math.min(max, z));
   }
   /**
    * Undo the last action.
