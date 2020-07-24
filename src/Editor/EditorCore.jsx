@@ -107,16 +107,16 @@ class EditorCore extends Component {
   /**
    * Zooms in the canvas.
    */
-  zoomIn = () => {
-    this.project.zoomIn();
+  zoomIn = (args) => {
+    this.project.zoomIn(args);
     this.project.view.render();
   }
 
   /**
    * Zooms out the canvas.
    */
-  zoomOut = () => {
-    this.project.zoomOut();
+  zoomOut = (args) => {
+    this.project.zoomOut(args);
     this.project.view.render();
   }
 

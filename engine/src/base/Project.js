@@ -40,7 +40,7 @@ Wick.Project = class extends Wick.Base {
         this._backgroundColor = args.backgroundColor || new Wick.Color('#ffffff');
 
         this.pan = { x: 0, y: 0 };
-        this.zoom = 1.0;
+        this._zoom = 1.0;
         this.rotation = 0.0;
 
         this._onionSkinEnabled = false;
@@ -233,6 +233,16 @@ Wick.Project = class extends Wick.Base {
         if (framerate < 1) framerate = 1;
         if (framerate > 9999) framerate = 9999;
         this._framerate = framerate;
+    }
+
+
+    get zoom () {
+        return this._zoom;
+    }
+
+    set zoom (z) {
+        let nZoom = this.view.calculateFitZoom();
+        this._zoom = Math.min(Math.max(nZoom/10, z), nZoom*10)
     }
 
     /**
@@ -1530,15 +1540,23 @@ Wick.Project = class extends Wick.Base {
     /**
      * Zooms the canvas in.
      */
-    zoomIn() {
-        this.zoom *= 1.25;
+    zoomIn(args) {
+        if (args) {
+            this.zoom *= 1+args.velocity; 
+        } else {
+            this.zoom *= 1.25;
+        }
     }
 
     /**
      * Zooms the canvas out.
      */
-    zoomOut() {
-        this.zoom *= 0.8;
+    zoomOut(args) {
+        if (args) {
+            this.zoom *= 1-args.velocity; 
+        } else {
+            this.zoom *= 0.8;
+        }
     }
 
     /**

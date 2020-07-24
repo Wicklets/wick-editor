@@ -20,6 +20,7 @@
 import React, { Component } from 'react';
 import { DropTarget } from 'react-dnd';
 import DragDropTypes from 'Editor/DragDropTypes.js';
+import Hammer from 'hammerjs';
 
 import './_canvas.scss';
 import styles from './_canvas.scss';
@@ -33,10 +34,10 @@ class Canvas extends Component {
 
   componentDidMount() {
     this.attachProjectToComponent(this.props.project);
-
     this.updateCanvas(this.props.project);
-
     this.props.onRef(this);
+
+    this.attachTouchEvents();
   }
 
   componentDidUpdate () {
@@ -62,6 +63,72 @@ class Canvas extends Component {
 
   updateCanvas = (project) => {
     this.attachProjectToComponent(project);
+  }
+
+  attachTouchEvents = () => {
+
+    // Original Pan
+    let projectPanStart = { x: 0, y:0 }
+    let touchPanStart = { x: 0, y:0 };
+
+
+
+    // Get a reference to an element.
+    var canvasContainer = document.querySelector('#wick-canvas-container');
+
+    // Create an instance of Hammer with the reference.
+    var canvasHammer = new Hammer(canvasContainer);
+    canvasHammer.domEvents = true;
+
+    let pan = canvasHammer.get('pan');
+    let pinch = canvasHammer.get('pinch');
+
+    pan.recognizeWith(pinch);
+    
+    // 2 Finger Panning
+    pan.set({
+      pointers: 1, 
+      enable: true,
+      threshold: 0,
+    });
+
+
+
+    canvasHammer.on('pan', (e) => {
+      console.log("Panning", e);
+    })
+
+    // Pinch 
+    pinch.set({
+      enable: true, 
+    });
+    canvasHammer.on('pinch', (e) => {
+      console.log("pinching", e);
+      if (e.additionalEvent === "pinchstart") {
+        projectPanStart = {
+          x: this.props.project.pan.x,
+          y: this.props.project.pan.y
+        }
+
+        touchPanStart = {
+          x: e.center.x,
+          y: e.center.y
+        }
+      }
+
+      const zoomDetails = {
+        x: projectPanStart.x - (touchPanStart.x - e.center.x),
+        y: projectPanStart.y - (touchPanStart.y - e.center.y),
+        velocity: Math.abs(e.overallVelocity)*.2,
+      }
+
+      if (e.additionalEvent === "pinchout") {
+        this.props.editor.zoomOut(zoomDetails);
+      } else if (e.additionalEvent === "pinchin") {
+        this.props.editor.zoomIn(zoomDetails);
+      }
+    });
+
   }
 
   render() {

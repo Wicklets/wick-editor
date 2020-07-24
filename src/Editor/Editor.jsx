@@ -921,6 +921,7 @@ class Editor extends EditorCore {
                             <SizeMe>{({ size }) => {
                               this.project.view.render();
                               return (<Canvas
+                                editor={this}
                                 project={this.project}
                                 projectDidChange={this.projectDidChange}
                                 projectData={this.state.project}

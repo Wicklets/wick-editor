@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.7.22.13.55.52";
+var WICK_ENGINE_BUILD_VERSION = "2020.7.24.12.18.48";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -49352,7 +49352,7 @@ Wick.Project = class extends Wick.Base {
       x: 0,
       y: 0
     };
-    this.zoom = 1.0;
+    this._zoom = 1.0;
     this.rotation = 0.0;
     this._onionSkinEnabled = false;
     this.onionSkinSeekBackwards = 1;
@@ -49544,6 +49544,15 @@ Wick.Project = class extends Wick.Base {
     if (framerate < 1) framerate = 1;
     if (framerate > 9999) framerate = 9999;
     this._framerate = framerate;
+  }
+
+  get zoom() {
+    return this._zoom;
+  }
+
+  set zoom(z) {
+    let nZoom = this.view.calculateFitZoom();
+    this._zoom = Math.min(Math.max(nZoom / 10, z), nZoom * 10);
   }
   /**
    * The background color of the project.
@@ -50923,16 +50932,24 @@ Wick.Project = class extends Wick.Base {
    */
 
 
-  zoomIn() {
-    this.zoom *= 1.25;
+  zoomIn(args) {
+    if (args) {
+      this.zoom *= 1 + args.velocity;
+    } else {
+      this.zoom *= 1.25;
+    }
   }
   /**
    * Zooms the canvas out.
    */
 
 
-  zoomOut() {
-    this.zoom *= 0.8;
+  zoomOut(args) {
+    if (args) {
+      this.zoom *= 1 - args.velocity;
+    } else {
+      this.zoom *= 0.8;
+    }
   }
   /**
    * All tools belonging to the project.
