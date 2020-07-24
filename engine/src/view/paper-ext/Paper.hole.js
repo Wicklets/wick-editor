@@ -77,7 +77,7 @@
     }
 
     function tangentsEqual(t1, t2) {
-        return t1.x === 0 && t2.x === 0 || t1.y === 0 && t2.y === 0 || t1.x !== 0 && t2.y !== 0 && Math.abs(t1.y / t1.x * t2.x / t2.y - 1) < 0.01;
+        return t1.x === 0 && t2.x === 0 || Math.abs(Math.atan(t1.y / t1.x) - Math.atan(t2.y / t2.x)) < 0.01;
     }
     
     function cleanup(item) {
@@ -424,13 +424,11 @@
             console.log("added curve location", points[points.length - 1]);
             
             //TODO make sure the first point of circle is on the currentCurve
-            let circleStartVector = currentIntersection.tangent.multiply(-currentDirection).rotate(-1).normalize(RADIUS);
+            let circleStartVector = new paper.Point(RADIUS, 0);
             var circle = new paper.Path([circleStartVector, circleStartVector.rotate(-90), circleStartVector.rotate(-180), circleStartVector.rotate(-270)]);
             circle.translate(currentIntersection.point);
             circle.closePath();
             circle.smooth('continuous');
-
-            //circle.clone().scale(10);
 
             var crossings = [];
             var items = layerGroup.getItems({
@@ -441,11 +439,17 @@
                 crossings = crossings.concat(circle.getCrossings(items[i]));
             }
 
-            /*crossings.filter((crossing) => {
-                let a = currentCurve.path === crossing.intersection.path || !tangentsEqual(currentIntersection.tangent, crossing.intersection.tangent)
+            crossings.filter((crossing) => {
+                let a = currentCurve.path === crossing.intersection.path || !tangentsEqual(currentIntersection.tangent, crossing.intersection.tangent);
                 if (!a) console.log("ignored because parallel", crossing);
                 return a;
-            });*/
+            });
+
+            crossings.filter((crossing) => {
+                let a = Math.abs(crossing.tangent.normalize().dot(crossing.intersection.tangent.normalize())) < 0.5;
+                if (!a) console.log("ignored because possibly not real intersection", crossing);
+                return a;
+            });
 
             crossings.sort((a,b) => {
                 let diff = a.index + a.time - b.index - b.time;
@@ -463,12 +467,26 @@
             console.log("crossings", crossings);
             crossings.map((crossing) => console.log(crossing.point.toString(), crossing.index + crossing.time, crossing.intersection.path.id));
 
-            for (var i = 0; i < crossings.length; i++) {
+            let startingIndex = 0;
+            for (let i = 0; i < crossings.length; i++) {
                 let crossing = crossings[i];
-                if (crossing.intersection.curve === currentIntersection.curve && 
+                if (crossing.intersection.curve.path === currentCurve.path &&
                     currentDirection !== getDirection(crossing.intersection, crossing.point.subtract(currentIntersection.point))) {
-                    console.log("!!! intersect self, possibly didn't rotate clockwise enough?");
+                    startingIndex = i + 1;
+                    for (let j = 1; j < crossings.length; j++) {
+                        let crossing2 = crossings[(i + j) % crossings.length];
+                        if (Math.abs(crossing2.time + crossing2.index - crossing.time - crossing.index) > EPSILON) {
+                            startingIndex = (i + j) % crossings.length;
+                            break;
+                        }
+                    }
+                    break;
                 }
+            }
+            console.log("starting index", startingIndex);
+
+            for (let i = 0; i < crossings.length; i++) {
+                let crossing = crossings[(startingIndex + i) % crossings.length];
                 
                 let colorBefore = getColorAt(crossing.point.subtract(crossing.tangent.normalize(RADIUS * STEP_RATIO)));
 
@@ -476,7 +494,7 @@
                     let colorAt = getPathStroke(crossing.intersection.path)
                     let colorAfter = getColorAt(crossing.point.add(crossing.tangent.normalize(RADIUS * STEP_RATIO)));
 
-                    console.log(colorBefore && colorBefore.components, colorAt && colorAt.components, colorAfter && colorAfter.components);
+                    console.log(i, colorBefore && colorBefore.components, colorAt && colorAt.components, colorAfter && colorAfter.components);
 
                     if ((colorAt && !colorsEqual(holeColor, colorAt)) || !colorsEqual(holeColor, colorAfter)) {
                         currentDirection = getDirection(crossing.intersection, crossing.point.subtract(currentIntersection.point));
@@ -533,7 +551,6 @@
                 curves.push(p1.curve.getPart(p1.time, p2.time));
             }
             else {
-                console.log("CHECK", p1.index, p2.index, p1.curve.path === p2.curve.path, p1.path.curves.length);
                 if ((p1.curve.index + 1) % p1.curve.path.curves.length === p2.curve.index) {
                     curves.push(p1.curve.getPart(p1.time, 1));
                 }
