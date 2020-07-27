@@ -31,6 +31,7 @@ import BuiltinLibrary from '../BuiltinLibrary/BuiltinLibrary';
 import EditorInfo from '../EditorInfo/EditorInfo';
 import OpenSourceNotices from '../OpenSourceNotices/OpenSourceNotices';
 import MobileMenu from '../MobileMenu/MobileMenu';
+import SavedProjects from '../SavedProjects/SavedProjects';
 
 class ModalHandler extends Component {
   render() {
@@ -147,6 +148,11 @@ class ModalHandler extends Component {
           toggle={this.props.closeActiveModal}
           open={this.props.activeModalName === 'MobileMenuModal'}
         />
+        <SavedProjects
+          openModal={this.props.openModal}
+          toggle={this.props.clostActiveModal}
+          open={this.props.activeModalName === 'SavedProjects'}
+          />
       </div>
     );
   }
