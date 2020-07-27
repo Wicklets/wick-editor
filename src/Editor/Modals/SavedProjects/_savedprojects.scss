@@ -1,0 +1,34 @@
+.saved-projects-modal-container {
+    width: 100%;
+    height: 100%;
+    max-width: 250px;
+    max-height: 350px;
+}
+
+.saved-projects-modal-title {
+    font-size: 24px;
+    color: white;
+}
+
+.saved-projects-modal-footer {
+    display: flex;
+    width: 75%;
+    justify-content: space-between;
+}
+
+.saved-projects-modal-body {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    color: white;
+    text-align: center ;
+    align-items: flex-start;
+    overflow: scroll;
+    margin-bottom: 8px;
+}
+
+.saved-projects-modal-button {
+    width: 75px;
+    height: 35px;
+    font-size: 20px; 
+}

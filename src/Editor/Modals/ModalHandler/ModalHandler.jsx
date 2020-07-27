@@ -150,7 +150,7 @@ class ModalHandler extends Component {
         />
         <SavedProjects
           openModal={this.props.openModal}
-          toggle={this.props.clostActiveModal}
+          toggle={this.props.closeActiveModal}
           open={this.props.activeModalName === 'SavedProjects'}
           />
       </div>
