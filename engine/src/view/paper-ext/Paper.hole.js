@@ -22,6 +22,30 @@
     Adds hole() to paper, which finds the shape of the hole
     at a certain point. Use this to make a vector fill bucket!
 
+    Description of Algorithm:
+
+    Shoot ray to left from click location, get first intersection at
+    which color changes. If no such intersection exists, the user is filling shape
+    with a gap.
+
+    Traverse upwards from first intersection. At the end of each curve, or at
+    intersections on the current curve (the one we are currently traversing),
+    create small circle (radius = RADIUS). 
+    
+    Get the intersections on this circle, traversing the circle counterclockwise 
+    starting from the point right after where we traversed from. 
+    Find the first intersection along the circle at which there is a color change 
+    (from the hole color to a different color, different either on stroke or fill), 
+    then traverse along this new curve with which we are intersecting.
+
+    An invariant of the traversal process is that the hole color is always to the right
+    of the point we are traversing along (where forward is the direction in which we are traversing), 
+    and a different color is always to the left.
+
+    When the traversal comes back to the beginning, we have defined a loop. 
+    If the loop is clockwise, we have filled a hole and are done.
+    Otherwise, we shoot a ray from the leftmost part of our loop, and start a new traversal.
+
     by Nikolas Diamant (nick@wickeditor.com)
 */
 
@@ -32,21 +56,29 @@
     var layers;
     var layerGroup;
 
+    // point clicked by user
     var x;
     var y;
 
-    const MAX_NEST = 10;
-    const MAX_ITERS = 1000;
+    // Maximum number of traversals
+    const MAX_NEST = 16;
+    // Maximum number of iterations in a single traversal
+    const MAX_ITERS = 2048;
     const EPSILON = 0.001;
+    // Radius of circles used in traversal
     const RADIUS = 0.25;
-    const STEP_RATIO = 0.001;
 
     var holeColor = null;
 
-    function getDirection(location, vector) {
-        return location.tangent.dot(vector) > 0 ? 1 : -1;
+    // Returns:
+    // 1 if traveling in the direction of vector along the curve at curveLocation
+    // is equivalent to traveling forwards along the curve.
+    // -1 " backwards ".
+    function getDirection(curveLocation, vector) {
+        return curveLocation.tangent.dot(vector) > 0 ? 1 : -1;
     }
 
+    // Return color of stroke of a path, null if no stroke.
     function getPathStroke(p) {
         if (p.hasStroke && 
             p.strokeWidth > 0 && 
@@ -56,6 +88,7 @@
         return null;
     }
 
+    // Return pixel color at point p
     function getColorAt(p) {
         var hit = layerGroup.hitTest(p, {fill: true});
         if (hit === null) {
@@ -64,6 +97,7 @@
         return hit.item.fillColor;
     }
 
+    // Return if two colors RGB are equal, ignores alpha.
     function colorsEqual(c1, c2) {
         if (c1 === null || c2 === null) {
             return c1 === null && c2 === null;
@@ -71,15 +105,12 @@
         return c1.red === c2.red && c1.green === c2.green && c1.blue === c2.blue;
     }
 
-    // Check whether the locations of p1, p2, are equal within the tolerance of EPSILON
+    // Check whether the locations of p1, p2, are equal within EPSILON
     function pointsEqual(p1, p2) {
         return Math.abs(p1.x - p2.x) < EPSILON && Math.abs(p1.y - p2.y) < EPSILON;
     }
 
-    /*function tangentsEqual(t1, t2) {
-        return t1.x === 0 && t2.x === 0 || Math.abs(Math.atan(t1.y / t1.x) - Math.atan(t2.y / t2.x)) < 0.01;
-    }*/
-    
+    // Orient item clockwise, remove redundant points
     function cleanup(item) {
         item.reorient(false, true);
         var paths;
@@ -106,7 +137,9 @@
         }
     }
 
+    // Performs the algoritm described at top of file.
     function fillHole () {
+        // Prepare/clean data
         layerGroup = new paper.Group({insert:false});
         layers.reverse().forEach(layer => {
             layer.children.forEach(function (child) {
@@ -123,72 +156,39 @@
             onError('NO_PATHS');
             return;
         }
-        //console.log(layerGroup);
         
         var p = new paper.Point(x, y);
         holeColor = getColorAt(p);
-        //console.log("hole color", holeColor);
-        console.timeEnd('preprocessing');
 
         for (var i = 0; i < MAX_NEST; i++) {
-            //console.log("starting at ", i, p.toString())
-            console.time('getShapeAroundPoint');
+            // getShapeAroundPoint performs the traversal.
             var path = getShapeAroundPoint(p);
-            console.timeEnd('getShapeAroundPoint');
             
             if (path === null) {
                 return;
             }
             
+            // If clockwise, we are done
             if (path.clockwise) {
-                console.time('postprocessing');
                 path.remove();
-                //path.fillColor = 'green';
                 if (holeColor === null) {
                     path = removeInteriorShapes(path);
                 }
                 else {
                     path = constructShape(path);
                 }
-                //path.strokeWidth = 0;
-                //bumpOut(path, );
-                //console.log("done", path);
-                console.timeEnd('postprocessing');
-                console.time('onFinish');
                 onFinish(path);
-                console.timeEnd('onFinish');
                 return;
             }
 
+            // Update point from which we shoot ray to the left
             p = path.getNearestLocation(path.bounds.leftCenter).point.add(new paper.Point(-1, 0));
             
             path.remove();
         }
     }
 
-    function bumpOut(p, ammount) {
-        var paths;
-        if (p._class === 'Path') {
-            paths = [p]
-        }
-        else {
-            paths = p.children;
-        }
-        for (let i = 0; i < paths.length; i++) {
-            path = paths[i];
-            for (let j = 0; j < path.segments.length; j++) {
-                let segment = path.segments[j];
-                let theta1 = Math.atan2(segment.handleIn.y, segment.handleIn.x);
-                let theta2 = Math.atan2(segment.handleOut.y, segment.handleOut.x);
-                let d_theta = (theta2 - theta1 + Math.PI * 2) % (Math.PI * 2);
-                let theta = theta1 + d_theta / 2;
-                let normal = new paper.Point(Math.cos(theta), Math.sin(theta)).multiply(ammount);
-                //console.log("bump normal", normal.toString());
-                segment.point = segment.point.add(normal);
-            }
-        }
-    }
-
+    // Assumes the path is colorless, removes all overlapping shapes
     function removeInteriorShapes(path) {
         let originalArea = path.area;
         var items = layerGroup.getItems({
@@ -207,9 +207,9 @@
         return path;
     }
 
-    // Cut out all of the objects inside path
+    // Unites all shapes of the same color as hole, subtracts paths of different colors,
+    // intersects with path.
     function constructShape(path) {
-        //console.log("constructing shape");
         let originalArea = path.area;
         var items = layerGroup.getItems({
             overlapping: path.bounds,
@@ -226,16 +226,13 @@
             let item = items[i];
             if (item.closed) {
                 if (colorsEqual(holeColor, item.fillColor)) {
-                    //console.log("unite");
                     p = p.unite(item,{insert: false});
                 }
                 else {
-                    //console.log("subtract");
                     p = p.subtract(item, {insert: false});
                 }
             }
         }
-        //console.log("intersect");
         p = p.intersect(path, {insert: false});
         if (p._class === 'CompoundPath') {
             cleanupAreas(p, originalArea);
@@ -243,17 +240,16 @@
         return p.area > EPSILON ? p : path;
     }
 
+    // Ensures the CompoundPath path is contiguous. This means there is a single
+    // clockwise path, and no holes within holes.
     function cleanupAreas(path, minArea) {
-        //console.log("cleanup areas");
         for (let i = 0; i < path.children.length; ) {
             if (Math.abs(path.children[i].area) < 1 || (path.children[i].area > 0 && Math.abs(minArea / path.children[i].area) > 1.01)) {
                 var bounds = path.children[i].bounds;
                 path.children[i].remove();
-                //console.log("removed shape")
                 for (let j = 0; j < path.children.length;) {
                     if (bounds.contains(path.children[j].bounds) && path.children[j].area < 0) {
                         path.children[j].remove();
-                        //console.log("removed hole");
                     }
                     else {
                         j++;
@@ -266,12 +262,10 @@
         }
     }
 
-    // Get the fill shape which contains the startingPoint
+    // Shoot ray to the left from startingPoint, perform traversal.
     function getShapeAroundPoint(startingPoint) {
-        console.time('first intersect');
-        //console.log("get shape around point");
         var currentCurve = new paper.Curve(
-            startingPoint, 
+            startingPoint,
             startingPoint.add(new paper.Point(-10000, 0)));
 
         var items = layerGroup.getItems({
@@ -288,36 +282,28 @@
         crossings.sort((a,b) => {
             let diff = a.time - b.time;
             if (diff === 0) {
-                //if (a.intersection.path === b.intersection.path) {
-                //    console.log("!!! crazy intersection");
-                //}
                 return a.intersection.path.isAbove(b.intersection.path) ? -1 : 1;
             }
             else {
                 return diff;
             }
         });
-        var currentIntersection = null;
+        var currentCurveLocation = null;
         for (let c = 0; c < crossings.length; c++) {
             let crossing = crossings[c];
-            
-            let colorBefore = getColorAt(crossing.point.add(new paper.Point(EPSILON, 0)));
-            //if (!colorsEqual(holeColor, colorBefore)) {
-            //    console.log("!!! unexpected color change");
-            //}
 
             let colorAt = getPathStroke(crossing.intersection.path);
             let colorAfter = getColorAt(crossing.point.add(new paper.Point(-EPSILON, 0)));
 
             if ((colorAt && !colorsEqual(holeColor, colorAt)) || !colorsEqual(holeColor, colorAfter)) {
-                currentIntersection = crossing.intersection;
-                currentCurve = currentIntersection.curve;
-                var currentDirection = getDirection(currentIntersection, new paper.Point(0, -1));
+                currentCurveLocation = crossing.intersection;
+                currentCurve = currentCurveLocation.curve;
+                var currentDirection = getDirection(currentCurveLocation, new paper.Point(0, -1));
                 break;
             }
         }
         
-        if (currentIntersection === null) {
+        if (currentCurveLocation === null) {
             onError('LEAKY_HOLE');
             return null;
         }
@@ -326,40 +312,26 @@
         
         var n = 0;
         var ended = false;
-        let time0;
-        let intersectionTime = 0;
-        let circleTime = 0;
-        let endTime = 0;
-        console.timeEnd('first intersect');
-        console.time('traversal');
-        let nulls = 0;
-        //let circleStartVector = new paper.Point(RADIUS, 0); //currentIntersection.tangent.multiply(-currentDirection).rotate(10).normalize(RADIUS);
-        //var circle = new paper.Path([circleStartVector, circleStartVector.rotate(-90), circleStartVector.rotate(-180), circleStartVector.rotate(-270)]);
-        //circle.closePath();
-        //circle.smooth('continuous');
+
         let circle = new paper.Path([new paper.Point(RADIUS, RADIUS), new paper.Point(RADIUS, -RADIUS), new paper.Point(-RADIUS, -RADIUS), new paper.Point(-RADIUS, RADIUS)]);
         circle.closePath();
+
         while (n < MAX_ITERS && !ended) {
-            //console.log("--------------------------------------------------", n);
             if (n === 1) {
                 points = [];
             }
 
-            let previousIntersection = currentIntersection;
+            let previousIntersection = currentCurveLocation;
             
-            time0 = performance.now();
             var pathsToIntersect = layerGroup.getItems({
                 class: paper.Path,
                 overlapping: currentCurve.bounds
             })
 
-            let currentTime = (currentIntersection.time + currentCurve.index) % currentCurve.path.curves.length;
+            let currentTime = (currentCurveLocation.time + currentCurve.index) % currentCurve.path.curves.length;
             let closestTime;
 
-            //console.log("current", currentDirection, currentCurve.path.id, currentCurve.index, currentTime, currentCurve.point1.toString(), currentCurve.point2.toString());
-            //console.log(currentCurve, currentIntersection);
-
-            currentIntersection = null;
+            currentCurveLocation = null;
             
             for (let i = 0; i < pathsToIntersect.length; i++) {
                 for (let c = 0; c < pathsToIntersect[i].curves.length; c++) {
@@ -368,17 +340,6 @@
                         let intersectionCurrentWithNext = intersectionsWithCurve[j];
                         let timeAtThisIntersection = (intersectionCurrentWithNext.time + intersectionCurrentWithNext.index) % currentCurve.path.curves.length;
 
-                        /*console.log("intersection", 
-                            intersectionCurrentWithNext, 
-                            intersectionCurrentWithNext.point.toString(), 
-                            intersectionCurrentWithNext.tangent.toString(),
-                            intersectionCurrentWithNext.intersection.tangent.toString(),
-                            intersectionCurrentWithNext.path.id, 
-                            intersectionCurrentWithNext.curve.index,
-                            timeAtThisIntersection,
-                            intersectionCurrentWithNext.intersection.path.id, 
-                            intersectionCurrentWithNext.intersection.curve.index);*/
-
                         let forwardsDiff = (timeAtThisIntersection - currentTime + currentCurve.path.curves.length) % currentCurve.path.curves.length;
                         let backwardsDiff = currentCurve.path.curves.length - forwardsDiff;
 
@@ -386,59 +347,35 @@
                         let backwardsDiff2 = currentCurve.path.curves.length - forwardsDiff2;
 
                         if (currentDirection * forwardsDiff < currentDirection * backwardsDiff &&
-                            (!currentIntersection || currentDirection * forwardsDiff2 > currentDirection * backwardsDiff2)) {
-                            currentIntersection = intersectionCurrentWithNext;
+                            (!currentCurveLocation || currentDirection * forwardsDiff2 > currentDirection * backwardsDiff2)) {
+                            currentCurveLocation = intersectionCurrentWithNext;
                             closestTime = timeAtThisIntersection;
                         }
                     }
                 }
             }
-            //console.log("chosen intersection", currentIntersection);
-            //currentIntersection && console.log(currentIntersection.path.id, currentIntersection.curve.index, currentIntersection.intersection.path.id, currentIntersection.intersection.curve.index);
-            let fug = false;
-            if (currentIntersection === null) {
-                //console.log("no intersection");
-                nulls++;
-                fug = true;
-                currentIntersection = currentCurve.getLocationAtTime(currentDirection < 0 ? 0 : 1);
+
+            if (currentCurveLocation === null) {
+                currentCurveLocation = currentCurve.getLocationAtTime(currentDirection < 0 ? 0 : 1);
             }
-            //console.log("current intersection", currentIntersection.point);
-            intersectionTime += performance.now() - time0;
-            time0 = performance.now();
 
-            points.push({p1: previousIntersection, p2: currentIntersection});
-            //console.log("added curve", points[points.length - 1]);
+            points.push({p1: previousIntersection, p2: currentCurveLocation});
             
-            
-            circle.position = currentIntersection.point;
-            //let axis = currentIntersection.tangent.multiply(-currentDirection).rotate(10).normalize();
-            //circle.matrix.set(axis.x, -axis.y, -axis.x, -axis.y, center.x, center.y);
-            //currentIntersection.tangent.multiply(-currentDirection).rotate(10).normalize(RADIUS);
-
-            //onFinish(circle.clone());
+            circle.position = currentCurveLocation.point;
 
             var crossings = [];
             var items = layerGroup.getItems({
                 overlapping: circle.bounds.expand(RADIUS),
                 class: paper.Path
             });
-            //console.log(items.length);
+
             for (let i = 0; i < items.length; i++) {
                 crossings = crossings.concat(circle.getCrossings(items[i]));
             }
 
-            /*crossings = crossings.filter((crossing) => {
-                let a = currentCurve.path === crossing.intersection.path || !tangentsEqual(currentIntersection.tangent, crossing.intersection.tangent);
-                if (!a) console.log("ignored because parallel", crossing);
-                return a;
-            });*/
-
             crossings.sort((a,b) => {
                 let diff = a.index + a.time - b.index - b.time;
                 if (diff === 0) {
-                    /*if (a.intersection.path === b.intersection.path) {
-                        console.log("!!! crazy circle intersection");
-                    }*/
                     return a.intersection.path.isAbove(b.intersection.path) ? -1 : 1;
                 }
                 else {
@@ -446,62 +383,44 @@
                 }
             })
 
-            if (fug && crossings.length !== 2) {
-                console.log("crossings", crossings);
-                crossings.map((crossing) => console.log(crossing.point.toString(), crossing.index + crossing.time, crossing.intersection.path.id, crossing.intersection.curve.index));
-            }
-
             let startingIndex = 0;
             for (let i = 0; i < crossings.length; i++) {
                 let crossing = crossings[i];
                 if (crossing.intersection.curve.path === currentCurve.path && 
                     Math.abs(Math.abs(crossing.intersection.curve.index - currentCurve.index) - currentCurve.path.curves.length / 2) >= currentCurve.path.curves.length / 2 - 1 && 
                     (currentCurve.closed || Math.abs(currentCurve.index - crossing.intersection.curve.index) <= 1) &&
-                    currentDirection !== getDirection(crossing.intersection, crossing.point.subtract(currentIntersection.point))) {
+                    currentDirection !== getDirection(crossing.intersection, crossing.point.subtract(currentCurveLocation.point))) {
                     startingIndex = i + 1;
-                    //console.log('i', i);
                     for (let j = 1; j < crossings.length; j++) {
                         let crossing2 = crossings[(i + j) % crossings.length];
                         if (Math.abs(Math.abs(crossing2.time + crossing2.index - crossing.time - crossing.index) - 2) < 1.99) {
                             startingIndex = (i + j) % crossings.length;
-                            //console.log("good start index", j);
                             break;
                         }
                     }
                     break;
                 }
             }
-            //console.log("starting index", startingIndex);
 
             for (let i = 0; i < crossings.length; i++) {
                 let crossing = crossings[(startingIndex + i) % crossings.length];
                 
-                let colorBefore = getColorAt(crossing.point.subtract(crossing.tangent.normalize(RADIUS * STEP_RATIO)));
+                let colorBefore = getColorAt(crossing.point.subtract(crossing.tangent.normalize(RADIUS * EPSILON)));
 
                 if (colorsEqual(colorBefore, holeColor)) {
                     let colorAt = getPathStroke(crossing.intersection.path)
-                    let colorAfter = getColorAt(crossing.point.add(crossing.tangent.normalize(RADIUS * STEP_RATIO)));
-
-                    //console.log(i, colorBefore && colorBefore.components, colorAt && colorAt.components, colorAfter && colorAfter.components);
+                    let colorAfter = getColorAt(crossing.point.add(crossing.tangent.normalize(RADIUS * EPSILON)));
 
                     if ((colorAt && !colorsEqual(holeColor, colorAt)) || !colorsEqual(holeColor, colorAfter)) {
-                        currentDirection = getDirection(crossing.intersection, crossing.point.subtract(currentIntersection.point));
-                        //console.log("turn direction", crossing.point.subtract(currentIntersection.point).toString(), currentDirection);
-                        currentIntersection = crossing.intersection;
+                        currentDirection = getDirection(crossing.intersection, crossing.point.subtract(currentCurveLocation.point));
+                        currentCurveLocation = crossing.intersection;
                         currentCurve = crossing.intersection.curve;
                         break;
                     }
                 }
-                else {
-                    //console.log("!!! not colorBefore");
-                }
             }
 
-            
-            circleTime += performance.now() - time0;
-            time0 = performance.now();
-
-            ended = points.length >= 2 && 
+            ended = points.length >= 2 &&
                 points[0].p1.curve === points[points.length - 1].p1.curve && 
                 points[0].p2.curve === points[points.length - 1].p2.curve && 
                 Math.abs(points[0].p1.time - points[points.length - 1].p1.time) < EPSILON && 
@@ -520,13 +439,9 @@
                     } 
                 }
             }
-            endTime += performance.now() - time0;
         }
         circle.remove();
-        console.timeEnd('traversal');
-        console.log(intersectionTime, circleTime, endTime, nulls, n);
 
-        //console.log("iters: " + n);
         if (n === MAX_ITERS) {
             onError('TOO_COMPLEX');
             return null;
@@ -535,6 +450,7 @@
         return pathFromPoints(points);
     }
 
+    // Constructs path with correct tangents
     function pathFromPoints(points) {
         console.time('pathFromPoints');
         points.shift();
@@ -542,7 +458,6 @@
         for (let i = 0; i < points.length; i++) {
             let p1 = points[i].p1;
             let p2 = points[i].p2;
-            //console.log(p1.time, p2.time);
             if (p1.curve === p2.curve) {
                 curves.push(p1.curve.getPart(p1.time, p2.time));
             }
@@ -586,11 +501,7 @@
             x = args.point.x;
             y = args.point.y;
 
-            //console.log("-----------------starting---------------------");
-            console.time('preprocessing');
-            console.time('total');
             fillHole();
-            console.timeEnd('total');
         }
     });
 })();
