@@ -110,33 +110,6 @@
         return Math.abs(p1.x - p2.x) < EPSILON && Math.abs(p1.y - p2.y) < EPSILON;
     }
 
-    // Orient item clockwise, remove redundant points
-    function cleanup(item) {
-        item.reorient(false, true);
-        var paths;
-        if (item._class === 'Path') {
-            paths = [item];
-        }
-        else {
-            paths = item.children;
-        }
-
-        for (let p = 0; p < paths.length; p++) {
-            path = paths[p];
-            for (let i = 0; i < path.segments.length; ) {
-                if (pointsEqual(path.segments[i].point, path.segments[(i + 1) % path.segments.length].point)) {
-                    let removed = path.removeSegment(i);
-                    if (path.segments.length) {
-                        path.segments[i % path.segments.length].handleIn = removed.handleIn;
-                    }
-                }
-                else {
-                    i++;
-                }
-            }
-        }
-    }
-
     // Performs the algoritm described at top of file.
     function fillHole () {
         // Prepare/clean data
@@ -146,8 +119,6 @@
                 if(child._class !== 'Path' && child._class !== 'CompoundPath') return;
 
                 var clone = child.clone({insert:false});
-
-                cleanup(clone);
 
                 if (!clone.closed || Math.abs(clone.area) > 0.01) layerGroup.addChild(clone);
             });

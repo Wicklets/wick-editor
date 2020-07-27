@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.7.27.13.47.59";
+var WICK_ENGINE_BUILD_VERSION = "2020.7.27.13.52.34";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -59813,8 +59813,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         if (child._class !== 'Path' && child._class !== 'CompoundPath') return;
         var clone = child.clone({
           insert: false
-        }); //cleanup(clone);
-
+        });
         if (!clone.closed || Math.abs(clone.area) > 0.01) layerGroup.addChild(clone);
       });
     });
