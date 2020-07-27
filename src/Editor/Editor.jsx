@@ -241,7 +241,6 @@ class Editor extends EditorCore {
     if(!this.tryToParseProjectURL()) {
       this.showAutosavedProjects();
     }
-    this.recenterCanvas();
   }
 
   componentDidUpdate = (prevProps, prevState) => {

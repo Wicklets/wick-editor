@@ -214,7 +214,5 @@ Wick.WickFile = class {
             timeline.resolveFrameGaps();
             timeline.fillGapsMethod = oldFrameGapFillMethod;
         });
-
-        project.recenter();
     }
 }
