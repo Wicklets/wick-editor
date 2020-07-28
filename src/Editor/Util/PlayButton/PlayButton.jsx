@@ -26,11 +26,13 @@ import iconPause from 'resources/action-icons/pause.png';
 class PlayButton extends Component {
   render() {
     return (
-      <img
+      <input
+        type="image"
         className={"play-icon " + this.props.className}
-        alt={"playing icon"}
+        alt={"playing button"}
         src={(this.props.playing ? iconPause : iconPlay)}
-        onClick={this.props.action}/>
+        onClick={this.props.action}
+        />
     )
   }
 }

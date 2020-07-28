@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.7.24.13.5.49";
+var WICK_ENGINE_BUILD_VERSION = "2020.7.27.9.40.13";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -47861,8 +47861,7 @@ Wick.WickFile = class {
       timeline.fillGapsMethod = 'blank_frames';
       timeline.resolveFrameGaps();
       timeline.fillGapsMethod = oldFrameGapFillMethod;
-    });
-    project.recenter();
+    }); // project.recenter();
   }
 
 };

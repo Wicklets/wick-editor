@@ -45,7 +45,7 @@ class WelcomeModal extends Component {
                     <div className="editor-info-link"><a href="https://forum.wickeditor.com" target="_blank" rel="noopener noreferrer">Community Forum</a></div>
                     <div className="editor-info-open-source-notices">
                         <ActionButton
-                            color="menu"
+                            color="gray"
                             text="Open Source Notices"
                             action={() => {this.props.openModal("OpenSourceNotices")}} />
                     </div>

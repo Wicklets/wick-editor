@@ -20,12 +20,12 @@
  @import 'Editor/_wickbrand.scss';
 
 .object-info-title {
-    color: $editor-modal-text-gray; 
+    color: #FFFFFF;//$editor-modal-text-gray; 
     font-size: 16px; 
   }
   
 .object-info-row {
-    color: $editor-modal-text-gray; 
+    color: #FFFFFF;//$editor-modal-text-gray; 
     font-size: 14px; 
     margin-top: 3px;
     display: flex; 
@@ -42,7 +42,7 @@
   
 .object-info-row-text {
   margin-left: 4px; 
-  color: $wick-gray-text-light; 
+  color: #FFFFFF;//$wick-gray-text-light; 
 }
 
 .object-info-container {

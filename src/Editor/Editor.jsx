@@ -253,7 +253,6 @@ class Editor extends EditorCore {
     if(!this.tryToParseProjectURL()) {
       this.showAutosavedProjects();
     }
-    this.recenterCanvas();
   }
 
   componentDidUpdate = (prevProps, prevState) => {
@@ -675,6 +674,7 @@ class Editor extends EditorCore {
 
     if (options.type) {
       options.className = options.type + '-toast-background';
+      options.bodyClassName = options.type + '-toast-body';
     }
 
     if (!options.autoClose) {

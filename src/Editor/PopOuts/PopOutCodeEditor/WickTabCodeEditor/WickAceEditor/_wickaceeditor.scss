@@ -4,3 +4,24 @@
   position: absolute;
   background-color: $wick-red-light;
 }
+
+.ace_gutter {
+  background: #292929 !important;
+  color: #FFFFFF !important;
+}
+
+.ace_scroller {
+  background-color: #202020;
+}
+
+.ace_constant.ace_numeric {
+  color: #CAADFF !important;
+}
+
+.ace_comment {
+  color: #ABABAB !important;
+}
+
+.ace_keyword {
+  color: #FF80B9 !important;
+}

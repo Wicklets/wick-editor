@@ -3,12 +3,18 @@
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 27.1 27" style="enable-background:new 0 0 27.1 27;" xml:space="preserve">
 <style type="text/css">
-	.st0{fill:none;stroke:url(#SVGID_1_);stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;}
+	<!-- .st0{fill:none;stroke:url(#SVGID_1_);stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;}
 	.st1{fill:none;stroke:url(#SVGID_2_);stroke-miterlimit:10;}
 	.st2{fill:none;stroke:url(#SVGID_3_);stroke-width:2;stroke-miterlimit:10;}
 	.st3{fill:url(#SVGID_4_);}
 	.st4{fill:none;stroke:url(#SVGID_5_);stroke-width:2;stroke-miterlimit:10;}
-	.st5{fill:none;stroke:url(#SVGID_6_);stroke-width:2;stroke-miterlimit:10;}
+	.st5{fill:none;stroke:url(#SVGID_6_);stroke-width:2;stroke-miterlimit:10;} -->
+	.st0{fill:none;stroke:white;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;}
+	.st1{fill:none;stroke:white;stroke-miterlimit:10;}
+	.st2{fill:none;stroke:white;stroke-width:2;stroke-miterlimit:10;}
+	.st3{fill:white;}
+	.st4{fill:none;stroke:white;stroke-width:2;stroke-miterlimit:10;}
+	.st5{fill:none;stroke:white;stroke-width:2;stroke-miterlimit:10;}
 </style>
 <title>Select_1</title>
 <linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="4.4307" y1="9.3899" x2="21.3662" y2="9.3899" gradientTransform="matrix(0.981 0.1938 -0.1938 0.981 2.0838 -2.2967)">

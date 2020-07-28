@@ -554,7 +554,7 @@ class EditorCore extends Component {
   deleteSelectedObjects = () => {
     if(this.project.selection.location === 'AssetLibrary') {
       this.openWarningModal({
-        description: "Any objects in the project that are using this asset will also be deleted.",
+        description: "Any objects in the project using this asset will also be deleted.",
         title: "Delete this asset?",
         acceptAction: (() => {
           this.project.deleteSelectedObjects();
@@ -583,7 +583,7 @@ class EditorCore extends Component {
     this.toggleCodeEditor(false);
 
     this.openWarningModal({
-      description: 'Delete Script: "' + scriptName + '" from the selected object?',
+      description: 'Delete Script: "' + scriptName + '" from the object?',
       title: "Delete Script",
       acceptText: "Delete",
       cancelText: "Cancel",
@@ -1316,7 +1316,7 @@ class EditorCore extends Component {
 
   openNewProjectConfirmation = () => {
     this.openWarningModal({
-      description: "You will lose any unsaved changes to the current project.",
+      description: "You will lose any unsaved changes.",
       title: "Open a New Project?",
       acceptAction: (() => {
         setTimeout(() => {

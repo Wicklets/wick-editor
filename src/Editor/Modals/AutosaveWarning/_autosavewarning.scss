@@ -74,13 +74,9 @@
 
 .autosave-icon {
   height: 22px;
-  margin-left: 6px;
 }
 
 .autosave-modal-button-text {
-  //margin: auto;
-  margin-top: 13px;
-  text-align: left;
-  margin-left: 5px;
-  margin-right: auto;
+  display: flex;
+  align-items: center;
 }

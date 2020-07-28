@@ -308,7 +308,14 @@ class ToolIcon extends Component {
         <img
           className={classNames("img-tool-icon", this.props.className)}
           alt={this.props.name+" icon"}
-          src={this.getSource()}/>
+          src={this.getSource()}>
+        </img>
+        // <object
+        //   type="image/svg+xml"
+        //   className={classNames("img-tool-icon", this.props.className)}
+        //   alt={this.props.name+" icon"}
+        //   data={this.getSource()}>
+        // </object>
       );
     } else {
       return (

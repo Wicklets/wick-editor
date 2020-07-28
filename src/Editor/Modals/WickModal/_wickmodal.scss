@@ -20,6 +20,8 @@
 @import 'Editor/_wickbrand.scss';
 
 #modal-close-icon-container {
+  background-color: $editor-modal-gray;
+  border: none;
   position: absolute;
   top: 15px; 
   right: 15px; 
