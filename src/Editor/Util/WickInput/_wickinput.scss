@@ -24,6 +24,7 @@ $numeric-input-background: $editor-text-input-background;
 .wick-input-container {
   width: 100%;
   height: 100%;
+  display: flex;
 }
 
 .wick-input {
@@ -45,10 +46,10 @@ $numeric-input-background: $editor-text-input-background;
 }
 
 .wick-numeric-input {
-  padding: 2px;
+  padding: 0 0 0 2px;
   width: 100%;
   height: 100%;
-  border-radius: $interface-input-roundness;
+  border-radius: 3px; //$interface-input-roundness;
   border: none;
   background-color: $numeric-input-background;
   color: white;
@@ -166,4 +167,6 @@ $numeric-input-background: $editor-text-input-background;
 .wick-tooltip {
   max-width: 220px; 
   opacity: .9 !important; 
+  background-color: #265A87 !important;
+  border-color: #265A87 !important;
 }

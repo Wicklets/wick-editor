@@ -235,9 +235,7 @@ class WickInput extends Component {
   }
 
   renderButton = () => {
-    return (
-      <WickButton {...this.props}>{this.props.children}</WickButton>
-    );
+    return <WickButton {...this.props}>{this.props.children}</WickButton>
   }
 }
 

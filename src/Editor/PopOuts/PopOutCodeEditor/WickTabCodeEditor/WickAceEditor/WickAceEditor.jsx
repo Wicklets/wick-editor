@@ -67,7 +67,7 @@ class WickAceEditor extends Component {
         mode="javascript"
         theme="monokai"
         name={this.props.name + "-ace-editor"}
-        fontSize={14}
+        fontSize={16}
         width="100%"
         height="100%"
         onChange={(e) => {this.props.onUpdate(e)}}
