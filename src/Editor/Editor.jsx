@@ -71,7 +71,7 @@ class Editor extends EditorCore {
     this.state = {
       project: null,
       previewPlaying: false,
-      activeModalName: "SavedProjects", //window.localStorage.skipWelcomeMessage ? null : "WelcomeMessage",
+      activeModalName: window.localStorage.skipWelcomeMessage ? null : "WelcomeMessage",
       activeModalQueue: [],
       codeEditorOpen: false,
       scriptToEdit: "default",
@@ -106,6 +106,7 @@ class Editor extends EditorCore {
         forward: "rgba(255, 0, 0, .3)",
       },
       onionSkinningWasOn: false,
+      localSavedFiles: [], // Files to display in savedProjects Modal.
     };
 
     // Catch all errors that happen in the editor.
@@ -133,6 +134,17 @@ class Editor extends EditorCore {
 
     // Init Script Info
     this.scriptInfoInterface = new ScriptInfoInterface();
+
+    // Check if we are using local saving (apps)...
+    if (window.wickEditorFileSystemType === 'local') {
+      window.openWickLocalFileViewer = (files) => {
+        console.log("Files Received", files);
+        this.setState({
+          localSavedFiles: files,
+          activeModalName: 'SavedProjects',
+        });
+      }
+    }
 
     // Wick file input
     this.openProjectFileFromClient = window.createFileInput({

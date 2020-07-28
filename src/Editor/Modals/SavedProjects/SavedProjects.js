@@ -8,28 +8,8 @@ import SavedProjectItem from './SavedProjectItem/SavedProjectItem';
 let classNames = require('classnames');
 
 export default function SavedProjects(props) {
-  const dummyProjects = [
-    {
-      name: "Project 1",
-      date: new Date().getUTCDate(),
-      size: "66kb",
-    },
-    {
-      name: "Project 2",
-      date: new Date().getDate(),
-      size: "89kb",
-    },
-    {
-      name: "Project 3",
-      date: new Date().getDate(),
-      size: "459kb",
-    },
-    {
-      name: "Project 4",
-      date: new Date().getDate(),
-      size: "1.23mb",
-    },
-  ]
+  // Use an empty list if saved files are not provided.
+  const projects = props.localSavedFiles ? props.localSavedFiles : []
 
   const [selectedProject, setSelectedProject] = useState(null);
 
@@ -45,12 +25,14 @@ export default function SavedProjects(props) {
       </h3>
       <div className="saved-projects-modal-body">
         {
-          dummyProjects ?
-            dummyProjects.map(project => <SavedProjectItem 
+          projects.map(project => <SavedProjectItem 
               onClick={() => setSelectedProject(project)}
               selected={selectedProject && selectedProject.name === project.name}
-              item={project} />):
-            "No Saved Files"
+              item={project} />)
+        }
+
+        {
+          (projects.length === 0) && "No Saved Files"
         }
       </div>
       <div className="saved-projects-modal-footer">

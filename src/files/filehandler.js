@@ -23,7 +23,7 @@
  * can be overridden in order to change the saving properties based
  * on the platform.
  * 
- * If not default handlers are defined, they are defaulted to the 
+ * If no default handlers are defined, they are defaulted to the 
  * functions below. Files are saved in accordance with browser-based file 
  * saving libraries.
  */

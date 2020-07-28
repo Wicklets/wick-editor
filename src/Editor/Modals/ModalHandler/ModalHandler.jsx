@@ -152,6 +152,7 @@ class ModalHandler extends Component {
           openModal={this.props.openModal}
           toggle={this.props.closeActiveModal}
           open={this.props.activeModalName === 'SavedProjects'}
+          localSavedFiles={this.props.localSavedFiles}
           />
       </div>
     );
