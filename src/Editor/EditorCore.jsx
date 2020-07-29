@@ -1700,6 +1700,30 @@ class EditorCore extends Component {
       this._onEyedropperPickedColor(e.color);
       this.activateLastTool();
   }
+
+  handleWickFileLoad = (e) => {
+    var file = e.target.files[0];
+    if (!file) {
+      console.warn('handleWickFileLoad: no files recieved');
+      return;
+    }
+
+    this.importProjectAsWickFile(file);
+  }
+
+  loadLocalWickFile = (fileEntry) => {
+    if (window.loadWickFileEntry) {
+      window.loadWickFileEntry(fileEntry, (blob) => {
+        this.handleWickFileLoad({
+          target: {
+            files: [blob]
+          }
+        }); 
+      });
+    } else {
+      console.error("No File Entry Opener Provided");
+    }
+  }
 }
 
 export default EditorCore;

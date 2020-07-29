@@ -13,6 +13,11 @@ export default function SavedProjects(props) {
 
   const [selectedProject, setSelectedProject] = useState(null);
 
+  function openSelectedFile () {
+    props.loadLocalWickFile(selectedProject);
+    props.toggle();
+  }
+
   return (
     <WickModal
       open={props.open}
@@ -45,7 +50,7 @@ export default function SavedProjects(props) {
         <ActionButton
           className="saved-projects-modal-button"
           color={selectedProject ? 'green' : 'gray'}
-          action={() => console.log("Opening")}
+          action={openSelectedFile}
           text="Open"
         />
       </div>

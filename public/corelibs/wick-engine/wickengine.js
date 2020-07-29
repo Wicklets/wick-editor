@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.7.27.9.40.13";
+var WICK_ENGINE_BUILD_VERSION = "2020.7.29.12.57.51";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -47861,7 +47861,7 @@ Wick.WickFile = class {
       timeline.fillGapsMethod = 'blank_frames';
       timeline.resolveFrameGaps();
       timeline.fillGapsMethod = oldFrameGapFillMethod;
-    }); // project.recenter();
+    });
   }
 
 };
@@ -63186,18 +63186,22 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
     var deleteButtonIsActive = this.model.project.selection.getSelectedObjects('Timeline').length > 0;
     ctx.save();
     ctx.save();
-    ctx.translate(80, 0); // Delete Frame button
+    var widthOfActionButtonContainer = 90;
+    var bump = 10;
+    var leftOfContainer = Wick.GUIElement.LAYERS_CONTAINER_WIDTH + bump - widthOfActionButtonContainer;
+    ctx.translate(leftOfContainer, 0); // Delete Frame button
 
     ctx.save();
     ctx.globalAlpha = deleteButtonIsActive ? 1.0 : 0.3;
     ctx.translate(0, 20);
     this.deleteFrameButton.draw(deleteButtonIsActive);
-    ctx.restore(); // Copy Frame Forward button
+    ctx.restore(); // Insert Blank Frame Button
 
     ctx.save();
     ctx.globalAlpha = 1.0;
     ctx.translate(30, 20);
-    this.insertBlankFrameButton.draw(true);
+    this.insertBlankFrameButton.draw(true); // Insert frame is always active...
+
     ctx.restore(); // Add Tween button
 
     ctx.save();

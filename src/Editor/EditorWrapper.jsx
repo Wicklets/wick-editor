@@ -98,6 +98,7 @@ import ModalHandler from './Modals/ModalHandler/ModalHandler';
                         openProjectFileDialog={this.props.editor.openProjectFileDialog}
                         openNewProjectConfirmation={this.props.editor.openNewProjectConfirmation}
                         localSavedFiles={this.props.editor.state.localSavedFiles}
+                        loadLocalWickFile={this.props.editor.loadLocalWickFile}
                         />
                 {this.props.children}
                 </div>

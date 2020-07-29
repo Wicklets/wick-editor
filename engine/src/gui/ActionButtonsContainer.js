@@ -115,7 +115,12 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
         ctx.save();
 
         ctx.save();
-        ctx.translate(80, 0);
+
+        var widthOfActionButtonContainer = 90;
+        var bump = 10;
+        var leftOfContainer = Wick.GUIElement.LAYERS_CONTAINER_WIDTH + bump - widthOfActionButtonContainer;
+
+        ctx.translate(leftOfContainer, 0);
             // Delete Frame button
             ctx.save();
             ctx.globalAlpha = deleteButtonIsActive ? 1.0 : 0.3;
@@ -123,11 +128,11 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
                 this.deleteFrameButton.draw(deleteButtonIsActive);
             ctx.restore();
 
-            // Copy Frame Forward button
+            // Insert Blank Frame Button
             ctx.save();
             ctx.globalAlpha = 1.0;
             ctx.translate(30, 20);
-                this.insertBlankFrameButton.draw(true);
+                this.insertBlankFrameButton.draw(true); // Insert frame is always active...
             ctx.restore();
 
             // Add Tween button

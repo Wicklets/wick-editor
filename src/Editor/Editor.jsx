@@ -798,16 +798,6 @@ class Editor extends EditorCore {
     this._processingAction = processingAction;
   }
 
-  handleWickFileLoad = (e) => {
-    var file = e.target.files[0];
-    if (!file) {
-      console.warn('handleWickFileLoad: no files recieved');
-      return;
-    }
-
-    this.importProjectAsWickFile(file);
-  }
-
   handleAssetFileImport = (e) => {
     this.createAssets(e.target.files, []);
   }
