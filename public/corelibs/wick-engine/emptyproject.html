@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.7.29.12.57.51";
+var WICK_ENGINE_BUILD_VERSION = "2020.7.29.13.6.15";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -62780,7 +62780,10 @@ Wick.GUIElement.BREADCRUMBS_DROP_SHADOW_DEPTH = 2;
 Wick.GUIElement.BREADCRUMBS_ACTIVE_BORDER_COLOR = '#1EE29A';
 Wick.GUIElement.BREADCRUMBS_HIGHLIGHT_HEIGHT = 3;
 Wick.GUIElement.BREADCRUMBS_PADDING = 5;
-Wick.GUIElement.LAYERS_CONTAINER_WIDTH = 160;
+Wick.GUIElement.LAYERS_CONTAINER_LARGE = 160;
+Wick.GUIElement.LAYERS_CONTAINER_SMALL = 100; // Shrink the Layer Container if the screen is small.
+
+Wick.GUIElement.LAYERS_CONTAINER_WIDTH = window.innerWidth < 600 ? Wick.GUIElement.LAYERS_CONTAINER_SMALL : Wick.GUIElement.LAYERS_CONTAINER_LARGE;
 Wick.GUIElement.NUMBER_LINE_HEIGHT = 35;
 Wick.GUIElement.NUMBER_LINE_NUMBERS_HIGHLIGHT_COLOR = '#ffffff';
 Wick.GUIElement.NUMBER_LINE_NUMBERS_COMMON_COLOR = '#494949';
