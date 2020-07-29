@@ -284,6 +284,7 @@ class Editor extends EditorCore {
     let preloader = window.document.getElementById('preloader');
     setTimeout(() => {
       preloader.style.opacity = '0';
+      this.recenterCanvas(); // Recenter the canvas after reload;
       setTimeout(() => {
         preloader.style.display = 'none';
       }, 500);
