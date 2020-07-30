@@ -991,6 +991,7 @@ class EditorCore extends Component {
     this.showWaitOverlay();
 
     let toastID = this.toast('Exporting project as a .wick file...', 'info', {autoClose: false});
+    
     window.Wick.WickFile.toWickFile(this.project, file => {
       if (file === undefined) {
         this.updateToast(toastID, {
@@ -1317,7 +1318,7 @@ class EditorCore extends Component {
   openNewProjectConfirmation = () => {
     this.openWarningModal({
       description: "You will lose any unsaved changes.",
-      title: "Open a New Project?",
+      title: "Create New Project?",
       acceptAction: (() => {
         setTimeout(() => {
           this.setupNewProject();

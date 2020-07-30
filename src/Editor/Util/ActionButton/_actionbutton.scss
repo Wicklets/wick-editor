@@ -26,9 +26,9 @@ $action-button-transition-duration: .2s;
   height: 100%;
 }
 
-button img {
-  width: 100%;
-  height: 100%;
+.action-button-single-icon {
+  margin: 0 auto;
+  height: 85%;
 }
 
 .action-button-text {
@@ -36,6 +36,35 @@ button img {
   text-align: center;
   display: flex;
   align-items: center;
+}
+
+.action-button-dropdown-icon-container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+
+.dropdown-extra-icon {
+  height: 6px;
+  margin-top: 1px;
+}
+
+.dropdown-action-button-icon {
+  height: 80%;
+}
+
+.action-button-icon-text-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.action-button-text-icon {
+  min-height: 24px;
+  margin-right: 6px
 }
 
 // Button color schemes
@@ -516,19 +545,4 @@ button img {
 .action-button-flame.active-button {
   background-color: $flame-dark;
   color: $flame-text;
-}
-
-.dropdown-extra-icon {
-  height: 7px;
-  margin-top: 1px;
-}
-.dropdown-action-button-icon {
-  align-self: center;
-  width: calc(100% - 7px);
-}
-
-.icons-container {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
 }

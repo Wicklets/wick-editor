@@ -37,7 +37,6 @@
     width: 60px;
     height: 60px;
     fill: white;
-    margin-left: 20px;
 }
 
 .mobile-menu-options-container {
@@ -61,4 +60,10 @@
 
 .mobile-menu-option {
     max-height: 20%;
+}
+
+.mobile-menu-button {
+    display: flex;
+    justify-content: left;
+    padding-left: 20px;
 }
