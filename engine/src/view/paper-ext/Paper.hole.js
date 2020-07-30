@@ -66,8 +66,8 @@
     const MAX_ITERS = 2048;
     const EPSILON = 0.001;
     // Radius of circles used in traversal
-    const RADIUS = 0.25;
-    const STEP_SIZE = 0.05;
+    const RADIUS = 0.1;
+    const STEP_SIZE = 0.01;
 
     var holeColor = null;
 
@@ -345,6 +345,7 @@
         let pointToAdd;
         while (n < MAX_ITERS && !ended) {
             console.log("-------------------------", n);
+            console.log("current", currentDirection, currentCurve.path.id, currentCurve.index, currentCurveLocation.time);
             if (n === 1) {
                 points = [];
             }
@@ -374,8 +375,27 @@
                         let forwardsDiff2 = closestTime ? (timeAtThisIntersection - closestTime + currentCurve.path.curves.length) % currentCurve.path.curves.length : 0;
                         let backwardsDiff2 = currentCurve.path.curves.length - forwardsDiff2;
 
-                        if (currentDirection * forwardsDiff < currentDirection * backwardsDiff &&
+                        /*if (!currentCurve.closed) {
+                            if (currentDirection * (timeAtThisIntersection - currentTime) < 0) {
+                                forwardsDiff = 99999999;
+                            }
+                            else {
+                                backwardsDiff = 99999999;
+                            }
+                            if (currentDirection * (timeAtThisIntersection - closestTime) < 0) {
+                                forwardsDiff2 = 999999999;
+                            }
+                            else {
+                                backwardsDiff2 = 999999999;
+                            }
+                        }*/
+
+                        console.log(timeAtThisIntersection, intersectionCurrentWithNext.intersection.path.id, intersectionCurrentWithNext.intersection.index);
+
+                        if (currentCurve.closed ? currentDirection * forwardsDiff < currentDirection * backwardsDiff : currentDirection * forwardsDiff < currentDirection * (currentCurve.path.curves.length - currentTime) &&
                             (!currentCurveLocation || currentDirection * forwardsDiff2 > currentDirection * backwardsDiff2)) {
+                            console.log("choose", currentDirection, currentTime, closestTime, timeAtThisIntersection);
+                            console.log(forwardsDiff, backwardsDiff, forwardsDiff2, backwardsDiff2);
                             currentCurveLocation = intersectionCurrentWithNext;
                             closestTime = timeAtThisIntersection;
                         }
@@ -385,14 +405,14 @@
 
             if (currentCurveLocation === null) {
                 currentCurveLocation = currentCurve.getLocationAtTime(currentDirection < 0 ? 0 : 1);
+                console.log("no intersection");
             }
+            console.log("chosen", currentCurve.path.id, currentCurve.index, currentCurveLocation.time);
             //console.log(previousCurveLocation.point, currentCurveLocation.point);
             points.push({p1: pointToAdd, p2: currentCurveLocation});
             
             circle.position = currentCurveLocation.point;
-
-            console.log(currentCurve.path.id, currentCurve.index);
-
+            
             //onFinish(circle.clone());
 
             var crossings = [];
@@ -419,7 +439,7 @@
             for (let i = 0; i < crossings.length; i++) {
                 let crossing = crossings[i];
                 if (crossing.intersection.curve.path === currentCurve.path && 
-                    ((currentCurve.index - crossing.intersection.curve.index) * currentDirection + currentCurve.path.curves.length) % currentCurve.path.curves.length <= 2 && //TODO, get reliable enough to make it <= 1
+                    ((currentCurve.index - crossing.intersection.curve.index) * currentDirection + currentCurve.path.curves.length) % currentCurve.path.curves.length <= 1 && //TODO, get reliable enough to make it <= 1
                     //Math.abs(Math.abs(crossing.intersection.curve.index - currentCurve.index) - currentCurve.path.curves.length / 2) >= currentCurve.path.curves.length / 2 - 1 && 
                     //(currentCurve.closed || Math.abs(currentCurve.index - crossing.intersection.curve.index) <= 1) &&
                     currentDirection !== getDirection(crossing.intersection, crossing.point.subtract(currentCurveLocation.point))) {
@@ -440,6 +460,7 @@
             console.log(startingIndex);
             crossings.map((crossing, i) => {console.log(i, crossing.point.toString(), crossing.index, crossing.time, crossing.intersection.path.id, crossing.intersection.index)});
 
+            good = false;
             for (let i = 0; i < crossings.length; i++) {
                 let crossing = crossings[(startingIndex + i) % crossings.length];
                 
@@ -454,11 +475,13 @@
                         currentCurveLocation = crossing.intersection;
                         pointToAdd = crossing.intersection.curve.getNearestLocation(currentCurveLocation.point);
                         currentCurve = crossing.intersection.curve;
+                        good = true;
                         break;
                     }
                 }
             }
 
+            if (!good) console.log("!!! not good numba 2")
             /*ended = points.length >= 2 &&
                 pointsEqual(points[0].p1.point, points[points.length - 1].p1.point) &&
                 pointsEqual(points[0].p2.point, points[points.length - 1].p2.point);
@@ -486,6 +509,11 @@
                         points = points.slice(i);
                         if (i > 0) {
                             console.log("!!! WHACKY loop?", i);
+                        }
+                        if (i > 3) {
+                            onError("LOOPING");
+                            onFinish(circle.scale(1 / RADIUS));
+                            return null;
                         }
                         ended = true;
                         break;
