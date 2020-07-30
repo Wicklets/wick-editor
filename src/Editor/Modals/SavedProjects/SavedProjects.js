@@ -18,6 +18,11 @@ export default function SavedProjects(props) {
     props.toggle();
   }
 
+  function deleteSelectedFile () {
+    props.deleteLocalWickFile(selectedProject);
+    props.reloadSavedWickFiles();
+  }
+
   return (
     <WickModal
       open={props.open}
@@ -43,8 +48,8 @@ export default function SavedProjects(props) {
       <div className="saved-projects-modal-footer">
         <ActionButton
           className="saved-projects-modal-button"
-          color='red'
-          action={() => console.log("Deleting")}
+          color={selectedProject ? 'red' : 'gray'}
+          action={deleteSelectedFile}
           text="Delete"
         />
         <ActionButton

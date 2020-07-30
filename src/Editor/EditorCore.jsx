@@ -1738,9 +1738,14 @@ class EditorCore extends Component {
     this.importProjectAsWickFile(file);
   }
 
+  /**
+   * Loads Local Wick File from
+   * @param {*} fileEntry 
+   */
   loadLocalWickFile = (fileEntry) => {
     if (window.loadWickFileEntry) {
       window.loadWickFileEntry(fileEntry, (blob) => {
+        // Wraps the file in a fake event. TODO: Simplify this.
         this.handleWickFileLoad({
           target: {
             files: [blob]
@@ -1751,6 +1756,28 @@ class EditorCore extends Component {
       console.error("No File Entry Opener Provided");
     }
   }
+
+  /**
+   * Deletes local Wick File From Storage.
+   * @param {FileEntry} fileEntry 
+   */
+  deleteLocalWickFile = (fileEntry) => {
+    window.deleteLocalWickFile(fileEntry);
+  }
+
+  /**
+   * Reloads any saved files currently on disk.
+   */
+  reloadSavedWickFiles = () => {
+    if (window.getSavedWickFiles) {
+      let files = window.getSavedWickFiles(files => {
+        this.setState({
+          localSavedFiles: files,
+        });
+      });
+    }
+  }
+
 }
 
 export default EditorCore;

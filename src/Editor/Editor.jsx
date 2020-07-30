@@ -146,7 +146,7 @@ class Editor extends EditorCore {
       }
     }
 
-    // Wick file input
+    // Wick Project File Input
     this.openProjectFileFromClient = window.createFileInput({
       accept: '.zip, .wick',
       onChange: this.handleWickFileLoad,

@@ -82,5 +82,36 @@ export default function initializeDefaultFileHandlers() {
       return clickInput;
     }
   }
+
+  /**
+   * @param {function} callback Callback to be sent array of file entries. 
+   * @returns {undefined} 
+   */
+  if (!window.getSavedWickFiles) {
+    window.getSavedWickFiles = (callback) => {
+      console.error("Get Saved Files Not Implemented");
+      callback([]);
+    }
+  }
+
+  /**
+   * Deletes a local file.
+   * @param {fileEntry} fileEntry - File entry of file to delete.
+   * @param {function} - callback to call on successful deletion.
+   * @param {function} - callback to call on failed deletion.
+   */
+  if (!window.deleteLocalWickFile) {
+    window.deleteLocalWickFile = (fileEntry, successCallback, failureCallback) => {
+      console.error("Delete Local Files Not Implemented")
+    }
+  }
+
+  /**
+   * Can be one of "local" or "browser". If on device storage is being used directly,
+   * should be set to "local", and all other functions in this file should be redefined.
+   */
+  if (!window.wickEditorFileSystemType) {
+    window.wickEditorFileSystemType = "browser";
+  }
 }
 
