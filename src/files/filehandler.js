@@ -26,6 +26,9 @@
  * If no default handlers are defined, they are defaulted to the 
  * functions below. Files are saved in accordance with browser-based file 
  * saving libraries.
+ * 
+ * Downloadable platforms should develop alternatives to these methods, and 
+ * load them prior to the editor being loaded.
  */
 
 import { saveAs } from 'file-saver';
@@ -39,11 +42,13 @@ export default function initializeDefaultFileHandlers() {
      * @param {Blob} file File to save.
      * @param {String} name Name of file to save, including extension.
      * @param {String} extension File extension that should be appended to the file. (ex. .zip, .wick)
+     * @param {function} successCallback Callback to be called if save is successful.
+     * @param {function} failureCallback Callback to be called if save is unsuccessful.
      */
-    window.saveFileFromWick = (file, name, extension) => {
+    window.saveFileFromWick = (file, name, extension, successCallback, failureCallback) => {
       const filename = name + timeStamp() + extension;
       saveAs(file, filename);
-      return true;
+      successCallback && successCallback() // Unfortunately, we can't check for success or failure from  browser...
     }
   }
 
