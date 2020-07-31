@@ -101,6 +101,7 @@ import ModalHandler from './Modals/ModalHandler/ModalHandler';
                         loadLocalWickFile={this.props.editor.loadLocalWickFile}
                         deleteLocalWickFile={this.props.editor.deleteLocalWickFile}
                         reloadSavedWickFiles={this.props.editor.reloadSavedWickFiles}
+                        openWarningModal={this.props.editor.openWarningModal}
                         />
                 {this.props.children}
                 </div>

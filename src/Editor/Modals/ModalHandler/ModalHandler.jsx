@@ -156,6 +156,7 @@ class ModalHandler extends Component {
           loadLocalWickFile={this.props.loadLocalWickFile}
           deleteLocalWickFile={this.props.deleteLocalWickFile}
           reloadSavedWickFiles={this.props.reloadSavedWickFiles}
+          openWarningModal={this.props.openWarningModal}
           />
       </div>
     );

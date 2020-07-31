@@ -5,6 +5,7 @@ import ActionButton from '../../Util/ActionButton/ActionButton';
 
 import './_savedprojects.scss';
 import SavedProjectItem from './SavedProjectItem/SavedProjectItem';
+import { select } from 'underscore';
 let classNames = require('classnames');
 
 export default function SavedProjects(props) {
@@ -13,14 +14,40 @@ export default function SavedProjects(props) {
 
   const [selectedProject, setSelectedProject] = useState(null);
 
-  function openSelectedFile () {
+  let openSelectedFile = () => {
     props.loadLocalWickFile(selectedProject);
     props.toggle();
   }
 
-  function deleteSelectedFile () {
+  let deleteSelectedFile = () => {
     props.deleteLocalWickFile(selectedProject);
     props.reloadSavedWickFiles();
+  }
+
+  let attemptOpenFile = () => {
+    if (props.openWarningModal) {
+      props.openWarningModal({
+        title: "Lose Unsaved",
+        description: "Any unsaved work will be lost.",
+        acceptAction: openSelectedFile,
+        cancelAction: () => {},
+        acceptText: "Open",
+        canceltText: "Cancel"
+      });
+    }
+  }
+
+  let attemptDeleteFile = () => {
+    if (props.openWarningModal) {
+      props.openWarningModal({
+        title: `Delete ${selectedProject.name}`,
+        description: "This cannot be undone!",
+        acceptAction: deleteSelectedFile,
+        cancelAction: () => {},
+        acceptText: "Delete",
+        canceltText: "Cancel"
+      });
+    }
   }
 
   return (
@@ -48,14 +75,16 @@ export default function SavedProjects(props) {
       <div className="saved-projects-modal-footer">
         <ActionButton
           className="saved-projects-modal-button"
+          disabled={selectedProject === null}
           color={selectedProject ? 'red' : 'gray'}
-          action={deleteSelectedFile}
+          action={attemptDeleteFile}
           text="Delete"
         />
         <ActionButton
           className="saved-projects-modal-button"
+          disabled={selectedProject === null}
           color={selectedProject ? 'green' : 'gray'}
-          action={openSelectedFile}
+          action={attemptOpenFile}
           text="Open"
         />
       </div>
