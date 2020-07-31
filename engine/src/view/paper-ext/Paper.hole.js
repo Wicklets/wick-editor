@@ -369,20 +369,24 @@
                         let intersectionCurrentWithNext = intersectionsWithCurve[j];
                         let timeAtThisIntersection = (intersectionCurrentWithNext.time + intersectionCurrentWithNext.index) % currentCurve.path.curves.length;
 
+                        //time to traverse forwards from currentTime to timeAtThisIntersection
                         let forwardsDiff = (timeAtThisIntersection - currentTime + currentCurve.path.curves.length) % currentCurve.path.curves.length;
+                        //time to traverse backwards from currentTime to timeAtThisIntersection
                         let backwardsDiff = currentCurve.path.curves.length - forwardsDiff;
 
+                        //time to traverse forwards from closestTime to timeAtThisIntersection
                         let forwardsDiff2 = closestTime ? (timeAtThisIntersection - closestTime + currentCurve.path.curves.length) % currentCurve.path.curves.length : 0;
+                        //time to traverse backwards from closestTime to timeAtThisIntersection
                         let backwardsDiff2 = currentCurve.path.curves.length - forwardsDiff2;
 
                         if (!currentCurve.path.closed) {
-                            if (currentDirection * (timeAtThisIntersection - currentTime) < 0) {
+                            if (timeAtThisIntersection - currentTime < 0) {
                                 forwardsDiff = 99999999;
                             }
                             else {
                                 backwardsDiff = 99999999;
                             }
-                            if (currentDirection * (timeAtThisIntersection - closestTime) < 0) {
+                            if (timeAtThisIntersection - closestTime < 0) {
                                 forwardsDiff2 = 999999999;
                             }
                             else {
@@ -413,7 +417,7 @@
             
             circle.position = currentCurveLocation.point;
             
-            onFinish(circle.clone());
+            //onFinish(circle.clone());
 
             var crossings = [];
             var items = layerGroup.getItems({
@@ -476,6 +480,7 @@
                         pointToAdd = crossing.intersection.curve.getNearestLocation(currentCurveLocation.point);
                         currentCurve = crossing.intersection.curve;
                         good = true;
+                        console.log((startingIndex + i) % crossings.length)
                         break;
                     }
                 }

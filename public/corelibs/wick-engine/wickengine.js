@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.7.30.16.19.54";
+var WICK_ENGINE_BUILD_VERSION = "2020.7.31.12.22.4";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -60046,20 +60046,24 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
           for (let j = 0; j < intersectionsWithCurve.length; j++) {
             let intersectionCurrentWithNext = intersectionsWithCurve[j];
-            let timeAtThisIntersection = (intersectionCurrentWithNext.time + intersectionCurrentWithNext.index) % currentCurve.path.curves.length;
-            let forwardsDiff = (timeAtThisIntersection - currentTime + currentCurve.path.curves.length) % currentCurve.path.curves.length;
-            let backwardsDiff = currentCurve.path.curves.length - forwardsDiff;
-            let forwardsDiff2 = closestTime ? (timeAtThisIntersection - closestTime + currentCurve.path.curves.length) % currentCurve.path.curves.length : 0;
+            let timeAtThisIntersection = (intersectionCurrentWithNext.time + intersectionCurrentWithNext.index) % currentCurve.path.curves.length; //time to traverse forwards from currentTime to timeAtThisIntersection
+
+            let forwardsDiff = (timeAtThisIntersection - currentTime + currentCurve.path.curves.length) % currentCurve.path.curves.length; //time to traverse backwards from currentTime to timeAtThisIntersection
+
+            let backwardsDiff = currentCurve.path.curves.length - forwardsDiff; //time to traverse forwards from closestTime to timeAtThisIntersection
+
+            let forwardsDiff2 = closestTime ? (timeAtThisIntersection - closestTime + currentCurve.path.curves.length) % currentCurve.path.curves.length : 0; //time to traverse backwards from closestTime to timeAtThisIntersection
+
             let backwardsDiff2 = currentCurve.path.curves.length - forwardsDiff2;
 
             if (!currentCurve.path.closed) {
-              if (currentDirection * (timeAtThisIntersection - currentTime) < 0) {
+              if (timeAtThisIntersection - currentTime < 0) {
                 forwardsDiff = 99999999;
               } else {
                 backwardsDiff = 99999999;
               }
 
-              if (currentDirection * (timeAtThisIntersection - closestTime) < 0) {
+              if (timeAtThisIntersection - closestTime < 0) {
                 forwardsDiff2 = 999999999;
               } else {
                 backwardsDiff2 = 999999999;
@@ -60089,8 +60093,8 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         p1: pointToAdd,
         p2: currentCurveLocation
       });
-      circle.position = currentCurveLocation.point;
-      onFinish(circle.clone());
+      circle.position = currentCurveLocation.point; //onFinish(circle.clone());
+
       var crossings = [];
       var items = layerGroup.getItems({
         overlapping: circle.bounds.expand(RADIUS),
@@ -60158,6 +60162,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
             pointToAdd = crossing.intersection.curve.getNearestLocation(currentCurveLocation.point);
             currentCurve = crossing.intersection.curve;
             good = true;
+            console.log((startingIndex + i) % crossings.length);
             break;
           }
         }
