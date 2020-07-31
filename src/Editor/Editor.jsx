@@ -144,6 +144,12 @@ class Editor extends EditorCore {
           activeModalName: 'SavedProjects',
         });
       }
+
+      /**
+       * Called if a save is attempted and a file with the same name already exists.
+       * @param {Object} args - Wrapper for openWarningModal 
+       */
+      window.warnBeforeSave = (args) => {this.openWarningModal(args)};
     }
 
     // Wick Project File Input

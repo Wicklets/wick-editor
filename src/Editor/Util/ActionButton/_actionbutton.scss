@@ -68,6 +68,12 @@ $action-button-transition-duration: .2s;
   margin-right: 6px
 }
 
+.action-button-text {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 // Button color schemes
 .action-button-blue {
   -webkit-transition-duration: $action-button-transition-duration; /* Safari */

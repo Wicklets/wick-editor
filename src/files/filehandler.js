@@ -50,6 +50,36 @@ export default function initializeDefaultFileHandlers() {
       saveAs(file, filename);
       successCallback && successCallback() // Unfortunately, we can't check for success or failure from  browser...
     }
+  } else {
+    // Otherwise, this already exists... We should add an "Overwrite" warning.
+
+    let oldSave = window.saveFileFromWick;
+    window.saveFileFromWick = (file, name, extension, successCallback, failureCallback) => {
+      let proposedFileName =  name + extension;
+      window.getSavedWickFiles(files => {
+        let warn = false; 
+        for (let file of files) {
+          if (file.name === proposedFileName) {
+            warn = true;
+            break;
+          }
+        }
+
+        if (warn) {
+          window.warnBeforeSave({
+            title: "Overwrite Save?",
+            description: "A previous save has this name!",
+            acceptText: "Save",
+            acceptAction: () => oldSave(file, name, extension, successCallback, failureCallback),
+            cancelText: "Cancel",
+            cancelAction: () => {failureCallback && failureCallback()},
+          });
+        } else {
+          oldSave(file, name, extension, successCallback, failureCallback);
+        }
+      });
+    }
+
   }
 
   if (!window.createFileInput) {

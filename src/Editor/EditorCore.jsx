@@ -876,7 +876,7 @@ class EditorCore extends Component {
       if(asset === null) {
         this.toast('Could not add files to project: ' + file.name, 'error');
       } else {
-        this.toast('Imported "' + file.name + '" successfully.', 'success');
+        this.toast(`Imported ${file.name || "project"} successfully.`);
         this.projectDidChange({ actionName: "Import File As Asset" });
       }
     });
@@ -1313,7 +1313,7 @@ class EditorCore extends Component {
     window.Wick.WickFile.fromWickFile(file, project => {
       if(project) {
         this.setupNewProject(project);
-        this.toast('Opened "' + file.name + '" successfully.', 'success');
+        this.toast(`Opened ${file.name || "project"} successfully.`, 'success');
       } else {
         this.toast('Could not open project.', 'error');
         this.hideWaitOverlay();

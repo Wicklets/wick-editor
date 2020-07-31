@@ -62,7 +62,7 @@ export default function ActionButton (props) {
   }
 
   function renderText () {
-    return <span className={classNames(newClassName+'-text', props.textClassName)}>{props.text}</span>
+    return <span className={classNames("action-button-text", newClassName+'-text', props.textClassName)}>{props.text}</span>
   }
 
   function renderContent () {
