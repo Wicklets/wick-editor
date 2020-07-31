@@ -66,7 +66,7 @@
     const MAX_ITERS = 2048;
     const EPSILON = 0.001;
     // Radius of circles used in traversal
-    const RADIUS = 0.1;
+    const RADIUS = 0.01;
     const STEP_SIZE = 0.01;
 
     var holeColor = null;
@@ -375,7 +375,7 @@
                         let forwardsDiff2 = closestTime ? (timeAtThisIntersection - closestTime + currentCurve.path.curves.length) % currentCurve.path.curves.length : 0;
                         let backwardsDiff2 = currentCurve.path.curves.length - forwardsDiff2;
 
-                        /*if (!currentCurve.closed) {
+                        if (!currentCurve.path.closed) {
                             if (currentDirection * (timeAtThisIntersection - currentTime) < 0) {
                                 forwardsDiff = 99999999;
                             }
@@ -388,7 +388,7 @@
                             else {
                                 backwardsDiff2 = 999999999;
                             }
-                        }*/
+                        }
 
                         console.log(timeAtThisIntersection, intersectionCurrentWithNext.intersection.path.id, intersectionCurrentWithNext.intersection.index);
 
@@ -413,7 +413,7 @@
             
             circle.position = currentCurveLocation.point;
             
-            //onFinish(circle.clone());
+            onFinish(circle.clone());
 
             var crossings = [];
             var items = layerGroup.getItems({

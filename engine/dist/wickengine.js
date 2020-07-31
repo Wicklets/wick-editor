@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.7.30.15.9.12";
+var WICK_ENGINE_BUILD_VERSION = "2020.7.30.16.19.54";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -59728,7 +59728,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
   const MAX_ITERS = 2048;
   const EPSILON = 0.001; // Radius of circles used in traversal
 
-  const RADIUS = 0.1;
+  const RADIUS = 0.01;
   const STEP_SIZE = 0.01;
   var holeColor = null; // Returns:
   // 1 if traveling in the direction of vector along the curve at curveLocation
@@ -60052,7 +60052,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
             let forwardsDiff2 = closestTime ? (timeAtThisIntersection - closestTime + currentCurve.path.curves.length) % currentCurve.path.curves.length : 0;
             let backwardsDiff2 = currentCurve.path.curves.length - forwardsDiff2;
 
-            if (!currentCurve.closed) {
+            if (!currentCurve.path.closed) {
               if (currentDirection * (timeAtThisIntersection - currentTime) < 0) {
                 forwardsDiff = 99999999;
               } else {
