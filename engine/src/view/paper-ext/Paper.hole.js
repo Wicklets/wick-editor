@@ -67,7 +67,7 @@
     const EPSILON = 0.001;
     // Radius of circles used in traversal
     const RADIUS = 0.01;
-    const STEP_SIZE = 0.01;
+    const STEP_SIZE = 0.001;
 
     var holeColor = null;
 
@@ -227,7 +227,7 @@
         }
 
         if (path._class === 'CompoundPath') {
-            cleanupAreas(path, originalArea);
+            cleanupAreas(path);
         }
         return path;
     }
@@ -235,7 +235,7 @@
     // Unites all shapes of the same color as hole, subtracts paths of different colors,
     // intersects with path.
     function constructShape(path) {
-        let originalArea = path.area;
+        //onFinish(path);
         var items = layerGroup.getItems({
             overlapping: path.bounds,
             match: (item) => {
@@ -247,34 +247,68 @@
         });
         var p = new paper.Path({insert: false});
         items.sort((a,b) => a.isAbove(b) ? 1 : -1);
+        let pArea = p.area;
+        let newP, newPArea;
         for (var i = 0; i < items.length; i++) {
             let item = items[i];
             if (item.closed) {
                 if (colorsEqual(holeColor, item.fillColor)) {
-                    p = p.unite(item,{insert: false});
+                    console.log("unite");
+                    newP = p.unite(item,{insert: false});
+                    newPArea = newP.area;
+                    if (newPArea > pArea) { // shouldn't have to do this, but avoids an error in paper.js
+                        p = newP;
+                        pArea = newPArea;
+                    }
                 }
                 else {
-                    p = p.subtract(item, {insert: false});
+                    console.log("subtract");
+                    newP = p.subtract(item, {insert: false});
+                    newPArea = newP.area;
+                    if (newPArea < pArea) { // shouldn't have to do this, but avoids an error in paper.js
+                        p = newP
+                        pArea = newPArea;
+                    }
                 }
+                //onFinish(p.clone());
             }
         }
-        p = p.intersect(path, {insert: false});
+        console.log("intersect");
+        newP = p.intersect(path, {insert: false});
+        newPArea = newP.area;
+        if (newPArea < pArea) { // shouldn't have to do this, but avoids an error in paper.js
+            p = newP;
+            pArea = newPArea;
+        }
+        //onFinish(p.clone());
         if (p._class === 'CompoundPath') {
-            cleanupAreas(p, originalArea);
+            console.log("cleanup");
+            cleanupAreas(p);
+            console.log(p.area);
         }
         return p.area > EPSILON ? p : path;
     }
 
     // Ensures the CompoundPath path is contiguous. This means there is a single
     // clockwise path, and no holes within holes.
-    function cleanupAreas(path, minArea) {
-        for (let i = 0; i < path.children.length; ) {
-            if (Math.abs(path.children[i].area) < 1 || (path.children[i].area > 0 && Math.abs(minArea / path.children[i].area) > 1.01)) {
-                var bounds = path.children[i].bounds;
-                path.children[i].remove();
-                for (let j = 0; j < path.children.length;) {
-                    if (bounds.contains(path.children[j].bounds) && path.children[j].area < 0) {
-                        path.children[j].remove();
+    function cleanupAreas(path) {
+        let maxArea = 0;
+        let info = path.children.map(p => {
+            let area = p.area;
+            if (area > maxArea) {
+                maxArea = area;
+            }
+            return {item: p, area: area}
+        });
+        for (let i = 0; i < info.length; ) {
+            if (Math.abs(info[i].area) < 1 || (info[i].area > 0 && info[i].area < maxArea)) {
+                var bounds = info[i].item.bounds;
+                info[i].item.remove();
+                info.splice(i, 1);
+                for (let j = 0; j < info.length;) {
+                    if (bounds.contains(info[j].item.bounds) && info[j].area < 0) {
+                        info[j].item.remove();
+                        info.splice(j, 1);
                     }
                     else {
                         j++;
@@ -419,7 +453,7 @@
             
             circle.position = currentCurveLocation.point;
             
-            onFinish(circle.clone());
+            //onFinish(circle.clone());
 
             var crossings = [];
             var items = layerGroup.getItems({
@@ -433,7 +467,7 @@
 
             crossings.sort((a,b) => {
                 let diff = a.index + a.time - b.index - b.time;
-                if (diff === 0) {
+                if (Math.abs(diff) <= STEP_SIZE) {
                     return a.intersection.path.isAbove(b.intersection.path) ? -1 : 1;
                 }
                 else {
@@ -475,6 +509,7 @@
                 if (colorsEqual(colorBefore, holeColor)) {
                     let colorAt = getPathStroke(crossing.intersection.path)
                     let colorAfter = getColorAt(crossing.point.add(crossing.tangent.normalize(RADIUS * STEP_SIZE)));
+                    console.log("oy", (startingIndex + i) % crossings.length, colorBefore ? colorBefore.components : null, colorAt ? colorAt.components : null, colorAfter ? colorAfter.components : null);
 
                     if ((colorAt && !colorsEqual(holeColor, colorAt)) || !colorsEqual(holeColor, colorAfter)) {
                         currentDirection = getDirection(crossing.intersection, crossing.point.subtract(currentCurveLocation.point));
@@ -482,7 +517,7 @@
                         pointToAdd = crossing.intersection.curve.getNearestLocation(currentCurveLocation.point);
                         currentCurve = crossing.intersection.curve;
                         good = true;
-                        console.log((startingIndex + i) % crossings.length)
+                        console.log("choose crossing", (startingIndex + i) % crossings.length)
                         break;
                     }
                 }

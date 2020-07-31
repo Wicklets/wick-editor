@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.7.31.13.49.24";
+var WICK_ENGINE_BUILD_VERSION = "2020.7.31.15.57.50";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -59729,7 +59729,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
   const EPSILON = 0.001; // Radius of circles used in traversal
 
   const RADIUS = 0.01;
-  const STEP_SIZE = 0.01;
+  const STEP_SIZE = 0.001;
   var holeColor = null; // Returns:
   // 1 if traveling in the direction of vector along the curve at curveLocation
   // is equivalent to traveling forwards along the curve.
@@ -59898,7 +59898,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     }
 
     if (path._class === 'CompoundPath') {
-      cleanupAreas(path, originalArea);
+      cleanupAreas(path);
     }
 
     return path;
@@ -59907,7 +59907,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
 
   function constructShape(path) {
-    let originalArea = path.area;
+    //onFinish(path);
     var items = layerGroup.getItems({
       overlapping: path.bounds,
       match: item => {
@@ -59922,29 +59922,59 @@ Wick.Tools.Zoom = class extends Wick.Tool {
       insert: false
     });
     items.sort((a, b) => a.isAbove(b) ? 1 : -1);
+    let pArea = p.area;
+    let newP, newPArea;
 
     for (var i = 0; i < items.length; i++) {
       let item = items[i];
 
       if (item.closed) {
         if (colorsEqual(holeColor, item.fillColor)) {
-          p = p.unite(item, {
+          console.log("unite");
+          newP = p.unite(item, {
             insert: false
           });
+          newPArea = newP.area;
+
+          if (newPArea > pArea) {
+            // shouldn't have to do this, but avoids an error in paper.js
+            p = newP;
+            pArea = newPArea;
+          }
         } else {
-          p = p.subtract(item, {
+          console.log("subtract");
+          newP = p.subtract(item, {
             insert: false
           });
-        }
+          newPArea = newP.area;
+
+          if (newPArea < pArea) {
+            // shouldn't have to do this, but avoids an error in paper.js
+            p = newP;
+            pArea = newPArea;
+          }
+        } //onFinish(p.clone());
+
       }
     }
 
-    p = p.intersect(path, {
+    console.log("intersect");
+    newP = p.intersect(path, {
       insert: false
     });
+    newPArea = newP.area;
+
+    if (newPArea < pArea) {
+      // shouldn't have to do this, but avoids an error in paper.js
+      p = newP;
+      pArea = newPArea;
+    } //onFinish(p.clone());
+
 
     if (p._class === 'CompoundPath') {
-      cleanupAreas(p, originalArea);
+      console.log("cleanup");
+      cleanupAreas(p);
+      console.log(p.area);
     }
 
     return p.area > EPSILON ? p : path;
@@ -59952,15 +59982,31 @@ Wick.Tools.Zoom = class extends Wick.Tool {
   // clockwise path, and no holes within holes.
 
 
-  function cleanupAreas(path, minArea) {
-    for (let i = 0; i < path.children.length;) {
-      if (Math.abs(path.children[i].area) < 1 || path.children[i].area > 0 && Math.abs(minArea / path.children[i].area) > 1.01) {
-        var bounds = path.children[i].bounds;
-        path.children[i].remove();
+  function cleanupAreas(path) {
+    let maxArea = 0;
+    let info = path.children.map(p => {
+      let area = p.area;
 
-        for (let j = 0; j < path.children.length;) {
-          if (bounds.contains(path.children[j].bounds) && path.children[j].area < 0) {
-            path.children[j].remove();
+      if (area > maxArea) {
+        maxArea = area;
+      }
+
+      return {
+        item: p,
+        area: area
+      };
+    });
+
+    for (let i = 0; i < info.length;) {
+      if (Math.abs(info[i].area) < 1 || info[i].area > 0 && info[i].area < maxArea) {
+        var bounds = info[i].item.bounds;
+        info[i].item.remove();
+        info.splice(i, 1);
+
+        for (let j = 0; j < info.length;) {
+          if (bounds.contains(info[j].item.bounds) && info[j].area < 0) {
+            info[j].item.remove();
+            info.splice(j, 1);
           } else {
             j++;
           }
@@ -60094,8 +60140,8 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         p1: pointToAdd,
         p2: currentCurveLocation
       });
-      circle.position = currentCurveLocation.point;
-      onFinish(circle.clone());
+      circle.position = currentCurveLocation.point; //onFinish(circle.clone());
+
       var crossings = [];
       var items = layerGroup.getItems({
         overlapping: circle.bounds.expand(RADIUS),
@@ -60109,7 +60155,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
       crossings.sort((a, b) => {
         let diff = a.index + a.time - b.index - b.time;
 
-        if (diff === 0) {
+        if (Math.abs(diff) <= STEP_SIZE) {
           return a.intersection.path.isAbove(b.intersection.path) ? -1 : 1;
         } else {
           return diff;
@@ -60156,6 +60202,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         if (colorsEqual(colorBefore, holeColor)) {
           let colorAt = getPathStroke(crossing.intersection.path);
           let colorAfter = getColorAt(crossing.point.add(crossing.tangent.normalize(RADIUS * STEP_SIZE)));
+          console.log("oy", (startingIndex + i) % crossings.length, colorBefore ? colorBefore.components : null, colorAt ? colorAt.components : null, colorAfter ? colorAfter.components : null);
 
           if (colorAt && !colorsEqual(holeColor, colorAt) || !colorsEqual(holeColor, colorAfter)) {
             currentDirection = getDirection(crossing.intersection, crossing.point.subtract(currentCurveLocation.point));
@@ -60163,7 +60210,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
             pointToAdd = crossing.intersection.curve.getNearestLocation(currentCurveLocation.point);
             currentCurve = crossing.intersection.curve;
             good = true;
-            console.log((startingIndex + i) % crossings.length);
+            console.log("choose crossing", (startingIndex + i) % crossings.length);
             break;
           }
         }
