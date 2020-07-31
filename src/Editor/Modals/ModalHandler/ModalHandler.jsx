@@ -32,6 +32,7 @@ import EditorInfo from '../EditorInfo/EditorInfo';
 import OpenSourceNotices from '../OpenSourceNotices/OpenSourceNotices';
 import MobileMenu from '../MobileMenu/MobileMenu';
 import SavedProjects from '../SavedProjects/SavedProjects';
+import SimpleProjectSettings from '../SimpleProjectSettings/SimpleProjectSettings';
 
 class ModalHandler extends Component {
   render() {
@@ -158,6 +159,13 @@ class ModalHandler extends Component {
           reloadSavedWickFiles={this.props.reloadSavedWickFiles}
           openWarningModal={this.props.openWarningModal}
           />
+        <SimpleProjectSettings 
+          updateProjectSettings={this.props.updateProjectSettings}
+          project={this.props.project}
+          toggle={this.props.closeActiveModal}
+          open={this.props.activeModalName === 'SimpleProjectSettings'}
+          project={this.props.project} />
+
       </div>
     );
   }
