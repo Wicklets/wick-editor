@@ -379,18 +379,20 @@
                         //time to traverse backwards from closestTime to timeAtThisIntersection
                         let backwardsDiff2 = currentCurve.path.curves.length - forwardsDiff2;
 
+                        // If the path isn't a closed loop, you can't necessarily traverse from one point
+                        // to another in a given direction, so we give it essentially infinite distance.
                         if (!currentCurve.path.closed) {
                             if (timeAtThisIntersection - currentTime < 0) {
-                                forwardsDiff = 99999999;
+                                forwardsDiff = Infinity;
                             }
                             else {
-                                backwardsDiff = 99999999;
+                                backwardsDiff = Infinity;
                             }
                             if (timeAtThisIntersection - closestTime < 0) {
-                                forwardsDiff2 = 999999999;
+                                forwardsDiff2 = Infinity;
                             }
                             else {
-                                backwardsDiff2 = 999999999;
+                                backwardsDiff2 = Infinity;
                             }
                         }
 
@@ -417,7 +419,7 @@
             
             circle.position = currentCurveLocation.point;
             
-            //onFinish(circle.clone());
+            onFinish(circle.clone());
 
             var crossings = [];
             var items = layerGroup.getItems({

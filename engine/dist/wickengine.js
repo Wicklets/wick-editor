@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.7.31.12.22.4";
+var WICK_ENGINE_BUILD_VERSION = "2020.7.31.13.49.24";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -60054,19 +60054,20 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
             let forwardsDiff2 = closestTime ? (timeAtThisIntersection - closestTime + currentCurve.path.curves.length) % currentCurve.path.curves.length : 0; //time to traverse backwards from closestTime to timeAtThisIntersection
 
-            let backwardsDiff2 = currentCurve.path.curves.length - forwardsDiff2;
+            let backwardsDiff2 = currentCurve.path.curves.length - forwardsDiff2; // If the path isn't a closed loop, you can't necessarily traverse from one point
+            // to another in a given direction, so we give it essentially infinite distance.
 
             if (!currentCurve.path.closed) {
               if (timeAtThisIntersection - currentTime < 0) {
-                forwardsDiff = 99999999;
+                forwardsDiff = Infinity;
               } else {
-                backwardsDiff = 99999999;
+                backwardsDiff = Infinity;
               }
 
               if (timeAtThisIntersection - closestTime < 0) {
-                forwardsDiff2 = 999999999;
+                forwardsDiff2 = Infinity;
               } else {
-                backwardsDiff2 = 999999999;
+                backwardsDiff2 = Infinity;
               }
             }
 
@@ -60093,8 +60094,8 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         p1: pointToAdd,
         p2: currentCurveLocation
       });
-      circle.position = currentCurveLocation.point; //onFinish(circle.clone());
-
+      circle.position = currentCurveLocation.point;
+      onFinish(circle.clone());
       var crossings = [];
       var items = layerGroup.getItems({
         overlapping: circle.bounds.expand(RADIUS),
