@@ -479,6 +479,9 @@
             
             circle.position = gapCrossLocation ? gapCrossLocation.point : currentCurveLocation.point;
 
+            onFinish(circle.clone());
+            console.log(n, !!gapCrossLocation, circle.bounds.center);
+
             var crossings = [];
             var items = layerGroup.getItems({
                 overlapping: circle.bounds.expand(RADIUS),
