@@ -60,6 +60,8 @@
     var x;
     var y;
 
+    // Distance to bump curves by to detect gaps
+    const GAP_FILL = 0.1;
     // Maximum number of traversals
     const MAX_NEST = 16;
     // Maximum number of iterations in a single traversal
@@ -111,30 +113,14 @@
         return Math.abs(p1.x - p2.x) < EPSILON && Math.abs(p1.y - p2.y) < EPSILON;
     }
 
-    function bumpOut(p, ammount) {
-        var paths;
-    
-        if (p._class === 'Path') {
-          paths = [p];
-        } else {
-          paths = p.children;
-        }
-    
-        for (let i = 0; i < paths.length; i++) {
-          path = paths[i];
-    
-          for (let j = 0; j < path.segments.length; j++) {
-            let segment = path.segments[j];
-            let theta1 = Math.atan2(segment.handleIn.y, segment.handleIn.x);
-            let theta2 = Math.atan2(segment.handleOut.y, segment.handleOut.x);
-            let d_theta = (theta2 - theta1 + Math.PI * 2) % (Math.PI * 2);
-            let theta = theta1 + d_theta / 2;
-            let normal = new paper.Point(Math.cos(theta), Math.sin(theta)).multiply(ammount);
-    
-            segment.point = segment.point.add(normal);
-          }
-        }
-      }
+    function bumpedCurve(c, direction) {
+        let curve = c.clone();
+        let n1 = curve.getTangentAtTime(0).multiply(direction).rotate(90).normalize(GAP_FILL);
+        let n2 = curve.getTangentAtTime(1).multiply(direction).rotate(90).normalize(GAP_FILL);
+        curve.point1 = curve.point1.add(n1);
+        curve.point2 = curve.point2.add(n2);
+        return curve;
+    }
 
     // Performs the algoritm described at top of file.
     function fillHole () {
@@ -232,9 +218,9 @@
     }
 
     function overlappingBounds(b1, b2) {
-        return (((b1.left <= b2.left && b2.left <= b1.right) || (b1.left <= b2.right && b2.right <= b1.right)) &&
-        ((b1.top <= b2.top && b2.top <= b1.bottom) || (b1.top <= b2.bottom && b2.bottom <= b1.bottom))) || 
-        (((b2.left <= b1.left && b1.left <= b2.right) || (b2.left <= b1.right && b1.right <= b2.right)) &&
+        return (((b1.left <= b2.left && b2.left <= b1.right) || (b1.left <= b2.right && b2.right <= b1.right)) ||
+        ((b2.left <= b1.left && b1.left <= b2.right) || (b2.left <= b1.right && b1.right <= b2.right))) &&
+        (((b1.top <= b2.top && b2.top <= b1.bottom) || (b1.top <= b2.bottom && b2.bottom <= b1.bottom)) || 
         ((b2.top <= b1.top && b1.top <= b2.bottom) || (b2.top <= b1.bottom && b1.bottom <= b2.bottom)));
     }
 
@@ -384,15 +370,15 @@
                 points = [];
             }
 
-            var pathsToIntersect = layerGroup.getItems({
-                class: paper.Path,
-                overlapping: currentCurve.bounds
-            })
-
             let currentTime = (currentCurveLocation.time + currentCurve.index) % currentCurve.path.curves.length;
             let closestTime;
 
             currentCurveLocation = null;
+
+            var pathsToIntersect = layerGroup.getItems({
+                class: paper.Path,
+                overlapping: currentCurve.bounds
+            });
             
             for (let i = 0; i < pathsToIntersect.length; i++) {
                 for (let c = 0; c < pathsToIntersect[i].curves.length; c++) {
@@ -437,12 +423,64 @@
                 }
             }
 
+            let gapCrossLocation, gapCurve;
+            if (currentCurve.length > EPSILON) {
+                gapCurve = bumpedCurve(currentCurve, currentDirection);
+                var pathsToIntersectGap = layerGroup.getItems({
+                    class: paper.Path,
+                    overlapping: gapCurve.bounds
+                });
+                gapCrossLocation = null;
+                for (let i = 0; i < pathsToIntersectGap.length; i++) {
+                    for (let c = 0; c < pathsToIntersectGap[i].curves.length; c++) {
+                        let intersectionsWithCurve = gapCurve.getIntersections(pathsToIntersectGap[i].curves[c]);
+                        for (let j = 0; j < intersectionsWithCurve.length; j++) {
+                            let intersectionGapWithNext = intersectionsWithCurve[j];
+                            let timeAtThisIntersection = (intersectionGapWithNext.time + currentCurve.index) % currentCurve.path.curves.length;
+
+                            //time to traverse forwards from currentTime to timeAtThisIntersection
+                            let forwardsDiff = (timeAtThisIntersection - currentTime + currentCurve.path.curves.length) % currentCurve.path.curves.length;
+                            //time to traverse backwards from currentTime to timeAtThisIntersection
+                            let backwardsDiff = currentCurve.path.curves.length - forwardsDiff;
+
+                            //time to traverse forwards from closestTime to timeAtThisIntersection
+                            let forwardsDiff2 = closestTime ? (timeAtThisIntersection - closestTime + currentCurve.path.curves.length) % currentCurve.path.curves.length : 0;
+                            //time to traverse backwards from closestTime to timeAtThisIntersection
+                            let backwardsDiff2 = currentCurve.path.curves.length - forwardsDiff2;
+
+                            // If the path isn't a closed loop, you can't necessarily traverse from one point
+                            // to another in a given direction, so we give it essentially infinite distance.
+                            if (!currentCurve.path.closed) {
+                                if (timeAtThisIntersection - currentTime < 0) {
+                                    forwardsDiff = Infinity;
+                                }
+                                else {
+                                    backwardsDiff = Infinity;
+                                }
+                                if (timeAtThisIntersection - closestTime < 0) {
+                                    forwardsDiff2 = Infinity;
+                                }
+                                else {
+                                    backwardsDiff2 = Infinity;
+                                }
+                            }
+
+                            if (currentCurve.closed ? currentDirection * forwardsDiff < currentDirection * backwardsDiff : currentDirection * forwardsDiff < currentDirection * (currentCurve.path.curves.length - currentTime) &&
+                                ((!currentCurveLocation && !gapCrossLocation) || currentDirection * forwardsDiff2 > currentDirection * backwardsDiff2)) {
+                                gapCrossLocation = intersectionGapWithNext;
+                                closestTime = timeAtThisIntersection;
+                            }
+                        }
+                    }
+                }
+            }
+
             if (currentCurveLocation === null) {
                 currentCurveLocation = currentCurve.getLocationAtTime(currentDirection < 0 ? 0 : 1);
             }
-            points.push({p1: pointToAdd, p2: currentCurveLocation});
+            points.push({p1: pointToAdd, p2: gapCrossLocation ? currentCurve.getNearestLocation(gapCrossLocation.point) : currentCurveLocation});
             
-            circle.position = currentCurveLocation.point;
+            circle.position = gapCrossLocation ? gapCrossLocation.point : currentCurveLocation.point;
 
             var crossings = [];
             var items = layerGroup.getItems({
@@ -465,24 +503,39 @@
             })
             let good = false;
             let startingIndex = 0;
-            for (let i = 0; i < crossings.length; i++) {
-                let crossing = crossings[i];
-                if (crossing.intersection.curve.path === currentCurve.path && 
-                    ((currentCurve.index - crossing.intersection.curve.index) * currentDirection + currentCurve.path.curves.length) % currentCurve.path.curves.length <= 1 &&
-                    currentDirection !== getDirection(crossing.intersection, crossing.point.subtract(currentCurveLocation.point))) {
-                    startingIndex = i + 1;
-                    for (let j = 1; j < crossings.length; j++) {
-                        let crossing2 = crossings[(i + j) % crossings.length];
-                        if (Math.abs(Math.abs(crossing2.time + crossing2.index - crossing.time - crossing.index) - 2) < 1.99) {
-                            startingIndex = (i + j) % crossings.length;
-                            good = true;
-                            break;
-                        }
+            if (gapCrossLocation) {
+                let good = true;
+                let incomingTangent = gapCrossLocation.tangent.multiply(-currentDirection);
+                let incomingIndex = (2 * Math.PI - Math.atan2(incomingTangent.y, incomingTangent.x)) * 2 / Math.PI + EPSILON;
+                let minIndexDiff = 4;
+                for (let i = 0; i < crossings.length; i++) {
+                    let indexDiff = (crossings[i].time + crossings[i].index - incomingIndex + 4) % 4;
+                    if (indexDiff < minIndexDiff) {
+                        minIndexDiff = indexDiff;
+                        startingIndex = i;
                     }
-                    break;
                 }
             }
-            if (!good) console.log("!!!");
+            else {
+                for (let i = 0; i < crossings.length; i++) {
+                    let crossing = crossings[i];
+                    if (crossing.intersection.curve.path === currentCurve.path && 
+                        ((currentCurve.index - crossing.intersection.curve.index) * currentDirection + currentCurve.path.curves.length) % currentCurve.path.curves.length <= 1 &&
+                        currentDirection !== getDirection(crossing.intersection, crossing.point.subtract(currentCurveLocation.point))) {
+                        startingIndex = i + 1;
+                        for (let j = 1; j < crossings.length; j++) {
+                            let crossing2 = crossings[(i + j) % crossings.length];
+                            if (Math.abs(Math.abs(crossing2.time + crossing2.index - crossing.time - crossing.index) - 2) < 1.99) {
+                                startingIndex = (i + j) % crossings.length;
+                                good = true;
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+                if (!good) console.log("!!! No starting index found");
+            }
 
             good = false;
             for (let i = 0; i < crossings.length; i++) {
@@ -495,16 +548,16 @@
                     let colorAfter = getColorAt(crossing.point.add(crossing.tangent.normalize(RADIUS * STEP_SIZE)));
 
                     if ((colorAt && !colorsEqual(holeColor, colorAt)) || !colorsEqual(holeColor, colorAfter)) {
-                        currentDirection = getDirection(crossing.intersection, crossing.point.subtract(currentCurveLocation.point));
+                        currentDirection = getDirection(crossing.intersection, crossing.point.subtract(circle.bounds.center));
                         currentCurveLocation = crossing.intersection;
-                        pointToAdd = crossing.intersection.curve.getNearestLocation(currentCurveLocation.point);
+                        pointToAdd = crossing.intersection.curve.getNearestLocation(circle.bounds.center);
                         currentCurve = crossing.intersection.curve;
                         good = true;
                         break;
                     }
                 }
             }
-            if (!good) console.log("!!!2");
+            if (!good) console.log("!!! No valid crossings");
 
             if (points.length >= 2) {
                 let p = points[points.length - 1];
@@ -514,7 +567,7 @@
                         Math.abs(p.p1.time - points[i].p1.time) < EPSILON &&
                         Math.abs(p.p2.time - points[i].p2.time) < EPSILON) {
                         points = points.slice(i);
-                        if (i > 3) {
+                        if (i > 2) {
                             onError("LOOPING");
                             onFinish(circle.scale(1 / RADIUS));
                             return null;
