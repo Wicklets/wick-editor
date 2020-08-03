@@ -215,7 +215,6 @@
 
     // Assumes the path is colorless, removes all overlapping shapes
     function removeInteriorShapes(path) {
-        let originalArea = path.area;
         var items = layerGroup.getItems({
             inside: path.bounds.expand(-1),
             class: paper.Path
@@ -232,17 +231,28 @@
         return path;
     }
 
+    function overlappingBounds(b1, b2) {
+        return (((b1.left <= b2.left && b2.left <= b1.right) || (b1.left <= b2.right && b2.right <= b1.right)) &&
+        ((b1.top <= b2.top && b2.top <= b1.bottom) || (b1.top <= b2.bottom && b2.bottom <= b1.bottom))) || 
+        (((b2.left <= b1.left && b1.left <= b2.right) || (b2.left <= b1.right && b1.right <= b2.right)) &&
+        ((b2.top <= b1.top && b1.top <= b2.bottom) || (b2.top <= b1.bottom && b1.bottom <= b2.bottom)));
+    }
+
     // Unites all shapes of the same color as hole, subtracts paths of different colors,
     // intersects with path.
     function constructShape(path) {
-        //onFinish(path);
         var items = layerGroup.getItems({
             overlapping: path.bounds,
             match: (item) => {
-                if (item._class === 'Path') {
-                    return item.parent._class !== 'CompoundPath';
+                if (true) { //overlappingBounds(path.bounds, item.bounds)) {
+                    if (item._class === 'Path') {
+                        return item.parent._class !== 'CompoundPath';
+                    }
+                    return item._class === 'CompoundPath';
                 }
-                return item._class === 'CompoundPath';
+                else {
+                    return false;
+                }
             }
         });
         var p = new paper.Path({insert: false});
@@ -253,34 +263,41 @@
             let item = items[i];
             if (item.closed) {
                 if (colorsEqual(holeColor, item.fillColor)) {
-                    console.log("unite");
                     newP = p.unite(item,{insert: false});
                     newPArea = newP.area;
-                    if (newPArea > pArea) { // shouldn't have to do this, but avoids an error in paper.js
+                    if (newPArea >= pArea) { // shouldn't have to do this, but avoids an error in paper.js
+                        console.log("unite, p = ", newPArea);
                         p = newP;
                         pArea = newPArea;
                     }
+                    else {
+                        console.log('bad unite, went from a to b', pArea, newPArea);
+                    }
                 }
                 else {
-                    console.log("subtract");
                     newP = p.subtract(item, {insert: false});
                     newPArea = newP.area;
-                    if (newPArea < pArea) { // shouldn't have to do this, but avoids an error in paper.js
+                    if (newPArea <= pArea) { // shouldn't have to do this, but avoids an error in paper.js
+                        console.log("subtract, p = ", newPArea);
                         p = newP
                         pArea = newPArea;
                     }
+                    else {
+                        console.log('bad subtract, went from a to b', pArea, newPArea);
+                    }
                 }
-                //onFinish(p.clone());
             }
         }
-        console.log("intersect");
         newP = p.intersect(path, {insert: false});
         newPArea = newP.area;
         if (newPArea < pArea) { // shouldn't have to do this, but avoids an error in paper.js
+            console.log("intersect, p =", newPArea);
             p = newP;
             pArea = newPArea;
         }
-        //onFinish(p.clone());
+        else {
+            console.log("bad intersect, a to b", pArea, newPArea);
+        }
         if (p._class === 'CompoundPath') {
             console.log("cleanup");
             cleanupAreas(p);
@@ -292,6 +309,7 @@
     // Ensures the CompoundPath path is contiguous. This means there is a single
     // clockwise path, and no holes within holes.
     function cleanupAreas(path) {
+        console.log(path);
         let maxArea = 0;
         let info = path.children.map(p => {
             let area = p.area;
@@ -452,8 +470,6 @@
             points.push({p1: pointToAdd, p2: currentCurveLocation});
             
             circle.position = currentCurveLocation.point;
-            
-            //onFinish(circle.clone());
 
             var crossings = [];
             var items = layerGroup.getItems({
