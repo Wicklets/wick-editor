@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.8.3.12.41.5";
+var WICK_ENGINE_BUILD_VERSION = "2020.8.3.15.42.58";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -59904,7 +59904,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
   }
 
   function overlappingBounds(b1, b2) {
-    return (b1.left <= b2.left && b2.left <= b1.right || b1.left <= b2.right && b2.right <= b1.right) && (b1.top <= b2.top && b2.top <= b1.bottom || b1.top <= b2.bottom && b2.bottom <= b1.bottom) || (b2.left <= b1.left && b1.left <= b2.right || b2.left <= b1.right && b1.right <= b2.right) && (b2.top <= b1.top && b1.top <= b2.bottom || b2.top <= b1.bottom && b1.bottom <= b2.bottom);
+    return !(b1.right < b2.left || b2.right < b1.left) && !(b1.bottom < b2.top || b2.bottom < b1.top);
   } // Unites all shapes of the same color as hole, subtracts paths of different colors,
   // intersects with path.
 
