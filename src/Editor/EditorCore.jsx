@@ -1353,7 +1353,9 @@ class EditorCore extends Component {
       if(message === 'OUT_OF_BOUNDS' || message === 'LEAKY_HOLE') {
         this.toast('The shape you are trying to fill has a gap.', 'warning');
       } else if (message === 'LOOPING') {
-        this.toast('Fill bucket failed.', 'warning');
+        this.toast('Fill bucket failed. Error: LOOPING', 'warning');
+      } else if (message === 'NO_VALID_CROSSINGS') {
+        this.toast('Fill bucket failed. Overlapping shape above?', 'warning');
       } else if (message === 'TOO_COMPLEX') {
         this.toast('Shape is too complex.', 'warning');
       } else if (message === 'NO_PATHS') {

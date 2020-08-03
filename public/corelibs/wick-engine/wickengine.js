@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.8.3.15.42.58";
+var WICK_ENGINE_BUILD_VERSION = "2020.8.3.17.41.34";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -46313,10 +46313,10 @@ Wick.ToolSettings = class {
       default: true
     }, {
       type: "number",
-      name: 'gapFillAmount',
-      default: 1,
+      name: 'fillSmoothing',
+      default: 50,
       min: 0,
-      max: 5,
+      max: 100,
       step: 1
     }, {
       /**
@@ -58534,7 +58534,6 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
       this.paper.hole({
         point: e.point,
         bgColor: new paper.Color(this.project.backgroundColor.hex),
-        gapFillAmount: this.getSetting('gapFillAmount'),
         layers: this.project.activeFrames.filter(frame => {
           return !frame.parentLayer.hidden;
         }).map(frame => {
@@ -58545,6 +58544,8 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
 
           if (path) {
             path.fillColor = this.getSetting('fillColor').rgba;
+            path.strokeWidth = this.getSetting('fillSmoothing') / 100;
+            path.strokeColor = this.getSetting('fillColor').rgba;
             path.name = null;
             this.addPathToProject();
             this.paper.project.activeLayer.addChild(path);
@@ -60147,7 +60148,6 @@ Wick.Tools.Zoom = class extends Wick.Tool {
           return diff;
         }
       });
-      let good = false;
       let startingIndex = 0;
 
       for (let i = 0; i < crossings.length; i++) {
@@ -60161,7 +60161,6 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
             if (Math.abs(Math.abs(crossing2.time + crossing2.index - crossing.time - crossing.index) - 2) < 1.99) {
               startingIndex = (i + j) % crossings.length;
-              good = true;
               break;
             }
           }
@@ -60170,8 +60169,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         }
       }
 
-      if (!good) console.log("!!!");
-      good = false;
+      let good = false;
 
       for (let i = 0; i < crossings.length; i++) {
         let crossing = crossings[(startingIndex + i) % crossings.length];
@@ -60192,7 +60190,11 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         }
       }
 
-      if (!good) console.log("!!!2");
+      if (!good) {
+        onError("NO_VALID_CROSSINGS");
+        onFinish(circle.scale(1 / RADIUS));
+        return null;
+      }
 
       if (points.length >= 2) {
         let p = points[points.length - 1];

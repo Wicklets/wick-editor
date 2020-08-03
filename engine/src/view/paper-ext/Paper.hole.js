@@ -460,7 +460,6 @@
                     return diff;
                 }
             })
-            let good = false;
             let startingIndex = 0;
             for (let i = 0; i < crossings.length; i++) {
                 let crossing = crossings[i];
@@ -472,16 +471,14 @@
                         let crossing2 = crossings[(i + j) % crossings.length];
                         if (Math.abs(Math.abs(crossing2.time + crossing2.index - crossing.time - crossing.index) - 2) < 1.99) {
                             startingIndex = (i + j) % crossings.length;
-                            good = true;
                             break;
                         }
                     }
                     break;
                 }
             }
-            if (!good) console.log("!!!");
 
-            good = false;
+            let good = false;
             for (let i = 0; i < crossings.length; i++) {
                 let crossing = crossings[(startingIndex + i) % crossings.length];
                 
@@ -501,7 +498,11 @@
                     }
                 }
             }
-            if (!good) console.log("!!!2");
+            if (!good) {
+                onError("NO_VALID_CROSSINGS");
+                onFinish(circle.scale(1 / RADIUS));
+                return null;
+            }
 
             if (points.length >= 2) {
                 let p = points[points.length - 1];

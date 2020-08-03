@@ -60,7 +60,6 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
             this.paper.hole({
                 point: e.point,
                 bgColor: new paper.Color(this.project.backgroundColor.hex),
-                gapFillAmount: this.getSetting('gapFillAmount'),
                 layers: this.project.activeFrames.filter(frame => {
                     return !frame.parentLayer.hidden;
                 }).map(frame => {
@@ -70,6 +69,8 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
                     this.setCursor('default');
                     if (path) {
                         path.fillColor = this.getSetting('fillColor').rgba;
+                        path.strokeWidth = this.getSetting('fillSmoothing') / 100;
+                        path.strokeColor = this.getSetting('fillColor').rgba;
                         path.name = null;
                         this.addPathToProject();
                         this.paper.project.activeLayer.addChild(path);

@@ -130,7 +130,7 @@ class ToolSettings extends Component {
   renderFillbucketSettings = () => {
     return (
       <div className='settings-input-container'>
-        {this.renderGapFillAmount()}
+        {this.renderFillSmoothing()}
       </div>
     );
   }
@@ -308,16 +308,16 @@ class ToolSettings extends Component {
     )
   }
 
-  renderGapFillAmount = () => {
+  renderFillSmoothing = () => {
     return (
       <ToolSettingsInput renderSize={this.props.renderSize}
         isMobile={this.props.isMobile}
-        name='Gap Fill Amount'
-        icon='gapfillamount'
+        name='Fill Smoothing'
+        icon='fillsmoothing'
         type='numeric'
-        value={this.getToolSetting('gapFillAmount')}
-        onChange={(val) => this.setToolSetting('gapFillAmount', val)}
-        inputRestrictions={this.props.getToolSettingRestrictions('gapFillAmount')}/>
+        value={this.getToolSetting('fillSmoothing')}
+        onChange={(val) => this.setToolSetting('fillSmoothing', val)}
+        inputRestrictions={this.props.getToolSettingRestrictions('fillSmoothing')}/>
     )
   }
 

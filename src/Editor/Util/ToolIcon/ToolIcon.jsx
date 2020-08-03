@@ -94,7 +94,7 @@ import iconImageObject from'resources/object-icons/image.svg';
 
 // Rows
 import iconBrushSize from "resources/inspector-icons/property-icons/brushsize.svg";
-import iconGapFillAmount from "resources/inspector-icons/property-icons/gapfillamount.png";
+import iconFillSmoothing from "resources/inspector-icons/property-icons/fillsmoothing.png";
 import iconBrushSmoothness from "resources/inspector-icons/property-icons/brushsmoothness.svg";
 import iconCornerRadius from "resources/inspector-icons/property-icons/cornerradius.svg";
 import iconEase from "resources/inspector-icons/property-icons/ease.svg";
@@ -211,7 +211,7 @@ class ToolIcon extends Component {
       "framerate": iconFrameRate,
       "flipHorizontal": iconFlipHorizontal,
       "flipVertical": iconFlipVertical,
-      "gapfillamount": iconGapFillAmount,
+      "fillsmoothing": iconFillSmoothing,
       "brushsize": iconBrushSize,
       "multipleobjects": iconMultipleObjects,
       "name": iconName,
