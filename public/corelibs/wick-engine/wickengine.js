@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.8.3.12.33.44";
+var WICK_ENGINE_BUILD_VERSION = "2020.8.3.12.41.5";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -59911,10 +59911,8 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
   function constructShape(path) {
     var items = layerGroup.getItems({
-      overlapping: path.bounds,
       match: item => {
-        if (true) {
-          //overlappingBounds(path.bounds, item.bounds)) {
+        if (overlappingBounds(path.bounds, item.bounds)) {
           if (item._class === 'Path') {
             return item.parent._class !== 'CompoundPath';
           }
@@ -59944,11 +59942,8 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
           if (newPArea >= pArea) {
             // shouldn't have to do this, but avoids an error in paper.js
-            console.log("unite, p = ", newPArea);
             p = newP;
             pArea = newPArea;
-          } else {
-            console.log('bad unite, went from a to b', pArea, newPArea);
           }
         } else {
           newP = p.subtract(item, {
@@ -59958,11 +59953,8 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
           if (newPArea <= pArea) {
             // shouldn't have to do this, but avoids an error in paper.js
-            console.log("subtract, p = ", newPArea);
             p = newP;
             pArea = newPArea;
-          } else {
-            console.log('bad subtract, went from a to b', pArea, newPArea);
           }
         }
       }
@@ -59975,17 +59967,12 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
     if (newPArea < pArea) {
       // shouldn't have to do this, but avoids an error in paper.js
-      console.log("intersect, p =", newPArea);
       p = newP;
       pArea = newPArea;
-    } else {
-      console.log("bad intersect, a to b", pArea, newPArea);
     }
 
     if (p._class === 'CompoundPath') {
-      console.log("cleanup");
       cleanupAreas(p);
-      console.log(p.area);
     }
 
     return p.area > EPSILON ? p : path;
@@ -59994,7 +59981,6 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
 
   function cleanupAreas(path) {
-    console.log(path);
     let maxArea = 0;
     let info = path.children.map(p => {
       let area = p.area;
@@ -60082,13 +60068,9 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     let pointToAdd;
 
     while (n < MAX_ITERS && !ended) {
-      console.log("-------------------------", n);
-      console.log("current", currentDirection, currentCurve.path.id, currentCurve.index, currentCurveLocation.time);
-
       if (n === 1) {
         points = [];
-      } //let previousCurveLocation = currentCurveLocation;
-
+      }
 
       var pathsToIntersect = layerGroup.getItems({
         class: paper.Path,
@@ -60129,11 +60111,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
               }
             }
 
-            console.log(timeAtThisIntersection, intersectionCurrentWithNext.intersection.path.id, intersectionCurrentWithNext.intersection.index);
-
             if (currentCurve.closed ? currentDirection * forwardsDiff < currentDirection * backwardsDiff : currentDirection * forwardsDiff < currentDirection * (currentCurve.path.curves.length - currentTime) && (!currentCurveLocation || currentDirection * forwardsDiff2 > currentDirection * backwardsDiff2)) {
-              console.log("choose", currentDirection, currentTime, closestTime, timeAtThisIntersection);
-              console.log(forwardsDiff, backwardsDiff, forwardsDiff2, backwardsDiff2);
               currentCurveLocation = intersectionCurrentWithNext;
               closestTime = timeAtThisIntersection;
             }
@@ -60143,10 +60121,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
       if (currentCurveLocation === null) {
         currentCurveLocation = currentCurve.getLocationAtTime(currentDirection < 0 ? 0 : 1);
-        console.log("no intersection");
       }
-
-      console.log("chosen", currentCurve.path.id, currentCurve.index, currentCurveLocation.time); //console.log(previousCurveLocation.point, currentCurveLocation.point);
 
       points.push({
         p1: pointToAdd,
@@ -60178,11 +60153,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
       for (let i = 0; i < crossings.length; i++) {
         let crossing = crossings[i];
 
-        if (crossing.intersection.curve.path === currentCurve.path && ((currentCurve.index - crossing.intersection.curve.index) * currentDirection + currentCurve.path.curves.length) % currentCurve.path.curves.length <= 1 && //TODO, get reliable enough to make it <= 1
-        //Math.abs(Math.abs(crossing.intersection.curve.index - currentCurve.index) - currentCurve.path.curves.length / 2) >= currentCurve.path.curves.length / 2 - 1 && 
-        //(currentCurve.closed || Math.abs(currentCurve.index - crossing.intersection.curve.index) <= 1) &&
-        currentDirection !== getDirection(crossing.intersection, crossing.point.subtract(currentCurveLocation.point))) {
-          console.log(i, crossing.intersection.tangent.toString(), crossing.point.subtract(currentCurveLocation.point).toString());
+        if (crossing.intersection.curve.path === currentCurve.path && ((currentCurve.index - crossing.intersection.curve.index) * currentDirection + currentCurve.path.curves.length) % currentCurve.path.curves.length <= 1 && currentDirection !== getDirection(crossing.intersection, crossing.point.subtract(currentCurveLocation.point))) {
           startingIndex = i + 1;
 
           for (let j = 1; j < crossings.length; j++) {
@@ -60199,11 +60170,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         }
       }
 
-      if (!good) console.log("!!! not good");
-      console.log(startingIndex);
-      crossings.map((crossing, i) => {
-        console.log(i, crossing.point.toString(), crossing.index, crossing.time, crossing.intersection.path.id, crossing.intersection.index);
-      });
+      if (!good) console.log("!!!");
       good = false;
 
       for (let i = 0; i < crossings.length; i++) {
@@ -60213,7 +60180,6 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         if (colorsEqual(colorBefore, holeColor)) {
           let colorAt = getPathStroke(crossing.intersection.path);
           let colorAfter = getColorAt(crossing.point.add(crossing.tangent.normalize(RADIUS * STEP_SIZE)));
-          console.log("oy", (startingIndex + i) % crossings.length, colorBefore ? colorBefore.components : null, colorAt ? colorAt.components : null, colorAfter ? colorAfter.components : null);
 
           if (colorAt && !colorsEqual(holeColor, colorAt) || !colorsEqual(holeColor, colorAfter)) {
             currentDirection = getDirection(crossing.intersection, crossing.point.subtract(currentCurveLocation.point));
@@ -60221,29 +60187,12 @@ Wick.Tools.Zoom = class extends Wick.Tool {
             pointToAdd = crossing.intersection.curve.getNearestLocation(currentCurveLocation.point);
             currentCurve = crossing.intersection.curve;
             good = true;
-            console.log("choose crossing", (startingIndex + i) % crossings.length);
             break;
           }
         }
       }
 
-      if (!good) console.log("!!! not good numba 2");
-      /*ended = points.length >= 2 &&
-          pointsEqual(points[0].p1.point, points[points.length - 1].p1.point) &&
-          pointsEqual(points[0].p2.point, points[points.length - 1].p2.point);
-      
-      if (!ended) {
-          let p = points[points.length - 1];
-          for (let i = 0; i < points.length - 1; i++) {
-              if (p.p1.curve === points[i].p1.curve && 
-                  p.p2.curve === points[i].p2.curve && 
-                  Math.abs(p.p1.time - points[i].p1.time) < EPSILON &&
-                  Math.abs(p.p2.time - points[i].p2.time) < EPSILON) {
-                  onError('LOOPING');
-                  return null;
-              } 
-          }
-      }*/
+      if (!good) console.log("!!!2");
 
       if (points.length >= 2) {
         let p = points[points.length - 1];
@@ -60251,10 +60200,6 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         for (let i = 0; i < points.length - 1; i++) {
           if (p.p1.curve === points[i].p1.curve && p.p2.curve === points[i].p2.curve && Math.abs(p.p1.time - points[i].p1.time) < EPSILON && Math.abs(p.p2.time - points[i].p2.time) < EPSILON) {
             points = points.slice(i);
-
-            if (i > 0) {
-              console.log("!!! WHACKY loop?", i);
-            }
 
             if (i > 3) {
               onError("LOOPING");
@@ -60304,12 +60249,6 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     let segments = [];
 
     for (let c = 0; c < curves.length; c++) {
-      /*let c1 = curves[c];
-      let c2 = curves[(c + 1) % curves.length];
-      let p = c1.point2;
-      let hIn = c1.handle2;
-      let hOut = c2.handle1;
-      segments.push(new paper.Segment(p, hIn, hOut));*/
       segments.push(new paper.Segment(curves[c].point1, null, curves[c].handle1));
       segments.push(new paper.Segment(curves[c].point2, curves[c].handle2, null));
     }
