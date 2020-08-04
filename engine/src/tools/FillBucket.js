@@ -70,6 +70,8 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
                     this.setCursor('default');
                     if (path) {
                         path.fillColor = this.getSetting('fillColor').rgba;
+                        path.strokeWidth = this.getSetting('fillSmoothing') / 100;
+                        path.strokeColor = this.getSetting('fillColor').rgba;
                         path.name = null;
                         this.addPathToProject();
                         this.paper.project.activeLayer.addChild(path);
