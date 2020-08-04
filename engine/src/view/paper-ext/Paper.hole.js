@@ -427,7 +427,7 @@
             }
 
             let gapCrossLocation = null;
-            if (currentCurve.length > EPSILON) {
+            if (GAP_FILL > 0 && currentCurve.length > EPSILON) {
                 let gapCurve = bumpedCurve(currentCurve, currentDirection);
                 var pathsToIntersectGap = layerGroup.getItems({
                     class: paper.Path,

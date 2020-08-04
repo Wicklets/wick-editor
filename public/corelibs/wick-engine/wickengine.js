@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.8.4.13.56.8";
+var WICK_ENGINE_BUILD_VERSION = "2020.8.4.13.58.35";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -60123,7 +60123,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
       let gapCrossLocation = null;
 
-      if (currentCurve.length > EPSILON) {
+      if (GAP_FILL > 0 && currentCurve.length > EPSILON) {
         let gapCurve = bumpedCurve(currentCurve, currentDirection);
         var pathsToIntersectGap = layerGroup.getItems({
           class: paper.Path,
