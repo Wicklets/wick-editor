@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.8.3.15.49.26";
+var WICK_ENGINE_BUILD_VERSION = "2020.8.4.12.29.59";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -60106,7 +60106,8 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         }
       }
 
-      let gapCrossLocation, gapCurve;
+      let gapCrossLocation = null,
+          gapCurve;
 
       if (currentCurve.length > EPSILON) {
         gapCurve = bumpedCurve(currentCurve, currentDirection);
@@ -60147,7 +60148,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
                 }
               }
 
-              if (currentCurve.closed ? currentDirection * forwardsDiff < currentDirection * backwardsDiff : currentDirection * forwardsDiff < currentDirection * (currentCurve.path.curves.length - currentTime) && (!currentCurveLocation && !gapCrossLocation || currentDirection * forwardsDiff2 > currentDirection * backwardsDiff2)) {
+              if (currentCurve.closed ? currentDirection * forwardsDiff < currentDirection * backwardsDiff : currentDirection * forwardsDiff < currentDirection * (currentCurve.path.curves.length - currentTime) && (!currentCurveLocation && !gapCrossLocation || currentDirection * forwardsDiff2 > currentDirection * backwardsDiff2) && colorsEqual(holeColor, getColorAt(intersectionGapWithNext.point.subtract(intersectionGapWithNext.tangent.multiply(currentDirection).normalize(RADIUS)))) && !colorsEqual(holeColor, getColorAt(intersectionGapWithNext.point.add(intersectionGapWithNext.tangent.multiply(currentDirection).normalize(RADIUS))))) {
                 gapCrossLocation = intersectionGapWithNext;
                 closestTime = timeAtThisIntersection;
               }
@@ -60164,8 +60165,14 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         p1: pointToAdd,
         p2: gapCrossLocation ? currentCurve.getNearestLocation(gapCrossLocation.point) : currentCurveLocation
       });
-      circle.position = gapCrossLocation ? gapCrossLocation.point : currentCurveLocation.point;
-      onFinish(circle.clone());
+
+      if (n >= 2) {
+        console.log(points[points.length - 1].p1.point.toString(), points[points.length - 1].p1.path.id, points[points.length - 1].p1.index, points[points.length - 1].p1.time);
+        console.log(points[points.length - 1].p2.point.toString(), points[points.length - 1].p2.path.id, points[points.length - 1].p2.index, points[points.length - 1].p1.time);
+      }
+
+      circle.position = gapCrossLocation ? gapCrossLocation.point : currentCurveLocation.point; //onFinish(circle.clone());
+
       console.log(n, !!gapCrossLocation, circle.bounds.center);
       var crossings = [];
       var items = layerGroup.getItems({
@@ -60190,9 +60197,9 @@ Wick.Tools.Zoom = class extends Wick.Tool {
       let startingIndex = 0;
 
       if (gapCrossLocation) {
-        let good = true;
         let incomingTangent = gapCrossLocation.tangent.multiply(-currentDirection);
         let incomingIndex = (2 * Math.PI - Math.atan2(incomingTangent.y, incomingTangent.x)) * 2 / Math.PI + EPSILON;
+        console.log("incomingIndex", incomingIndex);
         let minIndexDiff = 4;
 
         for (let i = 0; i < crossings.length; i++) {
@@ -60297,7 +60304,11 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         if ((p1.curve.index + 1) % p1.curve.path.curves.length === p2.curve.index) {
           curves.push(p1.curve.getPart(p1.time, 1));
         } else {
-          curves.push(p1.curve.getPart(p1.time, 0));
+          if (p1.time < EPSILON) {
+            curves.push(p2.curve.getPart(1, p2.time));
+          } else {
+            curves.push(p1.curve.getPart(p1.time, 0));
+          }
         }
       }
     }
