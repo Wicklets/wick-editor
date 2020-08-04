@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.8.4.13.58.35";
+var WICK_ENGINE_BUILD_VERSION = "2020.8.4.14.4.44";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -60181,15 +60181,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         p1: pointToAdd,
         p2: gapCrossLocation ? currentCurve.getNearestLocation(gapCrossLocation.point) : currentCurveLocation
       });
-
-      if (n >= 2) {
-        console.log(points[points.length - 1].p1.point.toString(), points[points.length - 1].p1.path.id, points[points.length - 1].p1.index, points[points.length - 1].p1.time);
-        console.log(points[points.length - 1].p2.point.toString(), points[points.length - 1].p2.path.id, points[points.length - 1].p2.index, points[points.length - 1].p1.time);
-      }
-
-      circle.position = gapCrossLocation ? gapCrossLocation.point : currentCurveLocation.point; //onFinish(circle.clone());
-
-      console.log(n, !!gapCrossLocation, circle.bounds.center);
+      circle.position = gapCrossLocation ? gapCrossLocation.point : currentCurveLocation.point;
       var crossings = [];
       var items = layerGroup.getItems({
         overlapping: circle.bounds.expand(RADIUS),
@@ -60209,13 +60201,11 @@ Wick.Tools.Zoom = class extends Wick.Tool {
           return diff;
         }
       });
-      let good = false;
       let startingIndex = 0;
 
       if (gapCrossLocation) {
         let incomingTangent = gapCrossLocation.tangent.multiply(-currentDirection);
         let incomingIndex = (2 * Math.PI - Math.atan2(incomingTangent.y, incomingTangent.x)) * 2 / Math.PI + EPSILON;
-        console.log("incomingIndex", incomingIndex);
         let minIndexDiff = 4;
 
         for (let i = 0; i < crossings.length; i++) {
@@ -60238,7 +60228,6 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
               if (Math.abs(Math.abs(crossing2.time + crossing2.index - crossing.time - crossing.index) - 2) < 1.99) {
                 startingIndex = (i + j) % crossings.length;
-                good = true;
                 break;
               }
             }
@@ -60246,11 +60235,9 @@ Wick.Tools.Zoom = class extends Wick.Tool {
             break;
           }
         }
-
-        if (!good) console.log("!!! No starting index found");
       }
 
-      good = false;
+      let good = false;
 
       for (let i = 0; i < crossings.length; i++) {
         let crossing = crossings[(startingIndex + i) % crossings.length];
@@ -60271,7 +60258,11 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         }
       }
 
-      if (!good) console.log("!!! No valid crossings");
+      if (!good) {
+        onFinish(circle.scale(1 / RADIUS));
+        onError('NO_VALID_CROSSINGS');
+        return null;
+      }
 
       if (points.length >= 2) {
         let p = points[points.length - 1];
