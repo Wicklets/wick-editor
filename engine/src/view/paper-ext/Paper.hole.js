@@ -71,6 +71,7 @@
     const RADIUS = 0.01;
     const STEP_SIZE = 0.001;
 
+    var fillColor;
     var holeColor = null;
 
     // Returns:
@@ -105,7 +106,7 @@
         if (c1 === null || c2 === null) {
             return c1 === null && c2 === null;
         }
-        return c1.red === c2.red && c1.green === c2.green && c1.blue === c2.blue;
+        return c1.red === c2.red && c1.green === c2.green && c1.blue === c2.blue && c1.alpha === c2.alpha;
     }
 
     // Check whether the locations of p1, p2, are equal within EPSILON
@@ -121,11 +122,10 @@
         let scale2 = (r2 - GAP_FILL) / r2;
         let n1 = curve.getNormalAtTime(0).multiply(-direction).normalize(GAP_FILL);
         let n2 = curve.getNormalAtTime(1).multiply(-direction).normalize(GAP_FILL);
-        console.log(direction, scale1, scale2, curve.point1.toString(), curve.point2.toString(), n1.toString(), n2.toString());
         curve.point1 = curve.point1.add(n1);
         curve.point2 = curve.point2.add(n2);
-        //curve.handle1 = curve.handle1.multiply(scale1);
-        //curve.handle2 = curve.handle2.multiply(scale2);
+        curve.handle1 = curve.handle1.multiply(scale1);
+        curve.handle2 = curve.handle2.multiply(scale2);
         
         return curve;
     }
@@ -150,6 +150,10 @@
         
         var p = new paper.Point(x, y);
         holeColor = getColorAt(p);
+        if (colorsEqual(holeColor, {red: fillColor.r, green: fillColor.g, blue: fillColor.b, alpha: fillColor.a})) {
+            onError('FILL_EQUALS_HOLE');
+            return null;
+        }
 
         for (var i = 0; i < MAX_NEST; i++) {
             // getShapeAroundPoint performs the traversal.
@@ -464,10 +468,8 @@
 
             
             points.push({p1: pointToAdd, p2: gapCrossLocation ? currentCurve.getNearestLocation(gapCrossLocation.point) : currentCurveLocation});
-            console.log('p', points[points.length - 1]);
-            circle.position = gapCrossLocation ? gapCrossLocation.point : currentCurveLocation.point;
 
-            //onFinish(circle.clone());
+            circle.position = gapCrossLocation ? gapCrossLocation.point : currentCurveLocation.point;
 
             var crossings = [];
             var items = layerGroup.getItems({
@@ -589,31 +591,23 @@
                 curves.push(p1.curve.getPart(p1.time, p2.time));
             }
             else {
-                if (p1.index === 35) {
-                    console.log("wahoo");
-                }
                 if ((p1.curve.index + 1) % p1.curve.path.curves.length === p2.curve.index) {
                     if (p1.time > 1 - EPSILON) {
                         curves.push(p2.curve.getPart(0, p2.time));
-                        console.log(1);
                     }
                     else {
                         curves.push(p1.curve.getPart(p1.time, 1));
-                        console.log(2);
                     }
                 }
                 else {
                     if (p1.time < EPSILON) {
                         curves.push(p2.curve.getPart(1, p2.time));
-                        console.log(3);
                     }
                     else {
                         curves.push(p1.curve.getPart(p1.time, 0));
-                        console.log(4);
                     }
                 }
             }
-            console.log(curves[curves.length - 1].point1.toString(), curves[curves.length - 1].point2.toString());
         }
         let segments = [];
         for (let c = 0; c < curves.length; c++) {
@@ -641,6 +635,8 @@
             layers = args.layers;
             x = args.point.x;
             y = args.point.y;
+
+            fillColor = args.fillColor;
 
             fillHole();
         }

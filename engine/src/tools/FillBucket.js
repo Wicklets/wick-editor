@@ -57,6 +57,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
         }, 0);
 
         setTimeout(() => {
+            console.log(this.getSetting('fillColor').r, this.getSetting('fillColor').g, this.getSetting('fillColor').b)
             this.paper.hole({
                 point: e.point,
                 bgColor: new paper.Color(this.project.backgroundColor.hex),
@@ -66,6 +67,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
                 }).map(frame => {
                     return frame.view.objectsLayer;
                 }),
+                fillColor: this.getSetting('fillColor'),
                 onFinish: (path) => {
                     this.setCursor('default');
                     if (path) {
