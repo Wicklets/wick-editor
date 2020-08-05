@@ -23,7 +23,6 @@ import './_asset.scss';
 import DragDropTypes from 'Editor/DragDropTypes.js';
 import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
-//import sounds from '../../../Modals/BuiltinLibrary/sounds';
 
 var classNames = require('classnames');
 

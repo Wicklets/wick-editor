@@ -28,8 +28,8 @@ $editor-primary-outline: #191919;
 $editor-text-input-background: #4F4F4F;
 $editor-text-input-text: #000000;
 
-$editor-menubar-project-text:#DADADA;
-$editor-menubar-option-text: #BABABA;
+$editor-menubar-project-text: #FFFFFF; //#DADADA;
+$editor-menubar-option-text: #E0E0E0; //#BABABA;
 
 $editor-secondary: #3B3B3B;
 $editor-secondary-text: #BDBDBD; //#797979;
@@ -37,7 +37,7 @@ $editor-secondary-text: #BDBDBD; //#797979;
 $editor-tertiary: #4A4A4A;
 
 $editor-modal-dark: #1E1E1E;
-$editor-modal-gray: #3D3B3B;
+$editor-modal-gray: #383434; //#3D3B3B;
 $editor-modal-gray-secondary: #525252;
 
 $editor-modal-text-white: #FFFFFF;
@@ -46,7 +46,7 @@ $editor-modal-text-dark: #a6a6a6;
 $editor-modal-text-highlight: #1EE29A;
 
 $editor-green-highlight: #1EE29A;
-$editor-green-highlight-dark: rgb(18, 134, 92);
+$editor-green-highlight-dark: #19C284;
 
 $editor-canvas-border: #6A6A6A;
 
@@ -103,8 +103,8 @@ $flame-light: #FF7848;
 $flame-dark: #E6460E;
 $flame-text: white;
 
-$wick-red: #FD384C;
-$wick-red-light: #FF5372;
+$wick-red: #F86868; //#FD384C;
+$wick-red-light: #FF8C8C; //#FF5372;
 $wick-red-dark: #E61E07;
 $wick-red-text: black;
 
@@ -114,9 +114,9 @@ $wick-yellow-dark: #E9AA02;
 $wick-yellow-text: black;
 
 $wick-gray: #4F4F4F;
-$wick-gray-light: #5D5D5D;
+$wick-gray-light: #575757;//#5D5D5D;
 $wick-gray-dark: #424242;
-$wick-gray-text: #848484;
+$wick-gray-text: #ffffff;//#848484;
 $wick-gray-text-light: #b6b6b6;
 
 $wick-cool-blue: #89919C;
@@ -180,7 +180,13 @@ a:hover {
   color: $editor-green-highlight-dark;
 }
 
+a {
+  color: $editor-green-highlight;
+}
 
+a:hover {
+  color: $editor-green-highlight-dark;
+}
 
 // React Modal Smooth Transition In-Out
 .ReactModal__Overlay {

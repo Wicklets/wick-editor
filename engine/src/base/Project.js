@@ -40,7 +40,7 @@ Wick.Project = class extends Wick.Base {
         this._backgroundColor = args.backgroundColor || new Wick.Color('#ffffff');
 
         this.pan = { x: 0, y: 0 };
-        this.zoom = 1.0;
+        this._zoom = 1.0;
         this.rotation = 0.0;
 
         this._onionSkinEnabled = false;
@@ -312,6 +312,19 @@ Wick.Project = class extends Wick.Base {
 
     set history(history) {
         this._history = history;
+    }
+
+    /**
+     * Value used to determine the zoom of the canvas.
+     */
+    get zoom () {
+        return this._zoom;
+    }
+
+    set zoom(z) {
+        const max = this.view.calculateFitZoom() * 10;
+        const min = .10;
+        this._zoom = Math.max(min, Math.min(max, z));
     }
 
     /**
@@ -1071,13 +1084,16 @@ Wick.Project = class extends Wick.Base {
 
         var clip = new Wick[args.type]({
             identifier: args.identifier,
-            objects: this.selection.getSelectedObjects('Canvas'),
             transformation: new Wick.Transformation({
                 x: this.selection.x + this.selection.width / 2,
                 y: this.selection.y + this.selection.height / 2,
             }),
         });
+
+        // Add the clip to the frame prior to adding objects.
         this.activeFrame.addClip(clip);
+        clip.addObjects(this.selection.getSelectedObjects('Canvas'));
+
         // TODO add to asset library
         this.selection.clear();
         this.selection.select(clip);
@@ -1746,8 +1762,6 @@ Wick.Project = class extends Wick.Base {
         var renderFrame = () => {
             var currentPos = renderCopy.focus.timeline.playheadPosition;
             args.onProgress(currentPos, numMaxFrameImages);
-
-            console.log(currentPos);
 
             if(currentPos >= numMaxFrameImages) {
                 // reset autoUpdate back to normal

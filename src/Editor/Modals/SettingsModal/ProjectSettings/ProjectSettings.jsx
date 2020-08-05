@@ -201,8 +201,8 @@ class ProjectSettings extends Component {
       </div>
     );
   }
-
-  renderSizeObject = () => {
+  
+  renderWidthObject = () => {
     return (
       <div className={classNames("project-setting-element", this.props.isMobile && "mobile")}>
         <div className="project-settings-property-container project-settings-size-input-container">
@@ -349,6 +349,42 @@ class ProjectSettings extends Component {
             onChange={(option) => this.selectPreset(this.presets.find(preset => option.value === preset.name))}
             options={options}
           />
+        </div>
+      </div>
+    );
+  }
+
+  renderSizeObject = () => {
+    return (
+      <div className={classNames("project-setting-element", this.props.isMobile && "mobile")}>
+        <div className="project-settings-property-container project-settings-size-input-container">
+          <span>
+            <label htmlFor="project width" className="project-settings-property-label">
+              Width (px)
+            </label>
+            <WickInput
+            id="project width"
+            type="numeric"
+            min={this.projectMinWidth}
+            value={this.state.width}
+            onChange = {this.changeProjectWidth}
+            className="project-settings-size-input" 
+            />
+          </span>
+          <span><div className="project-settings-split">x</div></span>
+          <span>
+            <label htmlFor="project height" className="project-settings-property-label">
+              Height (px)
+            </label>
+            <WickInput
+              id="project height"
+              type="numeric"
+              min={this.projectMinHeight}
+              value={this.state.height}
+              onChange={this.changeProjectHeight}
+              className="project-settings-size-input" 
+            />
+          </span>
         </div>
       </div>
     );

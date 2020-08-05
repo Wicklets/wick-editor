@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.8.5.10.47.54";
+var WICK_ENGINE_BUILD_VERSION = "2020.8.5.10.56.6";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -45861,7 +45861,6 @@ Wick.History = class {
 
     this._recoverState(currentState);
 
-    console.log(this._undoStack);
     return true;
   }
   /**
@@ -48788,7 +48787,13 @@ Wick.Base = class {
 
 
   get project() {
-    return this._project;
+    if (this._project) {
+      return this._project;
+    } else if (this.parent) {
+      return this.parent.project;
+    } else {
+      return null;
+    }
   }
   /**
    * Check if an object is selected or not.
@@ -49354,7 +49359,7 @@ Wick.Project = class extends Wick.Base {
       x: 0,
       y: 0
     };
-    this.zoom = 1.0;
+    this._zoom = 1.0;
     this.rotation = 0.0;
     this._onionSkinEnabled = false;
     this.onionSkinSeekBackwards = 1;
@@ -49634,6 +49639,20 @@ Wick.Project = class extends Wick.Base {
 
   set history(history) {
     this._history = history;
+  }
+  /**
+   * Value used to determine the zoom of the canvas.
+   */
+
+
+  get zoom() {
+    return this._zoom;
+  }
+
+  set zoom(z) {
+    const max = this.view.calculateFitZoom() * 10;
+    const min = .10;
+    this._zoom = Math.max(min, Math.min(max, z));
   }
   /**
    * Undo the last action.
@@ -50454,13 +50473,14 @@ Wick.Project = class extends Wick.Base {
 
     var clip = new Wick[args.type]({
       identifier: args.identifier,
-      objects: this.selection.getSelectedObjects('Canvas'),
       transformation: new Wick.Transformation({
         x: this.selection.x + this.selection.width / 2,
         y: this.selection.y + this.selection.height / 2
       })
-    });
-    this.activeFrame.addClip(clip); // TODO add to asset library
+    }); // Add the clip to the frame prior to adding objects.
+
+    this.activeFrame.addClip(clip);
+    clip.addObjects(this.selection.getSelectedObjects('Canvas')); // TODO add to asset library
 
     this.selection.clear();
     this.selection.select(clip);
@@ -51136,7 +51156,6 @@ Wick.Project = class extends Wick.Base {
     var renderFrame = () => {
       var currentPos = renderCopy.focus.timeline.playheadPosition;
       args.onProgress(currentPos, numMaxFrameImages);
-      console.log(currentPos);
 
       if (currentPos >= numMaxFrameImages) {
         // reset autoUpdate back to normal
@@ -52866,7 +52885,7 @@ Wick.Tween = class extends Wick.Base {
     if (!args) args = {};
     super(args);
     this._playheadPosition = args.playheadPosition || 1;
-    this.transformation = args.transformation || new Wick.Transformation();
+    this._transformation = args.transformation || new Wick.Transformation();
     this.fullRotations = args.fullRotations === undefined ? 0 : args.fullRotations;
     this.easingType = args.easingType || 'none';
     this._originalLayerIndex = -1;
@@ -52918,7 +52937,7 @@ Wick.Tween = class extends Wick.Base {
     var data = super._serialize(args);
 
     data.playheadPosition = this.playheadPosition;
-    data.transformation = this.transformation.values;
+    data.transformation = this._transformation.values;
     data.fullRotations = this.fullRotations;
     data.easingType = this.easingType;
     data.originalLayerIndex = this.layerIndex !== -1 ? this.layerIndex : this._originalLayerIndex;
@@ -52929,7 +52948,7 @@ Wick.Tween = class extends Wick.Base {
     super._deserialize(data);
 
     this.playheadPosition = data.playheadPosition;
-    this.transformation = new Wick.Transformation(data.transformation);
+    this._transformation = new Wick.Transformation(data.transformation);
     this.fullRotations = data.fullRotations;
     this.easingType = data.easingType;
     this._originalLayerIndex = data.originalLayerIndex;
@@ -52946,6 +52965,19 @@ Wick.Tween = class extends Wick.Base {
 
   set playheadPosition(playheadPosition) {
     this._playheadPosition = playheadPosition;
+  }
+  /**
+   * The transformation representing the position, rotation and other elements of the tween.
+   * @type {object} 
+   */
+
+
+  get transformation() {
+    return this._transformation;
+  }
+
+  set transformation(transformation) {
+    this._transformation = transformation;
   }
   /**
    * The type of interpolation to use for easing.
@@ -55012,10 +55044,31 @@ Wick.Tickable = class extends Wick.Base {
 
 
   getScript(name) {
-    if (Wick.Tickable.possibleScripts.indexOf(name) === -1) console.error(name + ' is not a valid script!');
-    return this._scripts.find(script => {
-      return script.name === name;
-    });
+    if (Wick.Tickable.possibleScripts.indexOf(name) === -1) {
+      console.error(name + ' is not a valid script!');
+      return null;
+    } else {
+      // Get expected script.
+      let script = this._scripts.find(script => {
+        return script.name === name;
+      });
+
+      if (!script) {
+        // Create the script if it doesn't exist.
+        script = {
+          name: name,
+          src: ""
+        };
+        return script;
+      } // If the script is missing, add an empty.
+
+
+      if (!script.src) {
+        script.src = "";
+      }
+
+      return script;
+    }
   }
   /**
    * Returns a list of script names which are not currently in use for this object.
@@ -55034,7 +55087,13 @@ Wick.Tickable = class extends Wick.Base {
 
 
   hasScript(name) {
-    return this.getScript(name) !== undefined;
+    let script = this.scripts.find(script => script.name === name);
+
+    if (script) {
+      return true;
+    }
+
+    return false;
   }
   /**
    * Check if the object has a non-empty script with a given name.
@@ -55049,7 +55108,12 @@ Wick.Tickable = class extends Wick.Base {
     }
 
     var script = this.getScript(name);
-    return script.src.trim() !== '';
+
+    if (script && script.src.trim() !== '') {
+      return true;
+    }
+
+    return false;
   }
   /**
    * Changes the source of the script with the given event name.
@@ -55059,6 +55123,8 @@ Wick.Tickable = class extends Wick.Base {
 
 
   updateScript(name, src) {
+    if (!src) src = ""; // Reset script if it is not defined.
+
     this.getScript(name).src = src;
     delete this._cachedScripts[name];
   }
@@ -55877,22 +55943,22 @@ Wick.Frame = class extends Wick.Tickable {
     } // If more than one object exists on the frame, or if there is only one path, create a clip from those objects
 
 
-    var numClips = this.clips.length;
-    var numPaths = this.paths.length;
+    var clips = this.clips;
+    var paths = this.paths;
 
-    if (numClips === 0 && numPaths === 1 || numClips + numPaths > 1) {
-      var allObjects = this.paths.concat(this.clips);
+    if (clips.length === 0 && paths.length === 1 || clips.length + paths.length > 1) {
+      var allDrawables = paths.concat(clips);
 
-      var center = this.project.selection.view._getObjectsBounds(allObjects).center;
+      var center = this.project.selection.view._getObjectsBounds(allDrawables).center;
 
       var clip = new Wick.Clip({
-        objects: this.paths.concat(this.clips),
         transformation: new Wick.Transformation({
           x: center.x,
           y: center.y
         })
       });
       this.addClip(clip);
+      clip.addObjects(allDrawables);
     } // Create the tween (if there's not already a tween at the current playhead position)
 
 
@@ -55924,7 +55990,7 @@ Wick.Frame = class extends Wick.Tickable {
   /**
    * Get the tween at the given playhead position. Returns null if there is no tween.
    * @param {number} playheadPosition - the playhead position to look for tweens at.
-   * @returns {Wick.Tween} the tween at the given playhead position.
+   * @returns {Wick.Tween || null} the tween at the given playhead position.
    */
 
 
@@ -55934,8 +56000,18 @@ Wick.Frame = class extends Wick.Tickable {
     }) || null;
   }
   /**
+   * Returns the tween at the current playhead position, if one exists on the frame. Null otherwise.
+   * @returns {Wick.Tween || null}
+   */
+
+
+  getTweenAtCurrentPlayheadPosition() {
+    let playheadPosition = this.getRelativePlayheadPosition();
+    return this.getTweenAtPosition(playheadPosition);
+  }
+  /**
    * The tween being used to transform the objects on the frame.
-   * @returns {Wick.Tween} tween - the active tween. Null if there is no active tween.
+   * @returns {Wick.Tween || null} tween - the active tween. Null if there is no active tween.
    */
 
 
@@ -56684,7 +56760,9 @@ Wick.Clip = class extends Wick.Tickable {
     this._transformation = transformation; // When the transformation changes, update the current tween, if one exists
 
     if (this.parentFrame) {
-      var tween = this.parentFrame.getActiveTween();
+      // This tween must only ever be the tween over the current playhead position.
+      // Altering the active tween will overwrite tweens when moving between frames.
+      var tween = this.parentFrame.getTweenAtCurrentPlayheadPosition();
 
       if (tween) {
         tween.transformation = this._transformation.copy();
@@ -61743,20 +61821,28 @@ Wick.View.Project = class extends Wick.View {
     var hr = h / this.model.height;
     return Math.min(wr, hr);
   }
+  /**
+   *  This is a hacky way to create scroll-to-zoom functionality
+   *  (Using https://github.com/jquery/jquery-mousewheel for cross-browser mousewheel event)
+   * @param {*} event - jquery mousewheel event.
+   */
+
+
+  scrollToZoom(event) {
+    if (!this.model.isPublished) {
+      var d = event.deltaY * event.deltaFactor * 0.001;
+      this.paper.view.zoom = Math.max(0.1, this.paper.view.zoom + d);
+
+      this._applyZoomAndPanChangesFromPaper();
+    }
+  }
 
   _setupTools() {
-    // This is a hacky way to create scroll-to-zoom functionality.
-    // (Using https://github.com/jquery/jquery-mousewheel for cross-browser mousewheel event)
-    if (!this.model.isPublished) {
-      $(this._svgCanvas).on('mousewheel', e => {
-        e.preventDefault();
-        var d = e.deltaY * e.deltaFactor * 0.001;
-        this.paper.view.zoom = Math.max(0.1, this.paper.view.zoom + d);
-
-        this._applyZoomAndPanChangesFromPaper();
-      });
-    } // Connect all Wick Tools into the paper.js project
-
+    // Attach scroll to zoom event.
+    $(this._svgCanvas).on('mousewheel', e => {
+      e.preventDefault();
+      this.scrollToZoom(e);
+    }); // Connect all Wick Tools into the paper.js project
 
     for (var toolName in this.model.tools) {
       var tool = this.model.tools[toolName];
@@ -62650,7 +62736,7 @@ Wick.View.Frame = class extends Wick.View {
     var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
     var pathJSON = Wick.View.Path.exportJSON(child);
     var wickPath = new Wick.Path({json:pathJSON});
-      this.model.addPath(wickPath);
+     this.model.addPath(wickPath);
     wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
     wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
     wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;
@@ -63054,6 +63140,7 @@ Wick.GUIElement = class {
   }
 
 };
+Wick.GUIElement.IS_MOBILE = window.innerWidth < 600;
 Wick.GUIElement.GRID_SMALL_CELL_WIDTH = 22;
 Wick.GUIElement.GRID_SMALL_CELL_HEIGHT = 32;
 Wick.GUIElement.GRID_NORMAL_CELL_WIDTH = 38;
@@ -63086,7 +63173,10 @@ Wick.GUIElement.BREADCRUMBS_DROP_SHADOW_DEPTH = 2;
 Wick.GUIElement.BREADCRUMBS_ACTIVE_BORDER_COLOR = '#1EE29A';
 Wick.GUIElement.BREADCRUMBS_HIGHLIGHT_HEIGHT = 3;
 Wick.GUIElement.BREADCRUMBS_PADDING = 5;
-Wick.GUIElement.LAYERS_CONTAINER_WIDTH = 160;
+Wick.GUIElement.LAYERS_CONTAINER_LARGE = 160;
+Wick.GUIElement.LAYERS_CONTAINER_SMALL = 100; // Shrink the Layer Container if the screen is small.
+
+Wick.GUIElement.LAYERS_CONTAINER_WIDTH = Wick.GUIElement.IS_MOBILE ? Wick.GUIElement.LAYERS_CONTAINER_SMALL : Wick.GUIElement.LAYERS_CONTAINER_LARGE;
 Wick.GUIElement.NUMBER_LINE_HEIGHT = 35;
 Wick.GUIElement.NUMBER_LINE_NUMBERS_HIGHLIGHT_COLOR = '#ffffff';
 Wick.GUIElement.NUMBER_LINE_NUMBERS_COMMON_COLOR = '#494949';
@@ -63444,33 +63534,36 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
         this.model.project.createTween();
         this.projectWasModified();
       }
-    });
-    this.fillGapsModeButton = new Wick.GUIElement.ActionButton(this.model, {
-      tooltip: 'Gap Fill Mode',
-      icon: 'gap_fill_menu_blank_frames',
-      height: 8,
-      width: 16,
-      clickFn: () => {
-        this.project.openPopupMenu(new Wick.GUIElement.PopupMenu(this.model, {
-          x: 0,
-          y: this.canvas.height - Wick.GUIElement.SCROLLBAR_SIZE,
-          mode: 'gapfill'
-        }));
-      }
-    });
-    this.gridSizeButton = new Wick.GUIElement.ActionButton(this.model, {
-      tooltip: 'Frame Size',
-      icon: 'frame_size_menu',
-      height: 8,
-      width: 16,
-      clickFn: () => {
-        this.project.openPopupMenu(new Wick.GUIElement.PopupMenu(this.model, {
-          x: 20,
-          y: this.canvas.height - Wick.GUIElement.SCROLLBAR_SIZE,
-          mode: 'framesize'
-        }));
-      }
-    });
+    }); // Only draw action buttons on bottom if we're not on mobile.
+
+    if (!Wick.GUIElement.IS_MOBILE) {
+      this.fillGapsModeButton = new Wick.GUIElement.ActionButton(this.model, {
+        tooltip: 'Gap Fill Mode',
+        icon: 'gap_fill_menu_blank_frames',
+        height: 8,
+        width: 16,
+        clickFn: () => {
+          this.project.openPopupMenu(new Wick.GUIElement.PopupMenu(this.model, {
+            x: 0,
+            y: this.canvas.height - Wick.GUIElement.SCROLLBAR_SIZE,
+            mode: 'gapfill'
+          }));
+        }
+      });
+      this.gridSizeButton = new Wick.GUIElement.ActionButton(this.model, {
+        tooltip: 'Frame Size',
+        icon: 'frame_size_menu',
+        height: 8,
+        width: 16,
+        clickFn: () => {
+          this.project.openPopupMenu(new Wick.GUIElement.PopupMenu(this.model, {
+            x: 20,
+            y: this.canvas.height - Wick.GUIElement.SCROLLBAR_SIZE,
+            mode: 'framesize'
+          }));
+        }
+      });
+    }
   }
 
   draw() {
@@ -63484,41 +63577,49 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
     ctx.fillStyle = '#111';
     ctx.beginPath();
     ctx.rect(0, this.canvas.height - Wick.GUIElement.BREADCRUMBS_HEIGHT - Wick.GUIElement.SCROLLBAR_SIZE, Wick.GUIElement.LAYERS_CONTAINER_WIDTH, Wick.GUIElement.SCROLLBAR_SIZE);
-    ctx.fill(); // Gap Fill Mode button
+    ctx.fill(); // Only draw action buttons on bottom if we're not on mobile.
 
-    ctx.save();
-    var method = this.project.model.activeTimeline.fillGapsMethod;
+    if (!Wick.GUIElement.IS_MOBILE) {
+      // Gap Fill Mode button
+      ctx.save();
+      var method = this.project.model.activeTimeline.fillGapsMethod;
 
-    if (method === 'auto_extend') {
-      this.fillGapsModeButton.icon = 'gap_fill_menu_extend_frames';
-    } else if (method === 'blank_frames') {
-      this.fillGapsModeButton.icon = 'gap_fill_menu_blank_frames';
+      if (method === 'auto_extend') {
+        this.fillGapsModeButton.icon = 'gap_fill_menu_extend_frames';
+      } else if (method === 'blank_frames') {
+        this.fillGapsModeButton.icon = 'gap_fill_menu_blank_frames';
+      }
+
+      ctx.translate(18, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 4);
+      this.fillGapsModeButton.draw(true);
+      ctx.restore(); // Frame Size button
+
+      ctx.save();
+      ctx.translate(54, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 4);
+      this.gridSizeButton.draw(true);
+      ctx.restore();
     }
 
-    ctx.translate(18, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 4);
-    this.fillGapsModeButton.draw(true);
-    ctx.restore(); // Frame Size button
-
-    ctx.save();
-    ctx.translate(54, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 4);
-    this.gridSizeButton.draw(true);
-    ctx.restore();
     var tweenButtonIsActive = this.model.project.canCreateTween;
     var deleteButtonIsActive = this.model.project.selection.getSelectedObjects('Timeline').length > 0;
     ctx.save();
     ctx.save();
-    ctx.translate(80, 0); // Delete Frame button
+    var widthOfActionButtonContainer = 90;
+    var bump = 10;
+    var leftOfContainer = Wick.GUIElement.LAYERS_CONTAINER_WIDTH + bump - widthOfActionButtonContainer;
+    ctx.translate(leftOfContainer, 0); // Delete Frame button
 
     ctx.save();
     ctx.globalAlpha = deleteButtonIsActive ? 1.0 : 0.3;
     ctx.translate(0, 20);
     this.deleteFrameButton.draw(deleteButtonIsActive);
-    ctx.restore(); // Copy Frame Forward button
+    ctx.restore(); // Insert Blank Frame Button
 
     ctx.save();
     ctx.globalAlpha = 1.0;
     ctx.translate(30, 20);
-    this.insertBlankFrameButton.draw(true);
+    this.insertBlankFrameButton.draw(true); // Insert frame is always active...
+
     ctx.restore(); // Add Tween button
 
     ctx.save();
@@ -65599,14 +65700,22 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
       this._doAutoScroll(target);
     }
   }
+  /**
+   * Refers to mousewheel events on the timeline.
+   * @param {*} e 
+   */
+
 
   _onMouseWheel(e) {
     e.preventDefault();
-    var dx = e.deltaX * e.deltaFactor * 0.5;
-    var dy = e.deltaY * e.deltaFactor * 0.5;
-    this.scrollX += dx;
-    this.scrollY -= dy;
-    this.draw();
+
+    if (!this.model.isPublished) {
+      var dx = e.deltaX * e.deltaFactor * 0.5;
+      var dy = e.deltaY * e.deltaFactor * 0.5;
+      this.scrollX += dx;
+      this.scrollY -= dy;
+      this.draw();
+    }
   }
 
   _getTopMouseTarget() {

@@ -78,7 +78,7 @@ class MenuBar extends Component {
       <div className="docked-pane menu-bar">
         <MenuBarIconButton icon="hamburger" action={() => this.props.openModal('MobileMenuModal')}/>
         
-        <div className="menu-bar-project-name-mobile">
+        <div onClick={() => this.props.openModal("SimpleProjectSettings")} className="menu-bar-project-name-mobile">
           {this.props.projectName}
         </div>
 

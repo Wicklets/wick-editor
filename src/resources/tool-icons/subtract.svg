@@ -3,8 +3,10 @@
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 100 100" style="enable-background:new 0 0 100 100;" xml:space="preserve">
 <style type="text/css">
-	.st0{fill:url(#SVGID_1_);}
-	.st1{fill:none;stroke:url(#SVGID_2_);stroke-width:8;stroke-miterlimit:10;}
+	<!-- .st0{fill:url(#SVGID_1_);}
+	.st1{fill:none;stroke:url(#SVGID_2_);stroke-width:8;stroke-miterlimit:10;} -->
+	.st0{fill:white;}
+	.st1{fill:none;stroke:white;stroke-width:8;stroke-miterlimit:10;}
 </style>
 <linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="0" y1="70" x2="60" y2="70" gradientTransform="matrix(1 0 0 -1 0 100)">
 	<stop  offset="0" style="stop-color:#F0F0F0"/>

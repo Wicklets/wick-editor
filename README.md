@@ -107,6 +107,21 @@ Please refer to this Wiki entry for information on our dektop build processes! [
 
 If you are familiar with electron-builder, electron-packager, or have experience building desktop electron apps for production, we could use your help! Please message us or open an issue.
 
+## Support From
+
+<a href="https://www.mozilla.org/en-US/moss/">
+	<img src="https://www.wickeditor.com/static/media/mozilla.787ef555.svg" alt="Mozilla Open Source Support" height="100px"/>
+</a>
+
+<a href="https://studioforcreativeinquiry.org/frfaf-projects">
+	<img src="https://www.wickeditor.com/static/media/studio.35c7a92e.svg" alt="Frank-Ratchye Fund for Art at the Frontier" height="100px"/>
+</a>
+
+<a href="https://www.du.edu/ahss/opensourcearts/">
+	<img src="https://www.wickeditor.com/static/media/cosa_logo.9af883a9.png" alt="Clinic for Open Source Arts" height="100px"/>
+</a>
+
+
 ## Testing Support From
 
 <a href="https://www.browserstack.com/"><img src=".github/images/browserstack.svg" alt="Browser Stack" width="25%"></a>

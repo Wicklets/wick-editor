@@ -4,10 +4,10 @@
 .delete-copy-paste-widget {
     position: absolute;
     left: 0px;
-    bottom: 0px;
+    top: 0px;
     height: $canvas-transforms-size;
     margin-right: 15px;
-    margin-bottom: 15px;
+    margin-top: 15px;
     display: flex;
     align-items: center;
     background-color: $editor-primary-outline;

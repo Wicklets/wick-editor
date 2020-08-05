@@ -88,7 +88,7 @@ class VideoExport {
           data = new Uint8Array(data);
         }
         let blob = new Blob([data]);
-        window.saveAs(blob, project.name+'.mp4');
+        window.saveFileFromWick(blob, project.name, '.mp4');
         onProgress("Rendering Complete! Downloading...", 100);
         onFinish();
       }

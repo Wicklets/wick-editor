@@ -8,7 +8,7 @@ $reference-tab-size: 10px;
   height: calc(100% - #{$code-editor-thumbnail-container-height});
   background-color: $editor-popout-secondary;
   float: none;
-  color: $editor-popout-secondary-text; 
+  color: #C4C4C4; //$editor-popout-secondary-text; 
   padding-left: $reference-tab-size; 
   overflow: auto;
 }
@@ -21,7 +21,7 @@ $reference-tab-size: 10px;
 
 .reference-tab-title:hover {
   transition: .6s;
-  color: white;
+  color: $wick-green-light; //white;
 }
 
 .reference-tab-container {
@@ -44,6 +44,7 @@ $reference-tab-size: 10px;
 
 .code-editor-reference-title-text {
    font-size: 22px;
+   font-weight: 800;
 }
 
 .tab-element {
