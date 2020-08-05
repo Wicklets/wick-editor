@@ -80,7 +80,7 @@ Wick.ToolSettings = class {
         }, {
             type: "number",
             name: 'fillSmoothing',
-            default: 50,
+            default: 25,
             min: 0,
             max: 100,
             step: 1,

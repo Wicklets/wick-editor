@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.8.5.10.13.40";
+var WICK_ENGINE_BUILD_VERSION = "2020.8.5.10.17.53";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -60016,13 +60016,14 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         i++;
       }
     }
-  }
+  } //
+
 
   function curveIntersections(currentCurve, gapCurve, currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, f) {
     var pathsToIntersect = layerGroup.getItems({
       class: paper.Path,
-      overlapping: gapCurve ? gapCurve.bounds : currentCurve.bounds //match: (item) => !currentCurveLocation || item !== currentCurveLocation.intersection.curve.path,
-
+      overlapping: gapCurve ? gapCurve.bounds : currentCurve.bounds,
+      match: item => !currentCurveLocation || item !== currentCurveLocation.intersection.curve.path
     });
 
     for (let i = 0; i < pathsToIntersect.length; i++) {

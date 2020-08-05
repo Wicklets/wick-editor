@@ -314,11 +314,12 @@
         }
     }
 
+    //
     function curveIntersections(currentCurve, gapCurve, currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, f) {
         var pathsToIntersect = layerGroup.getItems({
             class: paper.Path,
-            overlapping: gapCurve ? gapCurve.bounds : currentCurve.bounds
-            //match: (item) => !currentCurveLocation || item !== currentCurveLocation.intersection.curve.path,
+            overlapping: gapCurve ? gapCurve.bounds : currentCurve.bounds,
+            match: (item) => !currentCurveLocation || item !== currentCurveLocation.intersection.curve.path
         });
         
         for (let i = 0; i < pathsToIntersect.length; i++) {
