@@ -107,7 +107,7 @@ class WelcomeModal extends Component {
             <img id="welcome-image" alt="Night sky with mountains, clouds, a moon and stars" src={nightImage} />
           </div>
           <div id="welcome-message-container" className="modal-main-container">
-            <div id="welcome-modal-title" className="welcome-modal-item">Welcom To The Wick Editor!</div>
+            <div id="welcome-modal-title" className="welcome-modal-item">Welcome To The Wick Editor!</div>
             <div id="welcome-modal-version" className="welcome-modal-item"><a className="welcome-modal-highlight" target="_blank" rel="noopener noreferrer" href={this.forumPost}>Version {this.props.editorVersion}</a></div>
             <div id="welcome-modal-subtitle" className="welcome-modal-item">Wick Editor {this.props.editorVersion} includes:</div>
             <div id="welcome-modal-message" className="welcome-modal-item">

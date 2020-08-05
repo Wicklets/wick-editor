@@ -106,6 +106,7 @@ class Editor extends EditorCore {
         forward: "rgba(255, 0, 0, .3)",
       },
       onionSkinningWasOn: false,
+      localSavedFiles: [], // Files to display in savedProjects Modal.
     };
 
     // Catch all errors that happen in the editor.
@@ -134,7 +135,24 @@ class Editor extends EditorCore {
     // Init Script Info
     this.scriptInfoInterface = new ScriptInfoInterface();
 
-    // Wick file input
+    // Check if we are using local saving (apps)...
+    if (window.wickEditorFileSystemType === 'local') {
+      window.openWickLocalFileViewer = (files) => {
+        console.log("Files Received", files);
+        this.setState({
+          localSavedFiles: files,
+          activeModalName: 'SavedProjects',
+        });
+      }
+
+      /**
+       * Called if a save is attempted and a file with the same name already exists.
+       * @param {Object} args - Wrapper for openWarningModal 
+       */
+      window.warnBeforeSave = (args) => {this.openWarningModal(args)};
+    }
+
+    // Wick Project File Input
     this.openProjectFileFromClient = window.createFileInput({
       accept: '.zip, .wick',
       onChange: this.handleWickFileLoad,
@@ -272,6 +290,7 @@ class Editor extends EditorCore {
     let preloader = window.document.getElementById('preloader');
     setTimeout(() => {
       preloader.style.opacity = '0';
+      this.recenterCanvas(); // Recenter the canvas after reload;
       setTimeout(() => {
         preloader.style.display = 'none';
       }, 500);
@@ -784,16 +803,6 @@ class Editor extends EditorCore {
 
   set processingAction (processingAction) {
     this._processingAction = processingAction;
-  }
-
-  handleWickFileLoad = (e) => {
-    var file = e.target.files[0];
-    if (!file) {
-      console.warn('handleWickFileLoad: no files recieved');
-      return;
-    }
-
-    this.importProjectAsWickFile(file);
   }
 
   handleAssetFileImport = (e) => {

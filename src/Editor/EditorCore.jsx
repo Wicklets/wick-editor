@@ -876,7 +876,7 @@ class EditorCore extends Component {
       if(asset === null) {
         this.toast('Could not add files to project: ' + file.name, 'error');
       } else {
-        this.toast('Imported "' + file.name + '" successfully.', 'success');
+        this.toast(`Imported ${file.name || "project"} successfully.`);
         this.projectDidChange({ actionName: "Import File As Asset" });
       }
     });
@@ -991,6 +991,7 @@ class EditorCore extends Component {
     this.showWaitOverlay();
 
     let toastID = this.toast('Exporting project as a .wick file...', 'info', {autoClose: false});
+    
     window.Wick.WickFile.toWickFile(this.project, file => {
       if (file === undefined) {
         this.updateToast(toastID, {
@@ -1000,18 +1001,19 @@ class EditorCore extends Component {
         return;
       }
 
-      if (window.saveFileFromWick(file, this.project.name, '.wick')) {
+      let success = () => {
         this.updateToast(toastID, {
           type: 'success',
           text: "Successfully saved .wick file." });
-      } else {
+      }
+
+      let fail = () => {
         this.updateToast(toastID, {
           type: 'error',
           text: "Error saving .wick file. Please try again." });
       }
 
-
-
+      window.saveFileFromWick(file, this.project.name, '.wick', success, fail);
 
       this.hideWaitOverlay();
     });
@@ -1045,18 +1047,23 @@ class EditorCore extends Component {
     }
 
     let onFinish = (gifBlob) => {
-      if (window.saveFileFromWick(gifBlob, outputName, '.gif')) {
+
+      let success = () => {
         this.updateToast(toastID, {
           type: 'success',
-          text: "Successfully created .gif file." });
-      } else {
+          text: "Successfully saved .gif file." });
+      }
+
+      let fail = () => {
         this.updateToast(toastID, {
           type: 'error',
           text: "Error saving .gif file. Please try again." });
       }
 
+      window.saveFileFromWick(gifBlob, outputName, '.gif', success, fail);
+
       this.setState({
-        renderStatusMessage: 'Finished exporting GIF.',
+        renderStatusMessage: 'Finished creating GIF.',
         renderProgress: 100
       });
     }
@@ -1101,15 +1108,19 @@ class EditorCore extends Component {
 
     let onFinish = (sequenceBlobZip) => {
 
-      if (window.saveFileFromWick(sequenceBlobZip, this.project.name+'_imageSequence', '.zip')) {
+      let success = () => {
         this.updateToast(toastID, {
           type: 'success',
-          text: "Successfully created image sequence." });
-      } else {
+          text: "Successfully saved image sequence." });
+      }
+
+      let fail = () => {
         this.updateToast(toastID, {
           type: 'error',
           text: "Error saving image sequence. Please try again." });
       }
+
+      window.saveFileFromWick(sequenceBlobZip, this.project.name+'_imageSequence', '.zip', success, fail);
 
       this.setState({
         exporting: false,
@@ -1205,16 +1216,23 @@ class EditorCore extends Component {
     }
 
     let onFinish = (file) => {
-        if (window.saveFileFromWick(file, this.project.name, '.svg')) {
-          this.updateToast(toastID, {
-            type: 'success',
-            text: "Successfully saved .svg file" });
-        } else {
-          this.updateToast(toastID, {
-            type: 'error',
-            text: "Error saving .svg file." });
-        }
-        this.hideWaitOverlay();
+      
+
+      let success = () => {
+        this.updateToast(toastID, {
+          type: 'success',
+          text: "Successfully saved .svg file." });
+      }
+
+      let fail = () => {
+        this.updateToast(toastID, {
+          type: 'error',
+          text: "Error saving .svg file. Please try again." });
+      }
+
+      window.saveFileFromWick(file, this.project.name, '.svg', success, fail);
+
+      this.hideWaitOverlay();
     }
 
     // this.showWaitOverlay('Rendering video...');
@@ -1232,16 +1250,19 @@ class EditorCore extends Component {
     let toastID = this.toast('Exporting project as ZIP...', 'info');
     let outputName = args.name || this.project.name;
     window.Wick.ZIPExport.bundleProject(this.project, blob => {
-
-      if (window.saveFileFromWick(blob, outputName + '.zip')) {
+      let success = () => {
         this.updateToast(toastID, {
           type: 'success',
-          text: "Successfully created .zip file." });
-      } else {
+          text: "Successfully saved .zip file." });
+      }
+
+      let fail = () => {
         this.updateToast(toastID, {
           type: 'error',
-          text: "Error saving .zip file." });
+          text: "Error saving .zip file. Please try again." });
       }
+
+      window.saveFileFromWick(blob, outputName, '.zip', success, fail);
 
     });
   }
@@ -1253,16 +1274,22 @@ class EditorCore extends Component {
     let toastID = this.toast('Exporting project as HTML...', 'info');
     let outputName = args.name || this.project.name;
     window.Wick.HTMLExport.bundleProject(this.project, html => {
+      let file = new Blob([html], {type: 'text/plain'});
 
-      if (window.saveFileFromWick(new Blob([html], {type: "text/plain"}), outputName,'.html')) {
+      let success = () => {
         this.updateToast(toastID, {
           type: 'success',
           text: "Successfully saved .html file." });
-      } else {
+      }
+
+      let fail = () => {
         this.updateToast(toastID, {
           type: 'error',
-          text: "Error saving .html file." });
+          text: "Error saving .html file. Please try again." });
       }
+
+      window.saveFileFromWick(file, outputName, '.html', success, fail);
+      
     });
   }
 
@@ -1286,7 +1313,7 @@ class EditorCore extends Component {
     window.Wick.WickFile.fromWickFile(file, project => {
       if(project) {
         this.setupNewProject(project);
-        this.toast('Opened "' + file.name + '" successfully.', 'success');
+        this.toast(`Opened ${file.name || "project"} successfully.`, 'success');
       } else {
         this.toast('Could not open project.', 'error');
         this.hideWaitOverlay();
@@ -1317,7 +1344,7 @@ class EditorCore extends Component {
   openNewProjectConfirmation = () => {
     this.openWarningModal({
       description: "You will lose any unsaved changes.",
-      title: "Open a New Project?",
+      title: "Create New Project?",
       acceptAction: (() => {
         setTimeout(() => {
           this.setupNewProject();
@@ -1700,6 +1727,57 @@ class EditorCore extends Component {
       this._onEyedropperPickedColor(e.color);
       this.activateLastTool();
   }
+
+  handleWickFileLoad = (e) => {
+    var file = e.target.files[0];
+    if (!file) {
+      console.warn('handleWickFileLoad: no files recieved');
+      return;
+    }
+
+    this.importProjectAsWickFile(file);
+  }
+
+  /**
+   * Loads Local Wick File from
+   * @param {*} fileEntry 
+   */
+  loadLocalWickFile = (fileEntry) => {
+    if (window.loadWickFileEntry) {
+      window.loadWickFileEntry(fileEntry, (blob) => {
+        // Wraps the file in a fake event. TODO: Simplify this.
+        this.handleWickFileLoad({
+          target: {
+            files: [blob]
+          }
+        }); 
+      });
+    } else {
+      console.error("No File Entry Opener Provided");
+    }
+  }
+
+  /**
+   * Deletes local Wick File From Storage.
+   * @param {FileEntry} fileEntry 
+   */
+  deleteLocalWickFile = (fileEntry) => {
+    window.deleteLocalWickFile(fileEntry);
+  }
+
+  /**
+   * Reloads any saved files currently on disk.
+   */
+  reloadSavedWickFiles = () => {
+    if (window.getSavedWickFiles) {
+      let files = window.getSavedWickFiles(files => {
+        this.setState({
+          localSavedFiles: files,
+        });
+      });
+    }
+  }
+
 }
 
 export default EditorCore;

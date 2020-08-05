@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.7.27.9.40.13";
+var WICK_ENGINE_BUILD_VERSION = "2020.7.29.13.26.0";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -47876,7 +47876,7 @@ Wick.WickFile = class {
       timeline.fillGapsMethod = 'blank_frames';
       timeline.resolveFrameGaps();
       timeline.fillGapsMethod = oldFrameGapFillMethod;
-    }); // project.recenter();
+    });
   }
 
 };
@@ -62748,6 +62748,7 @@ Wick.GUIElement = class {
   }
 
 };
+Wick.GUIElement.IS_MOBILE = window.innerWidth < 600;
 Wick.GUIElement.GRID_SMALL_CELL_WIDTH = 22;
 Wick.GUIElement.GRID_SMALL_CELL_HEIGHT = 32;
 Wick.GUIElement.GRID_NORMAL_CELL_WIDTH = 38;
@@ -62780,7 +62781,10 @@ Wick.GUIElement.BREADCRUMBS_DROP_SHADOW_DEPTH = 2;
 Wick.GUIElement.BREADCRUMBS_ACTIVE_BORDER_COLOR = '#1EE29A';
 Wick.GUIElement.BREADCRUMBS_HIGHLIGHT_HEIGHT = 3;
 Wick.GUIElement.BREADCRUMBS_PADDING = 5;
-Wick.GUIElement.LAYERS_CONTAINER_WIDTH = 160;
+Wick.GUIElement.LAYERS_CONTAINER_LARGE = 160;
+Wick.GUIElement.LAYERS_CONTAINER_SMALL = 100; // Shrink the Layer Container if the screen is small.
+
+Wick.GUIElement.LAYERS_CONTAINER_WIDTH = Wick.GUIElement.IS_MOBILE ? Wick.GUIElement.LAYERS_CONTAINER_SMALL : Wick.GUIElement.LAYERS_CONTAINER_LARGE;
 Wick.GUIElement.NUMBER_LINE_HEIGHT = 35;
 Wick.GUIElement.NUMBER_LINE_NUMBERS_HIGHLIGHT_COLOR = '#ffffff';
 Wick.GUIElement.NUMBER_LINE_NUMBERS_COMMON_COLOR = '#494949';
@@ -63138,33 +63142,36 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
         this.model.project.createTween();
         this.projectWasModified();
       }
-    });
-    this.fillGapsModeButton = new Wick.GUIElement.ActionButton(this.model, {
-      tooltip: 'Gap Fill Mode',
-      icon: 'gap_fill_menu_blank_frames',
-      height: 8,
-      width: 16,
-      clickFn: () => {
-        this.project.openPopupMenu(new Wick.GUIElement.PopupMenu(this.model, {
-          x: 0,
-          y: this.canvas.height - Wick.GUIElement.SCROLLBAR_SIZE,
-          mode: 'gapfill'
-        }));
-      }
-    });
-    this.gridSizeButton = new Wick.GUIElement.ActionButton(this.model, {
-      tooltip: 'Frame Size',
-      icon: 'frame_size_menu',
-      height: 8,
-      width: 16,
-      clickFn: () => {
-        this.project.openPopupMenu(new Wick.GUIElement.PopupMenu(this.model, {
-          x: 20,
-          y: this.canvas.height - Wick.GUIElement.SCROLLBAR_SIZE,
-          mode: 'framesize'
-        }));
-      }
-    });
+    }); // Only draw action buttons on bottom if we're not on mobile.
+
+    if (!Wick.GUIElement.IS_MOBILE) {
+      this.fillGapsModeButton = new Wick.GUIElement.ActionButton(this.model, {
+        tooltip: 'Gap Fill Mode',
+        icon: 'gap_fill_menu_blank_frames',
+        height: 8,
+        width: 16,
+        clickFn: () => {
+          this.project.openPopupMenu(new Wick.GUIElement.PopupMenu(this.model, {
+            x: 0,
+            y: this.canvas.height - Wick.GUIElement.SCROLLBAR_SIZE,
+            mode: 'gapfill'
+          }));
+        }
+      });
+      this.gridSizeButton = new Wick.GUIElement.ActionButton(this.model, {
+        tooltip: 'Frame Size',
+        icon: 'frame_size_menu',
+        height: 8,
+        width: 16,
+        clickFn: () => {
+          this.project.openPopupMenu(new Wick.GUIElement.PopupMenu(this.model, {
+            x: 20,
+            y: this.canvas.height - Wick.GUIElement.SCROLLBAR_SIZE,
+            mode: 'framesize'
+          }));
+        }
+      });
+    }
   }
 
   draw() {
@@ -63178,41 +63185,49 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
     ctx.fillStyle = '#111';
     ctx.beginPath();
     ctx.rect(0, this.canvas.height - Wick.GUIElement.BREADCRUMBS_HEIGHT - Wick.GUIElement.SCROLLBAR_SIZE, Wick.GUIElement.LAYERS_CONTAINER_WIDTH, Wick.GUIElement.SCROLLBAR_SIZE);
-    ctx.fill(); // Gap Fill Mode button
+    ctx.fill(); // Only draw action buttons on bottom if we're not on mobile.
 
-    ctx.save();
-    var method = this.project.model.activeTimeline.fillGapsMethod;
+    if (!Wick.GUIElement.IS_MOBILE) {
+      // Gap Fill Mode button
+      ctx.save();
+      var method = this.project.model.activeTimeline.fillGapsMethod;
 
-    if (method === 'auto_extend') {
-      this.fillGapsModeButton.icon = 'gap_fill_menu_extend_frames';
-    } else if (method === 'blank_frames') {
-      this.fillGapsModeButton.icon = 'gap_fill_menu_blank_frames';
+      if (method === 'auto_extend') {
+        this.fillGapsModeButton.icon = 'gap_fill_menu_extend_frames';
+      } else if (method === 'blank_frames') {
+        this.fillGapsModeButton.icon = 'gap_fill_menu_blank_frames';
+      }
+
+      ctx.translate(18, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 4);
+      this.fillGapsModeButton.draw(true);
+      ctx.restore(); // Frame Size button
+
+      ctx.save();
+      ctx.translate(54, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 4);
+      this.gridSizeButton.draw(true);
+      ctx.restore();
     }
 
-    ctx.translate(18, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 4);
-    this.fillGapsModeButton.draw(true);
-    ctx.restore(); // Frame Size button
-
-    ctx.save();
-    ctx.translate(54, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 4);
-    this.gridSizeButton.draw(true);
-    ctx.restore();
     var tweenButtonIsActive = this.model.project.canCreateTween;
     var deleteButtonIsActive = this.model.project.selection.getSelectedObjects('Timeline').length > 0;
     ctx.save();
     ctx.save();
-    ctx.translate(80, 0); // Delete Frame button
+    var widthOfActionButtonContainer = 90;
+    var bump = 10;
+    var leftOfContainer = Wick.GUIElement.LAYERS_CONTAINER_WIDTH + bump - widthOfActionButtonContainer;
+    ctx.translate(leftOfContainer, 0); // Delete Frame button
 
     ctx.save();
     ctx.globalAlpha = deleteButtonIsActive ? 1.0 : 0.3;
     ctx.translate(0, 20);
     this.deleteFrameButton.draw(deleteButtonIsActive);
-    ctx.restore(); // Copy Frame Forward button
+    ctx.restore(); // Insert Blank Frame Button
 
     ctx.save();
     ctx.globalAlpha = 1.0;
     ctx.translate(30, 20);
-    this.insertBlankFrameButton.draw(true);
+    this.insertBlankFrameButton.draw(true); // Insert frame is always active...
+
     ctx.restore(); // Add Tween button
 
     ctx.save();

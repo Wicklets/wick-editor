@@ -201,34 +201,7 @@ class ProjectSettings extends Component {
       </div>
     );
   }
-
-  // renderSizeObject = () => {
-  //   return (
-  //     <div className="project-setting-element">
-  //       <div className="project-settings-property-label">
-  //       Width (px) x Height (px)
-  //       </div>
-  //       <div className="project-settings-property-container project-settings-size-input-container">
-  //           <WickInput
-  //             id="projectWidth"
-  //             type="numeric"
-  //             min={this.projectMinWidth}
-  //             value={this.state.width}
-  //             onChange = {this.changeProjectWidth}
-  //             className="project-settings-size-input" />
-  //           <div className="project-settings-split">x</div>
-  //           <WickInput
-  //             id="projectHeight"
-  //             type="numeric"
-  //             min={this.projectMinHeight}
-  //             value={this.state.height}
-  //             onChange={this.changeProjectHeight}
-  //             className="project-settings-size-input" />
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
+  
   renderWidthObject = () => {
     return (
       <div className={classNames("project-setting-element", this.props.isMobile && "mobile")}>

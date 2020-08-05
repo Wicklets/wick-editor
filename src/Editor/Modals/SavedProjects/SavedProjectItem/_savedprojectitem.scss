@@ -1,0 +1,33 @@
+@import 'Editor/_wickbrand.scss';
+
+.saved-project-item {
+    background-color: $editor-primary;
+    padding: 8px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    width: 100%;
+    display: inline-block;
+    cursor: pointer;
+    transition: .6s all;
+    border: 4px solid $editor-primary;
+    box-sizing: border-box;
+}
+
+.saved-project-item:hover {
+    border-color: $wick-yellow-dark;
+}
+
+.saved-project-item.selected {
+    border-color: $wick-green-dark;
+}
+
+.saved-project-item-name {
+    font-size: 20px;
+    text-align: left;
+}
+
+.saved-project-item-detail-container {
+    display: flex;
+    justify-content: space-between;
+    color: $editor-secondary-text;
+}
