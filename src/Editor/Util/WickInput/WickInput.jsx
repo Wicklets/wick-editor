@@ -27,6 +27,7 @@ import ColorPicker from 'Editor/Util/ColorPicker/ColorPicker';
 import ReactTooltip from 'react-tooltip'
 import TimedChangeInput from './TimedChangeInput/TimedChangeInput';
 import NumericTimedChangeInput from './NumericTimedChangeInput/NumericTimedChangeInput';
+import WickButton from './WickButton/WickButton';
 
 import { Input } from 'reactstrap';
 
@@ -234,15 +235,7 @@ class WickInput extends Component {
   }
 
   renderButton = () => {
-    return (
-      <button
-        {...this.props.buttonProps}
-        onContextMenu={(e) => {e.preventDefault(); this.props.secondaryAction && this.props.secondaryAction()}}
-        onClick={this.props.onClick}
-        className={classNames("wick-button ", this.props.className)}>
-        {this.props.children}
-      </button>
-    );
+    return <WickButton {...this.props}>{this.props.children}</WickButton>
   }
 }
 

@@ -3,9 +3,12 @@
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 100 100" style="enable-background:new 0 0 100 100;" xml:space="preserve">
 <style type="text/css">
-	.st0{fill:none;stroke:url(#SVGID_1_);stroke-width:8;stroke-miterlimit:10;}
+	<!-- .st0{fill:none;stroke:url(#SVGID_1_);stroke-width:8;stroke-miterlimit:10;}
 	.st1{fill:none;stroke:url(#SVGID_2_);stroke-width:8;stroke-miterlimit:10;}
-	.st2{fill:url(#SVGID_3_);}
+	.st2{fill:url(#SVGID_3_);} -->
+	.st0{fill:none;stroke:white;stroke-width:8;stroke-miterlimit:10;}
+	.st1{fill:none;stroke:white;stroke-width:8;stroke-miterlimit:10;}
+	.st2{fill:white;}
 </style>
 <linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="32" y1="66" x2="100" y2="66">
 	<stop  offset="0" style="stop-color:#F0F0F0"/>

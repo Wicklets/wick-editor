@@ -53,7 +53,7 @@ class GeneralWarning extends Component {
             <div id="general-warning-modal-cancel">
                 <ActionButton
                   className="general-warning-modal-button"
-                  color='gray-green'
+                  color='gray'
                   action={this.cancelAndToggle}
                   text={this.props.info.cancelText}
                   icon={this.props.info.cancelIcon}

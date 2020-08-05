@@ -37,14 +37,14 @@ $delete-button-padding: 4px;
 }
 
 .inspector-script-window-row-color-bar.blue-bar {
-    background-color: $wick-active-blue;
+    background-color: #05B8FF; //$wick-active-blue;
 }
 
 .inspector-script-window-row-color-bar.green-bar {
-    background-color: $wick-green;
+    background-color: $wick-green-light; //$wick-green;
 }
 
 .inspector-script-window-row-color-bar.yellow-bar {
-    background-color: $wick-yellow;
+    background-color: #FFE243; //$wick-yellow;
 }
 

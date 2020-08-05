@@ -201,8 +201,8 @@ class ProjectSettings extends Component {
       </div>
     );
   }
-
-  renderSizeObject = () => {
+  
+  renderWidthObject = () => {
     return (
       <div className={classNames("project-setting-element", this.props.isMobile && "mobile")}>
         <div className="project-settings-property-container project-settings-size-input-container">
@@ -364,7 +364,9 @@ class ProjectSettings extends Component {
               {this.renderBackgroundColorObject()}
             </div>
             <div className="project-settings-modal-row">
-              {this.renderSizeObject()}
+              {/* {this.renderSizeObject()} */}
+              {this.renderWidthObject()}
+              {this.renderHeightObject()}
               {this.renderFramerateObject()}
             </div>
             <div className="project-settings-modal-row">

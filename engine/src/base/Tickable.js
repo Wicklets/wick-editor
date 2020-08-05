@@ -216,11 +216,33 @@ Wick.Tickable = class extends Wick.Base {
      * @returns {object} the script with the given name. Can be null if the object doesn't have that script.
      */
     getScript (name) {
-        if(Wick.Tickable.possibleScripts.indexOf(name) === -1) console.error(name + ' is not a valid script!');
-        return this._scripts.find(script => {
-            return script.name === name;
-        });
-    }
+        if (Wick.Tickable.possibleScripts.indexOf(name) === -1) {
+            console.error(name + ' is not a valid script!');
+            return null;
+        } else {
+            // Get expected script.
+            let script = this._scripts.find(script => {
+                return script.name === name;
+            });
+
+            if (!script) {
+                // Create the script if it doesn't exist.
+                script = {
+                    name: name,
+                    src: "",
+                }
+
+                return script;
+            } 
+            
+            // If the script is missing, add an empty.
+            if (!script.src) {
+                script.src = "";
+            }
+
+            return script;
+        }   
+    } 
 
     /**
      * Returns a list of script names which are not currently in use for this object.
@@ -236,7 +258,13 @@ Wick.Tickable = class extends Wick.Base {
      * @returns {boolean} True if the script with the given name exists
      */
     hasScript (name) {
-        return this.getScript(name) !== undefined;
+        let script = this.scripts.find(script => (script.name === name));
+
+        if (script) {
+            return true;
+        } 
+
+        return false;
     }
 
     /**
@@ -250,7 +278,12 @@ Wick.Tickable = class extends Wick.Base {
         }
 
         var script = this.getScript(name);
-        return script.src.trim() !== '';
+        
+        if (script && script.src.trim() !== '') {
+            return true;
+        } 
+
+        return false;
     }
 
     /**
@@ -259,6 +292,7 @@ Wick.Tickable = class extends Wick.Base {
      * @param {string} src - The source code of the script.
      */
     updateScript (name, src) {
+        if (!src) src = ""; // Reset script if it is not defined.
         this.getScript(name).src = src;
         delete this._cachedScripts[name];
     }

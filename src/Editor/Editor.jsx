@@ -65,7 +65,7 @@ class Editor extends EditorCore {
     // "Live" editor states
     this.project = null;
     this.paper = null;
-    this.editorVersion = "1.17.3";
+    this.editorVersion = "1.18";
 
     // GUI state
     this.state = {
@@ -79,7 +79,7 @@ class Editor extends EditorCore {
       showBrushModes: false,
       showCodeErrors: false,
       popoutOutlinerSize: 250,
-      outlinerPoppedOut: true,
+      outlinerPoppedOut: false,
       inspectorSize: 250,
       timelineSize: 175,
       assetLibrarySize: 150,
@@ -106,6 +106,7 @@ class Editor extends EditorCore {
         forward: "rgba(255, 0, 0, .3)",
       },
       onionSkinningWasOn: false,
+      localSavedFiles: [], // Files to display in savedProjects Modal.
     };
 
     // Catch all errors that happen in the editor.
@@ -134,9 +135,35 @@ class Editor extends EditorCore {
     // Init Script Info
     this.scriptInfoInterface = new ScriptInfoInterface();
 
+    // Check if we are using local saving (apps)...
+    if (window.wickEditorFileSystemType === 'local') {
+      window.openWickLocalFileViewer = (files) => {
+        console.log("Files Received", files);
+        this.setState({
+          localSavedFiles: files,
+          activeModalName: 'SavedProjects',
+        });
+      }
+
+      /**
+       * Called if a save is attempted and a file with the same name already exists.
+       * @param {Object} args - Wrapper for openWarningModal 
+       */
+      window.warnBeforeSave = (args) => {this.openWarningModal(args)};
+    }
+
+    // Wick Project File Input
+    this.openProjectFileFromClient = window.createFileInput({
+      accept: '.zip, .wick',
+      onChange: this.handleWickFileLoad,
+    });
+
     // Wick file input
-    this.openFileRef = React.createRef();
-    this.importAssetRef = React.createRef();
+    this.openAssetFileFromClient = window.createFileInput({
+      accept: window.Wick.FileAsset.getValidExtensions().join(', '),
+      onChange: this.handleAssetFileImport,
+      multiple: true,
+    });
 
     // Set up color picker
     this.maxLastColors = 8;
@@ -168,6 +195,8 @@ class Editor extends EditorCore {
   componentWillMount = () => {
     ReactGA.initialize('UA-88233944-1');
     ReactGA.pageview(window.location.pathname + window.location.search);
+
+    document.title =  `Wick Editor ${this.editorVersion}`;
     // Initialize "live" engine state
     this.project = new window.Wick.Project();
     this.attachErrorHandlers();
@@ -261,6 +290,7 @@ class Editor extends EditorCore {
     let preloader = window.document.getElementById('preloader');
     setTimeout(() => {
       preloader.style.opacity = '0';
+      this.recenterCanvas(); // Recenter the canvas after reload;
       setTimeout(() => {
         preloader.style.display = 'none';
       }, 500);
@@ -651,6 +681,7 @@ class Editor extends EditorCore {
 
     if (options.type) {
       options.className = options.type + '-toast-background';
+      options.bodyClassName = options.type + '-toast-body';
     }
 
     if (!options.autoClose) {
@@ -774,25 +805,16 @@ class Editor extends EditorCore {
     this._processingAction = processingAction;
   }
 
-  handleWickFileLoad = (e) => {
-    var file = e.target.files[0];
-    if (!file) {
-      console.warn('handleWickFileLoad: no files recieved');
-      return;
-    }
-    this.importProjectAsWickFile(file);
-  }
-
   handleAssetFileImport = (e) => {
     this.createAssets(e.target.files, []);
   }
 
   openProjectFileDialog = () => {
-    this.openFileRef.current.click();
+    this.openProjectFileFromClient();
   }
 
   openImportAssetFileDialog = () => {
-    this.importAssetRef.current.click();
+    this.openAssetFileFromClient();
   }
 
   /**
@@ -909,6 +931,7 @@ class Editor extends EditorCore {
                             <SizeMe>{({ size }) => {
                               this.project.view.render();
                               return (<Canvas
+                                editor={this}
                                 project={this.project}
                                 projectDidChange={this.projectDidChange}
                                 projectData={this.state.project}

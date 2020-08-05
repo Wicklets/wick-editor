@@ -429,13 +429,19 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         }
     }
 
+    /**
+     * Refers to mousewheel events on the timeline.
+     * @param {*} e 
+     */
     _onMouseWheel (e) {
         e.preventDefault();
-        var dx = e.deltaX * e.deltaFactor * 0.5;
-        var dy = e.deltaY * e.deltaFactor * 0.5;
-        this.scrollX += dx;
-        this.scrollY -= dy;
-        this.draw();
+        if (!this.model.isPublished) {
+            var dx = e.deltaX * e.deltaFactor * 0.5;
+            var dy = e.deltaY * e.deltaFactor * 0.5;
+            this.scrollX += dx;
+            this.scrollY -= dy;
+            this.draw();
+        }
     }
 
     _getTopMouseTarget () {

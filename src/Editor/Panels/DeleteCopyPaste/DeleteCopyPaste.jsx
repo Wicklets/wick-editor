@@ -6,33 +6,33 @@ import './_deletecopypaste.scss';
 
 var classNames = require('classnames');
 
-class CanvasTransforms extends Component {
-  render () {
+export default function DeleteCopyPaste (props) {
+
     return (
       <div className="delete-copy-paste-widget">
-        {!this.props.previewPlaying && 
+        {!props.previewPlaying && 
         <div className='delete-copy-paste-container'>
             <ActionButton
-                disabled={this.props.selectionEmpty}
+                disabled={props.selectionEmpty}
                 color="tool"
-                action={this.props.editorActions.delete.action}
+                action={props.editorActions.delete.action}
                 icon="delete"
                 className={classNames("canvas-transform-button", "canvas-transform-item")}
                 buttonClassName={"canvas-transform-wick-button"}
-                iconClassName={classNames("canvas-transform-icon", this.props.selectionEmpty && "disabled")}
+                iconClassName={classNames("canvas-transform-icon", props.selectionEmpty && "disabled")}
             />
             <ActionButton
-                disabled={this.props.selectionEmpty}
+                disabled={props.selectionEmpty}
                 color="tool"
-                action={this.props.editorActions.copy.action}
+                action={props.editorActions.copy.action}
                 icon="copy"
                 className={classNames("canvas-transform-button", "canvas-transform-item")}
                 buttonClassName={"canvas-transform-wick-button"}
-                iconClassName={classNames("canvas-transform-icon", this.props.selectionEmpty && "disabled")}
+                iconClassName={classNames("canvas-transform-icon", props.selectionEmpty && "disabled")}
             />
             <ActionButton
                 color="tool"
-                action={this.props.editorActions.paste.action}
+                action={props.editorActions.paste.action}
                 icon="paste"
                 className={classNames("canvas-transform-button", "canvas-transform-item")}
                 buttonClassName={"canvas-transform-wick-button"}
@@ -41,7 +41,4 @@ class CanvasTransforms extends Component {
         </div>}
       </div>
     );
-  }
 }
-
-export default CanvasTransforms

@@ -44,7 +44,7 @@ Wick.Tween = class extends Wick.Base {
         super(args);
 
         this._playheadPosition = args.playheadPosition || 1;
-        this.transformation = args.transformation || new Wick.Transformation();
+        this._transformation = args.transformation || new Wick.Transformation();
         this.fullRotations = args.fullRotations === undefined ? 0 : args.fullRotations;
         this.easingType = args.easingType || 'none';
 
@@ -94,7 +94,7 @@ Wick.Tween = class extends Wick.Base {
         var data = super._serialize(args);
 
         data.playheadPosition = this.playheadPosition;
-        data.transformation = this.transformation.values;
+        data.transformation = this._transformation.values;
         data.fullRotations = this.fullRotations;
         data.easingType = this.easingType;
 
@@ -107,7 +107,7 @@ Wick.Tween = class extends Wick.Base {
         super._deserialize(data);
 
         this.playheadPosition = data.playheadPosition;
-        this.transformation = new Wick.Transformation(data.transformation);
+        this._transformation = new Wick.Transformation(data.transformation);
         this.fullRotations = data.fullRotations;
         this.easingType = data.easingType;
 
@@ -124,6 +124,18 @@ Wick.Tween = class extends Wick.Base {
 
     set playheadPosition (playheadPosition) {
         this._playheadPosition = playheadPosition;
+    }
+
+    /**
+     * The transformation representing the position, rotation and other elements of the tween.
+     * @type {object} 
+     */
+    get transformation () {
+        return this._transformation;
+    }
+
+    set transformation (transformation) {
+        this._transformation = transformation;
     }
 
     /**

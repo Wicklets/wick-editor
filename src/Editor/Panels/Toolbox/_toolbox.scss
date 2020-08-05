@@ -72,6 +72,7 @@ $toolbox-max-button-size: 30px;
   display: flex;
   flex-direction: row;
   align-items: center;
+
   height: 100%;
 }
 
@@ -107,6 +108,8 @@ $toolbox-max-button-size: 30px;
   height: calc(#{$toolbox-max-button-size} * .85);
   float: left;
   min-width:  calc(#{$toolbox-max-button-size} * .85);
+  align-items: center;
+  display: flex;
 }
 
 #tool-box-stroke-color-button {

@@ -53,8 +53,6 @@ import ModalHandler from './Modals/ModalHandler/ModalHandler';
                     keyMap={this.props.editor.getKeyMap()}
                     handlers={this.props.editor.getKeyHandlers()}/>
                 <div id="editor">
-                    <input type='file' accept={window.Wick.FileAsset.getValidExtensions().join(', ')} style={{display: 'none'}} ref={this.props.editor.importAssetRef} onChange={this.props.editor.handleAssetFileImport} multiple="multiple" />
-                    <input type='file' accept='.zip, .wick' style={{display: 'none'}} ref={this.props.editor.openFileRef} onChange={this.props.editor.handleWickFileLoad} />
                     <ModalHandler
                         getRenderSize={this.props.editor.getRenderSize}
                         activeModalName={this.props.editor.state.activeModalName}
@@ -99,6 +97,11 @@ import ModalHandler from './Modals/ModalHandler/ModalHandler';
                         isAssetInLibrary={this.props.editor.isAssetInLibrary}
                         openProjectFileDialog={this.props.editor.openProjectFileDialog}
                         openNewProjectConfirmation={this.props.editor.openNewProjectConfirmation}
+                        localSavedFiles={this.props.editor.state.localSavedFiles}
+                        loadLocalWickFile={this.props.editor.loadLocalWickFile}
+                        deleteLocalWickFile={this.props.editor.deleteLocalWickFile}
+                        reloadSavedWickFiles={this.props.editor.reloadSavedWickFiles}
+                        openWarningModal={this.props.editor.openWarningModal}
                         />
                 {this.props.children}
                 </div>

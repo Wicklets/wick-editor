@@ -44,7 +44,7 @@ class MobileMenu extends Component {
         className="mobile-menu-mobile-body">
             <div className="mobile-menu-options-container">
                 {items.map(({text, icon, action}) => 
-                <ActionButton key={text} className="mobile-menu-option" buttonClassName="no-bg" iconClassName="mobile-menu-icon" action={action} text={text} icon={icon}/>)}
+                <ActionButton key={text} className="mobile-menu-option" buttonClassName="no-bg mobile-menu-button" iconClassName="mobile-menu-icon" action={action} text={text} icon={icon}/>)}
             </div>
             <div className="mobile-menu-close">
                 <ActionButton icon="cancel-white" iconClassName="mobile-menu-close-icon" buttonClassName="no-bg" action={this.props.toggle} color="gray"/>

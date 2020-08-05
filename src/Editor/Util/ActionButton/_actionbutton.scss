@@ -26,10 +26,51 @@ $action-button-transition-duration: .2s;
   height: 100%;
 }
 
+.action-button-single-icon {
+  margin: 0 auto;
+  padding: 1px;
+}
+
 .action-button-text {
   height: 100%;
   text-align: center;
   display: flex;
+  align-items: center;
+}
+
+.action-button-dropdown-icon-container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+
+.dropdown-extra-icon {
+  height: 6px;
+  margin-top: 1px;
+}
+
+.dropdown-action-button-icon {
+  height: 80%;
+}
+
+.action-button-icon-text-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  max-height: 100%;
+}
+
+.action-button-text-icon {
+  height: 24px;
+  margin-right: 6px
+}
+
+.action-button-text {
+  display: flex;
+  justify-content: center;
   align-items: center;
 }
 
@@ -103,6 +144,29 @@ $action-button-transition-duration: .2s;
   color: $wick-red-text;
 }
 
+.action-button-dark-red {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: #A30000;
+  color: $wick-red-text;
+}
+
+.action-button-dark-red:hover {
+  background-color: #B30000;
+  color: $wick-red-text;
+}
+
+.action-button-dark-red:active {
+  background-color: #940000;
+  color: $wick-red-text;
+}
+
+.action-button-dark-red.active-button {
+  background-color: #940000;
+  color: $wick-red-text;
+}
+
 .action-button-green {
   -webkit-transition-duration: $action-button-transition-duration; /* Safari */
   transition-duration: $action-button-transition-duration;
@@ -158,17 +222,20 @@ $action-button-transition-duration: .2s;
 }
 
 .action-button-tool:hover {
-  background-color: $wick-green-light;
+  //background-color: $wick-green-light;
+  border: 2px solid #29F1A3;
   color: black;
 }
 
 .action-button-tool:active {
-  background-color: $wick-green-dark;
+  //background-color: $wick-green-dark;
+  border: 2px solid #01C094;
   color: black;
 }
 
 .action-button-tool.active-button {
-  background-color: $wick-green-dark;
+  //background-color: $wick-green-dark;
+  border: 2px solid #01C094;
   color: black;
 }
 
@@ -192,13 +259,19 @@ $action-button-transition-duration: .2s;
   color: $editor-menubar-project-text;
 }
 
+.action-button-menu img{
+  width: auto;
+}
+
 .action-button-menu.save {
   -webkit-transition-duration: $action-button-transition-duration; /* Safari */
   transition-duration: $action-button-transition-duration;
 
   background-color: $editor-primary;
   color: $wick-green;
-  border: 2px solid $wick-green;
+  border: 1.5px solid $wick-green;
+
+  padding: 0 5px 0 5px;
 }
 
 .action-button-tool-settings {
@@ -228,26 +301,32 @@ $action-button-transition-duration: .2s;
 
   background-color: $editor-primary;
   color: $editor-primary-property-text;
-  border: 2px solid $editor-primary-property-text;
+  border: 1.5px solid #CCCCCC; //$editor-primary-property-text;
   font-size: 16px;
 }
 
+.action-button-upload img {
+  width: 18px;
+  height: 18px;
+  padding: 0 2px 0 2px;
+}
+
 .action-button-upload:hover {
-  background-color: $wick-green-light;
+  //background-color: $wick-green-light;
   color: $wick-green-dark;
-  border: 2px solid $wick-green-light;
+  border: 1.5px solid $wick-green-light;
 }
 
 .action-button-upload:active {
-  background-color: $wick-green;
+  //background-color: $wick-green;
   color: $wick-green-dark;
-  border: 2px solid $wick-green;
+  border: 1.5px solid $wick-green;
 }
 
 .action-button-upload.active-button {
-  background-color: $wick-green-light;
+  //background-color: $wick-green-light;
   color: $wick-green-dark;
-  border: 2px solid $wick-green-light;
+  border: 1.5px solid $wick-green-light;
 }
 
 .action-button-gray {
@@ -285,17 +364,17 @@ $action-button-transition-duration: .2s;
 
 .action-button-gray-green:hover {
   background-color: $wick-green;
-  color: white;
+  color: black;//white;
 }
 
 .action-button-gray-green:active {
   background-color: $wick-green-dark;
-  color: white;
+  color: black //white;
 }
 
 .action-button-gray-green.active-button {
   background-color: $wick-green-dark;
-  color: white;
+  color: black; //white;
 }
 
 .action-button-error {
@@ -331,17 +410,20 @@ $action-button-transition-duration: .2s;
 }
 
 .action-button-checkbox:hover {
-  background-color: $editor-tertiary;
+  //background-color: $editor-tertiary;
+  border: 2px solid $wick-green-light;
   color: black;
 }
 
 .action-button-checkbox:active {
-  background-color: $wick-green-dark;
+  //background-color: $wick-green-dark;
+  border: 2px solid $wick-green-dark;
   color: black;
 }
 
 .action-button-checkbox.active-button {
-  background-color: $wick-green-dark;
+  //background-color: $wick-green-dark;
+  border: 2px solid $wick-green-dark;
   color: black;
 }
 
@@ -350,23 +432,23 @@ $action-button-transition-duration: .2s;
   transition-duration: $action-button-transition-duration;
 
   background-color: $wick-active-blue;
-  color: white;
+  color: black; //white;
   font-size: 16px;
 }
 
 .action-button-active-blue:hover {
   background-color: $wick-active-blue-light;
-  color: white;
+  color: black; //white;
 }
 
 .action-button-active-blue:active {
   background-color: $wick-active-blue-dark;
-  color: white;
+  color: black; //white;
 }
 
 .action-button-active-blue.active-button {
   background-color: $wick-active-blue-dark;
-  color: white;
+  color: black; //white;
 }
 
 .action-button-inspector {
@@ -374,23 +456,23 @@ $action-button-transition-duration: .2s;
   transition-duration: $action-button-transition-duration;
 
   background-color: $wick-active-blue;
-  color: white;
+  color: black; //white;
   font-size: 16px;
 }
 
 .action-button-inspector:hover {
   background-color: $wick-active-blue-light;
-  color: white;
+  color: black; //white;
 }
 
 .action-button-inspector:active {
   background-color: $wick-active-blue-dark;
-  color: white;
+  color: black; //white;
 }
 
 .action-button-inspector.active-button {
   background-color: $wick-active-blue-dark;
-  color: white;
+  color: black; //white;
 }
 
 .action-button-reference {
@@ -398,23 +480,23 @@ $action-button-transition-duration: .2s;
   transition-duration: $action-button-transition-duration;
 
   background-color: $editor-popout-secondary;
-  color: $editor-popout-secondary-text;
+  color: #C4C4C4;//$editor-popout-secondary-text;
   font-size: 16px;
 }
 
 .action-button-reference:hover {
-  background-color: $wick-active-blue;
-  color: white;
+  //background-color: $wick-active-blue;
+  color: $wick-green-light; //white;
 }
 
 .action-button-reference:active {
-  background-color: $wick-active-blue-dark;
-  color: white;
+  //background-color: $wick-active-blue-dark;
+  color: $wick-green-light; //white;
 }
 
 .action-button-reference.active-button {
-  background-color: $wick-active-blue-dark;
-  color: white;
+  //background-color: $wick-active-blue-dark;
+  color: $wick-green-light; //white;
 }
 
 // Styling for script name buttons in the inspector script window.
@@ -424,20 +506,23 @@ $action-button-transition-duration: .2s;
   transition-duration: $action-button-transition-duration;
 
   background-color: $editor-primary;
-  color: $editor-primary-text;
+  color: #CCCCCC; //$editor-primary-text;
   font-size: 16px;
 }
 
 .action-button-script-name:hover {
-  background-color: $editor-secondary;
+  //background-color: $editor-secondary;
+  color: #FFFFFF;
 }
 
 .action-button-script-name:active {
-  background-color: $editor-primary;
+  //background-color: $editor-primary;
+  color: #FFFFFF;
 }
 
 .action-button-script-name.active-button {
-  background-color: $editor-primary;
+  //background-color: $editor-primary;
+  color: #FFFFFF;
 }
 
 .action-button-script-name-text {
@@ -467,15 +552,4 @@ $action-button-transition-duration: .2s;
 .action-button-flame.active-button {
   background-color: $flame-dark;
   color: $flame-text;
-}
-
-.dropdown-extra-icon {
-  height: 7px;
-  margin-top: 1px;
-}
-
-.icons-container {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
 }
