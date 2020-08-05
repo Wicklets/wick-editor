@@ -354,6 +354,42 @@ class ProjectSettings extends Component {
     );
   }
 
+  renderSizeObject = () => {
+    return (
+      <div className={classNames("project-setting-element", this.props.isMobile && "mobile")}>
+        <div className="project-settings-property-container project-settings-size-input-container">
+          <span>
+            <label htmlFor="project width" className="project-settings-property-label">
+              Width (px)
+            </label>
+            <WickInput
+            id="project width"
+            type="numeric"
+            min={this.projectMinWidth}
+            value={this.state.width}
+            onChange = {this.changeProjectWidth}
+            className="project-settings-size-input" 
+            />
+          </span>
+          <span><div className="project-settings-split">x</div></span>
+          <span>
+            <label htmlFor="project height" className="project-settings-property-label">
+              Height (px)
+            </label>
+            <WickInput
+              id="project height"
+              type="numeric"
+              min={this.projectMinHeight}
+              value={this.state.height}
+              onChange={this.changeProjectHeight}
+              className="project-settings-size-input" 
+            />
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   renderDesktop = () => {
     return (
         <div id="project-settings-interior-content">
@@ -364,9 +400,7 @@ class ProjectSettings extends Component {
               {this.renderBackgroundColorObject()}
             </div>
             <div className="project-settings-modal-row">
-              {/* {this.renderSizeObject()} */}
-              {this.renderWidthObject()}
-              {this.renderHeightObject()}
+              {this.renderSizeObject()}
               {this.renderFramerateObject()}
             </div>
             <div className="project-settings-modal-row">
