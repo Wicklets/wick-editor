@@ -118,15 +118,15 @@
         let curve = c.clone();
         let r1 = direction / curve.getCurvatureAtTime(0);
         let r2 = direction / curve.getCurvatureAtTime(1);
-        let scale1 = (r1 - GAP_FILL) / r1;
-        let scale2 = (r2 - GAP_FILL) / r2;
+        let scale1 = Math.max(Math.min((r1 - GAP_FILL) / r1, 2), -2);
+        let scale2 = Math.max(Math.min((r2 - GAP_FILL) / r2, 2), -2);
         let n1 = curve.getNormalAtTime(0).multiply(-direction).normalize(GAP_FILL);
         let n2 = curve.getNormalAtTime(1).multiply(-direction).normalize(GAP_FILL);
         curve.point1 = curve.point1.add(n1);
         curve.point2 = curve.point2.add(n2);
         curve.handle1 = curve.handle1.multiply(scale1);
         curve.handle2 = curve.handle2.multiply(scale2);
-        
+        console.log(scale1, scale2);
         return curve;
     }
 
@@ -448,7 +448,7 @@
             let gapCrossLocation = null;
             if (currentCurve.length > EPSILON) {
                 let gapCurve = bumpedCurve(currentCurve, currentDirection);
-
+                console.log(gapCurve);
                 [clt, ccl, gcl] = curveIntersections(currentCurve, gapCurve, currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, (a) => 
                     colorsEqual(holeColor, getColorAt(a.point.subtract(a.tangent.multiply(currentDirection).normalize(RADIUS)))) &&
                     !colorsEqual(holeColor, getColorAt(a.point.add(a.tangent.multiply(currentDirection).normalize(RADIUS)))));
@@ -456,6 +456,7 @@
                 gapCrossLocation = gcl;
 
                 gapCurve = bumpedCurve(currentCurve, -currentDirection);
+                console.log(gapCurve);
                 [clt, ccl, gcl] = curveIntersections(currentCurve, gapCurve, currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, (a) => 
                     !colorsEqual(holeColor, getColorAt(a.point.subtract(a.tangent.multiply(currentDirection).normalize(RADIUS)))) &&
                     colorsEqual(holeColor, getColorAt(a.point.add(a.tangent.multiply(currentDirection).normalize(RADIUS)))));
@@ -470,6 +471,8 @@
             points.push({p1: pointToAdd, p2: gapCrossLocation ? currentCurve.getNearestLocation(gapCrossLocation.point) : currentCurveLocation});
 
             circle.position = gapCrossLocation ? gapCrossLocation.point : currentCurveLocation.point;
+            console.log(circle.bounds.center.toString());
+            //onFinish(circle.clone());
 
             var crossings = [];
             var items = layerGroup.getItems({
