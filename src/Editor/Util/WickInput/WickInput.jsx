@@ -192,6 +192,7 @@ class WickInput extends Component {
         defaultValue={value}
         options={this.props.options}
         className={classNames("wick-input-select", this.props.className)}
+        classNamePrefix={'wick-input-select'}
         styles={{
         option: (provided, state) => {
           let style = {
@@ -206,7 +207,11 @@ class WickInput extends Component {
             style.fontFamily = state.label;
           }
           return style;
-        }}}
+        }, 
+        control: (provided, state) => {
+          return {};
+        }
+        }}
         isSearchable={false}
       />
     );
