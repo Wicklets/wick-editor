@@ -43,7 +43,7 @@ class WelcomeModal extends Component {
     let t2 = ["Constance Ye", "Victoria Rojas"]
     let t3 = ["Pablosaurs910", "Gautaum Bose", "Trevor"]
     let t4 = ["Golan Levin", "ThisPodcastIsInEnglish", "Daniel Sun", "Benjamin Briand", "Joseph Hocking", "Anonymous"]
-    let t5 = ["Joe", "Karlin Fox"]
+    let t5 = ["Joe", "Karlin Fox", "StepSwitcher"]
     this.patreonSupporters = t1.concat(t2, t3, t4, t5)
   }
 

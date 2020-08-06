@@ -37,24 +37,12 @@ $numeric-input-background: $editor-text-input-background;
   color: white;
 }
 
-.wick-input-invalid {
-   border: $editor-input-border-width solid $wick-red !important;
+.wick-input.invalid {
+   border-left: $editor-input-border-width solid $wick-red !important;
 }
 
 .wick-input-updating {
   border: $editor-input-border-width solid $wick-yellow !important;
-}
-
-.wick-numeric-input {
-  padding: 0 0 0 2px;
-  width: 100%;
-  height: 100%;
-  border-radius: 3px; //$interface-input-roundness;
-  border: none;
-  background-color: $numeric-input-background;
-  color: white;
-  //border: $editor-input-border-width solid $editor-primary-outline;
-  font-size: 14px;
 }
 
 .wick-input.read-only {
@@ -170,3 +158,13 @@ $numeric-input-background: $editor-text-input-background;
   background-color: #265A87 !important;
   border-color: #265A87 !important;
 }
+
+.wick-input-select {
+  width: 100%;
+  color: "black";
+  font-size: "16px";
+  background-color: "white";
+  display: "flex";
+  height: 100% !important;
+}
+

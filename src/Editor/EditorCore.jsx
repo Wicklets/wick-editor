@@ -1387,6 +1387,7 @@ class EditorCore extends Component {
 
     // Check if the provided URL is allowed in the whitelist.
     var whitelist = ['wickeditor.com', 'editor.wickeditor.com', 'test.wickeditor.com', 'aka.ms'];
+
     if(whitelist.indexOf(url.hostname) === -1) {
       this.toast('Could not open project from link! \n URL is not on whitelist.','warning');
       console.error('tryToParseProjectURL: URL is not in the whitelist.');
@@ -1397,6 +1398,7 @@ class EditorCore extends Component {
     fetch(url)
       .then(resp => resp.blob())
       .then(blob => {
+        console.log("Attempting to load: ", blob);
         window.Wick.WickFile.fromWickFile(blob, loadedProject => {
           this.setupNewProject(loadedProject);
         }, 'blob');

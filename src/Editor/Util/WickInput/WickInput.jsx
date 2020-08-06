@@ -25,11 +25,10 @@ import 'react-dropdown/style.css';
 
 import ColorPicker from 'Editor/Util/ColorPicker/ColorPicker';
 import ReactTooltip from 'react-tooltip'
-import TimedChangeInput from './TimedChangeInput/TimedChangeInput';
-import NumericTimedChangeInput from './NumericTimedChangeInput/NumericTimedChangeInput';
 import WickButton from './WickButton/WickButton';
 
 import { Input } from 'reactstrap';
+import WickTextInput from './WickTextInput/WickTextInput';
 
 var classNames = require('classnames');
 
@@ -108,22 +107,41 @@ class WickInput extends Component {
   }
 
   renderNumeric = () => {
-    return (
-      <NumericTimedChangeInput
-        {...this.props}
-        className={classNames("wick-numeric-input", this.props.className)}
-        ></NumericTimedChangeInput>
-    )
+    const isValid = (input) => {
+      return !isNaN(input) && input !== '';
+    }
+
+
+    // Used to clean up the number prior to display and updates.
+    const cleanUp = (val) => {
+      val = parseFloat(val);
+
+      // Constrain between min and max
+      if (this.props.min) {
+        val = Math.max(val, this.props.min);
+      }
+
+      if (this.props.max) {
+        val = Math.min(val, this.props.max);
+      }
+
+      // Limit to 3 decimal places
+      return parseFloat(val.toFixed(3));
+    }
+
+    return <WickTextInput
+    {...this.props}
+    className={classNames("wick-input", "numeric", {"read-only":this.props.readOnly}, this.props.className)}
+    cleanUp={cleanUp}
+    isValid={isValid}/>
   }
 
   renderText = () => {
-    return (
-      <TimedChangeInput
-         className={classNames("wick-input", {"read-only":this.props.readOnly})}
+
+    return <WickTextInput
          {...this.props}
-          value={this.props.value ? this.props.value : ''}
-          onChange={this.props.onChange} />
-    );
+         className={classNames("wick-input", {"read-only":this.props.readOnly}, this.props.className)}
+         value={this.props.value ? this.props.value : ''}/>
   }
 
   renderSlider = () => {
@@ -173,6 +191,7 @@ class WickInput extends Component {
         onChange={this.props.onChange}
         defaultValue={value}
         options={this.props.options}
+        className={classNames("wick-input-select", this.props.className)}
         styles={{
         option: (provided, state) => {
           let style = {
@@ -185,19 +204,6 @@ class WickInput extends Component {
           };
           if (this.props.className === "font-family") {
             style.fontFamily = state.label;
-          }
-          return style;
-        },
-        control: () => {
-          let style = {
-            color: "black",
-            fontSize: "16px",
-            backgroundColor: "white",
-            display: "flex", 
-            height: "26px"
-          };
-          if (this.props.className === "font-family") {
-            style.fontFamily = this.props.value;
           }
           return style;
         }}}

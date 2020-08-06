@@ -20,7 +20,7 @@
 @import 'Editor/_wickbrand.scss';
 @import '../toolsettings.scss'; 
 
-$settings-input-size: 55px;
+$settings-input-size: 40px;
 
 .settings-text-label {
   color: $editor-primary-property-text;
@@ -42,12 +42,12 @@ $settings-input-size: 55px;
 }
 
 .settings-numeric-wick-input-container {
-  width: calc(1 * #{$settings-input-size});
+  width: calc(#{$settings-input-size});
   margin-right: 4px;
 }
 
 .settings-numeric-slider {
-  width: calc(1 * #{$settings-input-size});
+  width: calc(#{$settings-input-size});
 }
 
 .settings-checkbox-input {
