@@ -118,8 +118,8 @@
         let curve = c.clone();
         let r1 = direction / curve.getCurvatureAtTime(0);
         let r2 = direction / curve.getCurvatureAtTime(1);
-        let scale1 = Math.max(Math.min((r1 - GAP_FILL) / r1, 2), -2);
-        let scale2 = Math.max(Math.min((r2 - GAP_FILL) / r2, 2), -2);
+        let scale1 = Math.max(Math.min((r1 - GAP_FILL) / r1, 2), 0);
+        let scale2 = Math.max(Math.min((r2 - GAP_FILL) / r2, 2), 0);
         let n1 = curve.getNormalAtTime(0).multiply(-direction).normalize(GAP_FILL);
         let n2 = curve.getNormalAtTime(1).multiply(-direction).normalize(GAP_FILL);
         curve.point1 = curve.point1.add(n1);

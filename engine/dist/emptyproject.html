@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.8.5.12.30.6";
+var WICK_ENGINE_BUILD_VERSION = "2020.8.7.13.42.45";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -46336,7 +46336,7 @@ Wick.ToolSettings = class {
     }, {
       type: "number",
       name: 'fillSmoothing',
-      default: 25,
+      default: 100,
       min: 0,
       max: 100,
       step: 1
@@ -59807,8 +59807,8 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     let curve = c.clone();
     let r1 = direction / curve.getCurvatureAtTime(0);
     let r2 = direction / curve.getCurvatureAtTime(1);
-    let scale1 = Math.max(Math.min((r1 - GAP_FILL) / r1, 2), -2);
-    let scale2 = Math.max(Math.min((r2 - GAP_FILL) / r2, 2), -2);
+    let scale1 = Math.max(Math.min((r1 - GAP_FILL) / r1, 2), 0);
+    let scale2 = Math.max(Math.min((r2 - GAP_FILL) / r2, 2), 0);
     let n1 = curve.getNormalAtTime(0).multiply(-direction).normalize(GAP_FILL);
     let n2 = curve.getNormalAtTime(1).multiply(-direction).normalize(GAP_FILL);
     curve.point1 = curve.point1.add(n1);
