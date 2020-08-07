@@ -42,10 +42,12 @@
   height: 100%;
   color: $editor-primary-property-text;
   white-space: nowrap;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: bold;
   overflow: hidden;
   text-align: right;
+  align-items: center;
+  justify-content: center;
   padding-right: $outliner-element-padding;
   padding-left: 0;
   margin-top: 3px;
