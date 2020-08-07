@@ -111,6 +111,7 @@ gulp.task("default", function() {
       'src/tools/Text.js',
       'src/tools/Zoom.js',
       'src/view/paper-ext/Layer.erase.js',
+      //'src/view/paper-ext/Offsets/PaperJsExtensions.js',
       'src/view/paper-ext/Paper.hole.js',
       'src/view/paper-ext/Paper.OrderingUtils.js',
       'src/view/paper-ext/Paper.SelectionWidget.js',
