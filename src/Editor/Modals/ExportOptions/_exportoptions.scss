@@ -141,6 +141,7 @@ $info-left-margin: 12px;
 .export-modal-advanced-option-title {
   color: white;
   font-size: 18px;
+  margin-bottom: 0;
 }
 
 .export-modal-advanced-option-label {
@@ -163,7 +164,7 @@ $info-left-margin: 12px;
 .export-modal-resolution-label {
   text-align: left;
   color: $editor-modal-text-gray; 
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .export-modal-resolution-input-container {
@@ -175,6 +176,7 @@ $info-left-margin: 12px;
 .export-modal-resolution-dropdown-container {
   vertical-align: middle;
   width: 50%;
+  margin-top: auto;
 }
 
 .export-modal-resolution-inputs-container {

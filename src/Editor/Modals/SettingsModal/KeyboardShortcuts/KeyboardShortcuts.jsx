@@ -20,6 +20,7 @@
 import React, { Component } from 'react';
 import { recordKeyCombination } from 'react-hotkeys';
 import ActionButton from 'Editor/Util/ActionButton/ActionButton'; 
+import HotKeyInterface from 'Editor/hotKeyMap.js';
 
 import './_keyboardshortcuts.scss';
 
@@ -60,7 +61,7 @@ class KeyboardShortcuts extends Component {
       sequence = '';
     } else if (typeof sequence === 'object') {
       // Swap text for icons.
-      let key = this.replaceKeys(sequence['sequence']);
+      let key = HotKeyInterface.replaceKeys(sequence['sequence']);
       let action = sequence['action'] ? '+' + sequence['action'] : '';
       sequence = key + action;
     }
@@ -80,32 +81,6 @@ class KeyboardShortcuts extends Component {
         })}
       </button>
     );
-  }
-
-  // Replaces keys with symbols.
-  replaceKeys = (str) => {
-    const keys = [
-      ['shift', '⇪'],
-      ['Shift', '⇪'],
-      ['left', '⇦'],
-      ['Left', '⇦'],
-      ['right', '⇨'],
-      ['Right', '⇨'],
-      ['up', '⇧'],
-      ['Up', '⇧'],
-      ['down', '⇩'],
-      ['Down', '⇩'],
-      ['command', '⌘'],
-      ['Command', '⌘'],
-    ]
-
-    let newStr = str;
-
-    keys.forEach(swap => {
-      newStr = newStr.replace(swap[0], swap[1]);
-    });
-
-    return newStr;
   }
 
   // Returns the action if it is edited, undefined otherwise.

@@ -195,29 +195,29 @@ class ExportOptions extends Component {
             </div>
 
             <div className="export-modal-resolution-inputs-container">
-              <span className="export-modal-resolution-input-container">
+              <div className="export-modal-resolution-input-container">
                 <label htmlFor="export width" className="export-modal-resolution-label">
-                  Width (px)
+                  W (px)
                 </label>
                 <WickInput
                 id="export width"
                 type="numeric"
                 value={this.state.exportWidth}
-                onChange={(val) => {this.updateExportSize(val, this.state.exportWidth)}}
+                onChange={(val) => {this.updateExportSize(val, this.state.exportHeight)}}
                 />
-              </span>
+              </div>
               <span><div className="export-modal-x-symbol">x</div></span>
-              <span className="export-modal-resolution-input-container">
+              <div className="export-modal-resolution-input-container">
                 <label htmlFor="export height" className="export-modal-resolution-label">
-                  Height (px)
+                  H (px)
                 </label>
                 <WickInput
                 id="export height"
                 type="numeric"
                 value={this.state.exportHeight}
-                onChange={(val) => {this.updateExportSize(this.state.exportHeight, val)}}
+                onChange={(val) => {this.updateExportSize(this.state.exportWidth, val)}}
                 />
-              </span>
+              </div>
             </div>
           </div>
         </div>

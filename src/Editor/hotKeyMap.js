@@ -666,6 +666,52 @@ class HotKeyInterface extends Object {
 
     return map;
   }
+
+  // Replaces keys with symbols.
+  static replaceKeys (str) {
+    const keys = [
+      ['shift', '⇪'],
+      ['Shift', '⇪'],
+      ['arrowleft', '⇨'],
+      ['left', '⇦'],
+      ['Left', '⇦'],
+      ['arrowright', '⇨'],
+      ['right', '⇨'],
+      ['Right', '⇨'],
+      ['arrowup', '⇧'],
+      ['up', '⇧'],
+      ['Up', '⇧'],
+      ['arrowdown', '⇩'],
+      ['down', '⇩'],
+      ['Down', '⇩'],
+      ['command', '⌘'],
+      ['Command', '⌘'],
+    ]
+
+    let newStr = str;
+
+    keys.forEach(swap => {
+      newStr = newStr.replace(swap[0], swap[1]);
+    });
+
+    return newStr;
+  }
+
+  /**
+   * Returns the first hotkey associated with an action from a keymap.
+   * @param {Object} keymap - Keymap object
+   * @param {string} action - String representing an action in the editor. i.e. 'activate-zoom'. 
+   */
+  static getHotKey (keymap, action) {
+    if (!keymap) return '';
+    if (!action) return '';
+
+    let option = keymap[action];
+    if (!option) return '';
+    if (!option.sequences || !option.sequences[0]) return '';
+
+    return option.sequences[0];
+  }
 }
 
 export default HotKeyInterface;

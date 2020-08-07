@@ -916,6 +916,7 @@ class Editor extends EditorCore {
                       changeColorPickerType={this.changeColorPickerType}
                       updateLastColors={this.updateLastColors}
                       lastColorsUsed={this.state.lastColorsUsed}
+                      keyMap={this.getKeyMap()}
                       renderSize={renderSize}
                     />
                   </DockedPanel>
@@ -957,6 +958,7 @@ class Editor extends EditorCore {
                               previewPlaying={this.state.previewPlaying}
                               togglePreviewPlaying={this.togglePreviewPlaying}
                               renderSize={renderSize}
+                              keyMap={this.getKeyMap()}
                             />
                             {renderSize === "small" &&
                             <DeleteCopyPaste

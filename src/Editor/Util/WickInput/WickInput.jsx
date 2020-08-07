@@ -24,7 +24,7 @@ import Select from 'react-select';
 import 'react-dropdown/style.css';
 
 import ColorPicker from 'Editor/Util/ColorPicker/ColorPicker';
-import ReactTooltip from 'react-tooltip'
+import ReactTooltip from 'react-tooltip';
 import WickButton from './WickButton/WickButton';
 
 import { Input } from 'reactstrap';

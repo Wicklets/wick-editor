@@ -77,11 +77,20 @@ export default function ActionButton (props) {
     }
   }
 
+  function getTooltip () {
+    let hotkey = props.tooltipHotkey;
+
+    if (props.tooltip) {
+      if (hotkey) return props.tooltip + ` (${hotkey.toUpperCase()})`;
+      return props.tooltip
+    }
+  }
+
   return (
     <div className={newClassName}>
       <WickInput
         buttonProps={props.buttonProps}
-        tooltip={props.tooltip}
+        tooltip={getTooltip()}
         tooltipID={tooltipID}
         tooltipPlace={props.tooltipPlace}
         className={finalColorClassName}

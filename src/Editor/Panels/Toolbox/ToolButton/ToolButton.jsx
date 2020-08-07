@@ -18,7 +18,7 @@
  */
 
 import React, { Component } from 'react';
-
+import HotKeyInterface from 'Editor/hotKeyMap';
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 
 import './_toolbutton.scss';
@@ -31,6 +31,10 @@ class ToolButton extends Component {
 
     this.actionDefault = this.props.setActiveTool ?  () => this.props.setActiveTool(this.props.name) : null;
   }
+
+  getHotKey = (action) => {
+    return HotKeyInterface.getHotKey(this.props.keyMap, action);
+  }
   
   renderSelectButton = () => {
     return (
@@ -39,6 +43,7 @@ class ToolButton extends Component {
         isActive={ () => this.props.getActiveToolName() === this.props.name }
         id={"tool-button-" + this.props.name}
         tooltip={this.props.tooltip}
+        tooltipHotkey={this.getHotKey('activate-' + this.props.name)}
         action={this.props.action ? this.props.action : this.actionDefault}
         secondaryAction={this.props.secondaryAction}
         tooltipPlace={this.props.tooltipPlace ? this.props.tooltipPlace : "bottom"}

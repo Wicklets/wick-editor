@@ -182,7 +182,7 @@ class ToolIcon extends Component {
       "zoom":iconZoom,
       "zoomin":iconZoomIn,
       "zoomout":iconZoomOut,
-      "fillbucket": iconFillBucket,
+      "fill": iconFillBucket,
       "pathcursor": iconPathCursor,
       "copy": iconCopy,
       "paste": iconPaste,

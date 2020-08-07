@@ -2,11 +2,17 @@ import React, { Component } from 'react';
 
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import PlayButton from 'Editor/Util/PlayButton/PlayButton';
+import ReactTooltip from 'react-tooltip';
+import HotKeyInterface from 'Editor/hotKeyMap';
 import './_canvastransforms.scss';
 
 var classNames = require('classnames');
 
 class CanvasTransforms extends Component {
+  getHotkey (action) {
+    return HotKeyInterface.getHotKey(this.props.keyMap, action);
+  }
+
   renderTransformButton(options) {
     return (
       <ActionButton
@@ -14,8 +20,9 @@ class CanvasTransforms extends Component {
         isActive={ options.isActive ? options.isActive : () => this.props.activeToolName === options.name }
         id={"canvas-transform-button-" + options.name}
         tooltip={options.tooltip}
-        action={options.action}
         tooltipPlace={"top"}
+        tooltipHotkey={this.getHotkey(options.tooltipHotkey)}
+        action={options.action}
         icon={options.name}
         className={classNames("canvas-transform-button", options.className)}
         buttonClassName={"canvas-transform-wick-button"}
@@ -33,12 +40,14 @@ class CanvasTransforms extends Component {
           tooltip:'Onion Skinning',
           className:'canvas-transform-item onion-skin-button',
           isActive:(() => {return this.props.onionSkinEnabled}),
+          tooltipHotkey: 'toggle-onion-skinning'
         })}
         {this.renderTransformButton({
           action: (() => this.props.setActiveTool('pan')),
           name: 'pan',
           tooltip: 'Pan',
-          className:'canvas-transform-item'
+          className:'canvas-transform-item',
+          tooltipHotkey: 'activate-pan'
         })}
         {this.renderZoomIn()}
         {this.renderZoomTool()}
@@ -112,7 +121,8 @@ class CanvasTransforms extends Component {
           action: (() => this.props.setActiveTool('zoom')),
           name: 'zoom',
           tooltip: 'Zoom',
-          className: 'zoom-tool'
+          className: 'zoom-tool',
+          tooltipHotkey: 'activate-zoom'
         })}
       </div>
     )
@@ -135,12 +145,32 @@ class CanvasTransforms extends Component {
       });
   }
 
+  renderPlayButtonTooltip = () => {
+    // Detect if on mobile to disable tooltips.
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+    return (
+      <ReactTooltip
+        disable={isMobile}
+        id={'play-button-object'}
+        type='info'
+        place={'top'}
+        effect='solid'
+        aria-haspopup='true'
+        className="wick-tooltip">
+        <span>{`Preview Play (${this.getHotkey('preview-play-toggle').toUpperCase()})`}</span>
+      </ReactTooltip>
+    )
+  }
+
   render () {
     return (
       <div className={classNames("canvas-transforms-widget", this.props.renderSize === "small" && "mobile")}>
         {!this.props.previewPlaying && this.renderTransformations()}
         <div className="play-button-container">
+          {this.renderPlayButtonTooltip()}
           <PlayButton
+            id="play-button-object"
             className="play-button canvas-transform-button"
             playing={this.props.previewPlaying}
             action={this.props.togglePreviewPlaying}/>
