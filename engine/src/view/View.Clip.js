@@ -59,6 +59,65 @@ Wick.View.Clip = class extends Wick.View {
         return this.group.bounds;
     }
 
+    get minimumDisk () {
+        console.log(this.group);
+        
+        let points = this.pointsFromGroup(this.group);
+        
+        if (points.length === 0) {
+            return [new paper.Point(0, 0), 0];
+        }
+        
+        return this.smallestEnclosingDisk(points, []);
+    }
+
+    /*// Requires either R.length > 0 or P.length > 0
+    smallestEnclosingDisk (P, R) {
+        if (R.length === 3) {
+
+        }
+        else if (P.length === 0) {
+            if (R.length === 1) {
+
+            }
+            else { //R.length === 2
+
+            }
+        }
+        else {
+            
+        }
+    }*/
+
+    pointsFromGroup (group) {
+        var points = [];
+        for (let i = 0; i < group.children.length; i++) {
+            let child = group.children[i];
+            if (child.className === 'Layer') {
+                for (let j = 0; j < child.children.length; j++) {
+                    let item = child.children[i];
+                    if (item.className === 'Path') {
+                        for (let s = 0; s < item.segments.length; s++) {
+                            points.push(item.segments[s].point);
+                        }
+                    }
+                    else if (item.className === 'CompoundPath') {
+                        for (let p = 0; p < item.children.length; p++) {
+                            let path = item.children[p];
+                            for (let s = 0; s < path.segments.length; s++) {
+                                points.push(path.segments[s].point)
+                            }
+                        }
+                    }
+                    else if (item.className === 'Group') {
+                        points.concat(this.pointsFromGroup(item));
+                    }
+                }
+            }
+        }
+        return points;
+    }
+
     render () {
         // Prevent an unselectable object from being rendered
         // due to a clip having no content on the first frame.

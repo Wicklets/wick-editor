@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.8.5.12.30.6";
+var WICK_ENGINE_BUILD_VERSION = "2020.8.6.16.24.35";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -56714,8 +56714,49 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   hitTest(other) {
-    // TODO: Refactor so that getting bounds does not rely on the view
-    return this.view.absoluteBounds.intersects(other.view.absoluteBounds);
+    //console.log(this.view.group, other.view.group)
+    let bounds1 = this.view.absoluteBounds;
+    let bounds2 = other.view.absoluteBounds; // RECTANGLE
+
+    if (bounds1.intersects(bounds2)) {
+      let left = bounds2.left - bounds1.right;
+      let right = bounds2.right - bounds1.left;
+      let up = bounds2.top - bounds1.bottom;
+      let down = bounds2.bottom - bounds1.top;
+      let offsetX = Math.abs(left) < Math.abs(right) ? left : right;
+      let offsetY = Math.abs(up) < Math.abs(down) ? up : down;
+
+      if (Math.abs(offsetX) < Math.abs(offsetY)) {
+        offsetY = 0;
+      } else {
+        offsetX = 0;
+      }
+
+      return {
+        offsetX: offsetX,
+        offsetY: offsetY
+      };
+    } else {
+      return null;
+    } // CIRCLE
+    // let upperBoundRadius1 = bounds1.topLeft.getDistance(bounds1.bottomRight) / 2;
+    // let upperBoundRadius2 = bounds2.topLeft.getDistance(bounds2.bottomRight) / 2;
+    // if (upperBoundRadius1 + upperBoundRadius2 < bounds1.center.getDistance(bounds2.center)) {
+    //     return null;
+    // }
+    // let [center1, radius1] = this.view.minimumDisk;
+    // let [center2, radius2] = other.view.minimumDisk;
+    // let overlap = radius1 + radius2 - center1.getDistance(center2);
+    // if (overlap > 0) {
+    //     let x = center2.x - center1.x;
+    //     let y = center2.y - center1.y;
+    //     let length = Math.sqrt(x*x + y*y);
+    //     x = x / length;
+    //     y = y / length;
+    //     return {offsetX: overlap * x, offsetY: overlap * y};
+    // }
+    // return null;
+
   }
   /**
    * The bounding box of the clip.
@@ -62322,6 +62363,64 @@ Wick.View.Clip = class extends Wick.View {
 
   get absoluteBounds() {
     return this.group.bounds;
+  }
+
+  get minimumDisk() {
+    console.log(this.group);
+    let points = this.pointsFromGroup(this.group);
+
+    if (points.length === 0) {
+      return [new paper.Point(0, 0), 0];
+    }
+
+    return this.smallestEnclosingDisk(points, []);
+  }
+  /*// Requires either R.length > 0 or P.length > 0
+  smallestEnclosingDisk (P, R) {
+      if (R.length === 3) {
+        }
+      else if (P.length === 0) {
+          if (R.length === 1) {
+            }
+          else { //R.length === 2
+            }
+      }
+      else {
+          
+      }
+  }*/
+
+
+  pointsFromGroup(group) {
+    var points = [];
+
+    for (let i = 0; i < group.children.length; i++) {
+      let child = group.children[i];
+
+      if (child.className === 'Layer') {
+        for (let j = 0; j < child.children.length; j++) {
+          let item = child.children[i];
+
+          if (item.className === 'Path') {
+            for (let s = 0; s < item.segments.length; s++) {
+              points.push(item.segments[s].point);
+            }
+          } else if (item.className === 'CompoundPath') {
+            for (let p = 0; p < item.children.length; p++) {
+              let path = item.children[p];
+
+              for (let s = 0; s < path.segments.length; s++) {
+                points.push(path.segments[s].point);
+              }
+            }
+          } else if (item.className === 'Group') {
+            points.concat(this.pointsFromGroup(item));
+          }
+        }
+      }
+    }
+
+    return points;
   }
 
   render() {
