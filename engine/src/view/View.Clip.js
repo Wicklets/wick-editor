@@ -59,63 +59,44 @@ Wick.View.Clip = class extends Wick.View {
         return this.group.bounds;
     }
 
-    get minimumDisk () {
-        console.log(this.group);
-        
-        let points = this.pointsFromGroup(this.group);
-        
-        if (points.length === 0) {
-            return [new paper.Point(0, 0), 0];
-        }
-        
-        return this.smallestEnclosingDisk(points, []);
+    get radius () {
+        let center = this.absoluteBounds.center;
+        let convert = (point) => point.getDistance(center, true);
+        let compare = (a, b) => Math.max(a,b);
+        let initial = 0;
+
+        return Math.sqrt(this.reducePointsFromGroup(this.group, initial, convert, compare));
     }
 
-    /*// Requires either R.length > 0 or P.length > 0
-    smallestEnclosingDisk (P, R) {
-        if (R.length === 3) {
-
-        }
-        else if (P.length === 0) {
-            if (R.length === 1) {
-
-            }
-            else { //R.length === 2
-
-            }
-        }
-        else {
-            
-        }
-    }*/
-
-    pointsFromGroup (group) {
-        var points = [];
+    reducePointsFromGroup (group, initial, convert, compare) {
+        let val = initial;
         for (let i = 0; i < group.children.length; i++) {
             let child = group.children[i];
             if (child.className === 'Layer') {
                 for (let j = 0; j < child.children.length; j++) {
                     let item = child.children[i];
                     if (item.className === 'Path') {
+                        let matrix = item.globalMatrix;
                         for (let s = 0; s < item.segments.length; s++) {
-                            points.push(item.segments[s].point);
+                            val = compare(val, convert(matrix.transform(item.segments[s].point)));
                         }
                     }
                     else if (item.className === 'CompoundPath') {
                         for (let p = 0; p < item.children.length; p++) {
                             let path = item.children[p];
+                            let matrix = item.globalMatrix;
                             for (let s = 0; s < path.segments.length; s++) {
-                                points.push(path.segments[s].point)
+                                val = compare(val, convert(matrix.transform(path.segments[s].point)));
                             }
                         }
                     }
                     else if (item.className === 'Group') {
-                        points.concat(this.pointsFromGroup(item));
+                        val = compare(val, this.reducePointsFromGroup(item));
                     }
                 }
             }
         }
-        return points;
+        return val;
     }
 
     render () {

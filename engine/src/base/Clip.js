@@ -525,46 +525,49 @@ Wick.Clip = class extends Wick.Tickable {
         let bounds2 = other.view.absoluteBounds;
 
         // RECTANGLE
-        if (bounds1.intersects(bounds2)) {
-            let left = bounds2.left - bounds1.right;
-            let right = bounds2.right - bounds1.left;
-            let up = bounds2.top - bounds1.bottom;
-            let down = bounds2.bottom - bounds1.top;
-            let offsetX = Math.abs(left) < Math.abs(right) ? left : right;
-            let offsetY = Math.abs(up) < Math.abs(down) ? up : down;
-            if (Math.abs(offsetX) < Math.abs(offsetY)) {
-                offsetY = 0;
-            }
-            else {
-                offsetX = 0;
-            }
-            return {offsetX: offsetX, offsetY: offsetY};
-        }
-        else {
-            return null;
-        }
-
-        // CIRCLE
-        // let upperBoundRadius1 = bounds1.topLeft.getDistance(bounds1.bottomRight) / 2;
-        // let upperBoundRadius2 = bounds2.topLeft.getDistance(bounds2.bottomRight) / 2;
-        // if (upperBoundRadius1 + upperBoundRadius2 < bounds1.center.getDistance(bounds2.center)) {
+        // if (bounds1.intersects(bounds2)) {
+        //     let left = bounds2.left - bounds1.right;
+        //     let right = bounds2.right - bounds1.left;
+        //     let up = bounds2.top - bounds1.bottom;
+        //     let down = bounds2.bottom - bounds1.top;
+        //     let offsetX = Math.abs(left) < Math.abs(right) ? left : right;
+        //     let offsetY = Math.abs(up) < Math.abs(down) ? up : down;
+        //     if (Math.abs(offsetX) < Math.abs(offsetY)) {
+        //         offsetY = 0;
+        //     }
+        //     else {
+        //         offsetX = 0;
+        //     }
+        //     return {offsetX: offsetX, offsetY: offsetY};
+        // }
+        // else {
         //     return null;
         // }
 
-        // let [center1, radius1] = this.view.minimumDisk;
-        // let [center2, radius2] = other.view.minimumDisk;
+        // CIRCLE
+        let upperBoundRadius1 = bounds1.topLeft.getDistance(bounds1.bottomRight) / 2;
+        let upperBoundRadius2 = bounds2.topLeft.getDistance(bounds2.bottomRight) / 2;
+        if (upperBoundRadius1 + upperBoundRadius2 < bounds1.center.getDistance(bounds2.center)) {
+            return null;
+        }
 
-        // let overlap = radius1 + radius2 - center1.getDistance(center2);
-        // if (overlap > 0) {
-        //     let x = center2.x - center1.x;
-        //     let y = center2.y - center1.y;
-        //     let length = Math.sqrt(x*x + y*y);
-        //     x = x / length;
-        //     y = y / length;
-        //     return {offsetX: overlap * x, offsetY: overlap * y};
-        // }
+        let c1 = bounds1.center;
+        let c2 = bounds2.center;
 
-        // return null;
+        let r1 = this.view.radius;
+        let r2 = other.view.radius;
+
+        let overlap = r1 + r2 - c1.getDistance(c2);
+        if (overlap > 0) {
+            let x = c1.x - c2.x;
+            let y = c1.y - c2.y;
+            let length = Math.sqrt(x*x + y*y);
+            x = x / length;
+            y = y / length;
+            return {offsetX: overlap * x, offsetY: overlap * y};
+        }
+
+        return null;
     }
 
     /**
