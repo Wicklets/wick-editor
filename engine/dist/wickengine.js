@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.8.10.14.21.46";
+var WICK_ENGINE_BUILD_VERSION = "2020.8.10.15.54.16";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -56720,7 +56720,7 @@ Wick.Clip = class extends Wick.Tickable {
     // else {
     //     return null;
     // }
-    // CIRCLE
+    //CIRCLE
 
     let upperBoundRadius1 = bounds1.topLeft.getDistance(bounds1.bottomRight) / 2;
     let upperBoundRadius2 = bounds2.topLeft.getDistance(bounds2.bottomRight) / 2;
@@ -62346,6 +62346,7 @@ Wick.View.Clip = class extends Wick.View {
     this.group.remove();
     this.group.applyMatrix = false;
     this._bounds = new paper.Rectangle();
+    this._radius = null;
   }
 
   get bounds() {
@@ -62357,6 +62358,10 @@ Wick.View.Clip = class extends Wick.View {
   }
 
   get radius() {
+    if (this._radius) {
+      return this._radius;
+    }
+
     let center = this.absoluteBounds.center;
 
     let convert = point => point.getDistance(center, true);
@@ -62364,7 +62369,8 @@ Wick.View.Clip = class extends Wick.View {
     let compare = (a, b) => Math.max(a, b);
 
     let initial = 0;
-    return Math.sqrt(this.reducePointsFromGroup(this.group, initial, convert, compare));
+    this._radius = Math.sqrt(this.reducePointsFromGroup(this.group, initial, convert, compare));
+    return this._radius;
   }
 
   reducePointsFromGroup(group, initial, convert, compare) {
@@ -62419,6 +62425,7 @@ Wick.View.Clip = class extends Wick.View {
 
     this.group.matrix.set(new paper.Matrix());
     this._bounds = this.group.bounds.clone();
+    this._radius = null;
     this.group.pivot = new this.paper.Point(0, 0);
     this.group.position.x = this.model.transformation.x;
     this.group.position.y = this.model.transformation.y;

@@ -544,7 +544,7 @@ Wick.Clip = class extends Wick.Tickable {
         //     return null;
         // }
 
-        // CIRCLE
+        //CIRCLE
         let upperBoundRadius1 = bounds1.topLeft.getDistance(bounds1.bottomRight) / 2;
         let upperBoundRadius2 = bounds2.topLeft.getDistance(bounds2.bottomRight) / 2;
         if (upperBoundRadius1 + upperBoundRadius2 < bounds1.center.getDistance(bounds2.center)) {

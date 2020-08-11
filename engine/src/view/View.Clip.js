@@ -49,6 +49,7 @@ Wick.View.Clip = class extends Wick.View {
         this.group.applyMatrix = false;
 
         this._bounds = new paper.Rectangle();
+        this._radius = null;
     }
 
     get bounds () {
@@ -60,12 +61,18 @@ Wick.View.Clip = class extends Wick.View {
     }
 
     get radius () {
+        if (this._radius) {
+            return this._radius;
+        }
+
         let center = this.absoluteBounds.center;
         let convert = (point) => point.getDistance(center, true);
         let compare = (a, b) => Math.max(a,b);
         let initial = 0;
 
-        return Math.sqrt(this.reducePointsFromGroup(this.group, initial, convert, compare));
+        this._radius = Math.sqrt(this.reducePointsFromGroup(this.group, initial, convert, compare));
+
+        return this._radius;
     }
 
     reducePointsFromGroup (group, initial, convert, compare) {
@@ -120,6 +127,7 @@ Wick.View.Clip = class extends Wick.View {
         // Update transformations
         this.group.matrix.set(new paper.Matrix());
         this._bounds = this.group.bounds.clone();
+        this._radius = null;
 
         this.group.pivot = new this.paper.Point(0,0);
         this.group.position.x = this.model.transformation.x;
