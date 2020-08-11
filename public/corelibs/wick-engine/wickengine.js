@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.8.10.15.54.16";
+var WICK_ENGINE_BUILD_VERSION = "2020.8.11.15.38.15";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -46566,7 +46566,7 @@ GlobalAPI = class {
     return ['stop', 'play', 'gotoAndStop', 'gotoAndPlay', 'gotoNextFrame', 'gotoPrevFrame', // These are currently disabled, they are very slow for some reason.
     // They are currently hacked in inside Tickable._runFunction
     //'project','root','parent','parentObject',
-    'isMouseDown', 'mouseX', 'mouseY', 'mouseMoveX', 'mouseMoveY', 'key', 'keys', 'isKeyDown', 'keyIsDown', 'isKeyJustPressed', 'keyIsJustPressed', 'random', 'playSound', 'stopAllSounds', 'onEvent', 'hideCursor', 'showCursor'];
+    'isMouseDown', 'mouseX', 'mouseY', 'mouseMoveX', 'mouseMoveY', 'key', 'keys', 'isKeyDown', 'keyIsDown', 'isKeyJustPressed', 'keyIsJustPressed', 'random', 'playSound', 'stopAllSounds', 'onEvent', 'hideCursor', 'showCursor', 'hitTestOptions'];
   }
   /**
    * @param {object} scriptOwner The tickable object which owns the script being evaluated.
@@ -46648,6 +46648,10 @@ GlobalAPI = class {
   gotoPrevFrame() {
     this.scriptOwner.parentClip.gotoPrevFrame();
   }
+
+  hitTestOptions(options) {
+    this.scriptOwner.project.hitTestOptions = options;
+  }
   /**
    * Returns an object representing the project with properties such as width, height, framerate, background color, and name.
    * @returns {object} Project object.
@@ -46664,6 +46668,7 @@ GlobalAPI = class {
       project.framerate = this.scriptOwner.project.framerate;
       project.backgroundColor = this.scriptOwner.project.backgroundColor;
       project.name = this.scriptOwner.project.name;
+      project.hitTestOptions = this.scriptOwner.project.hitTestOptions;
     }
 
     return project;
@@ -49350,6 +49355,12 @@ Wick.Project = class extends Wick.Base {
     this._height = args.height || 480;
     this._framerate = args.framerate || 12;
     this._backgroundColor = args.backgroundColor || new Wick.Color('#ffffff');
+    this._hitTestOptions = {
+      mode: 'RECTANGLE',
+      offset: true,
+      overlap: true,
+      intersections: false
+    };
     this.pan = {
       x: 0,
       y: 0
@@ -49559,6 +49570,30 @@ Wick.Project = class extends Wick.Base {
 
   set backgroundColor(backgroundColor) {
     this._backgroundColor = backgroundColor;
+  }
+
+  get hitTestOptions() {
+    return this._hitTestOptions;
+  }
+
+  set hitTestOptions(options) {
+    if (options) {
+      if (options.mode === 'CIRCLE' || options.mode === 'RECTANGLE') {
+        this._hitTestOptions.mode = options.mode;
+      }
+
+      if (typeof options.offset === 'boolean') {
+        this._hitTestOptions.offset = options.offset;
+      }
+
+      if (typeof options.overlap === 'boolean') {
+        this._hitTestOptions.overlap = options.overlap;
+      }
+
+      if (typeof options.intersections === 'boolean') {
+        this._hitTestOptions.intersections = options.intersections;
+      }
+    }
   }
   /**
    * The timeline of the active clip.
@@ -55321,6 +55356,7 @@ Wick.Tickable = class extends Wick.Base {
       };
       window.project.framerate = project.framerate;
       window.project.backgroundColor = project.backgroundColor;
+      window.project.hitTestOptions = project.hitTestOptions;
     }
 
     window.root = root;
@@ -56691,36 +56727,30 @@ Wick.Clip = class extends Wick.Tickable {
       }
     }
   }
-  /**
-   * Returns true if this clip collides with another clip.
-   * @param {Wick.Clip} other - The other clip to check collision with.
-   * @returns {boolean} True if this clip collides the other clip.
-   */
 
-
-  hitTest(other) {
-    //console.log(this.view.group, other.view.group)
+  circleHits(other, options) {
     let bounds1 = this.view.absoluteBounds;
-    let bounds2 = other.view.absoluteBounds; // RECTANGLE
-    // if (bounds1.intersects(bounds2)) {
-    //     let left = bounds2.left - bounds1.right;
-    //     let right = bounds2.right - bounds1.left;
-    //     let up = bounds2.top - bounds1.bottom;
-    //     let down = bounds2.bottom - bounds1.top;
-    //     let offsetX = Math.abs(left) < Math.abs(right) ? left : right;
-    //     let offsetY = Math.abs(up) < Math.abs(down) ? up : down;
-    //     if (Math.abs(offsetX) < Math.abs(offsetY)) {
-    //         offsetY = 0;
-    //     }
-    //     else {
-    //         offsetX = 0;
-    //     }
-    //     return {offsetX: offsetX, offsetY: offsetY};
-    // }
-    // else {
-    //     return null;
-    // }
-    //CIRCLE
+    let bounds2 = other.view.absoluteBounds;
+    let c1 = bounds1.center;
+    let c2 = bounds2.center;
+    let distance = c1.getDistance(c2);
+
+    if (options.radius) {
+      if (distance < options.radius * 2) {
+        let result = {};
+
+        if (options.overlap) {}
+
+        if (options.offset) {}
+
+        if (options.intersections) {}
+
+        return result;
+      } else {
+        return null;
+      }
+    } // efficient check first
+
 
     let upperBoundRadius1 = bounds1.topLeft.getDistance(bounds1.bottomRight) / 2;
     let upperBoundRadius2 = bounds2.topLeft.getDistance(bounds2.bottomRight) / 2;
@@ -56729,25 +56759,149 @@ Wick.Clip = class extends Wick.Tickable {
       return null;
     }
 
-    let c1 = bounds1.center;
-    let c2 = bounds2.center;
     let r1 = this.view.radius;
     let r2 = other.view.radius;
-    let overlap = r1 + r2 - c1.getDistance(c2);
+    let overlap = r1 + r2 - distance;
 
     if (overlap > 0) {
       let x = c1.x - c2.x;
       let y = c1.y - c2.y;
       let length = Math.sqrt(x * x + y * y);
       x = x / length;
-      y = y / length;
-      return {
-        offsetX: overlap * x,
-        offsetY: overlap * y
-      };
+      y = y / length; // <x,y> is now a normalized vector from c2 to c1 
+
+      let result = {};
+
+      if (options.overlap) {
+        result.overlapX = overlap * x;
+        result.overlapY = overlap * y;
+      }
+
+      if (options.offset) {
+        result.offsetX = overlap * x;
+        result.offsetY = overlap * y;
+      }
+
+      if (options.intersections) {
+        // TODO
+        result.intersections = [];
+      }
+
+      return result;
     }
 
     return null;
+  }
+
+  rectangleHits(other, options) {
+    let bounds1 = this.view.absoluteBounds;
+    let bounds2 = other.view.absoluteBounds;
+
+    if (bounds1.intersects(bounds2)) {
+      let result = {};
+
+      if (options.overlap) {
+        let left = bounds2.left - bounds1.right;
+        let right = bounds2.right - bounds1.left;
+        let up = bounds2.top - bounds1.bottom;
+        let down = bounds2.bottom - bounds1.top;
+        let overlapX = Math.abs(left) < Math.abs(right) ? left : right;
+        let overlapY = Math.abs(up) < Math.abs(down) ? up : down;
+
+        if (Math.abs(overlapX) < Math.abs(overlapY)) {
+          overlapY = 0;
+        } else {
+          overlapX = 0;
+        }
+
+        result.overlapX = overlapX;
+        result.overlapY = overlapY;
+      }
+
+      if (options.offset) {
+        let vectorX = bounds1.center.x - bounds2.center.x;
+        let vectorY = bounds1.center.y - bounds2.center.y;
+        let magnitude = Math.sqrt(vectorX * vectorX + vectorY * vectorY);
+        vectorX /= magnitude;
+        vectorY /= magnitude;
+        let p1, p2;
+
+        if (vectorX > 0) {
+          if (vectorY > 0) {
+            p1 = bounds1.topLeft;
+            p2 = bounds2.bottomRight;
+          } else {
+            p1 = bounds1.bottomLeft;
+            p2 = bounds2.topRight;
+          }
+        } else {
+          if (vectorY > 0) {
+            p1 = bounds1.topRight;
+            p2 = bounds2.bottomLeft;
+          } else {
+            p1 = bounds1.bottomRight;
+            p2 = bounds2.topLeft;
+          }
+        }
+
+        if (Math.abs(p2.x - p1.x) < Math.abs((p2.y - p1.y) * vectorX / vectorY)) {
+          result.offsetX = p2.x - p1.x;
+          result.offsetY = result.offsetX * vectorY / vectorX;
+        } else {
+          result.offsetY = p2.y - p1.y;
+          result.offsetX = result.offsetY * vectorX / vectorY;
+        }
+      }
+
+      if (options.intersections) {
+        // TODO
+        result.intersections = [];
+      }
+
+      return result;
+    } else {
+      return null;
+    }
+  }
+
+  hits(other, options) {
+    // Get hit options
+    let finalOptions = { ...this.project.hitTestOptions
+    };
+
+    if (options) {
+      if (options.mode === 'CIRCLE' || options.mode === 'RECTANGLE') {
+        finalOptions.mode = options.mode;
+      }
+
+      if (typeof options.offset === "boolean") {
+        finalOptions.offset = options.offset;
+      }
+
+      if (typeof options.overlap === "boolean") {
+        finalOptions.overlap = options.overlap;
+      }
+
+      if (typeof options.intersections === "boolean") {
+        finalOptions.intersections = options.intersections;
+      }
+    }
+
+    if (finalOptions.mode === 'CIRCLE') {
+      return this.circleHits(other, finalOptions);
+    } else {
+      return this.rectangleHits(other, finalOptions);
+    }
+  }
+  /**
+   * Returns true if this clip collides with another clip.
+   * @param {Wick.Clip} other - The other clip to check collision with.
+   * @returns {boolean} True if this clip collides the other clip.
+   */
+
+
+  hitTest(other) {
+    return this.view.absoluteBounds.intersects(other.view.absoluteBounds);
   }
   /**
    * The bounding box of the clip.

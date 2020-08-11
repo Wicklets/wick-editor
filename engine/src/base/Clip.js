@@ -513,61 +513,177 @@ Wick.Clip = class extends Wick.Tickable {
         }
     }
 
-    /**
-     * Returns true if this clip collides with another clip.
-     * @param {Wick.Clip} other - The other clip to check collision with.
-     * @returns {boolean} True if this clip collides the other clip.
-     */
-    hitTest(other) {
-        //console.log(this.view.group, other.view.group)
-
+    circleHits(other, options) {
         let bounds1 = this.view.absoluteBounds;
         let bounds2 = other.view.absoluteBounds;
 
-        // RECTANGLE
-        // if (bounds1.intersects(bounds2)) {
-        //     let left = bounds2.left - bounds1.right;
-        //     let right = bounds2.right - bounds1.left;
-        //     let up = bounds2.top - bounds1.bottom;
-        //     let down = bounds2.bottom - bounds1.top;
-        //     let offsetX = Math.abs(left) < Math.abs(right) ? left : right;
-        //     let offsetY = Math.abs(up) < Math.abs(down) ? up : down;
-        //     if (Math.abs(offsetX) < Math.abs(offsetY)) {
-        //         offsetY = 0;
-        //     }
-        //     else {
-        //         offsetX = 0;
-        //     }
-        //     return {offsetX: offsetX, offsetY: offsetY};
-        // }
-        // else {
-        //     return null;
-        // }
+        let c1 = bounds1.center;
+        let c2 = bounds2.center;
 
-        //CIRCLE
+        let distance = c1.getDistance(c2);
+
+        if (options.radius) {
+            if (distance < options.radius * 2) {
+                let result = {};
+                if (options.overlap) {
+
+                }
+                if (options.offset) {
+
+                }
+                if (options.intersections) {
+
+                }
+                return result;
+            }
+            else {
+                return null;
+            }
+        }
+
+        // efficient check first
         let upperBoundRadius1 = bounds1.topLeft.getDistance(bounds1.bottomRight) / 2;
         let upperBoundRadius2 = bounds2.topLeft.getDistance(bounds2.bottomRight) / 2;
         if (upperBoundRadius1 + upperBoundRadius2 < bounds1.center.getDistance(bounds2.center)) {
             return null;
         }
 
-        let c1 = bounds1.center;
-        let c2 = bounds2.center;
-
         let r1 = this.view.radius;
         let r2 = other.view.radius;
 
-        let overlap = r1 + r2 - c1.getDistance(c2);
+        let overlap = r1 + r2 - distance;
         if (overlap > 0) {
             let x = c1.x - c2.x;
             let y = c1.y - c2.y;
             let length = Math.sqrt(x*x + y*y);
             x = x / length;
             y = y / length;
-            return {offsetX: overlap * x, offsetY: overlap * y};
+            // <x,y> is now a normalized vector from c2 to c1 
+
+            let result = {};
+            if (options.overlap) {
+                result.overlapX = overlap * x;
+                result.overlapY = overlap * y;
+            }
+            if (options.offset) {
+                result.offsetX = overlap * x;
+                result.offsetY = overlap * y;
+            }
+            if (options.intersections) {
+                // TODO
+                result.intersections = [];
+            }
+            return result;
         }
 
         return null;
+    }
+
+    rectangleHits(other, options) {
+        let bounds1 = this.view.absoluteBounds;
+        let bounds2 = other.view.absoluteBounds;
+
+        if (bounds1.intersects(bounds2)) {
+            let result = {};
+            if (options.overlap) {
+                let left = bounds2.left - bounds1.right;
+                let right = bounds2.right - bounds1.left;
+                let up = bounds2.top - bounds1.bottom;
+                let down = bounds2.bottom - bounds1.top;
+                let overlapX = Math.abs(left) < Math.abs(right) ? left : right;
+                let overlapY = Math.abs(up) < Math.abs(down) ? up : down;
+                if (Math.abs(overlapX) < Math.abs(overlapY)) {
+                    overlapY = 0;
+                }
+                else {
+                    overlapX = 0;
+                }
+
+                result.overlapX = overlapX;
+                result.overlapY = overlapY;
+            }
+            if (options.offset) {
+                let vectorX = bounds1.center.x - bounds2.center.x;
+                let vectorY = bounds1.center.y - bounds2.center.y;
+                let magnitude = Math.sqrt(vectorX*vectorX + vectorY*vectorY);
+                vectorX /= magnitude;
+                vectorY /= magnitude;
+
+                let p1, p2;
+                if (vectorX > 0) {
+                    if (vectorY > 0) {
+                        p1 = bounds1.topLeft;
+                        p2 = bounds2.bottomRight;
+                    }
+                    else {
+                        p1 = bounds1.bottomLeft;
+                        p2 = bounds2.topRight;
+                    }
+                }
+                else {
+                    if (vectorY > 0) {
+                        p1 = bounds1.topRight;
+                        p2 = bounds2.bottomLeft;
+                    }
+                    else {
+                        p1 = bounds1.bottomRight;
+                        p2 = bounds2.topLeft;
+                    }
+                }
+                if (Math.abs(p2.x - p1.x) < Math.abs((p2.y - p1.y) * vectorX / vectorY)) {
+                    result.offsetX = p2.x - p1.x;
+                    result.offsetY = result.offsetX * vectorY / vectorX;
+                }
+                else {
+                    result.offsetY = p2.y - p1.y;
+                    result.offsetX = result.offsetY * vectorX / vectorY;
+                }
+            }
+            if (options.intersections) {
+                // TODO
+                result.intersections = [];
+            }
+
+            return result;
+        }
+        else {
+            return null;
+        }
+    }
+
+    hits(other, options) {
+        // Get hit options
+        let finalOptions = {...this.project.hitTestOptions};
+        if (options) {
+            if (options.mode === 'CIRCLE' || options.mode === 'RECTANGLE') {
+                finalOptions.mode = options.mode;
+            }
+            if (typeof options.offset === "boolean") {
+                finalOptions.offset = options.offset;
+            }
+            if (typeof options.overlap === "boolean") {
+                finalOptions.overlap = options.overlap;
+            }
+            if (typeof options.intersections === "boolean") {
+                finalOptions.intersections = options.intersections;
+            }
+        }
+
+        if (finalOptions.mode === 'CIRCLE') {
+            return this.circleHits(other, finalOptions);
+        }
+        else {
+            return this.rectangleHits(other, finalOptions);
+        }
+    }
+
+    /**
+     * Returns true if this clip collides with another clip.
+     * @param {Wick.Clip} other - The other clip to check collision with.
+     * @returns {boolean} True if this clip collides the other clip.
+     */
+    hitTest(other) {
+        return this.view.absoluteBounds.intersects(other.view.absoluteBounds);
     }
 
     /**

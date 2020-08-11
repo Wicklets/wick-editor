@@ -509,6 +509,7 @@ Wick.Tickable = class extends Wick.Base {
               window.project.resolution = {x: project.width, y: project.height};
               window.project.framerate = project.framerate;
               window.project.backgroundColor = project.backgroundColor;
+              window.project.hitTestOptions = project.hitTestOptions;
           }
           window.root = root;
           window.parent = this.parentClip;

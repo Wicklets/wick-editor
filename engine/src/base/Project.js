@@ -38,6 +38,7 @@ Wick.Project = class extends Wick.Base {
         this._height = args.height || 480;
         this._framerate = args.framerate || 12;
         this._backgroundColor = args.backgroundColor || new Wick.Color('#ffffff');
+        this._hitTestOptions = {mode: 'RECTANGLE', offset: true, overlap: true, intersections: false};
 
         this.pan = { x: 0, y: 0 };
         this.zoom = 1.0;
@@ -245,6 +246,27 @@ Wick.Project = class extends Wick.Base {
 
     set backgroundColor(backgroundColor) {
         this._backgroundColor = backgroundColor;
+    }
+
+    get hitTestOptions() {
+        return this._hitTestOptions;
+    }
+
+    set hitTestOptions(options) {
+        if (options) {
+            if (options.mode === 'CIRCLE' || options.mode === 'RECTANGLE') {
+                this._hitTestOptions.mode = options.mode;
+            }
+            if (typeof options.offset === 'boolean') {
+                this._hitTestOptions.offset = options.offset;
+            }
+            if (typeof options.overlap === 'boolean') {
+                this._hitTestOptions.overlap = options.overlap;
+            }
+            if (typeof options.intersections === 'boolean') {
+                this._hitTestOptions.intersections = options.intersections;
+            }
+        }
     }
 
     /**
