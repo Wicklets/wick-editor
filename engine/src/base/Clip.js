@@ -521,43 +521,30 @@ Wick.Clip = class extends Wick.Tickable {
         let c2 = bounds2.center;
 
         let distance = c1.getDistance(c2);
+        let r1, r2;
 
         if (options.radius) {
-            if (distance < options.radius * 2) {
-                let result = {};
-                if (options.overlap) {
-
-                }
-                if (options.offset) {
-
-                }
-                if (options.intersections) {
-
-                }
-                return result;
-            }
-            else {
+            r1 = options.radius;
+        }
+        else {
+            // efficient check before calculating radius
+            let upperBoundRadius1 = bounds1.topLeft.getDistance(bounds1.bottomRight) / 2;
+            let upperBoundRadius2 = bounds2.topLeft.getDistance(bounds2.bottomRight) / 2;
+            if (upperBoundRadius1 + upperBoundRadius2 < bounds1.center.getDistance(bounds2.center)) {
                 return null;
             }
+
+            r1 = this.view.radius;
         }
-
-        // efficient check first
-        let upperBoundRadius1 = bounds1.topLeft.getDistance(bounds1.bottomRight) / 2;
-        let upperBoundRadius2 = bounds2.topLeft.getDistance(bounds2.bottomRight) / 2;
-        if (upperBoundRadius1 + upperBoundRadius2 < bounds1.center.getDistance(bounds2.center)) {
-            return null;
-        }
-
-        let r1 = this.view.radius;
-        let r2 = other.view.radius;
-
+        r2 = other.view.radius;
+        
         let overlap = r1 + r2 - distance;
         if (overlap > 0) {
             let x = c1.x - c2.x;
             let y = c1.y - c2.y;
-            let length = Math.sqrt(x*x + y*y);
-            x = x / length;
-            y = y / length;
+            let magnitude = Math.sqrt(x*x + y*y);
+            x = x / magnitude;
+            y = y / magnitude;
             // <x,y> is now a normalized vector from c2 to c1 
 
             let result = {};
@@ -666,6 +653,9 @@ Wick.Clip = class extends Wick.Tickable {
             }
             if (typeof options.intersections === "boolean") {
                 finalOptions.intersections = options.intersections;
+            }
+            if (options.radius) {
+                finalOptions.radius = options.radius;
             }
         }
 

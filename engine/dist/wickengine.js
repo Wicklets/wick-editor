@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.8.11.15.38.15";
+var WICK_ENGINE_BUILD_VERSION = "2020.8.11.16.59.27";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -49355,12 +49355,7 @@ Wick.Project = class extends Wick.Base {
     this._height = args.height || 480;
     this._framerate = args.framerate || 12;
     this._backgroundColor = args.backgroundColor || new Wick.Color('#ffffff');
-    this._hitTestOptions = {
-      mode: 'RECTANGLE',
-      offset: true,
-      overlap: true,
-      intersections: false
-    };
+    this._hitTestOptions = this.getDefaultHitTestOptions();
     this.pan = {
       x: 0,
       y: 0
@@ -49465,7 +49460,8 @@ Wick.Project = class extends Wick.Base {
     this._focus = data.focus;
     this._hideCursor = false;
     this._muted = false;
-    this._renderBlackBars = true; // reset rotation, but not pan/zoom.
+    this._renderBlackBars = true;
+    this._hitTestOptions = this.getDefaultHitTestOptions(); // reset rotation, but not pan/zoom.
     // not resetting pan/zoom is convenient when preview playing.
 
     this.rotation = 0;
@@ -49486,6 +49482,15 @@ Wick.Project = class extends Wick.Base {
 
     data.metadata = Wick.WickFile.generateMetaData();
     return data;
+  }
+
+  getDefaultHitTestOptions() {
+    return {
+      mode: 'RECTANGLE',
+      offset: true,
+      overlap: true,
+      intersections: false
+    };
   }
 
   get classname() {
@@ -55355,8 +55360,7 @@ Wick.Tickable = class extends Wick.Base {
         y: project.height
       };
       window.project.framerate = project.framerate;
-      window.project.backgroundColor = project.backgroundColor;
-      window.project.hitTestOptions = project.hitTestOptions;
+      window.project.backgroundColor = project.backgroundColor; //window.project.hitTestOptions = project.hitTestOptions;
     }
 
     window.root = root;
@@ -56734,41 +56738,31 @@ Wick.Clip = class extends Wick.Tickable {
     let c1 = bounds1.center;
     let c2 = bounds2.center;
     let distance = c1.getDistance(c2);
+    let r1, r2;
 
     if (options.radius) {
-      if (distance < options.radius * 2) {
-        let result = {};
+      r1 = options.radius;
+    } else {
+      // efficient check before calculating radius
+      let upperBoundRadius1 = bounds1.topLeft.getDistance(bounds1.bottomRight) / 2;
+      let upperBoundRadius2 = bounds2.topLeft.getDistance(bounds2.bottomRight) / 2;
 
-        if (options.overlap) {}
-
-        if (options.offset) {}
-
-        if (options.intersections) {}
-
-        return result;
-      } else {
+      if (upperBoundRadius1 + upperBoundRadius2 < bounds1.center.getDistance(bounds2.center)) {
         return null;
       }
-    } // efficient check first
 
-
-    let upperBoundRadius1 = bounds1.topLeft.getDistance(bounds1.bottomRight) / 2;
-    let upperBoundRadius2 = bounds2.topLeft.getDistance(bounds2.bottomRight) / 2;
-
-    if (upperBoundRadius1 + upperBoundRadius2 < bounds1.center.getDistance(bounds2.center)) {
-      return null;
+      r1 = this.view.radius;
     }
 
-    let r1 = this.view.radius;
-    let r2 = other.view.radius;
+    r2 = other.view.radius;
     let overlap = r1 + r2 - distance;
 
     if (overlap > 0) {
       let x = c1.x - c2.x;
       let y = c1.y - c2.y;
-      let length = Math.sqrt(x * x + y * y);
-      x = x / length;
-      y = y / length; // <x,y> is now a normalized vector from c2 to c1 
+      let magnitude = Math.sqrt(x * x + y * y);
+      x = x / magnitude;
+      y = y / magnitude; // <x,y> is now a normalized vector from c2 to c1 
 
       let result = {};
 
@@ -56884,6 +56878,10 @@ Wick.Clip = class extends Wick.Tickable {
 
       if (typeof options.intersections === "boolean") {
         finalOptions.intersections = options.intersections;
+      }
+
+      if (options.radius) {
+        finalOptions.radius = options.radius;
       }
     }
 

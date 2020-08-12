@@ -38,7 +38,7 @@ Wick.Project = class extends Wick.Base {
         this._height = args.height || 480;
         this._framerate = args.framerate || 12;
         this._backgroundColor = args.backgroundColor || new Wick.Color('#ffffff');
-        this._hitTestOptions = {mode: 'RECTANGLE', offset: true, overlap: true, intersections: false};
+        this._hitTestOptions = this.getDefaultHitTestOptions();
 
         this.pan = { x: 0, y: 0 };
         this.zoom = 1.0;
@@ -144,6 +144,8 @@ Wick.Project = class extends Wick.Base {
         this._muted = false;
         this._renderBlackBars = true;
 
+        this._hitTestOptions = this.getDefaultHitTestOptions();
+
         // reset rotation, but not pan/zoom.
         // not resetting pan/zoom is convenient when preview playing.
         this.rotation = 0;
@@ -168,6 +170,10 @@ Wick.Project = class extends Wick.Base {
         data.metadata = Wick.WickFile.generateMetaData();
 
         return data;
+    }
+
+    getDefaultHitTestOptions() {
+        return {mode: 'RECTANGLE', offset: true, overlap: true, intersections: false};
     }
 
     get classname() {
