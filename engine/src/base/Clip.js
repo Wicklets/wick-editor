@@ -557,8 +557,17 @@ Wick.Clip = class extends Wick.Tickable {
                 result.offsetY = overlap * y;
             }
             if (options.intersections) {
-                // TODO
-                result.intersections = [];
+                if (r2 - distance > r1 || r1 - distance > r2) {
+                    result.intersections = [];
+                }
+                else {
+                    let d = (distance * distance + r1*r1 - r2*r2) / (2 * distance);
+                    let h = Math.sqrt(r1 * r1 - d * d);
+                    let x0 = c1.x - d*x;
+                    let y0 = c1.y - d*y;
+                    result.intersections = [{x: x0 + h*y, y: y0 - h*x}, 
+                        {x: x0 - h*y, y: y0 + h*x}];
+                }
             }
             return result;
         }
