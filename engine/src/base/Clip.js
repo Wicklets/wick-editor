@@ -557,10 +557,11 @@ Wick.Clip = class extends Wick.Tickable {
                 result.offsetY = overlap * y;
             }
             if (options.intersections) {
-                if (r2 - distance > r1 || r1 - distance > r2) {
+                if (r2 - distance > r1 || r1 - distance > r2 || distance === 0) {
                     result.intersections = [];
                 }
                 else {
+                    // Using https://mathworld.wolfram.com/Circle-CircleIntersection.html
                     let d = (distance * distance + r1*r1 - r2*r2) / (2 * distance);
                     let h = Math.sqrt(r1 * r1 - d * d);
                     let x0 = c1.x - d*x;
@@ -636,8 +637,53 @@ Wick.Clip = class extends Wick.Tickable {
                 }
             }
             if (options.intersections) {
-                // TODO
                 result.intersections = [];
+                let ps1 = [bounds1.topLeft, bounds1.topRight, bounds1.bottomRight, bounds1.bottomLeft];
+                let ps2 = [bounds2.topLeft, bounds2.topRight, bounds2.bottomRight, bounds2.bottomLeft];
+                for (let i = 0; i < 4; i++) {
+                    for (let j = 0; j < 4; j++) {
+                        let a = ps1[i];
+                        let b = ps1[(i + 1) % 4];
+                        let c = ps2[j];
+                        let d = ps2[(j + 1) % 4];
+                        if ((a.x === b.x && c.y === d.y) || (a.y === b.y && c.x === d.x)) {
+                            // Perpendicular lines will intersect, we'll use parametric line intersection
+                            //<x,y> = a + (b - a)t1
+                            //<x,y> = c + (d - c)t2
+                            //a + (b - a)t1 = c + (d - c)t2
+                            //t1(b - a) = (c + (d - c)t2 - a)
+                            //(a - c)/(d - c) = t2
+                            let t1, t2;
+                            if (a.x === b.x) {
+                                t2 = (a.x - c.x) / (d.x - c.x);
+                                t1 = (c.y + (d.y - c.y) * t2 - a.y) / (b.y - a.y);
+                            }
+                            else {
+                                //a.y === b.y
+                                t2 = (a.y - c.y) / (d.y - c.y);
+                                t1 = (c.x + (d.x - c.x) * t2 - a.x) / (b.x - a.x);
+                            }
+                            if (0 <= t1 && t1 <= 1 && 0 <= t2 && t2 <= 1) {
+                                result.intersections.push({x: a.x + (b.x - a.x) * t1, y: a.y + (b.y - a.y) * t1});
+                            }
+                        }
+                        else {
+                            // Parallel lines. If intersect, take middle two points
+                            if (a.y === b.y && b.y === c.y && c.y === d.y) {
+                                xs = [a.x, b.x, c.x, d.x];
+                                xs.sort();
+                                result.intersections.push({x: xs[1], y: a.y});
+                                result.intersections.push({x: xs[2], y: a.y});
+                            }
+                            else if (a.x === b.x && b.x === c.x && c.x === d.x) {
+                                ys = [a.y, b.y, c.y, d.y];
+                                ys.sort();
+                                result.intersections.push({x: a.x, y: ys[1]});
+                                result.intersections.push({x: a.x, y: ys[2]});
+                            }
+                        }
+                    }
+                }
             }
 
             return result;
