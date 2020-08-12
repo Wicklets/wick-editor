@@ -43,6 +43,7 @@ $action-button-transition-duration: .2s;
   width: 100%;
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
 }
 
@@ -53,7 +54,7 @@ $action-button-transition-duration: .2s;
 }
 
 .dropdown-action-button-icon {
-  height: 80%;
+  height: 18px !important;
 }
 
 .action-button-icon-text-container {
