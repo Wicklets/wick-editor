@@ -23,6 +23,8 @@
     position: absolute;
     right: 15px;
     top: 15px;
+    min-width: 30px;
+    min-height: 30px;
 }
 
 .mobile-menu-close-icon {
@@ -44,7 +46,11 @@
     flex-direction: column;
     margin-top: 10px;
     margin-bottom: 10px;
-    height: calc(100vh - 20px);
+    height: 100%;
+}
+
+.mobile-menu-mobile-body {
+    height: 100%;
 }
 
 .mobile-menu-option-text {
@@ -59,7 +65,7 @@
 }
 
 .mobile-menu-option {
-    max-height: 20%;
+    max-height: 20% !important;
 }
 
 .mobile-menu-button {
