@@ -5,7 +5,6 @@ import ActionButton from '../../Util/ActionButton/ActionButton';
 
 import './_savedprojects.scss';
 import SavedProjectItem from './SavedProjectItem/SavedProjectItem';
-import { select } from 'underscore';
 let classNames = require('classnames');
 
 export default function SavedProjects(props) {

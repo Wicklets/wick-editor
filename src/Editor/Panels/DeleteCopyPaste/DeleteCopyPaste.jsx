@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import '../CanvasTransforms/_canvastransforms.scss';

@@ -1780,7 +1780,7 @@ class EditorCore extends Component {
    */
   reloadSavedWickFiles = () => {
     if (window.getSavedWickFiles) {
-      let files = window.getSavedWickFiles(files => {
+       window.getSavedWickFiles(files => {
         this.setState({
           localSavedFiles: files,
         });

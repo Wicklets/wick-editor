@@ -163,8 +163,7 @@ class ModalHandler extends Component {
           updateProjectSettings={this.props.updateProjectSettings}
           project={this.props.project}
           toggle={this.props.closeActiveModal}
-          open={this.props.activeModalName === 'SimpleProjectSettings'}
-          project={this.props.project} />
+          open={this.props.activeModalName === 'SimpleProjectSettings'}/>
 
       </div>
     );
