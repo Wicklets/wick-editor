@@ -761,7 +761,6 @@ Wick.Clip = class extends Wick.Tickable {
         } else if (this.animationType === 'playOnce') {
             if (!this.playedOnce) {
                 if (this.timeline.playheadPosition === this.timeline.length) {
-                    console.log("Reset");
                     this.playedOnce = true;
                 } else {
                     this.timeline.advance();

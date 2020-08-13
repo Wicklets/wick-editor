@@ -254,6 +254,7 @@ class Editor extends EditorCore {
   }
 
   componentDidMount = () => {
+    console.log("Project Mounted");
     this.hidePreloader();
     this.onWindowResize();
     if(!this.tryToParseProjectURL()) {

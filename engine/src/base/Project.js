@@ -1483,7 +1483,7 @@ Wick.Project = class extends Wick.Base {
             this.selection.clear();
             this.selection.select(errorObj);
 
-            window._scriptOnErrorCallback(this.error);
+            window._scriptOnErrorCallback && window._scriptOnErrorCallback(this.error);
         } else {
             this.focus.timeline.playheadPosition = currentPlayhead;
         }

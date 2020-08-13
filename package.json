@@ -125,8 +125,8 @@
     "package-mac": "npm run build; electron-builder --mac",
     "package-windows": "npm run build; electron-builder --windows",
 
-    "phonegap-deploy": "npm run build; cp -r build/* ../wick-editor-phonegap/www; cd ../wick-editor-phonegap; npm run prepare; git add .; git commit -m 'update phonegap build'; git push --force;",
-    "phonegap-predeploy": "npm run build; cp -r build/* ../wick-editor-phonegap/www; cd ../wick-editor-phonegap; npm run prepare;" 
+    "phonegap-deploy": "npm run build; cd ../wick-editor-phonegap; npm run prepare-dir; cd ../wick-editor; cp -r build/* ../wick-editor-phonegap/www; cd ../wick-editor-phonegap; npm run prepare-app; git add .; git commit -m 'update phonegap build'; git push --force;",
+    "phonegap-predeploy": "npm run build; cd ../wick-editor-phonegap; npm run prepare-dir; cd ../wick-editor; cp -r build/* ../wick-editor-phonegap/www; cd ../wick-editor-phonegap; npm run prepare-app;" 
   },
   "eslintConfig": {
     "extends": "react-app"
