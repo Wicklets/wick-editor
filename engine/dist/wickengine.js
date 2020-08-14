@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.8.13.14.25.41";
+var WICK_ENGINE_BUILD_VERSION = "2020.8.14.11.17.1";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -59876,7 +59876,6 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     curve.point2 = curve.point2.add(n2);
     curve.handle1 = curve.handle1.multiply(scale1);
     curve.handle2 = curve.handle2.multiply(scale2);
-    console.log(scale1, scale2);
     return curve;
   } // Performs the algoritm described at top of file.
 
@@ -60227,12 +60226,10 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
       if (currentCurve.length > EPSILON) {
         let gapCurve = bumpedCurve(currentCurve, currentDirection);
-        console.log(gapCurve);
         [clt, ccl, gcl] = curveIntersections(currentCurve, gapCurve, currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, a => colorsEqual(holeColor, getColorAt(a.point.subtract(a.tangent.multiply(currentDirection).normalize(RADIUS)))) && !colorsEqual(holeColor, getColorAt(a.point.add(a.tangent.multiply(currentDirection).normalize(RADIUS)))));
         closestTime = clt;
         gapCrossLocation = gcl;
         gapCurve = bumpedCurve(currentCurve, -currentDirection);
-        console.log(gapCurve);
         [clt, ccl, gcl] = curveIntersections(currentCurve, gapCurve, currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, a => !colorsEqual(holeColor, getColorAt(a.point.subtract(a.tangent.multiply(currentDirection).normalize(RADIUS)))) && colorsEqual(holeColor, getColorAt(a.point.add(a.tangent.multiply(currentDirection).normalize(RADIUS)))));
         gapCrossLocation = gcl;
       }
@@ -60245,8 +60242,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         p1: pointToAdd,
         p2: gapCrossLocation ? currentCurve.getNearestLocation(gapCrossLocation.point) : currentCurveLocation
       });
-      circle.position = gapCrossLocation ? gapCrossLocation.point : currentCurveLocation.point;
-      console.log(circle.bounds.center.toString()); //onFinish(circle.clone());
+      circle.position = gapCrossLocation ? gapCrossLocation.point : currentCurveLocation.point; //onFinish(circle.clone());
 
       var crossings = [];
       var items = layerGroup.getItems({

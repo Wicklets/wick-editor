@@ -5,6 +5,7 @@ describe('Paper.hole', function() {
             point: new paper.Point(5,5),
             bgColor: new paper.Color('#ffffff'),
             gapFillMargin: 1,
+            fillColor: 'black',
             layers: [layer],
             onFinish: function () {
                 throw new Error('onFinish was called, this should not happen.');
@@ -28,7 +29,9 @@ describe('Paper.hole', function() {
         paper.hole({
             point: new paper.Point(60,60),
             bgColor: new paper.Color('#ffffff'),
+            fillColor: 'black',
             gapFillMargin: 1,
+            fillColor: 'black',
             layers: [layer],
             onFinish: function () {
                 throw new Error('onFinish was called, this should not happen.');
@@ -54,6 +57,7 @@ describe('Paper.hole', function() {
             bgColor: new paper.Color('#ffffff'),
             gapFillMargin: 1,
             layers: [layer],
+            fillColor: 'black',
             onFinish: function () {
                 throw new Error('onFinish was called, this should not happen.');
             },
@@ -78,6 +82,7 @@ describe('Paper.hole', function() {
             bgColor: new paper.Color('#ffffff'),
             gapFillMargin: 1,
             layers: [layer],
+            fillColor: 'black',
             onFinish: function () {
                 throw new Error('onFinish was called, this should not happen.');
             },
@@ -113,6 +118,7 @@ describe('Paper.hole', function() {
             point: new paper.Point(50,50),
             bgColor: new paper.Color('#ffffff'),
             gapFillMargin: 1,
+            fillColor: 'black',
             layers: [layer],
             onFinish: function () {
                 throw new Error('onFinish was called, this should not happen.');
@@ -139,6 +145,8 @@ describe('Paper.hole', function() {
             point: new paper.Point(50,50),
             bgColor: new paper.Color('#ffffff'),
             gapFillMargin: 1,
+            fillColor: 'black',
+
             layers: [layer],
             onFinish: function (path) {
                 expect(path.bounds.width < 100).to.equal(true);
