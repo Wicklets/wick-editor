@@ -17,6 +17,7 @@
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
 /**
  * A class representing a Wick Clip.
  */
@@ -517,26 +518,16 @@ Wick.Clip = class extends Wick.Tickable {
         let bounds1 = this.view.absoluteBounds;
         let bounds2 = other.view.absoluteBounds;
 
+        if (!bounds1.intersects(bounds2)) {
+            return null;
+        }
+
         let c1 = bounds1.center;
         let c2 = bounds2.center;
 
         let distance = c1.getDistance(c2);
-        let r1, r2;
-
-        if (options.radius) {
-            r1 = options.radius;
-        }
-        else {
-            // efficient check before calculating radius
-            let upperBoundRadius1 = bounds1.topLeft.getDistance(bounds1.bottomRight) / 2;
-            let upperBoundRadius2 = bounds2.topLeft.getDistance(bounds2.bottomRight) / 2;
-            if (upperBoundRadius1 + upperBoundRadius2 < bounds1.center.getDistance(bounds2.center)) {
-                return null;
-            }
-
-            r1 = this.view.radius;
-        }
-        r2 = other.view.radius;
+        let r1 = options.radius ? options.radius : this.view.radius;
+        let r2 = other.view.radius;
         
         let overlap = r1 + r2 - distance;
         if (overlap > 0) {
@@ -582,7 +573,9 @@ Wick.Clip = class extends Wick.Tickable {
 
         if (bounds1.intersects(bounds2)) {
             let result = {};
+
             if (options.overlap) {
+                // Find the direction along which we have to travel the least distance to no longer overlap
                 let left = bounds2.left - bounds1.right;
                 let right = bounds2.right - bounds1.left;
                 let up = bounds2.top - bounds1.bottom;
@@ -600,33 +593,17 @@ Wick.Clip = class extends Wick.Tickable {
                 result.overlapY = overlapY;
             }
             if (options.offset) {
+                // Find how far along the center to center vector we must travel to no longer overlap
                 let vectorX = bounds1.center.x - bounds2.center.x;
                 let vectorY = bounds1.center.y - bounds2.center.y;
                 let magnitude = Math.sqrt(vectorX*vectorX + vectorY*vectorY);
                 vectorX /= magnitude;
                 vectorY /= magnitude;
 
-                let p1, p2;
-                if (vectorX > 0) {
-                    if (vectorY > 0) {
-                        p1 = bounds1.topLeft;
-                        p2 = bounds2.bottomRight;
-                    }
-                    else {
-                        p1 = bounds1.bottomLeft;
-                        p2 = bounds2.topRight;
-                    }
-                }
-                else {
-                    if (vectorY > 0) {
-                        p1 = bounds1.topRight;
-                        p2 = bounds2.bottomLeft;
-                    }
-                    else {
-                        p1 = bounds1.bottomRight;
-                        p2 = bounds2.topLeft;
-                    }
-                }
+                // Choose p1, p2, based on quadrant of center to center vector
+                let p1 = vectorX > 0 ? (vectorY > 0 ? bounds1.topLeft : bounds1.bottomLeft) : (vectorY > 0 ? bounds1.topRight : bounds1.bottomRight);
+                let p2 = vectorX > 0 ? (vectorY > 0 ? bounds2.bottomRight : bounds2.topRight) : (vectorY > 0 ? bounds2.bottomLeft : bounds2.topLeft);
+                
                 if (Math.abs(p2.x - p1.x) < Math.abs((p2.y - p1.y) * vectorX / vectorY)) {
                     result.offsetX = p2.x - p1.x;
                     result.offsetY = result.offsetX * vectorY / vectorX;
@@ -641,46 +618,30 @@ Wick.Clip = class extends Wick.Tickable {
                 let ps1 = [bounds1.topLeft, bounds1.topRight, bounds1.bottomRight, bounds1.bottomLeft];
                 let ps2 = [bounds2.topLeft, bounds2.topRight, bounds2.bottomRight, bounds2.bottomLeft];
                 for (let i = 0; i < 4; i++) {
-                    for (let j = 0; j < 4; j++) {
+                    for (let j = (i + 1) % 2; j < 4; j += 2) { // iterate over the perpendicular lines
                         let a = ps1[i];
                         let b = ps1[(i + 1) % 4];
                         let c = ps2[j];
                         let d = ps2[(j + 1) % 4];
-                        if ((a.x === b.x && c.y === d.y) || (a.y === b.y && c.x === d.x)) {
-                            // Perpendicular lines will intersect, we'll use parametric line intersection
-                            //<x,y> = a + (b - a)t1
-                            //<x,y> = c + (d - c)t2
-                            //a + (b - a)t1 = c + (d - c)t2
-                            //t1(b - a) = (c + (d - c)t2 - a)
-                            //(a - c)/(d - c) = t2
-                            let t1, t2;
-                            if (a.x === b.x) {
-                                t2 = (a.x - c.x) / (d.x - c.x);
-                                t1 = (c.y + (d.y - c.y) * t2 - a.y) / (b.y - a.y);
-                            }
-                            else {
-                                //a.y === b.y
-                                t2 = (a.y - c.y) / (d.y - c.y);
-                                t1 = (c.x + (d.x - c.x) * t2 - a.x) / (b.x - a.x);
-                            }
-                            if (0 <= t1 && t1 <= 1 && 0 <= t2 && t2 <= 1) {
-                                result.intersections.push({x: a.x + (b.x - a.x) * t1, y: a.y + (b.y - a.y) * t1});
-                            }
+
+                        // Perpendicular lines will intersect, we'll use parametric line intersection
+                        //<x,y> = a + (b - a)t1
+                        //<x,y> = c + (d - c)t2
+                        //a + (b - a)t1 = c + (d - c)t2
+                        //t1(b - a) = (c + (d - c)t2 - a)
+                        //(a - c)/(d - c) = t2
+                        let t1, t2;
+                        if (a.x === b.x) {
+                            t2 = (a.x - c.x) / (d.x - c.x);
+                            t1 = (c.y + (d.y - c.y) * t2 - a.y) / (b.y - a.y);
                         }
                         else {
-                            // Parallel lines. If intersect, take middle two points
-                            if (a.y === b.y && b.y === c.y && c.y === d.y) {
-                                xs = [a.x, b.x, c.x, d.x];
-                                xs.sort();
-                                result.intersections.push({x: xs[1], y: a.y});
-                                result.intersections.push({x: xs[2], y: a.y});
-                            }
-                            else if (a.x === b.x && b.x === c.x && c.x === d.x) {
-                                ys = [a.y, b.y, c.y, d.y];
-                                ys.sort();
-                                result.intersections.push({x: a.x, y: ys[1]});
-                                result.intersections.push({x: a.x, y: ys[2]});
-                            }
+                            //a.y === b.y
+                            t2 = (a.y - c.y) / (d.y - c.y);
+                            t1 = (c.x + (d.x - c.x) * t2 - a.x) / (b.x - a.x);
+                        }
+                        if (0 <= t1 && t1 <= 1 && 0 <= t2 && t2 <= 1) {
+                            result.intersections.push({x: a.x + (b.x - a.x) * t1, y: a.y + (b.y - a.y) * t1});
                         }
                     }
                 }
@@ -693,11 +654,176 @@ Wick.Clip = class extends Wick.Tickable {
         }
     }
 
+    // Return whether triangle p1 p2 p3 is clockwise
+    cw(x1, y1, x2, y2, x3, y3) {           
+        const cw = ((y3 - y1) * (x2 - x1)) - ((y2 - y1) * (x3 - x1));
+        return cw > 0 ? true : cw < 0 ? false : true; // colinear
+    }
+
+    convexHits(other, options) {
+        // Efficient check first
+        let bounds1 = this.view.absoluteBounds;
+        let bounds2 = other.view.absoluteBounds;
+        if (!bounds1.intersects(bounds2)) {
+            return null;
+        }
+        let c1 = bounds1.center;
+        let c2 = bounds2.center;
+
+        // clockwise arrays of points in format [[x1, y1], [x2, y2], ...]
+        let hull1 = this.view.convexHull;
+        let hull2 = other.view.convexHull;
+
+        let finished1 = false;
+        let finished2 = false;
+
+        let i1 = hull1.length - 1;
+        let i2 = hull2.length - 1;
+
+        let intersections = [];
+
+        let n = 0;
+        // Algorithm from https://www.bowdoin.edu/~ltoma/teaching/cs3250-CompGeom/spring17/Lectures/cg-convexintersection.pdf
+        while ((!finished1 || !finished2) && n <= hull1.length + hull2.length) {
+            n++;
+            // line segments A is ab, B is cd
+            let a = hull1[i1], 
+            b = hull1[((i1 - 1) % hull1.length + hull1.length) % hull1.length],
+            c = hull2[i2],
+            d = hull2[((i2 - 1) % hull2.length + hull2.length) % hull2.length];
+
+            //Use parametric line intersection
+            //<x,y> = a + (b - a)t1
+            //<x,y> = c + (d - c)t2
+            //a + (b - a)t1 = c + (d - c)t2
+            //t1 = (c.x + (d.x - c.x)t2 - a.x) / (b.x - a.x)
+            //a.y + (b.y - a.y) * (c.x + (d.x - c.x)t2 - a.x) / (b.x - a.x) = c.y + (d.y - c.y)t2
+            //t2((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y)) = c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x)
+            //t2 = (c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x))  /  ((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y))
+            let t2 = (c[1] - a[1] - (b[1] - a[1]) * (c[0] - a[0]) / (b[0] - a[0]))  /  ((b[1] - a[1]) * (d[0] - c[0]) / (b[0] - a[0]) - d[1] + c[1]);
+            let t1 = (c[0] + (d[0] - c[0]) * t2 - a[0]) / (b[0] - a[0]);
+
+            if (0 <= t1 && t1 <= 1 && 0 <= t2 && t2 <= 1) {
+                intersections.push({x: a[0] + (b[0] - a[0])*t1, y: a[1] + (b[1] - a[1]) * t1});
+            }
+
+            let APointingToB = t1 > 1;
+            let BPointingToA = t2 > 1;
+
+            if (BPointingToA && !APointingToB) {
+                // Advance B
+                i2 -= 1;
+                if (i2 < 0) {
+                    finished2 = true;
+                    i2 += hull2.length;
+                }
+            }
+            else if (APointingToB && !BPointingToA) {
+                // Advance A
+                i1 -= 1;
+                if (i1 < 0) {
+                    finished1 = true;
+                    i1 += hull1.length;
+                }
+            }
+            else {
+                // Advance outside
+                if (this.cw(a[0], a[1], b[0], b[1], d[0], d[1])) {
+                    // Advance B
+                    i2 -= 1;
+                    if (i2 < 0) {
+                        finished2 = true;
+                        i2 += hull2.length;
+                    }
+                }
+                else {
+                    // Advance A
+                    i1 -= 1;
+                    if (i1 < 0) {
+                        finished1 = true;
+                        i1 += hull1.length;
+                    }
+                }
+            }
+        }
+        // Ok, we have all the intersections now. 
+        console.log("ssssss", intersections.length)
+        if (intersections.length === 0) {
+            return null;
+        }
+
+        let result = {};
+        if (options.intersections) {
+            result.intersections = intersections;
+        }
+        if (options.offset) {
+            // Calculate offset by taking the center of mass of the intersection, call it P,
+            // get the radius from P on this convex hull in the direction
+            // from this center to that center,
+            // Then, the offset is a vector in the direction from that center to this center
+            // with magnitude of that radius
+
+            let avgIntersection = {x: 0, y: 0};
+            for (let i = 0; i < intersections.length; i++) {
+                avgIntersection.x += intersections[i].x;
+                avgIntersection.y += intersections[i].y;
+            }
+            avgIntersection.x /= intersections.length;
+            avgIntersection.y /= intersections.length;
+            console.log(avgIntersection.x, avgIntersection.y);
+            let targetTheta = Math.atan2(c2.y - c1.y, c2.x - c1.x);
+            let r = this.radiusAtPointInDirection(hull1, avgIntersection, targetTheta);
+            targetTheta = (targetTheta + Math.PI) % (2 * Math.PI);
+            r += this.radiusAtPointInDirection(hull2, avgIntersection, targetTheta);
+
+            let directionX = c1.x - c2.x;
+            let directionY = c1.y - c2.y;
+            let mag = Math.sqrt(directionX*directionX + directionY*directionY);
+            directionX *= r / mag;
+            directionY *= r / mag;
+            result.offsetX = directionX;
+            result.offsetY = directionY;
+        }
+        if (options.overlap) {
+
+        }
+        return result;
+    }
+
+    radiusAtPointInDirection(ch, p, targetTheta) {
+        let minThetaDiff = Infinity;
+        let index;
+        for (let i = 0; i < ch.length; i++) {
+            let theta = Math.atan2(ch[i][1] - p.y, ch[i][0] - p.x);
+            let thetaDiff = ((theta - targetTheta) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+            if (thetaDiff < minThetaDiff) {
+                minThetaDiff = thetaDiff;
+                index = i;
+            }
+        }
+        let a = ch[index];
+        let b = ch[(index - 1 + ch.length) % ch.length];
+        let c = [p.x, p.y];
+        let d = [p.x + 100 * Math.cos(targetTheta), p.y + 100 * Math.sin(targetTheta)];
+        //Use parametric line intersection
+        //<x,y> = a + (b - a)t1
+        //<x,y> = c + (d - c)t2
+        //a + (b - a)t1 = c + (d - c)t2
+        //t1 = (c.x + (d.x - c.x)t2 - a.x) / (b.x - a.x)
+        //a.y + (b.y - a.y) * (c.x + (d.x - c.x)t2 - a.x) / (b.x - a.x) = c.y + (d.y - c.y)t2
+        //t2((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y)) = c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x)
+        //t2 = (c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x))  /  ((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y))
+        let t2 = (c[1] - a[1] - (b[1] - a[1]) * (c[0] - a[0]) / (b[0] - a[0]))  /  ((b[1] - a[1]) * (d[0] - c[0]) / (b[0] - a[0]) - d[1] + c[1]);
+        let t1 = (c[0] + (d[0] - c[0]) * t2 - a[0]) / (b[0] - a[0]);
+        console.log(a[0] + (b[0] - a[0])*t1, a[1] + (b[1] - a[1]) * t1)
+        return Math.hypot(a[0] + (b[0] - a[0])*t1 - p.x, a[1] + (b[1] - a[1]) * t1 - p.y);
+    }
+
     hits(other, options) {
         // Get hit options
         let finalOptions = {...this.project.hitTestOptions};
         if (options) {
-            if (options.mode === 'CIRCLE' || options.mode === 'RECTANGLE') {
+            if (options.mode === 'CIRCLE' || options.mode === 'RECTANGLE' || options.mode === 'CONVEX') {
                 finalOptions.mode = options.mode;
             }
             if (typeof options.offset === "boolean") {
@@ -716,6 +842,9 @@ Wick.Clip = class extends Wick.Tickable {
 
         if (finalOptions.mode === 'CIRCLE') {
             return this.circleHits(other, finalOptions);
+        }
+        else if (finalOptions.mode === 'CONVEX') {
+            return this.convexHits(other, finalOptions);
         }
         else {
             return this.rectangleHits(other, finalOptions);

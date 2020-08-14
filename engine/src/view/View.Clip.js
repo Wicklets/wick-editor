@@ -75,6 +75,40 @@ Wick.View.Clip = class extends Wick.View {
         return this._radius;
     }
 
+    get convexHull () {
+        let group = this.group;
+        let initial = [];
+        let convert = (point) => [[point.x, point.y]];
+        let compare = (list1, list2) => list1.concat(list2);
+
+        let points = this.reducePointsFromGroup(group, initial, convert, compare);
+
+        // Infinity gets us the convex hull
+        let ch = hull(points, Infinity);
+
+        let removedDuplicates = [];
+        let epsilon = 0.01;
+        for (let i = 0; i < ch.length; i++) {
+            if (removedDuplicates.length > 0) {
+                if ((Math.abs(ch[i][0] - removedDuplicates[removedDuplicates.length - 1][0]) > epsilon ||
+                    Math.abs(ch[i][1] - removedDuplicates[removedDuplicates.length - 1][1]) > epsilon) && 
+                    (Math.abs(ch[i][0] - removedDuplicates[0][0]) > epsilon ||
+                    Math.abs(ch[i][1] - removedDuplicates[0][1]) > epsilon)) {
+                    removedDuplicates.push(ch[i]);
+                }
+            }
+            else {
+                removedDuplicates.push(ch[i]);
+            }
+        }
+
+        return removedDuplicates;
+    }
+
+    // group: the paper group of objects
+    // initial: the initial value, should be of return type
+    // convert: point -> return type
+    // compare: (return type, return type) -> return type
     reducePointsFromGroup (group, initial, convert, compare) {
         let val = initial;
         for (let i = 0; i < group.children.length; i++) {
