@@ -84,7 +84,7 @@ $action-button-transition-duration: .2s;
   color: $deep-cereulian-text;
 }
 
-.action-button-blue:hover {
+body.hasHover .action-button-blue:hover {
   background-color: $deep-cereulian-light;
   color: $deep-cereulian-text;
 }
@@ -107,7 +107,7 @@ $action-button-transition-duration: .2s;
   color: $sleepy-sky-text;
 }
 
-.action-button-sky:hover {
+body.hasHover .action-button-sky:hover {
   background-color: $sleepy-sky;
   color: $sleepy-sky-text;
 }
@@ -130,7 +130,7 @@ $action-button-transition-duration: .2s;
   color: $wick-red-text;
 }
 
-.action-button-red:hover {
+body.hasHover .action-button-red:hover {
   background-color: $wick-red-light;
   color: $wick-red-text;
 }
@@ -153,7 +153,7 @@ $action-button-transition-duration: .2s;
   color: $wick-red-text;
 }
 
-.action-button-dark-red:hover {
+body.hasHover .action-button-dark-red:hover {
   background-color: #B30000;
   color: $wick-red-text;
 }
@@ -176,7 +176,7 @@ $action-button-transition-duration: .2s;
   color: $wick-green-text;
 }
 
-.action-button-green:hover {
+body.hasHover .action-button-green:hover {
   background-color: $wick-green-light;
   color: $wick-green-text;
 }
@@ -199,7 +199,7 @@ $action-button-transition-duration: .2s;
   color: $wick-yellow-text;
 }
 
-.action-button-yellow:hover {
+body.hasHover .action-button-yellow:hover {
   background-color: $wick-yellow-light;
   color: $wick-yellow-text;
 }
@@ -222,7 +222,7 @@ $action-button-transition-duration: .2s;
   color: black;
 }
 
-.action-button-tool:hover {
+body.hasHover .action-button-tool:hover {
   //background-color: $wick-green-light;
   border: 2px solid #29F1A3;
   color: black;
@@ -248,7 +248,7 @@ $action-button-transition-duration: .2s;
   color: $editor-menubar-option-text;
 }
 
-.action-button-menu:hover {
+body.hasHover .action-button-menu:hover {
   color: $editor-menubar-project-text;
 }
 
@@ -283,7 +283,7 @@ $action-button-transition-duration: .2s;
   color: $editor-secondary-text;
 }
 
-.action-button-tool-settings:hover {
+body.hasHover .action-button-tool-settings:hover {
   background-color: $editor-tertiary;
   color: $editor-primary-property-text;
 }
@@ -312,7 +312,7 @@ $action-button-transition-duration: .2s;
   padding: 0 2px 0 2px;
 }
 
-.action-button-upload:hover {
+body.hasHover .action-button-upload:hover {
   //background-color: $wick-green-light;
   color: $wick-green-dark;
   border: 1.5px solid $wick-green-light;
@@ -339,7 +339,7 @@ $action-button-transition-duration: .2s;
   font-size: 16px;
 }
 
-.action-button-gray:hover {
+body.hasHover .action-button-gray:hover {
   background-color: $wick-gray-light;
   color: $wick-gray-text;
 }
@@ -363,7 +363,7 @@ $action-button-transition-duration: .2s;
   font-size: 16px;
 }
 
-.action-button-gray-green:hover {
+body.hasHover .action-button-gray-green:hover {
   background-color: $wick-green;
   color: black;//white;
 }
@@ -387,7 +387,7 @@ $action-button-transition-duration: .2s;
   font-size: 16px;
 }
 
-.action-button-error:hover {
+body.hasHover .action-button-error:hover {
   background-color: $wick-error-red-light;
   color: white;
 }
@@ -410,7 +410,7 @@ $action-button-transition-duration: .2s;
   color: black;
 }
 
-.action-button-checkbox:hover {
+body.hasHover .action-button-checkbox:hover {
   //background-color: $editor-tertiary;
   border: 2px solid $wick-green-light;
   color: black;
@@ -437,7 +437,7 @@ $action-button-transition-duration: .2s;
   font-size: 16px;
 }
 
-.action-button-active-blue:hover {
+body.hasHover .action-button-active-blue:hover {
   background-color: $wick-active-blue-light;
   color: black; //white;
 }
@@ -461,7 +461,7 @@ $action-button-transition-duration: .2s;
   font-size: 16px;
 }
 
-.action-button-inspector:hover {
+body.hasHover .action-button-inspector:hover {
   background-color: $wick-active-blue-light;
   color: black; //white;
 }
@@ -485,7 +485,7 @@ $action-button-transition-duration: .2s;
   font-size: 16px;
 }
 
-.action-button-reference:hover {
+body.hasHover .action-button-reference:hover {
   //background-color: $wick-active-blue;
   color: $wick-green-light; //white;
 }
@@ -511,7 +511,7 @@ $action-button-transition-duration: .2s;
   font-size: 16px;
 }
 
-.action-button-script-name:hover {
+body.hasHover .action-button-script-name:hover {
   //background-color: $editor-secondary;
   color: #FFFFFF;
 }
@@ -540,7 +540,7 @@ $action-button-transition-duration: .2s;
   font-size: 16px;
 }
 
-.action-button-flame:hover {
+body.hasHover .action-button-flame:hover {
   background-color: $flame-light;
   color: $flame-text;
 }

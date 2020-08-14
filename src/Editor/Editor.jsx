@@ -233,6 +233,8 @@ class Editor extends EditorCore {
       }
     );
 
+
+
     // Setup the initial project state
     this.setState({
       ...this.state,
@@ -253,6 +255,7 @@ class Editor extends EditorCore {
     };
   }
 
+
   componentDidMount = () => {
     console.log("Project Mounted");
     this.hidePreloader();
@@ -260,6 +263,8 @@ class Editor extends EditorCore {
     if(!this.tryToParseProjectURL()) {
       this.showAutosavedProjects();
     }
+
+    this.watchForHover();
   }
 
   componentDidUpdate = (prevProps, prevState) => {
@@ -284,6 +289,34 @@ class Editor extends EditorCore {
       this.projectDidChange({ skipHistory: true, actionName:"Stop Project" });
     }
   }
+
+  // Detects if the device has hover capability. Adds "hasHover" to the body to avoid 'Sticky-hover' on touch devices.
+  // https://stackoverflow.com/questions/23885255/how-to-remove-ignore-hover-css-style-on-touch-devices
+  watchForHover = () => {
+    // lastTouchTime is used for ignoring emulated mousemove events
+    let lastTouchTime = 0
+  
+    function enableHover() {
+      if (new Date() - lastTouchTime < 500) return
+      document.body.classList.add('hasHover')
+    }
+  
+    function disableHover() {
+      document.body.classList.remove('hasHover')
+    }
+  
+    function updateLastTouchTime() {
+      lastTouchTime = new Date()
+    }
+  
+    document.addEventListener('touchstart', updateLastTouchTime, true)
+    document.addEventListener('touchstart', disableHover, true)
+    document.addEventListener('mousemove', enableHover, true)
+  
+    enableHover()
+  }
+  
+  
 
 //
 
