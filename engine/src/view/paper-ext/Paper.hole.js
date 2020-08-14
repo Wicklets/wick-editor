@@ -116,8 +116,10 @@
 
     function bumpedCurve(c, direction) {
         let curve = c.clone();
-        let r1 = direction / curve.getCurvatureAtTime(0);
-        let r2 = direction / curve.getCurvatureAtTime(1);
+        let c1 = curve.getCurvatureAtTime(0);
+        let c2 = curve.getCurvatureAtTime(1);
+        let r1 = c1 === 0 ? 2 : direction / c1;
+        let r2 = c2 === 0 ? 2 : direction / c2;
         let scale1 = Math.max(Math.min((r1 - GAP_FILL) / r1, 2), 0);
         let scale2 = Math.max(Math.min((r2 - GAP_FILL) / r2, 2), 0);
         let n1 = curve.getNormalAtTime(0).multiply(-direction).normalize(GAP_FILL);
@@ -126,7 +128,7 @@
         curve.point2 = curve.point2.add(n2);
         curve.handle1 = curve.handle1.multiply(scale1);
         curve.handle2 = curve.handle2.multiply(scale2);
-        console.log(scale1, scale2);
+        console.log('bump scale', scale1, scale2);
         return curve;
     }
 
@@ -434,6 +436,7 @@
         circle.smooth('continuous');
         let pointToAdd;
         while (n < MAX_ITERS && !ended) {
+            console.log('------------', n);
             if (n === 1) {
                 points = [];
             }
@@ -448,20 +451,22 @@
             let gapCrossLocation = null;
             if (currentCurve.length > EPSILON) {
                 let gapCurve = bumpedCurve(currentCurve, currentDirection);
-                console.log(gapCurve);
                 [clt, ccl, gcl] = curveIntersections(currentCurve, gapCurve, currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, (a) => 
                     colorsEqual(holeColor, getColorAt(a.point.subtract(a.tangent.multiply(currentDirection).normalize(RADIUS)))) &&
                     !colorsEqual(holeColor, getColorAt(a.point.add(a.tangent.multiply(currentDirection).normalize(RADIUS)))));
                 closestTime = clt;
                 gapCrossLocation = gcl;
-
-                gapCurve = bumpedCurve(currentCurve, -currentDirection);
-                console.log(gapCurve);
-                [clt, ccl, gcl] = curveIntersections(currentCurve, gapCurve, currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, (a) => 
-                    !colorsEqual(holeColor, getColorAt(a.point.subtract(a.tangent.multiply(currentDirection).normalize(RADIUS)))) &&
-                    colorsEqual(holeColor, getColorAt(a.point.add(a.tangent.multiply(currentDirection).normalize(RADIUS)))));
-                gapCrossLocation = gcl;
+                console.log('gcl1', gcl);
+                if (currentCurve.closed) {
+                    gapCurve = bumpedCurve(currentCurve, -currentDirection);
+                    [clt, ccl, gcl] = curveIntersections(currentCurve, gapCurve, currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, (a) => 
+                        !colorsEqual(holeColor, getColorAt(a.point.subtract(a.tangent.multiply(currentDirection).normalize(RADIUS)))) &&
+                        colorsEqual(holeColor, getColorAt(a.point.add(a.tangent.multiply(currentDirection).normalize(RADIUS)))));
+                    gapCrossLocation = gcl;
+                    console.log('gcl2', gcl);
+                }
             }
+            console.log('gapCrossLocation', gapCrossLocation);
 
             if (currentCurveLocation === null) {
                 currentCurveLocation = currentCurve.getLocationAtTime(currentDirection < 0 ? 0 : 1);
@@ -471,7 +476,7 @@
             points.push({p1: pointToAdd, p2: gapCrossLocation ? currentCurve.getNearestLocation(gapCrossLocation.point) : currentCurveLocation});
 
             circle.position = gapCrossLocation ? gapCrossLocation.point : currentCurveLocation.point;
-            console.log(circle.bounds.center.toString());
+            console.log('circle', circle.bounds.center.toString());
             //onFinish(circle.clone());
 
             var crossings = [];
@@ -493,6 +498,8 @@
                     return diff;
                 }
             })
+            console.log('crossings');
+            crossings.map((crossing, i) => console.log(i, crossing.index, crossing.time));
 
             let startingIndex = 0;
             if (gapCrossLocation) {
@@ -508,6 +515,7 @@
                 }
             }
             else {
+                let good = false;
                 for (let i = 0; i < crossings.length; i++) {
                     let crossing = crossings[i];
                     if (crossing.intersection.curve.path === currentCurve.path && 
@@ -518,25 +526,30 @@
                             let crossing2 = crossings[(i + j) % crossings.length];
                             if (Math.abs(Math.abs(crossing2.time + crossing2.index - crossing.time - crossing.index) - 2) < 1.99) {
                                 startingIndex = (i + j) % crossings.length;
+                                good = true;
                                 break;
                             }
                         }
                         break;
                     }
                 }
+                if (!good) console.log("!good");
             }
-
+            console.log(startingIndex);
             let good = false;
             for (let i = 0; i < crossings.length; i++) {
+                console.log((startingIndex + i) % crossings.length);
                 let crossing = crossings[(startingIndex + i) % crossings.length];
                 
                 let colorBefore = getColorAt(crossing.point.subtract(crossing.tangent.normalize(RADIUS * STEP_SIZE)));
 
                 if (colorsEqual(colorBefore, holeColor)) {
+                    console.log('colorsEqual');
                     let colorAt = getPathStroke(crossing.intersection.path)
                     let colorAfter = getColorAt(crossing.point.add(crossing.tangent.normalize(RADIUS * STEP_SIZE)));
 
                     if ((colorAt && !colorsEqual(holeColor, colorAt)) || !colorsEqual(holeColor, colorAfter)) {
+                        console.log('colorChange');
                         currentDirection = getDirection(crossing.intersection, crossing.point.subtract(circle.bounds.center));
                         currentCurveLocation = crossing.intersection;
                         pointToAdd = crossing.intersection.curve.getNearestLocation(circle.bounds.center);
@@ -625,6 +638,7 @@
     /* Add hole() method to paper */
     paper.PaperScope.inject({
         hole: function(args) {
+            console.log('----------------------------------- starting -----------------------------------')
             if(!args) console.error('paper.hole: args is required');
             if(!args.point) console.error('paper.hole: args.point is required');
             if(!args.onFinish) console.error('paper.hole: args.onFinish is required');
