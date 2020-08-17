@@ -41,8 +41,7 @@ export default function WickButton(props) {
   return (
     <button
       {...props.buttonProps}
-      onClick={() => {console.log("Clicking"); handleClick()}}
-      onTouch={() => {console.log("Touching"); handleClick()}}
+      onClick={handleClick}
       className={classNames("wick-button ", props.className)}>
       {props.children}
     </button>
