@@ -62,10 +62,10 @@
 
 
     const MAX_LOOP_ATTEMPTS = 3;
-    var TIMES_LOOPED = 0;
+    var TIMES_LOOPED;
     // Number of segments to use when approximating curve bumped out along normals.
     // Higher is more accurate and more expensive
-    var NORMAL_SEGS = 1;
+    var NORMAL_SEGS;
     // Distance to bump curves by to detect gaps
     var GAP_FILL = 0;
     // Maximum number of traversals
@@ -121,6 +121,46 @@
     }
 
     function bumpedCurve(curve, direction) {
+        let normals = [];
+        let tangentScales = [];
+        for (let i = 0; i <= NORMAL_SEGS; i++) {
+            normals.push(curve.getNormalAtTime(i / NORMAL_SEGS).multiply(-direction).normalize(GAP_FILL));
+            let curvature = curve.getCurvatureAtTime(i / NORMAL_SEGS);
+            let radius = curvature === 0 ? 2 : direction / curvature;
+            let scale = Math.max(Math.min((radius - GAP_FILL) / radius, 2), 0);
+            tangentScales.push(scale);
+        }
+        let curves = [];
+        for (let i = 0; i < NORMAL_SEGS; i++) {
+            let c = curve.getPart(i/NORMAL_SEGS, (i+1)/NORMAL_SEGS);
+            let scale1 = tangentScales[i];
+            let scale2 = tangentScales[i + 1];
+            let n1 = normals[i];
+            let n2 = normals[i + 1];
+            c.point1 = c.point1.add(n1);
+            c.point2 = c.point2.add(n2);
+            c.handle1 = c.handle1.multiply(scale1);
+            c.handle2 = c.handle2.multiply(scale2);
+            curves.push(c);
+        }
+        return curves;
+        /*if (NORMAL_SEGS === 1) {
+            curve = curve.clone();
+            let c1 = curve.getCurvatureAtTime(0);
+            let c2 = curve.getCurvatureAtTime(1);
+            let r1 = c1 === 0 ? 2 : direction / c1;
+            let r2 = c2 === 0 ? 2 : direction / c2;
+            let scale1 = Math.max(Math.min((r1 - GAP_FILL) / r1, 2), 0);
+            let scale2 = Math.max(Math.min((r2 - GAP_FILL) / r2, 2), 0);
+            let n1 = curve.getNormalAtTime(0).multiply(-direction).normalize(GAP_FILL);
+            let n2 = curve.getNormalAtTime(1).multiply(-direction).normalize(GAP_FILL);
+            curve.point1 = curve.point1.add(n1);
+            curve.point2 = curve.point2.add(n2);
+            curve.handle1 = curve.handle1.multiply(scale1);
+            curve.handle2 = curve.handle2.multiply(scale2);
+            //console.log('bump scale', scale1, scale2);
+            return [curve];
+        }
         let segments = [];
         for (let i = 0; i <= NORMAL_SEGS; i++) {
             let t = i / NORMAL_SEGS;
@@ -134,24 +174,8 @@
             segments.push(new paper.Segment(point, handle.multiply(-1), handle));
         }
         let p = new paper.Path(segments);
-        //onFinish(p);
-        return p;
-        /*
-        let curve = c.clone();
-        let c1 = curve.getCurvatureAtTime(0);
-        let c2 = curve.getCurvatureAtTime(1);
-        let r1 = c1 === 0 ? 2 : direction / c1;
-        let r2 = c2 === 0 ? 2 : direction / c2;
-        let scale1 = Math.max(Math.min((r1 - GAP_FILL) / r1, 2), 0);
-        let scale2 = Math.max(Math.min((r2 - GAP_FILL) / r2, 2), 0);
-        let n1 = curve.getNormalAtTime(0).multiply(-direction).normalize(GAP_FILL);
-        let n2 = curve.getNormalAtTime(1).multiply(-direction).normalize(GAP_FILL);
-        curve.point1 = curve.point1.add(n1);
-        curve.point2 = curve.point2.add(n2);
-        curve.handle1 = curve.handle1.multiply(scale1);
-        curve.handle2 = curve.handle2.multiply(scale2);
-        console.log('bump scale', scale1, scale2);
-        return curve;*/
+        p.remove();
+        return p.curves;*/
     }
 
     // Performs the algoritm described at top of file.
@@ -460,7 +484,7 @@
         circle.smooth('continuous');
         let pointToAdd;
         while (n < MAX_ITERS && !ended) {
-            console.log('------------', n);
+            //console.log('------------', n);
             if (n === 1) {
                 points = [];
             }
@@ -474,35 +498,35 @@
 
             let gapCrossLocation = null;
             if (currentCurve.length > EPSILON) {
-                let gapCurves = bumpedCurve(currentCurve, currentDirection).curves;
+                let gapCurves = bumpedCurve(currentCurve, currentDirection);
                 for (let i = 0; i < gapCurves.length; i++) {
                     [clt, ccl, gcl, r] = curveIntersections(currentCurve, gapCurves[i], currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, (a) => 
                         colorsEqual(holeColor, getColorAt(a.point.subtract(a.tangent.multiply(currentDirection).normalize(RADIUS)))) &&
                         !colorsEqual(holeColor, getColorAt(a.point.add(a.tangent.multiply(currentDirection).normalize(RADIUS)))));
                     if (r) {
-                        console.log("used inner gapCross", i);
+                        //console.log("used inner gapCross", i);
                         closestTime = clt;
                         gapCrossLocation = gcl;
                         break;
                     }
                 }
-                console.log("oy")
-                if (currentCurve.closed) {
-                    gapCurves = bumpedCurve(currentCurve, -currentDirection).curves;
-                    console.log('outerbabey');
+                //console.log("oy")
+                if (currentCurve.path.closed) {
+                    gapCurves = bumpedCurve(currentCurve, -currentDirection);
+                    //console.log('outerbabey');
                     for (let i = 0; i < gapCurves.length; i++) {
                         [clt, ccl, gcl, r] = curveIntersections(currentCurve, gapCurves[i], currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, (a) => 
                             !colorsEqual(holeColor, getColorAt(a.point.subtract(a.tangent.multiply(currentDirection).normalize(RADIUS)))) &&
                             colorsEqual(holeColor, getColorAt(a.point.add(a.tangent.multiply(currentDirection).normalize(RADIUS)))));
                         if (r) {
-                            console.log("used outer gapCross", i);
+                            //console.log("used outer gapCross", i);
                             gapCrossLocation = gcl;
                             break;
                         }
                     }
                 }
             }
-            console.log('gapCrossLocation', gapCrossLocation);
+            //console.log('gapCrossLocation', gapCrossLocation);
 
             if (currentCurveLocation === null) {
                 currentCurveLocation = currentCurve.getLocationAtTime(currentDirection < 0 ? 0 : 1);
@@ -512,7 +536,7 @@
             points.push({p1: pointToAdd, p2: gapCrossLocation ? currentCurve.getNearestLocation(gapCrossLocation.point) : currentCurveLocation});
 
             circle.position = gapCrossLocation ? gapCrossLocation.point : currentCurveLocation.point;
-            console.log('circle', circle.bounds.center.toString());
+            //console.log('circle', circle.bounds.center.toString());
             //onFinish(circle.clone());
 
             var crossings = [];
@@ -534,8 +558,8 @@
                     return diff;
                 }
             })
-            console.log('crossings');
-            crossings.map((crossing, i) => console.log(i, crossing.index, crossing.time));
+            //console.log('crossings');
+            //crossings.map((crossing, i) => console.log(i, crossing.index, crossing.time));
 
             let startingIndex = 0;
             if (gapCrossLocation) {
@@ -551,7 +575,7 @@
                 }
             }
             else {
-                let good = false;
+                //let good = false;
                 for (let i = 0; i < crossings.length; i++) {
                     let crossing = crossings[i];
                     if (crossing.intersection.curve.path === currentCurve.path && 
@@ -562,32 +586,32 @@
                             let crossing2 = crossings[(i + j) % crossings.length];
                             if (Math.abs(Math.abs(crossing2.time + crossing2.index - crossing.time - crossing.index) - 2) < 1.99) {
                                 startingIndex = (i + j) % crossings.length;
-                                good = true;
+                                //good = true;
                                 break;
                             }
                         }
                         break;
                     }
                 }
-                if (!good) console.log("!good");
+                //if (!good) console.log("!good");
             }
-            console.log(startingIndex);
+            //console.log(startingIndex);
             let good = false;
             for (let i = 0; i < crossings.length; i++) {
-                console.log((startingIndex + i) % crossings.length);
+                //console.log((startingIndex + i) % crossings.length);
                 let crossing = crossings[(startingIndex + i) % crossings.length];
                 
                 let colorBefore = getColorAt(crossing.point.subtract(crossing.tangent.normalize(RADIUS * STEP_SIZE)));
 
                 if (colorsEqual(colorBefore, holeColor)) {
-                    console.log('colorsEqual');
+                    //console.log('colorsEqual');
                     let colorAt = getPathStroke(crossing.intersection.path);
                     let itemAt = !!colorAt && layerGroup.hitTest(crossing.point, {fill: true});
                     let colorAfter = getColorAt(crossing.point.add(crossing.tangent.normalize(RADIUS * STEP_SIZE)));
 
                     if ((colorAt && !colorsEqual(holeColor, colorAt) && (!itemAt || crossing.intersection.path.isAbove(itemAt.item))) || 
                         !colorsEqual(holeColor, colorAfter)) {
-                        console.log('colorChange');
+                        //console.log('colorChange');
                         currentDirection = getDirection(crossing.intersection, crossing.point.subtract(circle.bounds.center));
                         currentCurveLocation = crossing.intersection;
                         pointToAdd = crossing.intersection.curve.getNearestLocation(circle.bounds.center);
@@ -613,12 +637,13 @@
                         points = points.slice(i);
                         if (i > 2) {
                             TIMES_LOOPED ++;
+                            console.log("LOOP", TIMES_LOOPED);
                             if (TIMES_LOOPED >= MAX_LOOP_ATTEMPTS) {
                                 onError("LOOPING");
                                 return null;
                             }
-                            circle.remove();
                             layerGroup.addChild(circle.scale(1 / RADIUS));
+                            circle.remove();
                             NORMAL_SEGS += 4;
                             return getShapeAroundPoint(startingPoint);
                         }
@@ -689,6 +714,9 @@
             if(!args.onFinish) console.error('paper.hole: args.onFinish is required');
             if(!args.onError) console.error('paper.hole: args.onError is required');
             if(!args.layers) console.error('paper.hole: args.layers is required');
+
+            TIMES_LOOPED = 0;
+            NORMAL_SEGS = 1;
 
             GAP_FILL = (args.gapFillAmount ? args.gapFillAmount : 0) + 0.01;
             onError = args.onError;
