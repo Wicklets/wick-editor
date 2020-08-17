@@ -121,6 +121,22 @@
     }
 
     function bumpedCurve(curve, direction) {
+        /*curve = curve.clone();
+        let c1 = curve.getCurvatureAtTime(0);
+        let c2 = curve.getCurvatureAtTime(1);
+        let r1 = c1 === 0 ? 2 : direction / c1;
+        let r2 = c2 === 0 ? 2 : direction / c2;
+        let scale1 = Math.max(Math.min((r1 - GAP_FILL) / r1, 2), 0);
+        let scale2 = Math.max(Math.min((r2 - GAP_FILL) / r2, 2), 0);
+        let n1 = curve.getNormalAtTime(0).multiply(-direction).normalize(GAP_FILL);
+        let n2 = curve.getNormalAtTime(1).multiply(-direction).normalize(GAP_FILL);
+        curve.point1 = curve.point1.add(n1);
+        curve.point2 = curve.point2.add(n2);
+        curve.handle1 = curve.handle1.multiply(scale1);
+        curve.handle2 = curve.handle2.multiply(scale2);
+        //console.log('bump scale', scale1, scale2);
+        return [curve];
+        */
         let normals = [];
         let tangentScales = [];
         for (let i = 0; i <= NORMAL_SEGS; i++) {
@@ -143,39 +159,12 @@
             c.handle2 = c.handle2.multiply(scale2);
             curves.push(c);
         }
+        // Useful for debugging the bumped curve
+        /*for (let i = 0; i < curves.length; i++) {
+            let path = new paper.Path([new paper.Segment(curves[i].point1, curves[i].handle1), new paper.Segment(curves[i].point2, curves[i].handle2)]);
+            onFinish(path);
+        }*/
         return curves;
-        /*if (NORMAL_SEGS === 1) {
-            curve = curve.clone();
-            let c1 = curve.getCurvatureAtTime(0);
-            let c2 = curve.getCurvatureAtTime(1);
-            let r1 = c1 === 0 ? 2 : direction / c1;
-            let r2 = c2 === 0 ? 2 : direction / c2;
-            let scale1 = Math.max(Math.min((r1 - GAP_FILL) / r1, 2), 0);
-            let scale2 = Math.max(Math.min((r2 - GAP_FILL) / r2, 2), 0);
-            let n1 = curve.getNormalAtTime(0).multiply(-direction).normalize(GAP_FILL);
-            let n2 = curve.getNormalAtTime(1).multiply(-direction).normalize(GAP_FILL);
-            curve.point1 = curve.point1.add(n1);
-            curve.point2 = curve.point2.add(n2);
-            curve.handle1 = curve.handle1.multiply(scale1);
-            curve.handle2 = curve.handle2.multiply(scale2);
-            //console.log('bump scale', scale1, scale2);
-            return [curve];
-        }
-        let segments = [];
-        for (let i = 0; i <= NORMAL_SEGS; i++) {
-            let t = i / NORMAL_SEGS;
-            //let cl = curve.getLocationAtTime(t);
-            let n = curve.getNormalAtTime(t).multiply(-direction).normalize(GAP_FILL);
-            let c = curve.getCurvatureAtTime(t);
-            let r = c === 0 ? 2 : direction / c;
-            let scale = Math.max(Math.min((r - GAP_FILL) / r, 2), 0);
-            let point = curve.getPointAtTime(t).add(n);
-            let handle = curve.getTangentAtTime(t).multiply(scale);
-            segments.push(new paper.Segment(point, handle.multiply(-1), handle));
-        }
-        let p = new paper.Path(segments);
-        p.remove();
-        return p.curves;*/
     }
 
     // Performs the algoritm described at top of file.
@@ -367,7 +356,13 @@
     }
 
     //
-    function curveIntersections(currentCurve, gapCurve, currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, f) {
+    function curveIntersections(currentCurve, gapCurveObject, currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, f) {
+        let gapCurve = null;
+        let gapCurveIndex = null;
+        if (gapCurveObject) {
+            gapCurve = gapCurveObject.gapCurve;
+            gapCurveIndex = gapCurveObject.index;
+        }
         var pathsToIntersect = layerGroup.getItems({
             class: paper.Path,
             overlapping: gapCurve ? gapCurve.bounds : currentCurve.bounds,
@@ -379,8 +374,19 @@
                 let intersectionsWithCurve = gapCurve ? gapCurve.getIntersections(pathsToIntersect[i].curves[c]) : currentCurve.getIntersections(pathsToIntersect[i].curves[c]);
                 for (let j = 0; j < intersectionsWithCurve.length; j++) {
                     let intersectionCurrentWithNext = intersectionsWithCurve[j];
-                    let timeAtThisIntersection = gapCurve ? ((intersectionCurrentWithNext.time + gapCurve.index) / NORMAL_SEGS + currentCurve.index) % currentCurve.path.curves.length :
-                        (intersectionCurrentWithNext.time + intersectionCurrentWithNext.index) % currentCurve.path.curves.length;
+                    if (gapCurve && intersectionCurrentWithNext.intersection.curve === currentCurve) {
+                        // This means the bumped curve intersects the not bumped curve,
+                        // in which case the bumped curve is no good and we abandon it.
+                        // (Sometimes happens on sharp corners)
+                        return [null, null, null, false];
+                    }
+                    if (gapCurve && 
+                        currentDirection === 1 ? intersectionCurrentWithNext.intersection.curve === currentCurve.next :
+                        intersectionCurrentWithNext.intersection.curve === currentCurve.previous) {
+                        continue;
+                    }
+                    let timeAtThisIntersection = gapCurve ? ((intersectionCurrentWithNext.time + gapCurveIndex) / NORMAL_SEGS + currentCurve.index) % currentCurve.path.curves.length :
+                                                            (intersectionCurrentWithNext.time + intersectionCurrentWithNext.index) % currentCurve.path.curves.length;
 
                     //time to traverse forwards from currentTime to timeAtThisIntersection
                     let forwardsDiff = (timeAtThisIntersection - currentTime + currentCurve.path.curves.length) % currentCurve.path.curves.length;
@@ -446,7 +452,7 @@
 
         crossings.sort((a,b) => {
             let diff = a.time - b.time;
-            if (diff === 0) {
+            if (Math.abs(diff) <= EPSILON) {
                 return a.intersection.path.isAbove(b.intersection.path) ? -1 : 1;
             }
             else {
@@ -458,9 +464,11 @@
             let crossing = crossings[c];
 
             let colorAt = getPathStroke(crossing.intersection.path);
+            let itemAt = !!colorAt && layerGroup.hitTest(crossing.point, {fill: true});
             let colorAfter = getColorAt(crossing.point.add(new paper.Point(-EPSILON, 0)));
 
-            if ((colorAt && !colorsEqual(holeColor, colorAt)) || !colorsEqual(holeColor, colorAfter)) {
+            if ((colorAt && !colorsEqual(holeColor, colorAt) && (!itemAt || crossing.intersection.path.isAbove(itemAt.item))) || 
+                !colorsEqual(holeColor, colorAfter)) {
                 currentCurveLocation = crossing.intersection;
                 currentCurve = currentCurveLocation.curve;
                 var currentDirection = getDirection(currentCurveLocation, new paper.Point(0, -1));
@@ -500,7 +508,7 @@
             if (currentCurve.length > EPSILON) {
                 let gapCurves = bumpedCurve(currentCurve, currentDirection);
                 for (let i = 0; i < gapCurves.length; i++) {
-                    [clt, ccl, gcl, r] = curveIntersections(currentCurve, gapCurves[i], currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, (a) => 
+                    [clt, ccl, gcl, r] = curveIntersections(currentCurve, {gapCurve: gapCurves[i], index: i}, currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, (a) => 
                         colorsEqual(holeColor, getColorAt(a.point.subtract(a.tangent.multiply(currentDirection).normalize(RADIUS)))) &&
                         !colorsEqual(holeColor, getColorAt(a.point.add(a.tangent.multiply(currentDirection).normalize(RADIUS)))));
                     if (r) {
@@ -510,12 +518,10 @@
                         break;
                     }
                 }
-                //console.log("oy")
                 if (currentCurve.path.closed) {
                     gapCurves = bumpedCurve(currentCurve, -currentDirection);
-                    //console.log('outerbabey');
                     for (let i = 0; i < gapCurves.length; i++) {
-                        [clt, ccl, gcl, r] = curveIntersections(currentCurve, gapCurves[i], currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, (a) => 
+                        [clt, ccl, gcl, r] = curveIntersections(currentCurve, {gapCurve: gapCurves[i], index: i}, currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, (a) => 
                             !colorsEqual(holeColor, getColorAt(a.point.subtract(a.tangent.multiply(currentDirection).normalize(RADIUS)))) &&
                             colorsEqual(holeColor, getColorAt(a.point.add(a.tangent.multiply(currentDirection).normalize(RADIUS)))));
                         if (r) {
@@ -563,6 +569,7 @@
 
             let startingIndex = 0;
             if (gapCrossLocation) {
+                //console.log('gcIndex');
                 let incomingTangent = gapCrossLocation.tangent.multiply(-currentDirection);
                 let incomingIndex = (2 * Math.PI - Math.atan2(incomingTangent.y, incomingTangent.x)) * 2 / Math.PI + EPSILON;
                 let minIndexDiff = 4;
@@ -582,6 +589,7 @@
                         ((currentCurve.index - crossing.intersection.curve.index) * currentDirection + currentCurve.path.curves.length) % currentCurve.path.curves.length <= 1 &&
                         currentDirection !== getDirection(crossing.intersection, crossing.point.subtract(currentCurveLocation.point))) {
                         startingIndex = i + 1;
+                        //console.log(i);
                         for (let j = 1; j < crossings.length; j++) {
                             let crossing2 = crossings[(i + j) % crossings.length];
                             if (Math.abs(Math.abs(crossing2.time + crossing2.index - crossing.time - crossing.index) - 2) < 1.99) {
@@ -595,7 +603,7 @@
                 }
                 //if (!good) console.log("!good");
             }
-            //console.log(startingIndex);
+            //console.log('start', startingIndex);
             let good = false;
             for (let i = 0; i < crossings.length; i++) {
                 //console.log((startingIndex + i) % crossings.length);
@@ -708,7 +716,6 @@
     /* Add hole() method to paper */
     paper.PaperScope.inject({
         hole: function(args) {
-            console.log('----------------------------------- starting -----------------------------------')
             if(!args) console.error('paper.hole: args is required');
             if(!args.point) console.error('paper.hole: args.point is required');
             if(!args.onFinish) console.error('paper.hole: args.onFinish is required');

@@ -1357,7 +1357,7 @@ class EditorCore extends Component {
       } else if (message === 'LOOPING') {
         this.toast('Fill bucket failed. Error: LOOPING', 'warning');
       } else if (message === 'NO_VALID_CROSSINGS') {
-        this.toast('Fill bucket failed. Error: NO_VALID_CROSSINGS', 'warning');
+        this.toast('Fill bucket failed. Error: NO_VALID_CROSSINGS. Try again.', 'warning');
       } else if (message === 'TOO_COMPLEX') {
         this.toast('Shape is too complex.', 'warning');
       } else if (message === 'NO_PATHS') {
