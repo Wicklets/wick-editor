@@ -24,24 +24,16 @@ $info-left-margin: 12px;
 .export-modal-body {
   width: 450px;
   min-width: 240px;  
-  height: 335px;
   padding: 20px; 
   transition: height .5s, width .5s;
   transition-timing-function: ease-in-out;
 }
+
 .export-modal-body.mobile {
-  width: 80%;
+  width: 90%;
   max-width: 400px;
-  height: 490px;
 }
 
-.export-modal-body.advanced-options {
-  height: 420px; 
-}
-
-.export-modal-body.advanced-options.mobile {
-  height: 555px; 
-}
 
 #export-modal-title {
   font-size: 18px;
