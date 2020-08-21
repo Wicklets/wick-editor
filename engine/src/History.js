@@ -88,8 +88,6 @@ Wick.History = class {
 
         this._recoverState(currentState);
 
-        console.log(this._undoStack);
-
         return true;
     }
 

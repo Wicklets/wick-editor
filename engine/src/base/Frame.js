@@ -398,9 +398,11 @@ Wick.Frame = class extends Wick.Tickable {
      * @param {Wick.Clip} clip - the clip to add.
      */
     addClip(clip) {
+
         if (clip.parent) {
             clip.remove();
         }
+
         this.addChild(clip);
 
         // Pre-render the clip's frames
@@ -463,19 +465,19 @@ Wick.Frame = class extends Wick.Tickable {
         }
 
         // If more than one object exists on the frame, or if there is only one path, create a clip from those objects
-        var numClips = this.clips.length;
-        var numPaths = this.paths.length;
-        if ((numClips === 0 && numPaths === 1) || numClips + numPaths > 1) {
-            var allObjects = this.paths.concat(this.clips);
-            var center = this.project.selection.view._getObjectsBounds(allObjects).center;
+        var clips = this.clips;
+        var paths = this.paths;
+        if ((clips.length === 0 && paths.length === 1) || (clips.length + paths.length) > 1) {
+            var allDrawables = paths.concat(clips);
+            var center = this.project.selection.view._getObjectsBounds(allDrawables).center;
             var clip = new Wick.Clip({
-                objects: this.paths.concat(this.clips),
                 transformation: new Wick.Transformation({
                     x: center.x,
                     y: center.y,
                 }),
             });
             this.addClip(clip);
+            clip.addObjects(allDrawables);
         }
 
         // Create the tween (if there's not already a tween at the current playhead position)
@@ -506,7 +508,7 @@ Wick.Frame = class extends Wick.Tickable {
     /**
      * Get the tween at the given playhead position. Returns null if there is no tween.
      * @param {number} playheadPosition - the playhead position to look for tweens at.
-     * @returns {Wick.Tween} the tween at the given playhead position.
+     * @returns {Wick.Tween || null} the tween at the given playhead position.
      */
     getTweenAtPosition(playheadPosition) {
         return this.tweens.find(tween => {
@@ -515,8 +517,17 @@ Wick.Frame = class extends Wick.Tickable {
     }
 
     /**
+     * Returns the tween at the current playhead position, if one exists on the frame. Null otherwise.
+     * @returns {Wick.Tween || null}
+     */
+    getTweenAtCurrentPlayheadPosition() {
+        let playheadPosition = this.getRelativePlayheadPosition();
+        return this.getTweenAtPosition(playheadPosition);
+    }
+
+    /**
      * The tween being used to transform the objects on the frame.
-     * @returns {Wick.Tween} tween - the active tween. Null if there is no active tween.
+     * @returns {Wick.Tween || null} tween - the active tween. Null if there is no active tween.
      */
     getActiveTween() {
         if (!this.parentTimeline) return null;
@@ -532,7 +543,7 @@ Wick.Frame = class extends Wick.Tickable {
         var seekForwardsTween = this.seekTweenInFront(playheadPosition);
 
         if (seekBackwardsTween && seekForwardsTween) {
-            return Wick.Tween.interpolate(seekBackwardsTween, seekForwardsTween, playheadPosition);
+           return Wick.Tween.interpolate(seekBackwardsTween, seekForwardsTween, playheadPosition);
         } else if (seekForwardsTween) {
             return seekForwardsTween;
         } else if (seekBackwardsTween) {

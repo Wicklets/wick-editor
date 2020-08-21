@@ -94,6 +94,7 @@ import iconImageObject from'resources/object-icons/image.svg';
 
 // Rows
 import iconBrushSize from "resources/inspector-icons/property-icons/brushsize.svg";
+import iconGapFillAmount from "resources/inspector-icons/property-icons/gapfillamount.png";
 import iconFillSmoothing from "resources/inspector-icons/property-icons/fillsmoothing.png";
 import iconBrushSmoothness from "resources/inspector-icons/property-icons/brushsmoothness.svg";
 import iconCornerRadius from "resources/inspector-icons/property-icons/cornerradius.svg";
@@ -211,6 +212,7 @@ class ToolIcon extends Component {
       "framerate": iconFrameRate,
       "flipHorizontal": iconFlipHorizontal,
       "flipVertical": iconFlipVertical,
+      "gapfillamount": iconGapFillAmount,
       "fillsmoothing": iconFillSmoothing,
       "brushsize": iconBrushSize,
       "multipleobjects": iconMultipleObjects,
@@ -308,7 +310,14 @@ class ToolIcon extends Component {
         <img
           className={classNames("img-tool-icon", this.props.className)}
           alt={this.props.name+" icon"}
-          src={this.getSource()}/>
+          src={this.getSource()}>
+        </img>
+        // <object
+        //   type="image/svg+xml"
+        //   className={classNames("img-tool-icon", this.props.className)}
+        //   alt={this.props.name+" icon"}
+        //   data={this.getSource()}>
+        // </object>
       );
     } else {
       return (

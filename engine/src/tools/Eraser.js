@@ -85,8 +85,10 @@ Wick.Tools.Eraser = class extends Wick.Tool {
     }
 
     onMouseDrag (e) {
-        this.path.add(e.point);
-        this.path.smooth();
+        if (e.point) {
+            this.path.add(e.point);
+            this.path.smooth();
+        }
     }
 
     onMouseUp (e) {

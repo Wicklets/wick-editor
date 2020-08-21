@@ -80,6 +80,7 @@ class Toolbox extends Component {
     return (
       <ToolButton
       {...this.toolButtonProps}
+      keyMap={this.props.keyMap}
       action={action.action}
       name={action.icon}
       tooltip={action.tooltip} />
@@ -89,17 +90,17 @@ class Toolbox extends Component {
   renderToolButtons = () => {
     return (
       <div className="tool-collection-container">
-        <ToolButton {...this.toolButtonProps} name='cursor' tooltip="Cursor (C)" />
-        <ToolButton {...this.toolButtonProps} name='brush' tooltip="Brush (B)" />
-        <ToolButton {...this.toolButtonProps} name='pencil' tooltip="Pencil (P)" />
-        <ToolButton {...this.toolButtonProps} name='eraser' tooltip="Eraser (E)" />
-        <ToolButton {...this.toolButtonProps} name='rectangle' tooltip="Rectangle (R)" />
-        <ToolButton {...this.toolButtonProps} name='ellipse' tooltip="Ellipse (O)" />
-        <ToolButton {...this.toolButtonProps} name='line' tooltip="Line (L)" />
-        <ToolButton {...this.toolButtonProps} name='pathcursor' tooltip="Path Cursor (A)" />
-        <ToolButton {...this.toolButtonProps} name='text' tooltip="Text (T)" />
-        <ToolButton {...this.toolButtonProps} name='fillbucket' tooltip="Fill Bucket (F)" />
-        <ToolButton {...this.toolButtonProps} name='eyedropper' tooltip="Eyedropper (D)" />
+        <ToolButton {...this.toolButtonProps} keyMap={this.props.keyMap} name='cursor' tooltip="Cursor" />
+        <ToolButton {...this.toolButtonProps} keyMap={this.props.keyMap} name='brush' tooltip="Brush" />
+        <ToolButton {...this.toolButtonProps} keyMap={this.props.keyMap} name='pencil' tooltip="Pencil" />
+        <ToolButton {...this.toolButtonProps} keyMap={this.props.keyMap} name='eraser' tooltip="Eraser" />
+        <ToolButton {...this.toolButtonProps} keyMap={this.props.keyMap} name='rectangle' tooltip="Rectangle" />
+        <ToolButton {...this.toolButtonProps} keyMap={this.props.keyMap} name='ellipse' tooltip="Ellipse" />
+        <ToolButton {...this.toolButtonProps} keyMap={this.props.keyMap} name='line' tooltip="Line" />
+        <ToolButton {...this.toolButtonProps} keyMap={this.props.keyMap} name='pathcursor' tooltip="Path Cursor" />
+        <ToolButton {...this.toolButtonProps} keyMap={this.props.keyMap} name='text' tooltip="Text" />
+        <ToolButton {...this.toolButtonProps} keyMap={this.props.keyMap} name='fillbucket' tooltip="Fill Bucket" />
+        <ToolButton {...this.toolButtonProps} keyMap={this.props.keyMap} name='eyedropper' tooltip="Eyedropper" />
       </div>
     )
   }

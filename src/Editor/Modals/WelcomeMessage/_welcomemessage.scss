@@ -125,9 +125,8 @@ $welcome-modal-padding: 28px;
 // Mobile Modal Specs
 .welcome-modal-mobile-body {
   width: 80%;
-  height: 80%;
+  height: 380px;
   max-width: 400px;
-  max-height: 400px;
   padding: 0px; 
   background-color: $editor-modal-dark !important;
 }

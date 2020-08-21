@@ -99,26 +99,65 @@ body {
 }
 
 // Toasts
+.Toastify__toast {
+  font-family: 'Nunito Sans';
+  font-weight: 800;
+  font-size: 24px;
+  border-radius: 3px;
+}
 
-.Toastify__toast-container--top-right {
-  top: 40px;
-  right: 1em;
+.Toastify__toast button{
+  font-family: 'Nunito Sans';
+  font-weight: 800;
+  font-size: 24px;
 }
 
 .info-toast-background {
   background-color: $editor-modal-gray;
 }
 
+.info-toast-background button {
+  color: #FFFFFF;
+}
+
+.info-toast-body {
+  color: #FFFFFF;
+}
+
 .error-toast-background {
-  background-color: $wick-red-dark;
+  background-color: #AC1706;//$wick-red-dark;
+}
+
+.error-toast-background button {
+  color: #FFFFFF;
+}
+
+.error-toast-body {
+  color: #FFFFFF;
 }
 
 .warning-toast-background {
-  background-color: $wick-yellow-dark;
+  background-color: $wick-yellow-light;//$wick-yellow-dark;
+}
+
+.warning-toast-background button {
+  color: #000000;
+}
+
+.warning-toast-body {
+  color: #000000;
 }
 
 .success-toast-background {
-  background-color: $wick-green-dark;
+  background-color: $wick-green-light;//$wick-green-dark;
+}
+
+.success-toast-background button {
+  color: #000000;
+}
+
+.success-toast-body {
+  color: #000000;
 }
 
 .mobile-editor-body {
@@ -228,8 +267,8 @@ body {
   opacity: 0.5; }
 
 .reflex-container.horizontal > .reflex-splitter.reflex-thin {
-  border-bottom: $splitter-size solid rgba(255, 255, 255, 0) !important;
-  border-top: $splitter-size solid rgba(255, 255, 255, 0) !important;
+  border-bottom: $splitter-size solid $splitter-color !important;
+  border-top: $splitter-size solid $splitter-color !important;
   height: 17px !important;
   cursor: row-resize;
   margin: -$splitter-size 0;
@@ -241,8 +280,8 @@ body {
   border-top: $splitter-size solid $splitter-highlight-color !important; }
 
 .reflex-container.vertical > .reflex-splitter.reflex-thin {
-  border-right: $splitter-size solid rgba(255, 255, 255, 0) !important;
-  border-left: $splitter-size solid rgba(255, 255, 255, 0) !important;
+  border-right: $splitter-size solid $splitter-color !important;
+  border-left: $splitter-size solid $splitter-color !important;
   width: 17px !important;
   cursor: col-resize;
   margin: 0 -$splitter-size;

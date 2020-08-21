@@ -589,6 +589,69 @@ describe('Wick.Project', function() {
             expect(clip.transformation.opacity).to.be.closeTo(1.0, 0.01);
         });
 
+        // TODO add check for tweens when playhead moves off frame.
+        // it('should tween properly between preview plays', function () {
+        //     var project = new Wick.Project();
+
+        //     var frame = project.activeFrame;
+        //     frame.end = 9;
+
+        //     var clip = new Wick.Clip();
+        //     frame.addClip(clip);
+
+        //     var tweenA = new Wick.Tween({
+        //         playheadPosition: 1,
+        //         transformation: new Wick.Transformation({
+        //             x: 0,
+        //             y: 0,
+        //             scaleX: 1,
+        //             scaleY: 1,
+        //             rotation: 0,
+        //             opacity: 1,
+        //         }),
+        //         fullRotations: 0,
+        //     });
+
+        //     var tweenB = new Wick.Tween({
+        //         playheadPosition: 9,
+        //         transformation: new Wick.Transformation({
+        //             x: 100,
+        //             y: 200,
+        //             scaleX: 2,
+        //             scaleY: 0.5,
+        //             rotation: 180,
+        //             opacity: 1.0,
+        //         }),
+        //         fullRotations: 0,
+        //     });
+        //     frame.addTween(tweenA);
+        //     frame.addTween(tweenB);
+
+        //     project.play({
+        //         onAfterTick: () => {
+        //             project.stop();
+
+        //             // Tweens shouldn't change after play.
+        //             expect(tweenA.transformation.x).to.be.closeTo(0, 0.01);
+        //             expect(tweenA.transformation.y).to.be.closeTo(0, 0.01);
+        //             expect(tweenA.transformation.scaleX).to.be.closeTo(1, 0.01);
+        //             expect(tweenA.transformation.scaleY).to.be.closeTo(1, 0.01);
+        //             expect(tweenA.transformation.rotation).to.be.closeTo(0, 0.01);
+        //             expect(tweenA.transformation.opacity).to.be.closeTo(1, 0.01);
+
+        //             expect(tweenA.transformation.x).to.be.closeTo(100, 0.01);
+        //             expect(tweenA.transformation.y).to.be.closeTo(200, 0.01);
+        //             expect(tweenA.transformation.scaleX).to.be.closeTo(2, 0.01);
+        //             expect(tweenA.transformation.scaleY).to.be.closeTo(0.5, 0.01);
+        //             expect(tweenA.transformation.rotation).to.be.closeTo(180, 0.01);
+        //             expect(tweenA.transformation.opacity).to.be.closeTo(1, 0.01);
+
+        //             done();
+        //         }
+        //     })
+        // });
+
+
         it('should run all scripts in the correct order', function () {
             // This checks that all default scrips run before all load scripts.
             window.scriptOrder = [];

@@ -89,7 +89,7 @@ class PopOutCodeEditor extends Component {
   }
 
   onCloseHandler = () => {
-    this.props.toggleCodeEditor();
+    this.props.toggleCodeEditor(false);
   }
 
   rerenderCodeEditor = () => {
@@ -142,7 +142,7 @@ class PopOutCodeEditor extends Component {
               {this.getCodeEditorInfo()} </span>
           </div>
           <div className="code-editor-close-button">
-            <ActionButton color="tool" icon="cancel-white" action={this.onCloseHandler}/> {/*<ToolIcon name="closemodal" />*/}
+            <ActionButton color="tool" icon="cancel-white" action={this.onCloseHandler}/>
           </div>
         </div>
         <div className="code-editor-body">

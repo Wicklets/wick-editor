@@ -97,7 +97,7 @@ class HotKeyInterface extends Object {
         name: "Deactivate Pan",
         sequences: [{sequence: "x", action: "keyup"}],
       },
-      'activate-fill': {
+      'activate-fillbucket': {
         name: "Activate Fill",
         sequences: ['f', 'g'],
       },
@@ -361,7 +361,7 @@ class HotKeyInterface extends Object {
         "activate-line",
         "activate-path-cursor", 
         "activate-text",
-        "activate-fill",
+        "activate-fillbucket",
         "activate-eyedropper",
       ],
       "Drawing Tool Options": [
@@ -441,7 +441,7 @@ class HotKeyInterface extends Object {
       'activate-ellipse': (() => this.editor.setActiveTool("ellipse")),
       'activate-line': (() => this.editor.setActiveTool("line")),
       'activate-text': (() => this.editor.setActiveTool("text")),
-      'activate-fill': (() => this.editor.setActiveTool("fillbucket")),
+      'activate-fillbucket': (() => this.editor.setActiveTool("fillbucket")),
       'activate-path-cursor': (() => this.editor.setActiveTool("pathcursor")),
       'activate-eyedropper': (() => this.editor.setActiveTool("eyedropper")),
       'deactivate-eyedropper': this.editor.activateLastTool,
@@ -665,6 +665,52 @@ class HotKeyInterface extends Object {
     });
 
     return map;
+  }
+
+  // Replaces keys with symbols.
+  static replaceKeys (str) {
+    const keys = [
+      ['shift', '⇪'],
+      ['Shift', '⇪'],
+      ['arrowleft', '⇨'],
+      ['left', '⇦'],
+      ['Left', '⇦'],
+      ['arrowright', '⇨'],
+      ['right', '⇨'],
+      ['Right', '⇨'],
+      ['arrowup', '⇧'],
+      ['up', '⇧'],
+      ['Up', '⇧'],
+      ['arrowdown', '⇩'],
+      ['down', '⇩'],
+      ['Down', '⇩'],
+      ['command', '⌘'],
+      ['Command', '⌘'],
+    ]
+
+    let newStr = str;
+
+    keys.forEach(swap => {
+      newStr = newStr.replace(swap[0], swap[1]);
+    });
+
+    return newStr;
+  }
+
+  /**
+   * Returns the first hotkey associated with an action from a keymap.
+   * @param {Object} keymap - Keymap object
+   * @param {string} action - String representing an action in the editor. i.e. 'activate-zoom'. 
+   */
+  static getHotKey (keymap, action) {
+    if (!keymap) return '';
+    if (!action) return '';
+
+    let option = keymap[action];
+    if (!option) return '';
+    if (!option.sequences || !option.sequences[0]) return '';
+
+    return option.sequences[0];
   }
 }
 

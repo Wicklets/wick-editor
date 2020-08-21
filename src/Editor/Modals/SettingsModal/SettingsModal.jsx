@@ -82,7 +82,6 @@ class SettingsModal extends Component {
               getToolSetting={this.props.getToolSetting}
               setToolSetting={this.props.setToolSetting}
               getToolSettingRestrictions={this.props.getToolSettingRestrictions}/>
-            />
           </TabbedInterface>
         </div>
       </WickModal>

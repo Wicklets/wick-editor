@@ -16,6 +16,8 @@ $canvas-transforms-size: 40px;
 }
 .canvas-transforms-widget.mobile {
   margin-right: 0;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
 }
 
 #canvas-zoom-options-container {

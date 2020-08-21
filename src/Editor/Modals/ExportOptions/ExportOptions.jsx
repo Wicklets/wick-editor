@@ -195,33 +195,86 @@ class ExportOptions extends Component {
             </div>
 
             <div className="export-modal-resolution-inputs-container">
-              <span className="export-modal-resolution-input-container">
+              <div className="export-modal-resolution-input-container">
                 <label htmlFor="export width" className="export-modal-resolution-label">
-                  Width (px)
+                  W (px)
                 </label>
                 <WickInput
                 id="export width"
                 type="numeric"
                 value={this.state.exportWidth}
-                onChange={(val) => {this.updateExportSize(val, this.state.exportWidth)}}
+                onChange={(val) => {this.updateExportSize(val, this.state.exportHeight)}}
                 />
-              </span>
+              </div>
               <span><div className="export-modal-x-symbol">x</div></span>
-              <span className="export-modal-resolution-input-container">
+              <div className="export-modal-resolution-input-container">
                 <label htmlFor="export height" className="export-modal-resolution-label">
-                  Height (px)
+                  H (px)
                 </label>
                 <WickInput
                 id="export height"
                 type="numeric"
                 value={this.state.exportHeight}
-                onChange={(val) => {this.updateExportSize(this.state.exportHeight, val)}}
+                onChange={(val) => {this.updateExportSize(this.state.exportWidth, val)}}
                 />
-              </span>
+              </div>
             </div>
           </div>
         </div>
         }
+      </div>
+    )
+  }
+
+  renderGifObject = () => {
+    return (
+      <div className={classNames("export-info-item", this.props.isMobile && "mobile")}>
+        <ObjectInfo
+          className="export-object-info"
+          title="Animated GIF"
+          rows={[
+            { text: "Creates a .gif file", icon: "check" },
+            { text: "No Sound",            icon: "cancel" },
+            { text: "Not Interactive",      icon: "cancel" },
+          ]} />
+        <div className="export-modal-button-container">
+          <ActionButton
+            color='gray-green'
+            action={() => { this.createAndToggle("GIF") }}
+            text="Export GIF"
+            />
+        </div>
+      </div>
+    )
+  }
+
+  renderVideoObject = () => {
+    return (
+      <div className={classNames("export-info-item", this.props.isMobile && "mobile")}>
+        <ObjectInfo
+          className="export-object-info"
+          title="Video (Beta)"
+          rows={[
+            { text: "Creates an .mp4 file", icon: "check" },
+            { text: "Has Sound",            icon: "check" },
+            { text: "Not Interactive",       icon: "cancel"},
+          ]}/>
+        <div className="export-modal-button-container">
+          <ActionButton
+            color='gray-green'
+            action={() => { this.createAndToggle("VIDEO") }}
+            text="Export Video (Beta)"
+            />
+        </div>
+      </div>
+    )
+  }
+
+  renderStandaloneVideoObject = (componentFn) => {
+    return (
+      <div>
+        {componentFn()}
+        {this.renderAdvancedOptions()}
       </div>
     )
   }
@@ -231,40 +284,8 @@ class ExportOptions extends Component {
     return (
       <div>
         <div className={classNames("export-info-container", this.props.isMobile && "mobile")}>
-          <div className={classNames("export-info-item", this.props.isMobile && "mobile")}>
-            <ObjectInfo
-              className="export-object-info"
-              title="Animated GIF"
-              rows={[
-                { text: "Creates a .gif file", icon: "check" },
-                { text: "No Sound",            icon: "cancel" },
-                { text: "Not Interactive",      icon: "cancel" },
-              ]} />
-            <div className="export-modal-button-container">
-              <ActionButton
-                color='gray-green'
-                action={() => { this.createAndToggle("GIF") }}
-                text="Export GIF"
-                />
-            </div>
-          </div>
-          <div className={classNames("export-info-item", this.props.isMobile && "mobile")}>
-            <ObjectInfo
-              className="export-object-info"
-              title="Video (Beta)"
-              rows={[
-                { text: "Creates an .mp4 file", icon: "check" },
-                { text: "Has Sound",            icon: "check" },
-                { text: "Not Interactive",       icon: "cancel"},
-              ]}/>
-            <div className="export-modal-button-container">
-              <ActionButton
-                color='gray-green'
-                action={() => { this.createAndToggle("VIDEO") }}
-                text="Export Video (Beta)"
-                />
-            </div>
-          </div>
+          {this.renderGifObject()}
+          {this.renderVideoObject()}
         </div>
         {this.renderAdvancedOptions()}
       </div>
@@ -409,11 +430,19 @@ class ExportOptions extends Component {
   }
 
   renderDesktop = () => {
+    // An object of export types to functions that render those export types.
+    const exportTypes = {
+      "Animation": this.renderAnimatedInfo,
+      "Interactive": this.renderInteractiveInfo,
+      "Images": this.renderImageInfo,
+      "Audio": this.renderAudioInfo,
+    }
+
     return (
       <WickModal
       open={this.props.open}
       toggle={this.props.toggle}
-      className={classNames("export-modal-body", {"advanced-options": (this.state.useAdvanced && (this.state.subTab === "Animation" || this.state.subTab === "Images"))})}
+      className={classNames("export-modal-body")}
       overlayClassName="export-modal-overlay">
         <div id="export-modal-interior-content">
           <div id="export-modal-title">Export</div>
@@ -425,12 +454,11 @@ class ExportOptions extends Component {
               placeholder={this.placeholderName} />
           </div>
           <TabbedInterface
-            tabNames={["Animation", "Interactive", "Images", "Audio"]}
+            tabNames={window.allowedExportTypes}
             onTabSelect={this.setSubTab}>
-            {this.renderAnimatedInfo()}
-            {this.renderInteractiveInfo()}
-            {this.renderImageInfo()}
-            {this.renderAudioInfo()}
+              {
+                window.allowedExportTypes.map(type => exportTypes[type]())
+              }
           </TabbedInterface>
         </div>
       </WickModal>
@@ -454,10 +482,10 @@ class ExportOptions extends Component {
               placeholder={this.placeholderName} />
           </div>
           <TabbedInterface
-            tabNames={["Animation", "Images"]}
+            tabNames={["GIF", "Video"]}
             onTabSelect={this.setSubTab}>
-            {this.renderAnimatedInfo()}
-            {this.renderImageInfo()}
+            {this.renderStandaloneVideoObject(this.renderGifObject)}
+            {this.renderStandaloneVideoObject(this.renderVideoObject)}
           </TabbedInterface>
         </div>
       </WickModal>

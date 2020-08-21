@@ -445,7 +445,13 @@ Wick.Base = class {
      * @type {Wick.Project}
      */
     get project() {
-        return this._project;
+        if (this._project) {
+            return this._project;
+        } else if (this.parent) {
+            return this.parent.project
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -470,6 +476,8 @@ Wick.Base = class {
 
         child._parent = this;
         child._setProject(this.project);
+
+
 
         this._children.push(child);
     }

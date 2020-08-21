@@ -24,24 +24,16 @@ $info-left-margin: 12px;
 .export-modal-body {
   width: 450px;
   min-width: 240px;  
-  height: 335px;
   padding: 20px; 
   transition: height .5s, width .5s;
   transition-timing-function: ease-in-out;
 }
+
 .export-modal-body.mobile {
-  width: 80%;
+  width: 90%;
   max-width: 400px;
-  height: 490px;
 }
 
-.export-modal-body.advanced-options {
-  height: 420px; 
-}
-
-.export-modal-body.advanced-options.mobile {
-  height: 555px; 
-}
 
 #export-modal-title {
   font-size: 18px;
@@ -141,6 +133,13 @@ $info-left-margin: 12px;
 .export-modal-advanced-option-title {
   color: white;
   font-size: 18px;
+  margin-bottom: 0;
+}
+
+.export-modal-advanced-option-label {
+  display: inline-flex;
+  color: white;
+  font-size: 18px;
 }
 
 .export-modal-advanced-checkbox-container {
@@ -157,7 +156,7 @@ $info-left-margin: 12px;
 .export-modal-resolution-label {
   text-align: left;
   color: $editor-modal-text-gray; 
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .export-modal-resolution-input-container {
@@ -169,6 +168,7 @@ $info-left-margin: 12px;
 .export-modal-resolution-dropdown-container {
   vertical-align: middle;
   width: 50%;
+  margin-top: auto;
 }
 
 .export-modal-resolution-inputs-container {

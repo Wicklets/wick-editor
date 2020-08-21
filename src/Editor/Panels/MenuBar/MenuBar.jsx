@@ -37,7 +37,7 @@ class MenuBar extends Component {
           action={() => this.props.openModal('EditorInfo')}
           icon="mascotmark"
           />
-        <div className="menu-bar-project-name" onClick={() => this.props.openModal('ProjectSettings')}>
+        <div className="menu-bar-project-name" role="button" onClick={() => this.props.openModal("SimpleProjectSettings")}>
           {this.props.projectName}
         </div>
         <div className="menu-bar-actions-container">
@@ -78,7 +78,7 @@ class MenuBar extends Component {
       <div className="docked-pane menu-bar">
         <MenuBarIconButton icon="hamburger" action={() => this.props.openModal('MobileMenuModal')}/>
         
-        <div className="menu-bar-project-name-mobile">
+        <div role="button" onClick={() => this.props.openModal("SimpleProjectSettings")} className="menu-bar-project-name-mobile">
           {this.props.projectName}
         </div>
 

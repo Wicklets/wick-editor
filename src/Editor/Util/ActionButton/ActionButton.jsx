@@ -17,7 +17,7 @@
  * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { Component } from 'react';
+import React from 'react';
 
 import WickInput from 'Editor/Util/WickInput/WickInput';
 import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
@@ -26,46 +26,80 @@ import './_actionbutton.scss';
 
 var classNames = require('classnames');
 
-class ActionButton extends Component {
+export default function ActionButton (props) {
+  let isActive = props.isActive || (() => false);
+  let colorClass = props.color ? "action-button-"+props.color : "action-button-green";
+  let finalColorClassName = classNames(colorClass, {'active-button' : isActive()}, props.buttonClassName)
+  let tooltipID = props.id ? ('action-button-tooltip-' + props.id) : 'action-button-tooltip-nyi';
+  let newClassName = classNames("action-button", props.className);
 
-  runAction = (e) => {
-    if (!this.props.disabled) this.props.useClickEvent ? this.props.action(e) : this.props.action();
+
+  function runAction (e) {
+    if (!props.disabled) {
+      props.useClickEvent ? props.action(e) : props.action();
+    }
   }
 
-  render() {
-    let isActive = this.props.isActive === undefined ? () => false : this.props.isActive;
-
-    let colorClass = this.props.color === undefined ? "action-button-green" : "action-button-"+this.props.color;
-    let finalColorClassName = classNames(colorClass, {'active-button' : isActive()}, this.props.buttonClassName)
-
-    let tooltipID = this.props.id === undefined ? 'action-button-tooltip-nyi' : ('action-button-tooltip-' + this.props.id);
-
-    let newClassName = classNames("action-button", this.props.className);
-
-    return (
-      <div className={newClassName}>
-        <WickInput
-          buttonProps={this.props.buttonProps}
-          tooltip={this.props.tooltip}
-          tooltipID={tooltipID}
-          tooltipPlace={this.props.tooltipPlace}
-          className={finalColorClassName}
-          type="button"
-          secondaryAction={this.props.secondaryAction}
-          onClick={this.runAction}
-          onTouch={this.runAction}>
-          {this.props.dropdown ? 
-          <div className="icons-container">
-            {this.props.icon && <ToolIcon className={classNames(this.props.iconClassName)} name={this.props.icon} />}
-            {this.props.dropdown && <ToolIcon className="dropdown-extra-icon" name="moreactions"/>}
-          </div>
-          :
-          this.props.icon && <ToolIcon className={classNames(this.props.iconClassName)} name={this.props.icon} />}
-          {this.props.text && <div className={classNames(newClassName+'-text', this.props.textClassName)}>{this.props.text}</div>}
-        </WickInput>
-      </div>
-    )
+  function renderSingleIcon () {
+    return <ToolIcon className={classNames("action-button-single-icon", props.iconClassName, {"dropdown-action-button-icon": props.dropdown})} 
+    name={props.icon} />
   }
+
+  function renderDropdownIcon () {
+    return <div className="action-button-dropdown-icon-container">
+      <ToolIcon className={classNames(props.iconClassName, {"dropdown-action-button-icon": props.dropdown})} 
+      name={props.icon} />
+      {props.dropdown && <ToolIcon className="dropdown-extra-icon" name="moreactions"/>}
+    </div>
+  }
+
+  function renderTextIcon () {
+    return <div className="action-button-icon-text-container">
+      <ToolIcon className={classNames(props.iconClassName, "action-button-text-icon", {"dropdown-action-button-icon": props.dropdown})} 
+      name={props.icon} />
+      {props.text && <span className={classNames(newClassName+'-text', props.textClassName)}>{props.text}</span>}
+    </div>
+  }
+
+  function renderText () {
+    return <span className={classNames("action-button-text", newClassName+'-text', props.textClassName)}>{props.text}</span>
+  }
+
+  function renderContent () {
+    if (props.dropdown && props.icon) {
+      return renderDropdownIcon();
+    } else if (props.icon && props.text) {
+      return renderTextIcon();
+    } else if (props.icon) {
+      return renderSingleIcon();
+    } else if (props.text) {
+      return renderText();
+    }
+  }
+
+  function getTooltip () {
+    let hotkey = props.tooltipHotkey;
+
+    if (props.tooltip) {
+      if (hotkey) return props.tooltip + ` (${hotkey.toUpperCase()})`;
+      return props.tooltip
+    }
+  }
+
+  return (
+    <div className={newClassName}>
+      <WickInput
+        buttonProps={props.buttonProps}
+        tooltip={getTooltip()}
+        tooltipID={tooltipID}
+        tooltipPlace={props.tooltipPlace}
+        className={finalColorClassName}
+        type="button"
+        secondaryAction={props.secondaryAction}
+        onClick={runAction}
+        onTouch={runAction}>
+          {renderContent()}
+      </WickInput>
+    </div>
+  );
 }
-
-export default ActionButton

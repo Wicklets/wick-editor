@@ -47,34 +47,36 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
                 this.projectWasModified();
             }
         });
+        // Only draw action buttons on bottom if we're not on mobile.
+        if (!Wick.GUIElement.IS_MOBILE) {
+            this.fillGapsModeButton = new Wick.GUIElement.ActionButton(this.model, {
+                tooltip: 'Gap Fill Mode',
+                icon: 'gap_fill_menu_blank_frames',
+                height: 8,
+                width: 16,
+                clickFn: () => {
+                    this.project.openPopupMenu(new Wick.GUIElement.PopupMenu(this.model, {
+                        x: 0,
+                        y: this.canvas.height - Wick.GUIElement.SCROLLBAR_SIZE,
+                        mode: 'gapfill',
+                    }));
+                }
+            });
 
-        this.fillGapsModeButton = new Wick.GUIElement.ActionButton(this.model, {
-            tooltip: 'Gap Fill Mode',
-            icon: 'gap_fill_menu_blank_frames',
-            height: 8,
-            width: 16,
-            clickFn: () => {
-                this.project.openPopupMenu(new Wick.GUIElement.PopupMenu(this.model, {
-                    x: 0,
-                    y: this.canvas.height - Wick.GUIElement.SCROLLBAR_SIZE,
-                    mode: 'gapfill',
-                }));
-            }
-        });
-
-        this.gridSizeButton = new Wick.GUIElement.ActionButton(this.model, {
-            tooltip: 'Frame Size',
-            icon: 'frame_size_menu',
-            height: 8,
-            width: 16,
-            clickFn: () => {
-                this.project.openPopupMenu(new Wick.GUIElement.PopupMenu(this.model, {
-                    x: 20,
-                    y: this.canvas.height - Wick.GUIElement.SCROLLBAR_SIZE,
-                    mode: 'framesize'
-                }));
-            }
-        });
+            this.gridSizeButton = new Wick.GUIElement.ActionButton(this.model, {
+                tooltip: 'Frame Size',
+                icon: 'frame_size_menu',
+                height: 8,
+                width: 16,
+                clickFn: () => {
+                    this.project.openPopupMenu(new Wick.GUIElement.PopupMenu(this.model, {
+                        x: 20,
+                        y: this.canvas.height - Wick.GUIElement.SCROLLBAR_SIZE,
+                        mode: 'framesize'
+                    }));
+                }
+            });
+        }
     };
 
     draw () {
@@ -92,30 +94,39 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
         ctx.rect(0, this.canvas.height - Wick.GUIElement.BREADCRUMBS_HEIGHT - Wick.GUIElement.SCROLLBAR_SIZE, Wick.GUIElement.LAYERS_CONTAINER_WIDTH, Wick.GUIElement.SCROLLBAR_SIZE);
         ctx.fill();
 
-        // Gap Fill Mode button
-        ctx.save();
-        var method = this.project.model.activeTimeline.fillGapsMethod;
-        if(method === 'auto_extend') {
-            this.fillGapsModeButton.icon = 'gap_fill_menu_extend_frames';
-        } else if (method === 'blank_frames') {
-            this.fillGapsModeButton.icon = 'gap_fill_menu_blank_frames';
-        }
-        ctx.translate(18, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 4);
-            this.fillGapsModeButton.draw(true);
-        ctx.restore();
+        // Only draw action buttons on bottom if we're not on mobile.
+        if (!Wick.GUIElement.IS_MOBILE) {
+            // Gap Fill Mode button
+            ctx.save();
+            var method = this.project.model.activeTimeline.fillGapsMethod;
+            if(method === 'auto_extend') {
+                this.fillGapsModeButton.icon = 'gap_fill_menu_extend_frames';
+            } else if (method === 'blank_frames') {
+                this.fillGapsModeButton.icon = 'gap_fill_menu_blank_frames';
+            }
+            ctx.translate(18, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 4);
+                this.fillGapsModeButton.draw(true);
+            ctx.restore();
 
-        // Frame Size button
-        ctx.save();
-        ctx.translate(54, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 4);
-            this.gridSizeButton.draw(true);
-        ctx.restore();
+            // Frame Size button
+            ctx.save();
+            ctx.translate(54, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 4);
+                this.gridSizeButton.draw(true);
+            ctx.restore();
+        }
+
 
         var tweenButtonIsActive = this.model.project.canCreateTween;
         var deleteButtonIsActive = this.model.project.selection.getSelectedObjects('Timeline').length > 0;
         ctx.save();
 
         ctx.save();
-        ctx.translate(80, 0);
+
+        var widthOfActionButtonContainer = 90;
+        var bump = 10;
+        var leftOfContainer = Wick.GUIElement.LAYERS_CONTAINER_WIDTH + bump - widthOfActionButtonContainer;
+
+        ctx.translate(leftOfContainer, 0);
             // Delete Frame button
             ctx.save();
             ctx.globalAlpha = deleteButtonIsActive ? 1.0 : 0.3;
@@ -123,11 +134,11 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
                 this.deleteFrameButton.draw(deleteButtonIsActive);
             ctx.restore();
 
-            // Copy Frame Forward button
+            // Insert Blank Frame Button
             ctx.save();
             ctx.globalAlpha = 1.0;
             ctx.translate(30, 20);
-                this.insertBlankFrameButton.draw(true);
+                this.insertBlankFrameButton.draw(true); // Insert frame is always active...
             ctx.restore();
 
             // Add Tween button

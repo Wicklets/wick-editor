@@ -92,7 +92,7 @@
 
 .react-tab-yellow {
   background-color: $wick-yellow-dark;
-  color: $wick-yellow-text;
+  color: black; //$wick-yellow-text;
 }
 
 .react-tab-yellow.react-tabs__tab--selected {
@@ -101,7 +101,7 @@
 
 .react-tab-red {
   background-color: $wick-red-dark;
-  color: $wick-red-text;
+  color: black; //$wick-red-text;
 }
 
 .react-tab-red.react-tabs__tab--selected {
@@ -109,18 +109,18 @@
 }
 
 .react-tab-sky {
-  background-color: $wick-active-blue-dark;
-  color: $wick-active-blue-text;
+  background-color: #00A1E0; //$wick-active-blue-dark;
+  color: black; //$wick-active-blue-text;
 }
 
 .react-tab-sky.react-tabs__tab--selected {
-  background-color: $wick-active-blue;
-  color: $wick-active-blue-text;
+  background-color: #05B8FF;//$wick-active-blue;
+  //color: $wick-active-blue-text;
 }
 
 .react-tab-green {
-  background-color: $wick-green-dark;
-  color: $wick-green-text;
+  background-color: #01c094; //$wick-green-dark;
+  color: black; //$wick-green-text;
 }
 
 .react-tab-green.react-tabs__tab--selected {

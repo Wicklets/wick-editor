@@ -65,7 +65,7 @@ class Editor extends EditorCore {
     // "Live" editor states
     this.project = null;
     this.paper = null;
-    this.editorVersion = "1.17.3";
+    this.editorVersion = "1.18";
 
     // GUI state
     this.state = {
@@ -79,7 +79,7 @@ class Editor extends EditorCore {
       showBrushModes: false,
       showCodeErrors: false,
       popoutOutlinerSize: 250,
-      outlinerPoppedOut: true,
+      outlinerPoppedOut: false,
       inspectorSize: 250,
       timelineSize: 175,
       assetLibrarySize: 150,
@@ -106,16 +106,17 @@ class Editor extends EditorCore {
         forward: "rgba(255, 0, 0, .3)",
       },
       onionSkinningWasOn: false,
+      localSavedFiles: [], // Files to display in savedProjects Modal.
     };
 
     // Catch all errors that happen in the editor.
-    window.onerror = function(e, url, line) {
-      // TODO: Handle this error however we want (send it somewhere, display it to user, etc)
-      console.error(e);
-      console.error('error logged: ');
-      console.log(e)
-      console.log(url)
-      console.log(line);
+    window.onerror = function(error, url, line) {
+      console.error(error);
+      console.log("Error Details:", {
+        error,
+        url,
+        line
+      })
       return true;
     }
 
@@ -134,9 +135,35 @@ class Editor extends EditorCore {
     // Init Script Info
     this.scriptInfoInterface = new ScriptInfoInterface();
 
+    // Check if we are using local saving (apps)...
+    if (window.wickEditorFileSystemType === 'local') {
+      window.openWickLocalFileViewer = (files) => {
+        console.log("Files Received", files);
+        this.setState({
+          localSavedFiles: files,
+          activeModalName: 'SavedProjects',
+        });
+      }
+
+      /**
+       * Called if a save is attempted and a file with the same name already exists.
+       * @param {Object} args - Wrapper for openWarningModal 
+       */
+      window.warnBeforeSave = (args) => {this.openWarningModal(args)};
+    }
+
+    // Wick Project File Input
+    this.openProjectFileFromClient = window.createFileInput({
+      accept: '.zip, .wick',
+      onChange: this.handleWickFileLoad,
+    });
+
     // Wick file input
-    this.openFileRef = React.createRef();
-    this.importAssetRef = React.createRef();
+    this.openAssetFileFromClient = window.createFileInput({
+      accept: window.Wick.FileAsset.getValidExtensions().join(', '),
+      onChange: this.handleAssetFileImport,
+      multiple: true,
+    });
 
     // Set up color picker
     this.maxLastColors = 8;
@@ -168,6 +195,8 @@ class Editor extends EditorCore {
   componentWillMount = () => {
     ReactGA.initialize('UA-88233944-1');
     ReactGA.pageview(window.location.pathname + window.location.search);
+
+    document.title =  `Wick Editor ${this.editorVersion}`;
     // Initialize "live" engine state
     this.project = new window.Wick.Project();
     this.attachErrorHandlers();
@@ -204,6 +233,8 @@ class Editor extends EditorCore {
       }
     );
 
+
+
     // Setup the initial project state
     this.setState({
       ...this.state,
@@ -224,12 +255,16 @@ class Editor extends EditorCore {
     };
   }
 
+
   componentDidMount = () => {
+    console.log("Project Mounted");
     this.hidePreloader();
     this.onWindowResize();
     if(!this.tryToParseProjectURL()) {
       this.showAutosavedProjects();
     }
+
+    this.watchForHover();
   }
 
   componentDidUpdate = (prevProps, prevState) => {
@@ -255,12 +290,41 @@ class Editor extends EditorCore {
     }
   }
 
+  // Detects if the device has hover capability. Adds "hasHover" to the body to avoid 'Sticky-hover' on touch devices.
+  // https://stackoverflow.com/questions/23885255/how-to-remove-ignore-hover-css-style-on-touch-devices
+  watchForHover = () => {
+    // lastTouchTime is used for ignoring emulated mousemove events
+    let lastTouchTime = 0
+  
+    function enableHover() {
+      if (new Date() - lastTouchTime < 500) return
+      document.body.classList.add('hasHover')
+    }
+  
+    function disableHover() {
+      document.body.classList.remove('hasHover')
+    }
+  
+    function updateLastTouchTime() {
+      lastTouchTime = new Date()
+    }
+  
+    document.addEventListener('touchstart', updateLastTouchTime, true)
+    document.addEventListener('touchstart', disableHover, true)
+    document.addEventListener('mousemove', enableHover, true)
+  
+    enableHover()
+  }
+  
+  
+
 //
 
   hidePreloader = () => {
     let preloader = window.document.getElementById('preloader');
     setTimeout(() => {
       preloader.style.opacity = '0';
+      this.recenterCanvas(); // Recenter the canvas after reload;
       setTimeout(() => {
         preloader.style.display = 'none';
       }, 500);
@@ -651,6 +715,7 @@ class Editor extends EditorCore {
 
     if (options.type) {
       options.className = options.type + '-toast-background';
+      options.bodyClassName = options.type + '-toast-body';
     }
 
     if (!options.autoClose) {
@@ -774,25 +839,16 @@ class Editor extends EditorCore {
     this._processingAction = processingAction;
   }
 
-  handleWickFileLoad = (e) => {
-    var file = e.target.files[0];
-    if (!file) {
-      console.warn('handleWickFileLoad: no files recieved');
-      return;
-    }
-    this.importProjectAsWickFile(file);
-  }
-
   handleAssetFileImport = (e) => {
     this.createAssets(e.target.files, []);
   }
 
   openProjectFileDialog = () => {
-    this.openFileRef.current.click();
+    this.openProjectFileFromClient();
   }
 
   openImportAssetFileDialog = () => {
-    this.importAssetRef.current.click();
+    this.openAssetFileFromClient();
   }
 
   /**
@@ -894,6 +950,7 @@ class Editor extends EditorCore {
                       changeColorPickerType={this.changeColorPickerType}
                       updateLastColors={this.updateLastColors}
                       lastColorsUsed={this.state.lastColorsUsed}
+                      keyMap={this.getKeyMap()}
                       renderSize={renderSize}
                     />
                   </DockedPanel>
@@ -909,6 +966,7 @@ class Editor extends EditorCore {
                             <SizeMe>{({ size }) => {
                               this.project.view.render();
                               return (<Canvas
+                                editor={this}
                                 project={this.project}
                                 projectDidChange={this.projectDidChange}
                                 projectData={this.state.project}
@@ -934,6 +992,7 @@ class Editor extends EditorCore {
                               previewPlaying={this.state.previewPlaying}
                               togglePreviewPlaying={this.togglePreviewPlaying}
                               renderSize={renderSize}
+                              keyMap={this.getKeyMap()}
                             />
                             {renderSize === "small" &&
                             <DeleteCopyPaste
@@ -1060,9 +1119,11 @@ class Editor extends EditorCore {
                     </DockedPanel>
                   </ReflexElement>}
 
-                  <ReflexSplitter {...this.resizeProps}/>
+                  
 
+                  {window.enableAssetLibrary &&  <ReflexSplitter {...this.resizeProps}/>}
                   {/* Asset Library */}
+                  {window.enableAssetLibrary && 
                   <ReflexElement
                     minSize={100}
                     size={500}
@@ -1085,7 +1146,7 @@ class Editor extends EditorCore {
                         addSoundToActiveFrame={this.addSoundToActiveFrame}
                       />
                     </DockedPanel>
-                  </ReflexElement>
+                  </ReflexElement> }
                 </ReflexContainer>
               </ReflexElement>
               }

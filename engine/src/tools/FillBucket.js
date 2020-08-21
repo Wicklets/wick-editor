@@ -65,6 +65,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
                 }).map(frame => {
                     return frame.view.objectsLayer;
                 }),
+                fillColor: this.getSetting('fillColor'),
                 onFinish: (path) => {
                     this.setCursor('default');
                     if (path) {

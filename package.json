@@ -1,6 +1,6 @@
 {
   "name": "wick-editor",
-  "version": "1.17.3",
+  "version": "1.18.0",
   "author": "Wicklets LLC",
   "private": true,
   "homepage": "./",
@@ -103,25 +103,30 @@
     }
   },
   "scripts": {
+    "eject": "react-scripts eject",
     "dist": "electron-builder",
     "start": "react-scripts start",
+    
     "build": "react-scripts build && cp CNAME_editor ./build/CNAME",
     "build-engine": "cd engine; mkdir dist/; gulp; cp -a dist/. ../public/corelibs/wick-engine/",
     "build-engine-windows": "cd engine & mkdir dist  2>nul &    gulp & xcopy /EY dist\\. ..\\public\\corelibs\\wick-engine\\",
     "test": "react-scripts test",
+    "engine-tests": "cd engine; python -m SimpleHTTPServer 9999",
+
     "predeploy": "npm run build",
     "prerelease-deploy": "npm run build; cp -r build/* ../wick-editor-prerelease/; cd ../wick-editor-prerelease; rm CNAME; echo 'test.wickeditor.com' > CNAME; git add .; git commit -m 'update prerelease build'; git push --force;",
-    "phonegap-deploy": "npm run build; cp -r build/* ../wick-editor-phonegap/www; cd ../wick-editor-phonegap; git add .; git commit -m 'update phonegap build'; git push --force;",
     "deploy": "gh-pages -d build",
-    "eject": "react-scripts eject",
+
     "electron": "electron .",
     "electron-dev-macos": "ELECTRON_START_URL=http://localhost:3000 electron .",
     "electron-dev-windows": "set ELECTRON_START_URL=http://localhost:3000 && electron .",
-    "engine-tests": "cd engine; python -m SimpleHTTPServer 9999",
     "postinstall": "electron-builder install-app-deps",
     "build-packages": "electron-builder --mac --windows --linux",
     "package-mac": "npm run build; electron-builder --mac",
-    "package-windows": "npm run build; electron-builder --windows"
+    "package-windows": "npm run build; electron-builder --windows",
+
+    "phonegap-deploy": "npm run build; cd ../wick-editor-phonegap; npm run prepare-dir; cd ../wick-editor; cp -r build/* ../wick-editor-phonegap/www; cd ../wick-editor-phonegap; npm run prepare-app; git add .; git commit -m 'update phonegap build'; git push --force;",
+    "phonegap-predeploy": "npm run build; cd ../wick-editor-phonegap; npm run prepare-dir; cd ../wick-editor; cp -r build/* ../wick-editor-phonegap/www; cd ../wick-editor-phonegap; npm run prepare-app;" 
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -134,7 +139,7 @@
   ],
   "devDependencies": {
     "dotenv": "^8.2.0",
-    "electron": "^6.0.10",
+    "electron": "^7.2.4",
     "electron-builder": "^22.4.1",
     "electron-builder-notarize": "^1.1.2",
     "electron-notarize": "^0.3.0",

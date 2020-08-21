@@ -40,7 +40,7 @@ Wick.Project = class extends Wick.Base {
         this._backgroundColor = args.backgroundColor || new Wick.Color('#ffffff');
 
         this.pan = { x: 0, y: 0 };
-        this.zoom = 1.0;
+        this._zoom = 1.0;
         this.rotation = 0.0;
 
         this._onionSkinEnabled = false;
@@ -312,6 +312,19 @@ Wick.Project = class extends Wick.Base {
 
     set history(history) {
         this._history = history;
+    }
+
+    /**
+     * Value used to determine the zoom of the canvas.
+     */
+    get zoom () {
+        return this._zoom;
+    }
+
+    set zoom(z) {
+        const max = this.view.calculateFitZoom() * 10;
+        const min = .10;
+        this._zoom = Math.max(min, Math.min(max, z));
     }
 
     /**
@@ -588,37 +601,50 @@ Wick.Project = class extends Wick.Base {
         let clipTypes = Wick.ClipAsset.getValidMIMETypes();
         let svgTypes = Wick.SVGAsset.getValidMIMETypes();
 
+        let imageExtensions = Wick.ImageAsset.getValidExtensions();
+        let soundExtensions = Wick.SoundAsset.getValidExtensions();
+        let fontExtensions = Wick.FontAsset.getValidExtensions();
+        let clipExtensions = Wick.ClipAsset.getValidExtensions();
+        let svgExtensions = Wick.SVGAsset.getValidExtensions();
+
         // Fix missing mimetype for wickobj files
         var type = file.type;
+        
         if (file.type === '' && file.name.endsWith('.wickobj')) {
             type = 'application/json';
         }
 
+        var extension = file.file.split('.').pop();
+
         let asset = undefined;
-        if (imageTypes.indexOf(type) !== -1) {
+        if (imageTypes.indexOf(type) !== -1 || imageExtensions.indexOf(extension) !== -1) {
             asset = new Wick.ImageAsset();
-        } else if (soundTypes.indexOf(type) !== -1) {
+        } else if (soundTypes.indexOf(type) !== -1 || soundExtensions.indexOf(extension) !== -1) {
             asset = new Wick.SoundAsset();
-        } else if (fontTypes.indexOf(type) !== -1) {
+        } else if (fontTypes.indexOf(type) !== -1 || fontExtensions.indexOf(extension) !== -1) {
             asset = new Wick.FontAsset();
-        } else if (clipTypes.indexOf(type) !== -1) {
+        } else if (clipTypes.indexOf(type) !== -1 || clipExtensions.indexOf(extension) !== -1) {
             asset = new Wick.ClipAsset();
-        } else if (svgTypes.indexOf(type) !== -1) {
+        } else if (svgTypes.indexOf(type) !== -1 || svgExtensions.indexOf(extension) !== -1) {
             asset = new Wick.SVGAsset();
         }
 
         if (asset === undefined) {
             console.warn('importFile(): Could not import file ' + file.name + ', filetype: "' + file.type + '" is not supported.');
-            console.warn('supported image file types:');
-            console.log(imageTypes)
-            console.warn('supported sound file types:');
-            console.log(soundTypes)
-            console.warn('supported font file types:');
-            console.log(fontTypes)
-            console.warn('supported clip file types:');
-            console.log(clipTypes)
-            console.warn('supported SVG file types:');
-            console.log(svgTypes)
+            console.warn('Supported File Types Are:', {
+                image: imageTypes, 
+                sound: soundTypes,
+                font: fontTypes,
+                clip: clipTypes,
+                svg: svgTypes
+            });
+            console.warn('Supported File Extensions Are', {
+                image: imageExtensions,
+                sound: soundExtensions,
+                font: fontExtensions,
+                clip: clipExtensions,
+                svg: svgExtensions,
+            })
             callback(null);
             return;
         }
@@ -1071,13 +1097,16 @@ Wick.Project = class extends Wick.Base {
 
         var clip = new Wick[args.type]({
             identifier: args.identifier,
-            objects: this.selection.getSelectedObjects('Canvas'),
             transformation: new Wick.Transformation({
                 x: this.selection.x + this.selection.width / 2,
                 y: this.selection.y + this.selection.height / 2,
             }),
         });
+
+        // Add the clip to the frame prior to adding objects.
         this.activeFrame.addClip(clip);
+        clip.addObjects(this.selection.getSelectedObjects('Canvas'));
+
         // TODO add to asset library
         this.selection.clear();
         this.selection.select(clip);
@@ -1467,7 +1496,7 @@ Wick.Project = class extends Wick.Base {
             this.selection.clear();
             this.selection.select(errorObj);
 
-            window._scriptOnErrorCallback(this.error);
+            window._scriptOnErrorCallback && window._scriptOnErrorCallback(this.error);
         } else {
             this.focus.timeline.playheadPosition = currentPlayhead;
         }
@@ -1746,8 +1775,6 @@ Wick.Project = class extends Wick.Base {
         var renderFrame = () => {
             var currentPos = renderCopy.focus.timeline.playheadPosition;
             args.onProgress(currentPos, numMaxFrameImages);
-
-            console.log(currentPos);
 
             if(currentPos >= numMaxFrameImages) {
                 // reset autoUpdate back to normal

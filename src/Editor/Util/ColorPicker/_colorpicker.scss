@@ -20,11 +20,13 @@
 @import 'Editor/_wickbrand.scss';
 
 .btn-color-picker {
+  display: flex;
   background: none;
   width: 100%;
   height: 100%;
   border-radius: 16px;
   border: 4px solid $editor-secondary-text;
+  box-sizing: border-box;
 }
 
 .color-picker-control-div {

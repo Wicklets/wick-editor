@@ -506,7 +506,9 @@ Wick.Clip = class extends Wick.Tickable {
 
         // When the transformation changes, update the current tween, if one exists
         if (this.parentFrame) {
-            var tween = this.parentFrame.getActiveTween();
+            // This tween must only ever be the tween over the current playhead position.
+            // Altering the active tween will overwrite tweens when moving between frames.
+            var tween = this.parentFrame.getTweenAtCurrentPlayheadPosition();
             if (tween) {
                 tween.transformation = this._transformation.copy();
             }
@@ -759,7 +761,6 @@ Wick.Clip = class extends Wick.Tickable {
         } else if (this.animationType === 'playOnce') {
             if (!this.playedOnce) {
                 if (this.timeline.playheadPosition === this.timeline.length) {
-                    console.log("Reset");
                     this.playedOnce = true;
                 } else {
                     this.timeline.advance();

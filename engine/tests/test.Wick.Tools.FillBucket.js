@@ -1,3 +1,17 @@
+
+/**
+ * Returns an array of all paths in the newPaths array that were not in the original paths array.
+ */
+function getNewPaths (originalPaths, newPaths) {
+    const originalPathUUIDs = originalPaths.map(path => path.uuid);
+    
+    let lastPaths = newPaths.filter(path => {
+        return originalPathUUIDs.indexOf(path.uuid) === -1;
+    }); 
+
+    return lastPaths;
+}
+
 describe('Wick.Tools.FillBucket', function() {
     it('should activate without errors', function() {
         var project = new Wick.Project();
@@ -8,14 +22,6 @@ describe('Wick.Tools.FillBucket', function() {
         var project = new Wick.Project();
         var fillbucket = project.tools.fillbucket;
 
-        project.view.on('canvasModified', function (e) {
-            expect(project.activeFrame.paths.length).to.equal(5);
-            expect(project.activeFrame.paths[0].view.item.fillColor.toCSS(true)).to.equal('#ff0000');
-            expect(project.activeFrame.paths[0].view.item.bounds.width).to.be.closeTo(30, 10);
-            expect(project.activeFrame.paths[0].view.item.bounds.height).to.be.closeTo(30, 10);
-            done();
-        });
-
         var json1 = ["Path",{"segments":[[0,0],[50,0],[50,10],[0,10]],"closed":true,"fillColor":[255,0,0]}];
         var json2 = ["Path",{"segments":[[0,0],[10,0],[10,50],[0,50]],"closed":true,"fillColor":[255,0,0]}]
         var json3 = ["Path",{"segments":[[40,0],[50,0],[50,50],[40,50]],"closed":true,"fillColor":[255,0,0]}]
@@ -25,10 +31,27 @@ describe('Wick.Tools.FillBucket', function() {
         var path2 = new Wick.Path({json: json2});
         var path3 = new Wick.Path({json: json3});
         var path4 = new Wick.Path({json: json4});
+
         project.activeFrame.addPath(path1);
         project.activeFrame.addPath(path2);
         project.activeFrame.addPath(path3);
         project.activeFrame.addPath(path4);
+
+        let originalPaths = project.activeFrame.paths.concat([]);
+
+        project.view.on('canvasModified', function (e) {
+            expect(project.activeFrame.paths.length).to.equal(5);
+
+            let newPaths = project.activeFrame.paths;
+
+            let newlyAddedPaths = getNewPaths(originalPaths, newPaths);
+
+            expect(newlyAddedPaths[0].view.item.fillColor.toCSS(true)).to.equal('#ff0000');
+            expect(newlyAddedPaths[0].view.item.bounds.width).to.be.closeTo(30, 10);
+            expect(newlyAddedPaths[0].view.item.bounds.height).to.be.closeTo(30, 10);
+            done();
+        });
+
         project.view.render();
 
         fillbucket.activate();
