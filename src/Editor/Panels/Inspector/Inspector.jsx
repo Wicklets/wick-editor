@@ -511,6 +511,11 @@ class Inspector extends Component {
    * current object.
    */
   renderSelectionSoundAsset = () => {
+    let options = [{
+      value: null,
+      label: "No Sound"
+    }]
+
     let mapAsset = asset => {
       if (!asset) {
         return {
@@ -524,12 +529,7 @@ class Inspector extends Component {
       }
     }
 
-    let options = this.props.getAllSoundAssets().map(mapAsset);
-
-    options.unshift({
-      value: "",
-      label: "No Sound",
-    });
+    options = options.concat(this.props.getAllSoundAssets().map(mapAsset));
 
     let value = this.getSelectionAttribute('sound');
     return (

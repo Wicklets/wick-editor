@@ -184,7 +184,20 @@ class WickInput extends Component {
   }
 
   renderSelect = () => {
-    let value = this.props.options[this.props.options.map((object) => {return object.value;}).indexOf(this.props.value)];
+    let value = this.props.options.find(obj => obj.value === this.props.value);
+
+    if (value === undefined) {
+      value = {
+        label: this.props.value,
+        value: this.props.value
+      }
+    }
+
+    console.log({
+      options: this.props.options,
+      value: value
+    });
+
     return (
       <Select
         id={this.props.id}

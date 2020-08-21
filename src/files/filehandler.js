@@ -143,5 +143,15 @@ export default function initializeDefaultFileHandlers() {
   if (!window.wickEditorFileSystemType) {
     window.wickEditorFileSystemType = "browser";
   }
+
+  /**
+   * Must be an Array containing at least one of the following.
+   * Animation, Interactive, Sound, Image
+   */
+  if (!window.allowedExportTypes) {
+    window.allowedExportTypes = ['Animation', 'Interactive', 'Audio', 'Images'];
+  } else if (window.allowedExportTypes.length === 0) {
+    window.allowedExportTypes = ['Animation', 'Interactive', 'Audio', 'Images'];
+  }
 }
 

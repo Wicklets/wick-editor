@@ -25,6 +25,7 @@ $action-button-transition-duration: .2s;
   width: 100%;
   height: 100%;
   touch-action: manipulation;
+  user-select: none;
 }
 
 .action-button-single-icon {
@@ -37,6 +38,7 @@ $action-button-transition-duration: .2s;
   text-align: center;
   display: flex;
   align-items: center;
+  user-select: none;
 }
 
 .action-button-dropdown-icon-container {

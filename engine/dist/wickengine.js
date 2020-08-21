@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.8.14.11.17.1";
+var WICK_ENGINE_BUILD_VERSION = "2020.8.19.15.17.25";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -58440,8 +58440,10 @@ Wick.Tools.Eraser = class extends Wick.Tool {
   }
 
   onMouseDrag(e) {
-    this.path.add(e.point);
-    this.path.smooth();
+    if (e.point) {
+      this.path.add(e.point);
+      this.path.smooth();
+    }
   }
 
   onMouseUp(e) {

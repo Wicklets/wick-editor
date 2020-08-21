@@ -110,13 +110,13 @@ class Editor extends EditorCore {
     };
 
     // Catch all errors that happen in the editor.
-    window.onerror = function(e, url, line) {
-      // TODO: Handle this error however we want (send it somewhere, display it to user, etc)
-      console.error(e);
-      console.error('error logged: ');
-      console.log(e)
-      console.log(url)
-      console.log(line);
+    window.onerror = function(error, url, line) {
+      console.error(error);
+      console.log("Error Details:", {
+        error,
+        url,
+        line
+      })
       return true;
     }
 

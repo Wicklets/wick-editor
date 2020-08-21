@@ -430,6 +430,14 @@ class ExportOptions extends Component {
   }
 
   renderDesktop = () => {
+    // An object of export types to functions that render those export types.
+    const exportTypes = {
+      "Animation": this.renderAnimatedInfo,
+      "Interactive": this.renderInteractiveInfo,
+      "Images": this.renderImageInfo,
+      "Audio": this.renderAudioInfo,
+    }
+
     return (
       <WickModal
       open={this.props.open}
@@ -446,12 +454,11 @@ class ExportOptions extends Component {
               placeholder={this.placeholderName} />
           </div>
           <TabbedInterface
-            tabNames={["Animation", "Interactive", "Images", "Audio"]}
+            tabNames={window.allowedExportTypes}
             onTabSelect={this.setSubTab}>
-            {this.renderAnimatedInfo()}
-            {this.renderInteractiveInfo()}
-            {this.renderImageInfo()}
-            {this.renderAudioInfo()}
+              {
+                window.allowedExportTypes.map(type => exportTypes[type]())
+              }
           </TabbedInterface>
         </div>
       </WickModal>
