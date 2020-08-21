@@ -130,7 +130,6 @@ class ToolSettings extends Component {
   renderFillbucketSettings = () => {
     return (
       <div className='settings-input-container'>
-        {this.renderGapFillAmount()}
         {this.renderFillSmoothing()}
       </div>
     );
