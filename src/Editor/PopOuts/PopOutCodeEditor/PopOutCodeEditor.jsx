@@ -89,7 +89,7 @@ class PopOutCodeEditor extends Component {
   }
 
   onCloseHandler = () => {
-    this.props.toggleCodeEditor();
+    this.props.toggleCodeEditor(false);
   }
 
   rerenderCodeEditor = () => {
