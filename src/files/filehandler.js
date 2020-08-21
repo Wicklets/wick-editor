@@ -153,5 +153,12 @@ export default function initializeDefaultFileHandlers() {
   } else if (window.allowedExportTypes.length === 0) {
     window.allowedExportTypes = ['Animation', 'Interactive', 'Audio', 'Images'];
   }
+
+  /**
+   * Enable asset library if not set.
+   */
+   if (window.enableAssetLibrary === undefined) {
+    window.enableAssetLibrary = true;
+   }
 }
 

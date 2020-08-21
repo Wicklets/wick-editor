@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.8.19.15.17.25";
+var WICK_ENGINE_BUILD_VERSION = "2020.8.21.13.49.16";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -49952,7 +49952,12 @@ Wick.Project = class extends Wick.Base {
     let soundTypes = Wick.SoundAsset.getValidMIMETypes();
     let fontTypes = Wick.FontAsset.getValidMIMETypes();
     let clipTypes = Wick.ClipAsset.getValidMIMETypes();
-    let svgTypes = Wick.SVGAsset.getValidMIMETypes(); // Fix missing mimetype for wickobj files
+    let svgTypes = Wick.SVGAsset.getValidMIMETypes();
+    let imageExtensions = Wick.ImageAsset.getValidExtensions();
+    let soundExtensions = Wick.SoundAsset.getValidExtensions();
+    let fontExtensions = Wick.FontAsset.getValidExtensions();
+    let clipExtensions = Wick.ClipAsset.getValidExtensions();
+    let svgExtensions = Wick.SVGAsset.getValidExtensions(); // Fix missing mimetype for wickobj files
 
     var type = file.type;
 
@@ -49960,32 +49965,37 @@ Wick.Project = class extends Wick.Base {
       type = 'application/json';
     }
 
+    var extension = file.file.split('.').pop();
     let asset = undefined;
 
-    if (imageTypes.indexOf(type) !== -1) {
+    if (imageTypes.indexOf(type) !== -1 || imageExtensions.indexOf(extension) !== -1) {
       asset = new Wick.ImageAsset();
-    } else if (soundTypes.indexOf(type) !== -1) {
+    } else if (soundTypes.indexOf(type) !== -1 || soundExtensions.indexOf(extension) !== -1) {
       asset = new Wick.SoundAsset();
-    } else if (fontTypes.indexOf(type) !== -1) {
+    } else if (fontTypes.indexOf(type) !== -1 || fontExtensions.indexOf(extension) !== -1) {
       asset = new Wick.FontAsset();
-    } else if (clipTypes.indexOf(type) !== -1) {
+    } else if (clipTypes.indexOf(type) !== -1 || clipExtensions.indexOf(extension) !== -1) {
       asset = new Wick.ClipAsset();
-    } else if (svgTypes.indexOf(type) !== -1) {
+    } else if (svgTypes.indexOf(type) !== -1 || svgExtensions.indexOf(extension) !== -1) {
       asset = new Wick.SVGAsset();
     }
 
     if (asset === undefined) {
       console.warn('importFile(): Could not import file ' + file.name + ', filetype: "' + file.type + '" is not supported.');
-      console.warn('supported image file types:');
-      console.log(imageTypes);
-      console.warn('supported sound file types:');
-      console.log(soundTypes);
-      console.warn('supported font file types:');
-      console.log(fontTypes);
-      console.warn('supported clip file types:');
-      console.log(clipTypes);
-      console.warn('supported SVG file types:');
-      console.log(svgTypes);
+      console.warn('Supported File Types Are:', {
+        image: imageTypes,
+        sound: soundTypes,
+        font: fontTypes,
+        clip: clipTypes,
+        svg: svgTypes
+      });
+      console.warn('Supported File Extensions Are', {
+        image: imageExtensions,
+        sound: soundExtensions,
+        font: fontExtensions,
+        clip: clipExtensions,
+        svg: svgExtensions
+      });
       callback(null);
       return;
     }

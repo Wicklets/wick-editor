@@ -1119,9 +1119,11 @@ class Editor extends EditorCore {
                     </DockedPanel>
                   </ReflexElement>}
 
-                  <ReflexSplitter {...this.resizeProps}/>
+                  
 
+                  {window.enableAssetLibrary &&  <ReflexSplitter {...this.resizeProps}/>}
                   {/* Asset Library */}
+                  {window.enableAssetLibrary && 
                   <ReflexElement
                     minSize={100}
                     size={500}
@@ -1144,7 +1146,7 @@ class Editor extends EditorCore {
                         addSoundToActiveFrame={this.addSoundToActiveFrame}
                       />
                     </DockedPanel>
-                  </ReflexElement>
+                  </ReflexElement> }
                 </ReflexContainer>
               </ReflexElement>
               }
