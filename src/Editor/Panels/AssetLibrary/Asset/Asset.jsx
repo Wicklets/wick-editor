@@ -109,7 +109,7 @@ class Asset extends Component {
         {this.props.asset.classname !== "SoundAsset" &&
         <span className="asset-button add"><ActionButton classsName="add" color="green" text="Add to Canvas" action={this.addToCanvas}/></span>
         }
-        <span className="asset-button delete"><ActionButton classsName="delete" color="red" icon="delete" 
+        <span className="asset-button delete"><ActionButton classsName="delete" color="red" icon="delete-black" 
         action={() => {
           this.props.clearSelection();
           this.props.selectObjects([this.props.asset]);
