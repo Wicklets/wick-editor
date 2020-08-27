@@ -127,6 +127,9 @@ kbd {
    background-color: $editor-popout-secondary;
  }
 
+.hotkey-column.header {
+  color: white;
+}
  .hotkey-column.header:hover {
    cursor: default;
    background-color: $editor-modal-gray;
