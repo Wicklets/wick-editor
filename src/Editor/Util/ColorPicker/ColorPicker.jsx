@@ -17,67 +17,59 @@
  * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Popover } from 'reactstrap';
 import WickColorPicker  from 'Editor/Util/ColorPicker/WickColorPicker';
 
 import './_colorpicker.scss';
 
-class ColorPicker extends Component {
-  constructor (props) {
-    super(props);
+export default function ColorPicker (props) {
+  const [open, setOpen] = useState(false);
 
-    this.state = {
-      open: false,
-      color: this.props.color === undefined ? new window.Wick.Color("#FFFFFF") : this.props.color,
+  let color = props.color ? props.color : new window.Wick.Color("#FFFFFF")
+  let itemID = props.id;
+  let popoverID = itemID+'-popover';
+
+  function toggle () {
+    if (!open) {
+      setTimeout(selectPopover, 200);
     }
 
-    this.toggle = this.toggle.bind(this);
-    this.getStyle = this.getStyle.bind(this);
+    setOpen(!open)
   }
 
-  toggle () {
-    this.setState({
-      open: !this.state.open
-    });
+  function selectPopover () {
+    let ele = document.getElementById(popoverID);
+    if (ele) {
+      ele.focus();
+    }
   }
 
-  getStyle() {
-    let style = this.props.stroke
-        ? {borderColor: this.props.color}
-      : {backgroundColor: this.props.color};
-    return style;
-  }
-
-  render() {
-    let itemID = this.props.id;
-    return(
+  return (
       <button
         className={"btn-color-picker"}
         id={itemID}
-        onClick={this.toggle}
-        style={this.getStyle()}>
-        <Popover
-          placement={this.props.placement}
-          isOpen={this.state.open}
-          toggle={this.toggle}
-          target={itemID}
-          boundariesElement={'viewport'}>
-          <WickColorPicker
-            toggle={this.toggle}
-            //onChange={this.props.onChange}
-            colorPickerType={this.props.colorPickerType}
-            changeColorPickerType={this.props.changeColorPickerType}
-            disableAlpha={ this.props.disableAlpha }
-            color={this.props.color !== null ? this.props.color : 'transparent'}
-            onChangeComplete={ this.props.onChangeComplete }
-            lastColorsUsed={this.props.lastColorsUsed}
-          />
-        </Popover>
+        onClick={toggle}
+        style={props.stroke ? {borderColor: color} : {backgroundColor: color}}
+        >
+          <Popover
+            tabIndex={-1}
+            id={popoverID}
+            placement={props.placement}
+            isOpen={open}
+            toggle={toggle}
+            target={itemID}
+            boundariesElement={'viewport'}>
+            <WickColorPicker
+              toggle={toggle}
+              colorPickerType={props.colorPickerType}
+              changeColorPickerType={props.changeColorPickerType}
+              disableAlpha={props.disableAlpha}
+              color={color}
+              onChangeComplete={props.onChangeComplete}
+              lastColorsUsed={props.lastColorsUsed}
+            />
+          </Popover>
       </button>
-    )
-  }
+  )
 }
-
-
-export default ColorPicker
