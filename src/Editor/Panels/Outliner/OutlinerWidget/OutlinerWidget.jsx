@@ -9,6 +9,7 @@ class OutlinerLayerButtons extends Component {
   render() {
     return (
       <ActionButton
+        color="tool"
         id={this.props.tooltip + "widget"}
         className="widget"
         action={() => {

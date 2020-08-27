@@ -175,9 +175,6 @@ $outliner-break-size: calc(#{$editor-outline-padding} * .5);
   transition: background-color 150ms ease-in-out;
   border-radius: 3px;
 }
-.widget:hover {
-  background-color: rgba(255,255,255,0.2);
-}
 
 .widget-off {
   max-height: $widget-width;

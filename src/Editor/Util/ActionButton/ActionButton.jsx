@@ -33,7 +33,6 @@ export default function ActionButton (props) {
   let tooltipID = props.id ? ('action-button-tooltip-' + props.id) : 'action-button-tooltip-nyi';
   let newClassName = classNames("action-button", props.className);
 
-
   function runAction (e) {
     if (!props.disabled) {
       props.useClickEvent ? props.action(e) : props.action();
