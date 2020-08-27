@@ -61,10 +61,12 @@ class WickCodeDetailsPanel extends Component {
 
     return (
       <div key={i} className="reference-tab-container">
-        <div className="reference-tab-title" onClick={() => this.toggleTab(tabName)}>{tabName}</div>
-        <div className={classNames("reference-tab-elements", {"tab-closed" : !tabOpen})}>
-          {this.renderFunctions(tabName)}
-        </div>
+        <button className="reference-tab-title tab-element" onClick={() => this.toggleTab(tabName)}>{tabName}</button>
+        {
+          tabOpen && <div className={classNames("reference-tab-elements", {"tab-closed" : !tabOpen})}>
+            {this.renderFunctions(tabName)}
+          </div>
+        }
       </div>
     )
   }
