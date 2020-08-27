@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.8.21.15.36.10";
+var WICK_ENGINE_BUILD_VERSION = "2020.8.27.10.48.19";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -49958,7 +49958,14 @@ Wick.Project = class extends Wick.Base {
       type = 'application/json';
     }
 
-    var extension = file.file.split('.').pop();
+    var extension = "";
+
+    if (file.name) {
+      extension = file.name.split('.').pop();
+    } else if (file.file && typeof file.file === 'string') {
+      extension = file.file.split('.').pop();
+    }
+
     let asset = undefined;
 
     if (imageTypes.indexOf(type) !== -1 || imageExtensions.indexOf(extension) !== -1) {

@@ -613,8 +613,14 @@ Wick.Project = class extends Wick.Base {
         if (file.type === '' && file.name.endsWith('.wickobj')) {
             type = 'application/json';
         }
-
-        var extension = file.file.split('.').pop();
+        
+        var extension = "";
+        
+        if (file.name) {
+            extension = file.name.split('.').pop();
+        } else if (file.file && typeof file.file === 'string') {
+            extension = file.file.split('.').pop();
+        }
 
         let asset = undefined;
         if (imageTypes.indexOf(type) !== -1 || imageExtensions.indexOf(extension) !== -1) {
