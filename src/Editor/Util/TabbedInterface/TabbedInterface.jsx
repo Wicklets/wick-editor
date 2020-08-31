@@ -59,8 +59,7 @@ class TabbedInterface extends Component {
             <div role="tablist" className="tabbed-interface-main-tab-container">
                 {this.props.tabNames.map( (tab, i) => 
                     <button
-                    role="tab" 
-                    key={"tabbed-interface-"+tab+"-i"}
+                    key={`tab-${tab}-${i}`}
                     className={classNames("tabbed-interface-main-tab", this.props.tabClassName, {"selected": (this.state.selectedTab === tab)})}
                     onClick={() => {this.selectTab(tab)}}>
                         {tab}
