@@ -32,18 +32,18 @@ var classNames = require('classnames');
 class WelcomeModal extends Component {
   constructor () {
     super();
-    this.forumPost = "https://forum.wickeditor.com/t/wick-editor-version-1-17-new-clip-options-editor-options-onion-skinning-and-more/2450";
+    this.forumPost = "https://forum.wickeditor.com/t/help-needed-wick-editor-version-1-18-new-fill-bucket-outliner-tool-mobile-improvements/3314";
     this.updates = [
       "New Outliner Tool!",
       "Accessibility Updates!",
-      "Downloadable Editor and More!",
+      "New Fill Bucket and More!",
     ] // No More than 3
 
     let t1 = ["Hyun's Dojo", "Guy de Bree", "Dimp"]
-    let t2 = ["Constance Ye", "Victoria Rojas"]
-    let t3 = ["Pablosaurs910", "Gautaum Bose", "Trevor"]
+    let t2 = ["Constance Ye"]
+    let t3 = ["Gautaum Bose", "Trevor"]
     let t4 = ["Golan Levin", "ThisPodcastIsInEnglish", "Daniel Sun", "Benjamin Briand", "Joseph Hocking", "Anonymous"]
-    let t5 = ["Joe", "Karlin Fox", "StepSwitcher"]
+    let t5 = ["Joe", "Karlin Fox", "StepSwitcher", "Kandy Kat", "Pablosaurs910"]
     this.patreonSupporters = t1.concat(t2, t3, t4, t5)
   }
 
