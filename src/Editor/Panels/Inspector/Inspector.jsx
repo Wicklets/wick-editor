@@ -98,7 +98,7 @@ class Inspector extends Component {
       "multiassetmixed": "Multi-Asset",
       "multisoundasset": "Multi-Asset Sound",
       "multiimageasset": "Multi-Asset Image",
-      "unknown": "Unknown",
+      "unknown": "",
     }
   }
 
