@@ -22,6 +22,7 @@
 $menu-bar-height: 40px;
 $toolbox-height: 40px;
 $medium-toolbox-height: 80px;
+$splitter-width: 3px;
 
 body {
   overflow: hidden;
@@ -161,7 +162,7 @@ body {
 }
 
 .mobile-editor-body {
-  border-right-width: calc(#{$splitter-size} * 2);
+  border-right-width: calc(#{$splitter-width} * 2);
   border-right-style: solid;
   border-right-color: $splitter-color !important;
 }
@@ -216,11 +217,11 @@ body {
   transition: all 1s ease; }
 
 .horizontal > .reflex-splitter {
-  border-bottom: $splitter-size solid $splitter-color !important;
-  border-top: $splitter-size solid $splitter-color !important;
+  border-bottom: $splitter-width solid $splitter-color !important;
+  border-top: $splitter-width solid $splitter-color !important;
   cursor: row-resize;
   width: 100%;
-  height: 2px; }
+  height: $splitter-width }
 
 .reflex-element.horizontal .reflex-handle {
   cursor: row-resize;
@@ -231,15 +232,15 @@ body {
 
 .reflex-container.horizontal > .reflex-splitter:hover,
 .reflex-container.horizontal > .reflex-splitter.active {
-  border-bottom: $splitter-size solid $splitter-highlight-color !important;
-  border-top: $splitter-size solid $splitter-highlight-color !important; }
+  border-bottom: $splitter-width solid $splitter-highlight-color !important;
+  border-top: $splitter-width solid $splitter-highlight-color !important; }
 
 .reflex-container.vertical > .reflex-splitter {
-  border-right: $splitter-size solid $splitter-color !important;
-  border-left: $splitter-size solid $splitter-color !important;
+  border-right: $splitter-width solid $splitter-color !important;
+  border-left: $splitter-width solid $splitter-color !important;
   cursor: col-resize;
   height: 100%;
-  width: 2px; }
+  width: $splitter-width; }
 
 .reflex-element.vertical .reflex-handle {
   cursor: col-resize;
@@ -250,8 +251,8 @@ body {
 
 .reflex-container.vertical > .reflex-splitter:hover,
 .reflex-container.vertical > .reflex-splitter.active {
-  border-right: $splitter-size solid $splitter-highlight-color !important;
-  border-left: $splitter-size solid $splitter-highlight-color !important; }
+  border-right: $splitter-width solid $splitter-highlight-color !important;
+  border-left: $splitter-width solid $splitter-highlight-color !important; }
 
 .reflex-container > .reflex-splitter.reflex-thin {
   box-sizing: border-box;
@@ -267,27 +268,27 @@ body {
   opacity: 0.5; }
 
 .reflex-container.horizontal > .reflex-splitter.reflex-thin {
-  border-bottom: $splitter-size solid $splitter-color !important;
-  border-top: $splitter-size solid $splitter-color !important;
-  height: 17px !important;
+  border-bottom: $splitter-width solid $splitter-color !important;
+  border-top: $splitter-width solid $splitter-color !important;
+  height: $splitter-width !important;
   cursor: row-resize;
-  margin: -$splitter-size 0;
+  margin: -$splitter-width 0;
   width: 100%; }
 
 .reflex-container.horizontal > .reflex-splitter.reflex-thin.active,
 .reflex-container.horizontal > .reflex-splitter.reflex-thin:hover {
-  border-bottom: $splitter-size solid $splitter-highlight-color !important;
-  border-top: $splitter-size solid $splitter-highlight-color !important; }
+  border-bottom: $splitter-width solid $splitter-highlight-color !important;
+  border-top: $splitter-width solid $splitter-highlight-color !important; }
 
 .reflex-container.vertical > .reflex-splitter.reflex-thin {
-  border-right: $splitter-size solid $splitter-color !important;
-  border-left: $splitter-size solid $splitter-color !important;
-  width: 17px !important;
+  border-right: $splitter-width solid $splitter-color !important;
+  border-left: $splitter-width solid $splitter-color !important;
+  width: $splitter-width !important;
   cursor: col-resize;
-  margin: 0 -$splitter-size;
+  margin: 0 -$splitter-width;
   height: 100%; }
 
 .reflex-container.vertical > .reflex-splitter.reflex-thin.active,
 .reflex-container.vertical > .reflex-splitter.reflex-thin:hover {
-  border-right: $splitter-size solid $splitter-highlight-color !important;
-  border-left: $splitter-size solid $splitter-highlight-color !important; }
+  border-right: $splitter-width solid $splitter-highlight-color !important;
+  border-left: $splitter-width solid $splitter-highlight-color !important; }
