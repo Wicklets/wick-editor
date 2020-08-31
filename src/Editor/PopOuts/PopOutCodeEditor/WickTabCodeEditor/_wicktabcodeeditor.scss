@@ -51,3 +51,7 @@ $tab-editor-left-padding: 15px;
   margin-left: 10px;
   width: calc(100% - 10px); 
 }
+
+.react-tabs__tab {
+  user-select: none; 
+}

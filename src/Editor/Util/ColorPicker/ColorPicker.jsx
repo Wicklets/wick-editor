@@ -17,7 +17,7 @@
  * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Popover } from 'reactstrap';
 import WickColorPicker  from 'Editor/Util/ColorPicker/WickColorPicker';
 
