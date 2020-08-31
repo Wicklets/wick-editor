@@ -23,8 +23,6 @@ export default function SimpleProjectSettings(props) {
   }
 
   function updateProjectSettings() {
-    console.log({ newProjectName })
-
     props.updateProjectSettings({
       name: newProjectName,
       framerate: newProjectFrameRate,

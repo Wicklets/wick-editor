@@ -200,7 +200,6 @@ class EditorCore extends Component {
    * Finishes a playhead moving operation.
    */
   finishMovingPlayhead = () => {
-    console.log("dangus");
     this.projectDidChange({ actionName: "Finish Moving Playhead" });
   }
 

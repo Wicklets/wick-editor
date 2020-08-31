@@ -110,6 +110,7 @@ $toolbox-max-button-size: 30px;
   min-width:  calc(#{$toolbox-max-button-size} * .85);
   align-items: center;
   display: flex;
+  overflow: hidden;
 }
 
 #tool-box-stroke-color-button {

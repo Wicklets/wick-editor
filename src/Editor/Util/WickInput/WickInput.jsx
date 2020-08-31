@@ -107,30 +107,47 @@ class WickInput extends Component {
   }
 
   renderNumeric = () => {
-    const isValid = (input) => {
-      return !isNaN(input) && input !== '';
-    }
+    let {min, max, ...rest} = this.props;
 
+    let isValid = (input) => {
+
+      let validNumber = !isNaN(input) && input !== ''; 
+
+      if (typeof input === 'string') {
+        validNumber = validNumber && !input.endsWith('.')
+      }
+
+      return validNumber;
+    }
 
     // Used to clean up the number prior to display and updates.
-    const cleanUp = (val) => {
+
+    /**
+     * Takes in a string and converts that string into a displayable value 
+     * and converts that value to a number, with proper padding and styling. Value may not be valid,
+     * in which case the same value will be returned.
+     * @param {string} val - String to "Clean Up"
+     * @returns {number | string}  Returns cleaned up number if valid string representation is passed in, string otherwise.
+     */
+    let cleanUp = (val) => {
+      if (!isValid(val)) return val;
+
       val = parseFloat(val);
-
       // Constrain between min and max
-      if (this.props.min) {
-        val = Math.max(val, this.props.min);
+      if (min) {
+        val = Math.max(val, min);
       }
 
-      if (this.props.max) {
-        val = Math.min(val, this.props.max);
+      if (max) {
+        val = Math.min(val, max);
       }
 
-      // Limit to 3 decimal places
-      return parseFloat(val.toFixed(3));
+      return Math.round(val * 1000) / 1000;
     }
 
+
     return <WickTextInput
-    {...this.props}
+    {...rest}
     className={classNames("wick-input", "numeric", {"read-only":this.props.readOnly}, this.props.className)}
     cleanUp={cleanUp}
     isValid={isValid}/>
@@ -192,11 +209,6 @@ class WickInput extends Component {
         value: this.props.value
       }
     }
-
-    console.log({
-      options: this.props.options,
-      value: value
-    });
 
     return (
       <Select

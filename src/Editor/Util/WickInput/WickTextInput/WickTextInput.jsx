@@ -17,10 +17,12 @@ export default function WickTextInput (props) {
     const [displayValue, setDisplayValue] = useState(props.value);
     const [valueIsValid, setValueIsValid] = useState(true);
 
+    let { isValid, cleanUp, isValidRegex, ...rest } = props;
+
     // Update the display value if it's updated elsewhere.
     useEffect(() => {
         let val = props.value;
-        if (fullIsValid(val)) { val = cleanUp(val) }
+        if (fullIsValid(val)) { val = internalCleanup(val) }
 
         setDisplayValue(val);
     }, [props.value])
@@ -29,11 +31,10 @@ export default function WickTextInput (props) {
         props.onChange && props.onChange(val);
     }
 
-    function cleanUp (val) {
-        if (props.cleanUp) {
-            return props.cleanUp(val);
+    function internalCleanup (val) {
+        if (cleanUp) {
+            return cleanUp(val);
         } 
-
         return val;
     }
 
@@ -46,12 +47,12 @@ export default function WickTextInput (props) {
         // Default to true;
         let valid = true;
 
-        if (props.isValid) {
-            valid = valid && props.isValid(val);
+        if (isValid) {
+            valid = valid && isValid(val);
         } 
 
-        if (props.isValidRegex) {
-            valid = valid && val.matches(props.isValidRegex);
+        if (isValidRegex) {
+            valid = valid && val.matches(isValidRegex);
         }
 
         return valid;
@@ -65,21 +66,21 @@ export default function WickTextInput (props) {
     function internalOnChange (e) {
         const val = e.target.value;
         
+        let cleanVal = internalCleanup(val);
 
         if (fullIsValid(val)) {
-            const cleanVal = cleanUp(val);
             setValueIsValid(true);
             wrappedOnChange(cleanVal);
-            setDisplayValue(cleanVal);
+            setDisplayValue(cleanVal.toString());
         } else {
-            setDisplayValue(val);
+            setDisplayValue(cleanVal);
             setValueIsValid(false);
         }
     }
 
     return (
         <input
-            {...props}
+            {...rest}
             className={classNames(props.className, {"invalid": !valueIsValid, "valid": valueIsValid})}
             value={displayValue}
             type="text"
