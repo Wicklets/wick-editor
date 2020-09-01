@@ -651,76 +651,67 @@ class EditorCore extends Component {
     this.projectDidChange({ actionName: "Flip Selection Vertical" });
   }
 
+  nudgeSelection = (x, y) => {
+    if (this.project.selection.numObjects === 0) return; // Ignore if no objects are selected.
+    this.project.selection.x += x;
+    this.project.selection.y += y;
+    this.projectDidChange({ skipHistory: true, actionName: "Nudge Selection", skipReactRender: true});
+  }
+
   /**
    * Moves the selected objects up 1 pixel.
    */
   nudgeSelectionUp = () => {
-    this.project.selection.y -= 1;
-    this.project.view.render();
-    this.project.guiElement.draw();
+    this.nudgeSelection(0, -1);
   }
 
   /**
    * Moves the selected objects down 1 pixel.
    */
   nudgeSelectionDown = () => {
-    this.project.selection.y += 1;
-    this.project.view.render();
-    this.project.guiElement.draw();
+    this.nudgeSelection(0, 1);
   }
 
   /**
    * Moves the selected objects right 1 pixel.
    */
   nudgeSelectionRight = () => {
-    this.project.selection.x += 1;
-    this.project.view.render();
-    this.project.guiElement.draw();
+    this.nudgeSelection(1, 0);
   }
 
   /**
    * Moves the selected objects left 1 pixel.
    */
   nudgeSelectionLeft = () => {
-    this.project.selection.x -= 1;
-    this.project.view.render();
-    this.project.guiElement.draw();
+    this.nudgeSelection(-1, 0);
   }
 
   /**
    * Moves the selected objects up 10 pixels.
    */
   nudgeSelectionUpMore = () => {
-    this.project.selection.y -= 10;
-    this.project.view.render();
-    this.project.guiElement.draw();
+    this.nudgeSelection(0, -10);
   }
 
   /**
    * Moves the selected objects down 10 pixels.
    */
   nudgeSelectionDownMore = () => {
-    this.project.selection.y += 10;
-    this.project.view.render();
-    this.project.guiElement.draw();
+    this.nudgeSelection(0, 10);
   }
 
   /**
    * Moves the selected objects right 10 pixels.
    */
   nudgeSelectionRightMore = () => {
-    this.project.selection.x += 10;
-    this.project.view.render();
-    this.project.guiElement.draw();
+    this.nudgeSelection(10, 0);
   }
 
   /**
    * Moves the selected objects left 10 pixels.
    */
   nudgeSelectionLeftMore = () => {
-    this.project.selection.x -= 10;
-    this.project.view.render();
-    this.project.guiElement.draw();
+    this.nudgeSelection(-10, 0);
   }
 
   /**

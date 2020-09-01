@@ -636,6 +636,8 @@ class Editor extends EditorCore {
    * Signals to React that the "live" project changed, so that all components
    * displaying info about the project will render.
    * @param {boolean} skipHistory - If set to true, the current state will not be pushed to the history.
+   * @param {string} actionName - Name of the action committed, to save to the history stack.
+   * @param {boolean} skipReactRender - If set to true, will not force react to rerender. Use sparingly.
    */
   projectDidChange = (options) => {
     if(!options) options = {};
@@ -656,9 +658,11 @@ class Editor extends EditorCore {
 
     // Force react to render
     // TODO: Determine a non-hack way to do this.
-    this.setState({
-      project: ''+Math.random(),
-    });
+    if (!options.skipReactRender) {
+      this.setState({
+        project: ''+Math.random(),
+      });
+    }
   }
 
   /**
