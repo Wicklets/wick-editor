@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.9.10.12.19.31";
+var WICK_ENGINE_BUILD_VERSION = "2020.9.10.13.7.20";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -47735,7 +47735,9 @@ Wick.WickFile = class {
 
           callback(project);
         } else {
-          project.getAssets().forEach(assetData => {
+          // Make a copy of the assets, as we may get rid of some mid process.
+          let allAssets = project.getAssets().concat([]);
+          allAssets.forEach(assetData => {
             var assetFile = contents.files['assets/' + assetData.uuid + '.' + assetData.fileExtension];
             /**
              * Checks if we've loaded all assets, logs an error if an error occurred 
@@ -47745,7 +47747,7 @@ Wick.WickFile = class {
             var checkProjectLoad = () => {
               loadedAssetCount++;
 
-              if (loadedAssetCount === project.getAssets().length) {
+              if (loadedAssetCount === allAssets.length) {
                 // Throw an error if any corrupted files were found.
                 project.errorOccured && corruptedFiles.length > 0 && project.errorOccured("Corrupted Files Were Deleted: " + corruptedFiles);
 
@@ -47759,8 +47761,7 @@ Wick.WickFile = class {
               // Try removing the asset from the project here.
               assetData.removeAllInstances();
               project.removeAsset(assetData);
-              corruptedFiles.push(assetData.filename); // Did the asset src somehow get a corrupted extension? If so, check for it.
-
+              corruptedFiles.push(assetData.filename);
               checkProjectLoad();
               return;
             }
@@ -53797,6 +53798,7 @@ Wick.FileAsset = class extends Wick.Asset {
 
 
   load(callback) {
+    console.log("calling back");
     callback();
   }
   /**
@@ -54078,6 +54080,11 @@ Wick.ImageAsset = class extends Wick.FileAsset {
     img.onload = () => {
       var raster = new paper.Raster(img);
       raster.remove();
+      callback();
+    };
+
+    img.onerror = () => {
+      this.project.errorOccured("Error loading image " + this.filename + ". Check that this is loaded properly.");
       callback();
     };
   }

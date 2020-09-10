@@ -53,6 +53,7 @@ Wick.WickFile = class {
      * @param {string} format - The format to return. Can be 'blob' or 'base64'.
      */
     static fromWickFile(wickFile, callback, format) {
+
         if (!format) {
             format = 'blob';
         }
@@ -62,9 +63,11 @@ Wick.WickFile = class {
         }
 
         var zip = new JSZip();
+
         zip.loadAsync(wickFile, { base64: format === 'base64' }).then((contents) => {
             contents.files['project.json'].async('text')
                 .then(projectJSON => {
+
                     var projectData = JSON.parse(projectJSON);
 
                     if (!projectData.objects) {
@@ -92,11 +95,12 @@ Wick.WickFile = class {
                         this._prepareProject(project);
                         callback(project);
                     } else {
-                        project.getAssets().forEach(assetData => {
+                        // Make a copy of the assets, as we may get rid of some mid process.
+                        let allAssets = project.getAssets().concat([]);
+
+                        allAssets.forEach(assetData => {
   
                             var assetFile = contents.files['assets/' + assetData.uuid + '.' + assetData.fileExtension];
-
-
 
                             /**
                              * Checks if we've loaded all assets, logs an error if an error occurred 
@@ -104,7 +108,7 @@ Wick.WickFile = class {
                              */
                             var checkProjectLoad = () => {
                                 loadedAssetCount++;
-                                if (loadedAssetCount === project.getAssets().length) {
+                                if (loadedAssetCount === allAssets.length) {
                                     // Throw an error if any corrupted files were found.
                                     project.errorOccured && corruptedFiles.length > 0 && project.errorOccured("Corrupted Files Were Deleted: " + corruptedFiles);
                                     
@@ -121,7 +125,6 @@ Wick.WickFile = class {
                                 project.removeAsset(assetData);
                                 corruptedFiles.push(assetData.filename);
 
-                                // Did the asset src somehow get a corrupted extension? If so, check for it.
                                 checkProjectLoad();
                                 return;
                             }

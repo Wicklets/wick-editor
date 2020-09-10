@@ -108,6 +108,11 @@ Wick.ImageAsset = class extends Wick.FileAsset {
             raster.remove();
             callback();
         }
+
+        img.onerror = () => {
+            this.project.errorOccured("Error loading image " + this.filename + ". Check that this is loaded properly.");
+            callback();
+        }
     }
 
     /**
