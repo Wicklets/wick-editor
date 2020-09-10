@@ -100,11 +100,13 @@ Wick.FileAsset = class extends Wick.Asset {
     }
 
     /**
-     * The source of the data of the asset, in base64.
+     * The source of the data of the asset, in base64. Returns null if the file is not found.
      * @type {string}
      */
     get src() {
-        return Wick.FileCache.getFile(this.uuid).src;
+        let file = Wick.FileCache.getFile(this.uuid);
+        if (file) return file.src;
+        return null;
     }
 
     set src(src) {

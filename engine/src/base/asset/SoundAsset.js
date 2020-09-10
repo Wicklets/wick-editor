@@ -196,6 +196,8 @@ Wick.SoundAsset = class extends Wick.FileAsset {
 
         var soundSrc = this.src;
 
+        if (!soundSrc) console.log("error", this, soundSrc);
+
         var scwf = new SCWF();
         scwf.generate(soundSrc, {
             onComplete: (png, pixels) => {

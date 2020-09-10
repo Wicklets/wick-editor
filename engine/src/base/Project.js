@@ -59,6 +59,7 @@ Wick.Project = class extends Wick.Base {
         this._mousePosition = { x: 0, y: 0 };
         this._lastMousePosition = { x: 0, y: 0 };
         this._isMouseDown = false;
+        this._internalErrorMessages = [];
 
         this.soundsPlayed = []; // List of all sounds that have been played during this play through of the project.
 
@@ -75,7 +76,7 @@ Wick.Project = class extends Wick.Base {
         this._publishedMode = false; // Review the publishedMode setter for rules.
         this._showClipBorders = true;
 
-        this._userErrorCallback = () => {};
+        this._userErrorCallback = null;
 
         this._tools = {
             brush: new Wick.Tools.Brush(),
@@ -187,7 +188,8 @@ Wick.Project = class extends Wick.Base {
      * @param {String} message - the message to display for the error
      */
     errorOccured (message) {
-        this._userErrorCallback(message);
+        if (this._userErrorCallback) this._userErrorCallback(message);
+        this._internalErrorMessages.push(message);
     }
 
     /**

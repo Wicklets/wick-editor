@@ -1435,8 +1435,15 @@ class EditorCore extends Component {
    * Attach toast messages to the engine error handler.
    */
   attachErrorHandlers = () => {
+    // Release any messages we may have had while loading the project.
+    if (this.project && this.project._internalErrorMessages) {
+      let errors = this.project._internalErrorMessages.concat([]);
+      for (let error of errors) {
+        this.toast(error, 'error', {autoClose: false}); // Show all errors that occurred while loading the project.
+      }
+    }
+
     this.project.onError(message => {
-      console.log(message)
       if(message === 'OUT_OF_BOUNDS' || message === 'LEAKY_HOLE') {
         this.toast('The shape you are trying to fill has a gap.', 'warning');
       } else if (message === 'FILL_EQUALS_HOLE') {

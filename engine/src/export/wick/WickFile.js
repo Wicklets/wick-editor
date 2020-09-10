@@ -66,6 +66,7 @@ Wick.WickFile = class {
             contents.files['project.json'].async('text')
                 .then(projectJSON => {
                     var projectData = JSON.parse(projectJSON);
+
                     if (!projectData.objects) {
                         // No metadata! This is a pre 1.0.9a project. Convert it.
                         console.log('Wick.WickFile: Converting old project format.');
@@ -79,11 +80,13 @@ Wick.WickFile = class {
                         var object = Wick.Base.fromData(data);
                         Wick.ObjectCache.addObject(object);
                     }
+
                     var project = Wick.Base.fromData(projectData.project);
                     Wick.ObjectCache.addObject(project);
 
                     var loadedAssetCount = 0;
-                    var errorWhileLoadingAssets = false;
+                    let corruptedFiles = []; // Store a list of all files that are now missing. 
+
                     // Immediately end if the project has no assets.
                     if (project.getAssets().length === 0) {
                         this._prepareProject(project);
@@ -93,6 +96,8 @@ Wick.WickFile = class {
   
                             var assetFile = contents.files['assets/' + assetData.uuid + '.' + assetData.fileExtension];
 
+
+
                             /**
                              * Checks if we've loaded all assets, logs an error if an error occurred 
                              * while loading asset files.
@@ -100,35 +105,25 @@ Wick.WickFile = class {
                             var checkProjectLoad = () => {
                                 loadedAssetCount++;
                                 if (loadedAssetCount === project.getAssets().length) {
+                                    // Throw an error if any corrupted files were found.
+                                    project.errorOccured && corruptedFiles.length > 0 && project.errorOccured("Corrupted Files Were Deleted: " + corruptedFiles);
+                                    
                                     this._prepareProject(project);
                                     callback(project);
-                                    if (errorWhileLoadingAssets) {
-                                        console.error("Loaded, but with errors.");
-                                    }
                                 }
                             }
 
+                            
+
                             if (!assetFile) {
+                                // Try removing the asset from the project here.
+                                assetData.removeAllInstances();
+                                project.removeAsset(assetData);
+                                corruptedFiles.push(assetData.filename);
+
                                 // Did the asset src somehow get a corrupted extension? If so, check for it.
-                                let potentialAssetFileName = Object.keys(contents.files).find((filename) => filename.startsWith('assets/' + assetData.uuid));
-
-
-                                if (potentialAssetFileName) {
-                                    // We found a file with the same name! It had a corrupted extension!
-                                    assetFile = contents.files[potentialAssetFileName];
-                                    let trueFilename = assetData.filename;
-                                    let trueExtension = trueFilename.split('.').pop();
-                                    assetFile.name = `${assetData.uuid}.${trueExtension}`;
-
-                                    // // Update asset data with correct mimetype
-                                    assetData.MIMEType = 'audio/mp3'; mime.getType(trueExtension)
-                                } else {
-                                    // No file found, this file has corrupted data. Skip it.
-                                    console.error("Corrupted Asset File:", assetData)
-                                    errorWhileLoadingAssets = true;
-                                    checkProjectLoad();
-                                    return;
-                                }
+                                checkProjectLoad();
+                                return;
                             }
 
                             assetFile.async('base64')
