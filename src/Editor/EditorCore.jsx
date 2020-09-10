@@ -1317,6 +1317,7 @@ class EditorCore extends Component {
    * @param {Wick.Project} project - the project to load.
    */
   setupNewProject = (project) => {
+    if (!project) return;
     this.resetEditorForLoad();
     this.project = project || new window.Wick.Project();
     this.project.selection.clear();
@@ -1359,21 +1360,62 @@ class EditorCore extends Component {
     });
   }
 
-  /**
-   * Parses a URL passed into the editor using ?project=file.wick in the URL. URLs must be encoded with encodeURIComponent.
+/**
+   * Attempts to parse a url passed to the editor.
+   * 
+   * if a url is passed to with the 'project' parameter, the editor will attempt to oad that project over https.
+   * if a example file name is passed with the 'example' parameter, the editor will attempt to load the example locally.
+   * 
+   * If the projects are not served over https, or do not exist, an error will be thrown.
+   * 
+   * the example parameter takes precedence.
    */
   tryToParseProjectURL = () => {
-    // Retrieve URL
     var urlParams = queryString.parse(window.location.search);
-    var urlParam = urlParams.project;
+
+  
+    let loadProjectFromURL = (url) => {
+      // Download and open the wick project.
+      fetch(url)
+        .then(resp => resp.blob())
+        .then(blob => {
+          window.Wick.WickFile.fromWickFile(blob, loadedProject => {
+            this.setupNewProject(loadedProject);
+          }, 'blob');
+        })
+        .catch((e) => {
+          this.toast('Could not download project from URL.','warning');
+          console.error('tryToParseProjectURL: Could not download Wick project.')
+          console.error(e);
+        });; 
+    }
+
+
+    if (urlParams.example) {
+      let url = window.location.origin + '/examples/' + urlParams.example;
+      console.log('attempting to load project', url);
+      loadProjectFromURL(url);
+      return;
+    }
+
+    var projectLink = urlParams.project;
 
     // No URL param, skip the download
-    if(!urlParam) {
+    if(!projectLink) {
       return false;
     }
 
-    // Parse requested URL
-    var url = new urlParse(urlParam);
+    if (!projectLink.startsWith('http')) {
+      projectLink='https://' + projectLink;
+    }
+
+    try {
+      // Parse requested URL
+      var url = new URL(projectLink);
+    } catch {
+      this.toast("Project URL is invalid!", 'warning');
+      return false;
+    }
 
     // Check if the provided URL is allowed in the whitelist.
     var whitelist = ['wickeditor.com', 'editor.wickeditor.com', 'test.wickeditor.com', 'aka.ms'];
@@ -1384,20 +1426,7 @@ class EditorCore extends Component {
       return false;
     }
 
-    // Download and open the wick project.
-    fetch(url)
-      .then(resp => resp.blob())
-      .then(blob => {
-        console.log("Attempting to load: ", blob);
-        window.Wick.WickFile.fromWickFile(blob, loadedProject => {
-          this.setupNewProject(loadedProject);
-        }, 'blob');
-      })
-      .catch((e) => {
-        this.toast('Could not download project from URL.','warning');
-        console.error('tryToParseProjectURL: Could not download Wick project.')
-        console.error(e);
-      });
+    loadProjectFromURL(url);
 
     return true;
   }

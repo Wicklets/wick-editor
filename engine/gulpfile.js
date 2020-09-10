@@ -45,7 +45,8 @@ gulp.task("default", function() {
       'lib/timestamp.js',
       'lib/soundcloud-waveform.js',
       'lib/Tween.js',
-      'lib/uuid.js'
+      'lib/uuid.js',
+      'lib/mime.js'
     ])
     .pipe(concat('libs.js'));
 
