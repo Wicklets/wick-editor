@@ -116,7 +116,7 @@ Wick.Tools.Interact = class extends Wick.Tool {
             if(uuid) {
                 var path = Wick.ObjectCache.getObjectByUUID(uuid);
 
-                if(!path.parentClip.isRoot) {
+                if (path && !path.parentClip.isRoot) {
                     var clip = path.parentClip;
                     var lineageWithoutRoot = clip.lineage;
                     lineageWithoutRoot.pop();

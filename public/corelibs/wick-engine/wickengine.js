@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.9.10.13.7.20";
+var WICK_ENGINE_BUILD_VERSION = "2020.9.14.9.31.43";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -58808,7 +58808,7 @@ Wick.Tools.Interact = class extends Wick.Tool {
       if (uuid) {
         var path = Wick.ObjectCache.getObjectByUUID(uuid);
 
-        if (!path.parentClip.isRoot) {
+        if (path && !path.parentClip.isRoot) {
           var clip = path.parentClip;
           var lineageWithoutRoot = clip.lineage;
           lineageWithoutRoot.pop();

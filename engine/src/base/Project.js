@@ -1448,6 +1448,7 @@ Wick.Project = class extends Wick.Base {
 
         // Tick the focused clip
         this.focus._attachChildClipReferences();
+
         this.focus.tick();
 
         this.runScheduledScripts();
