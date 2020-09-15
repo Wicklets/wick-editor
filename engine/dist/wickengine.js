@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.9.14.9.31.43";
+var WICK_ENGINE_BUILD_VERSION = "2020.9.15.15.22.53";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -51083,6 +51083,7 @@ Wick.Project = class extends Wick.Base {
     if (!args.width) args.width = this.width;
     if (!args.height) args.height = this.height;
     var renderCopy = this;
+    renderCopy.renderBlackBars = false;
     var oldCanvasContainer = this.view.canvasContainer;
     this.history.saveSnapshot('before-gif-render');
     this.mute();

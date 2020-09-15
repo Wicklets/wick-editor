@@ -1663,7 +1663,10 @@ Wick.Project = class extends Wick.Base {
         if(!args.width) args.width = this.width;
         if(!args.height) args.height = this.height;
 
+        
+
         var renderCopy = this;
+        renderCopy.renderBlackBars = false;
 
         var oldCanvasContainer = this.view.canvasContainer;
 
