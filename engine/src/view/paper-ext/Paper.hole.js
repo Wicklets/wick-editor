@@ -302,7 +302,7 @@
                     }
                 }
                 else {
-                    newP = p.subtract(item, {insert: false});
+                    newP = p.subtract(item,{insert: false});
                     newPArea = newP.area;
                     if (newPArea <= pArea) { // shouldn't have to do this, but avoids an error in paper.js
                         p = newP
@@ -310,6 +310,7 @@
                     }
                 }
             }
+            //onFinish(newP.clone());
         }
         newP = p.intersect(path, {insert: false});
         newPArea = newP.area;
@@ -582,14 +583,17 @@
                 }
             }
             else {
-                //let good = false;
+                let good = false;
                 for (let i = 0; i < crossings.length; i++) {
                     let crossing = crossings[i];
+                    // Looking for first intersection counterclockwise of where we're coming from,
+                    // so first find the intersection we're coming from (must be on currentCurve.path, within 1 index, and if we go back in that direction the direction should change)
                     if (crossing.intersection.curve.path === currentCurve.path && 
                         ((currentCurve.index - crossing.intersection.curve.index) * currentDirection + currentCurve.path.curves.length) % currentCurve.path.curves.length <= 1 &&
                         currentDirection !== getDirection(crossing.intersection, crossing.point.subtract(currentCurveLocation.point))) {
                         startingIndex = i + 1;
                         //console.log(i);
+                        // Now find the first intersection after the one we're coming from that is at least 0.01 "radians" away (not actually radians, it's units of 4/(2PI) radians)
                         for (let j = 1; j < crossings.length; j++) {
                             let crossing2 = crossings[(i + j) % crossings.length];
                             if (Math.abs(Math.abs(crossing2.time + crossing2.index - crossing.time - crossing.index) - 2) < 1.99) {
@@ -603,7 +607,7 @@
                 }
                 //if (!good) console.log("!good");
             }
-            //console.log('start', startingIndex);
+            //console.log('startingIndex', startingIndex);
             let good = false;
             for (let i = 0; i < crossings.length; i++) {
                 //console.log((startingIndex + i) % crossings.length);
@@ -616,10 +620,12 @@
                     let colorAt = getPathStroke(crossing.intersection.path);
                     let itemAt = !!colorAt && layerGroup.hitTest(crossing.point, {fill: true});
                     let colorAfter = getColorAt(crossing.point.add(crossing.tangent.normalize(RADIUS * STEP_SIZE)));
+                    //console.log(crossing.point.add(crossing.tangent.normalize(RADIUS * STEP_SIZE)).toString());
 
                     if ((colorAt && !colorsEqual(holeColor, colorAt) && (!itemAt || crossing.intersection.path.isAbove(itemAt.item))) || 
                         !colorsEqual(holeColor, colorAfter)) {
-                        //console.log('colorChange');
+                        //console.log('colorChange', colorAt && !colorsEqual(holeColor, colorAt), !itemAt || crossing.intersection.path.isAbove(itemAt.item), !colorsEqual(holeColor, colorAfter));
+                        //console.log(holeColor, colorAfter);
                         currentDirection = getDirection(crossing.intersection, crossing.point.subtract(circle.bounds.center));
                         currentCurveLocation = crossing.intersection;
                         pointToAdd = crossing.intersection.curve.getNearestLocation(circle.bounds.center);
@@ -648,9 +654,12 @@
                             console.log("LOOP", TIMES_LOOPED);
                             if (TIMES_LOOPED >= MAX_LOOP_ATTEMPTS) {
                                 onError("LOOPING");
+                                onFinish(circle.scale(1 / RADIUS));
                                 return null;
                             }
-                            layerGroup.addChild(circle.scale(1 / RADIUS));
+                            var addedCircle = circle.clone().scale(1 / RADIUS);
+                            addedCircle.fillColor = holeColor.red === 0 ? new paper.Color(1, 1, 1) : new paper.Color(0, 0, 0);
+                            layerGroup.addChild(addedCircle);
                             circle.remove();
                             NORMAL_SEGS += 4;
                             return getShapeAroundPoint(startingPoint);
