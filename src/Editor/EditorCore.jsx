@@ -1317,7 +1317,7 @@ class EditorCore extends Component {
    * @param {Wick.Project} project - the project to load.
    */
   setupNewProject = (project) => {
-    if (!project) return;
+    // if (!project) return;
     this.resetEditorForLoad();
     this.project = project || new window.Wick.Project();
     this.project.selection.clear();
