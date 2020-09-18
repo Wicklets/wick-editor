@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.9.15.15.22.53";
+var WICK_ENGINE_BUILD_VERSION = "2020.9.18.9.3.1";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -59854,7 +59854,12 @@ Wick.Tools.Zoom = class extends Wick.Tool {
   var layerGroup; // point clicked by user
 
   var x;
-  var y; // Distance to bump curves by to detect gaps
+  var y;
+  const MAX_LOOP_ATTEMPTS = 3;
+  var TIMES_LOOPED; // Number of segments to use when approximating curve bumped out along normals.
+  // Higher is more accurate and more expensive
+
+  var NORMAL_SEGS; // Distance to bump curves by to detect gaps
 
   var GAP_FILL = 0; // Maximum number of traversals
 
@@ -59911,10 +59916,12 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     return Math.abs(p1.x - p2.x) < EPSILON && Math.abs(p1.y - p2.y) < EPSILON;
   }
 
-  function bumpedCurve(c, direction) {
-    let curve = c.clone();
-    let r1 = direction / curve.getCurvatureAtTime(0);
-    let r2 = direction / curve.getCurvatureAtTime(1);
+  function bumpedCurve(curve, direction) {
+    /*curve = curve.clone();
+    let c1 = curve.getCurvatureAtTime(0);
+    let c2 = curve.getCurvatureAtTime(1);
+    let r1 = c1 === 0 ? 2 : direction / c1;
+    let r2 = c2 === 0 ? 2 : direction / c2;
     let scale1 = Math.max(Math.min((r1 - GAP_FILL) / r1, 2), 0);
     let scale2 = Math.max(Math.min((r2 - GAP_FILL) / r2, 2), 0);
     let n1 = curve.getNormalAtTime(0).multiply(-direction).normalize(GAP_FILL);
@@ -59923,7 +59930,42 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     curve.point2 = curve.point2.add(n2);
     curve.handle1 = curve.handle1.multiply(scale1);
     curve.handle2 = curve.handle2.multiply(scale2);
-    return curve;
+    //console.log('bump scale', scale1, scale2);
+    return [curve];
+    */
+    let normals = [];
+    let tangentScales = [];
+
+    for (let i = 0; i <= NORMAL_SEGS; i++) {
+      normals.push(curve.getNormalAtTime(i / NORMAL_SEGS).multiply(-direction).normalize(GAP_FILL));
+      let curvature = curve.getCurvatureAtTime(i / NORMAL_SEGS);
+      let radius = curvature === 0 ? 2 : direction / curvature;
+      let scale = Math.max(Math.min((radius - GAP_FILL) / radius, 2), 0);
+      tangentScales.push(scale);
+    }
+
+    let curves = [];
+
+    for (let i = 0; i < NORMAL_SEGS; i++) {
+      let c = curve.getPart(i / NORMAL_SEGS, (i + 1) / NORMAL_SEGS);
+      let scale1 = tangentScales[i];
+      let scale2 = tangentScales[i + 1];
+      let n1 = normals[i];
+      let n2 = normals[i + 1];
+      c.point1 = c.point1.add(n1);
+      c.point2 = c.point2.add(n2);
+      c.handle1 = c.handle1.multiply(scale1);
+      c.handle2 = c.handle2.multiply(scale2);
+      curves.push(c);
+    } // Useful for debugging the bumped curve
+
+    /*for (let i = 0; i < curves.length; i++) {
+        let path = new paper.Path([new paper.Segment(curves[i].point1, curves[i].handle1), new paper.Segment(curves[i].point2, curves[i].handle2)]);
+        onFinish(path);
+    }*/
+
+
+    return curves;
   } // Performs the algoritm described at top of file.
 
 
@@ -60094,7 +60136,8 @@ Wick.Tools.Zoom = class extends Wick.Tool {
             pArea = newPArea;
           }
         }
-      }
+      } //onFinish(newP.clone());
+
     }
 
     newP = p.intersect(path, {
@@ -60153,12 +60196,21 @@ Wick.Tools.Zoom = class extends Wick.Tool {
   } //
 
 
-  function curveIntersections(currentCurve, gapCurve, currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, f) {
+  function curveIntersections(currentCurve, gapCurveObject, currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, f) {
+    let gapCurve = null;
+    let gapCurveIndex = null;
+
+    if (gapCurveObject) {
+      gapCurve = gapCurveObject.gapCurve;
+      gapCurveIndex = gapCurveObject.index;
+    }
+
     var pathsToIntersect = layerGroup.getItems({
       class: paper.Path,
       overlapping: gapCurve ? gapCurve.bounds : currentCurve.bounds,
       match: item => !currentCurveLocation || item !== currentCurveLocation.intersection.curve.path
     });
+    let reassigned = false;
 
     for (let i = 0; i < pathsToIntersect.length; i++) {
       for (let c = 0; c < pathsToIntersect[i].curves.length; c++) {
@@ -60166,7 +60218,19 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
         for (let j = 0; j < intersectionsWithCurve.length; j++) {
           let intersectionCurrentWithNext = intersectionsWithCurve[j];
-          let timeAtThisIntersection = (intersectionCurrentWithNext.time + (gapCurve ? currentCurve.index : intersectionCurrentWithNext.index)) % currentCurve.path.curves.length; //time to traverse forwards from currentTime to timeAtThisIntersection
+
+          if (gapCurve && intersectionCurrentWithNext.intersection.curve === currentCurve) {
+            // This means the bumped curve intersects the not bumped curve,
+            // in which case the bumped curve is no good and we abandon it.
+            // (Sometimes happens on sharp corners)
+            return [null, null, null, false];
+          }
+
+          if (gapCurve && currentDirection === 1 ? intersectionCurrentWithNext.intersection.curve === currentCurve.next : intersectionCurrentWithNext.intersection.curve === currentCurve.previous) {
+            continue;
+          }
+
+          let timeAtThisIntersection = gapCurve ? ((intersectionCurrentWithNext.time + gapCurveIndex) / NORMAL_SEGS + currentCurve.index) % currentCurve.path.curves.length : (intersectionCurrentWithNext.time + intersectionCurrentWithNext.index) % currentCurve.path.curves.length; //time to traverse forwards from currentTime to timeAtThisIntersection
 
           let forwardsDiff = (timeAtThisIntersection - currentTime + currentCurve.path.curves.length) % currentCurve.path.curves.length; //time to traverse backwards from currentTime to timeAtThisIntersection
 
@@ -60192,6 +60256,8 @@ Wick.Tools.Zoom = class extends Wick.Tool {
           }
 
           if (currentCurve.closed ? currentDirection * forwardsDiff < currentDirection * backwardsDiff : currentDirection * forwardsDiff < currentDirection * (currentCurve.path.curves.length - currentTime) && (!currentCurveLocation && !gapCrossLocation || currentDirection * forwardsDiff2 > currentDirection * backwardsDiff2) && f(intersectionCurrentWithNext)) {
+            reassigned = true;
+
             if (gapCurve) {
               gapCrossLocation = intersectionCurrentWithNext;
             } else {
@@ -60204,7 +60270,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
       }
     }
 
-    return [closestTime, currentCurveLocation, gapCrossLocation];
+    return [closestTime, currentCurveLocation, gapCrossLocation, reassigned];
   } // Shoot ray to the left from startingPoint, perform traversal.
 
 
@@ -60225,7 +60291,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     crossings.sort((a, b) => {
       let diff = a.time - b.time;
 
-      if (diff === 0) {
+      if (Math.abs(diff) <= EPSILON) {
         return a.intersection.path.isAbove(b.intersection.path) ? -1 : 1;
       } else {
         return diff;
@@ -60236,9 +60302,12 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     for (let c = 0; c < crossings.length; c++) {
       let crossing = crossings[c];
       let colorAt = getPathStroke(crossing.intersection.path);
+      let itemAt = !!colorAt && layerGroup.hitTest(crossing.point, {
+        fill: true
+      });
       let colorAfter = getColorAt(crossing.point.add(new paper.Point(-EPSILON, 0)));
 
-      if (colorAt && !colorsEqual(holeColor, colorAt) || !colorsEqual(holeColor, colorAfter)) {
+      if (colorAt && !colorsEqual(holeColor, colorAt) && (!itemAt || crossing.intersection.path.isAbove(itemAt.item)) || !colorsEqual(holeColor, colorAfter)) {
         currentCurveLocation = crossing.intersection;
         currentCurve = currentCurveLocation.curve;
         var currentDirection = getDirection(currentCurveLocation, new paper.Point(0, -1));
@@ -60260,26 +60329,53 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     let pointToAdd;
 
     while (n < MAX_ITERS && !ended) {
+      //console.log('------------', n);
       if (n === 1) {
         points = [];
       }
 
       let currentTime = (currentCurveLocation.time + currentCurve.index) % currentCurve.path.curves.length;
       currentCurveLocation = null;
-      let [clt, ccl, gcl] = curveIntersections(currentCurve, null, currentCurveLocation, null, currentTime, null, currentDirection, () => true);
+      let [clt, ccl, gcl, r] = curveIntersections(currentCurve, null, currentCurveLocation, null, currentTime, null, currentDirection, () => true);
       let closestTime = clt;
       currentCurveLocation = ccl;
       let gapCrossLocation = null;
 
       if (currentCurve.length > EPSILON) {
-        let gapCurve = bumpedCurve(currentCurve, currentDirection);
-        [clt, ccl, gcl] = curveIntersections(currentCurve, gapCurve, currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, a => colorsEqual(holeColor, getColorAt(a.point.subtract(a.tangent.multiply(currentDirection).normalize(RADIUS)))) && !colorsEqual(holeColor, getColorAt(a.point.add(a.tangent.multiply(currentDirection).normalize(RADIUS)))));
-        closestTime = clt;
-        gapCrossLocation = gcl;
-        gapCurve = bumpedCurve(currentCurve, -currentDirection);
-        [clt, ccl, gcl] = curveIntersections(currentCurve, gapCurve, currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, a => !colorsEqual(holeColor, getColorAt(a.point.subtract(a.tangent.multiply(currentDirection).normalize(RADIUS)))) && colorsEqual(holeColor, getColorAt(a.point.add(a.tangent.multiply(currentDirection).normalize(RADIUS)))));
-        gapCrossLocation = gcl;
-      }
+        let gapCurves = bumpedCurve(currentCurve, currentDirection);
+
+        for (let i = 0; i < gapCurves.length; i++) {
+          [clt, ccl, gcl, r] = curveIntersections(currentCurve, {
+            gapCurve: gapCurves[i],
+            index: i
+          }, currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, a => colorsEqual(holeColor, getColorAt(a.point.subtract(a.tangent.multiply(currentDirection).normalize(RADIUS)))) && !colorsEqual(holeColor, getColorAt(a.point.add(a.tangent.multiply(currentDirection).normalize(RADIUS)))));
+
+          if (r) {
+            //console.log("used inner gapCross", i);
+            closestTime = clt;
+            gapCrossLocation = gcl;
+            break;
+          }
+        }
+
+        if (currentCurve.path.closed) {
+          gapCurves = bumpedCurve(currentCurve, -currentDirection);
+
+          for (let i = 0; i < gapCurves.length; i++) {
+            [clt, ccl, gcl, r] = curveIntersections(currentCurve, {
+              gapCurve: gapCurves[i],
+              index: i
+            }, currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, a => !colorsEqual(holeColor, getColorAt(a.point.subtract(a.tangent.multiply(currentDirection).normalize(RADIUS)))) && colorsEqual(holeColor, getColorAt(a.point.add(a.tangent.multiply(currentDirection).normalize(RADIUS)))));
+
+            if (r) {
+              //console.log("used outer gapCross", i);
+              gapCrossLocation = gcl;
+              break;
+            }
+          }
+        }
+      } //console.log('gapCrossLocation', gapCrossLocation);
+
 
       if (currentCurveLocation === null) {
         currentCurveLocation = currentCurve.getLocationAtTime(currentDirection < 0 ? 0 : 1);
@@ -60289,7 +60385,8 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         p1: pointToAdd,
         p2: gapCrossLocation ? currentCurve.getNearestLocation(gapCrossLocation.point) : currentCurveLocation
       });
-      circle.position = gapCrossLocation ? gapCrossLocation.point : currentCurveLocation.point; //onFinish(circle.clone());
+      circle.position = gapCrossLocation ? gapCrossLocation.point : currentCurveLocation.point; //console.log('circle', circle.bounds.center.toString());
+      //onFinish(circle.clone());
 
       var crossings = [];
       var items = layerGroup.getItems({
@@ -60309,39 +60406,71 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         } else {
           return diff;
         }
-      });
+      }); //console.log('crossings');
+      //crossings.map((crossing, i) => console.log(i, crossing.index, crossing.time));
+
       let startingIndex = 0;
 
-      for (let i = 0; i < crossings.length; i++) {
-        let crossing = crossings[i];
+      if (gapCrossLocation) {
+        //console.log('gcIndex');
+        let incomingTangent = gapCrossLocation.tangent.multiply(-currentDirection);
+        let incomingIndex = (2 * Math.PI - Math.atan2(incomingTangent.y, incomingTangent.x)) * 2 / Math.PI + EPSILON;
+        let minIndexDiff = 4;
 
-        if (crossing.intersection.curve.path === currentCurve.path && ((currentCurve.index - crossing.intersection.curve.index) * currentDirection + currentCurve.path.curves.length) % currentCurve.path.curves.length <= 1 && currentDirection !== getDirection(crossing.intersection, crossing.point.subtract(currentCurveLocation.point))) {
-          startingIndex = i + 1;
+        for (let i = 0; i < crossings.length; i++) {
+          let indexDiff = (crossings[i].time + crossings[i].index - incomingIndex + 4) % 4;
 
-          for (let j = 1; j < crossings.length; j++) {
-            let crossing2 = crossings[(i + j) % crossings.length];
+          if (indexDiff < minIndexDiff) {
+            minIndexDiff = indexDiff;
+            startingIndex = i;
+          }
+        }
+      } else {
+        let good = false;
 
-            if (Math.abs(Math.abs(crossing2.time + crossing2.index - crossing.time - crossing.index) - 2) < 1.99) {
-              startingIndex = (i + j) % crossings.length;
-              break;
+        for (let i = 0; i < crossings.length; i++) {
+          let crossing = crossings[i]; // Looking for first intersection counterclockwise of where we're coming from,
+          // so first find the intersection we're coming from (must be on currentCurve.path, within 1 index, and if we go back in that direction the direction should change)
+
+          if (crossing.intersection.curve.path === currentCurve.path && ((currentCurve.index - crossing.intersection.curve.index) * currentDirection + currentCurve.path.curves.length) % currentCurve.path.curves.length <= 1 && currentDirection !== getDirection(crossing.intersection, crossing.point.subtract(currentCurveLocation.point))) {
+            startingIndex = i + 1; //console.log(i);
+            // Now find the first intersection after the one we're coming from that is at least 0.01 "radians" away (not actually radians, it's units of 4/(2PI) radians)
+
+            for (let j = 1; j < crossings.length; j++) {
+              let crossing2 = crossings[(i + j) % crossings.length];
+
+              if (Math.abs(Math.abs(crossing2.time + crossing2.index - crossing.time - crossing.index) - 2) < 1.99) {
+                startingIndex = (i + j) % crossings.length; //good = true;
+
+                break;
+              }
             }
 
             break;
           }
-        }
-      }
+        } //if (!good) console.log("!good");
+
+      } //console.log('startingIndex', startingIndex);
+
 
       let good = false;
 
       for (let i = 0; i < crossings.length; i++) {
+        //console.log((startingIndex + i) % crossings.length);
         let crossing = crossings[(startingIndex + i) % crossings.length];
         let colorBefore = getColorAt(crossing.point.subtract(crossing.tangent.normalize(RADIUS * STEP_SIZE)));
 
         if (colorsEqual(colorBefore, holeColor)) {
+          //console.log('colorsEqual');
           let colorAt = getPathStroke(crossing.intersection.path);
-          let colorAfter = getColorAt(crossing.point.add(crossing.tangent.normalize(RADIUS * STEP_SIZE)));
+          let itemAt = !!colorAt && layerGroup.hitTest(crossing.point, {
+            fill: true
+          });
+          let colorAfter = getColorAt(crossing.point.add(crossing.tangent.normalize(RADIUS * STEP_SIZE))); //console.log(crossing.point.add(crossing.tangent.normalize(RADIUS * STEP_SIZE)).toString());
 
-          if (colorAt && !colorsEqual(holeColor, colorAt) || !colorsEqual(holeColor, colorAfter)) {
+          if (colorAt && !colorsEqual(holeColor, colorAt) && (!itemAt || crossing.intersection.path.isAbove(itemAt.item)) || !colorsEqual(holeColor, colorAfter)) {
+            //console.log('colorChange', colorAt && !colorsEqual(holeColor, colorAt), !itemAt || crossing.intersection.path.isAbove(itemAt.item), !colorsEqual(holeColor, colorAfter));
+            //console.log(holeColor, colorAfter);
             currentDirection = getDirection(crossing.intersection, crossing.point.subtract(circle.bounds.center));
             currentCurveLocation = crossing.intersection;
             pointToAdd = crossing.intersection.curve.getNearestLocation(circle.bounds.center);
@@ -60366,9 +60495,21 @@ Wick.Tools.Zoom = class extends Wick.Tool {
             points = points.slice(i);
 
             if (i > 2) {
-              onError("LOOPING");
-              onFinish(circle.scale(1 / RADIUS));
-              return null;
+              TIMES_LOOPED++;
+              console.log("LOOP", TIMES_LOOPED);
+
+              if (TIMES_LOOPED >= MAX_LOOP_ATTEMPTS) {
+                onError("LOOPING");
+                onFinish(circle.scale(1 / RADIUS));
+                return null;
+              }
+
+              var addedCircle = circle.clone().scale(1 / RADIUS);
+              addedCircle.fillColor = holeColor.red === 0 ? new paper.Color(1, 1, 1) : new paper.Color(0, 0, 0);
+              layerGroup.addChild(addedCircle);
+              circle.remove();
+              NORMAL_SEGS += 4;
+              return getShapeAroundPoint(startingPoint);
             }
 
             ended = true;
@@ -60402,7 +60543,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
       if (p1.curve === p2.curve) {
         curves.push(p1.curve.getPart(p1.time, p2.time));
       } else {
-        if ((p1.curve.index + 1) % p1.curve.path.curves.length === p2.curve.index) {
+        if (p1.curve.path.closed ? (p1.curve.index + 1) % p1.curve.path.curves.length === p2.curve.index : p1.curve.index + 1 === p2.curve.index) {
           if (p1.time > 1 - EPSILON) {
             curves.push(p2.curve.getPart(0, p2.time));
           } else {
@@ -60439,6 +60580,8 @@ Wick.Tools.Zoom = class extends Wick.Tool {
       if (!args.onFinish) console.error('paper.hole: args.onFinish is required');
       if (!args.onError) console.error('paper.hole: args.onError is required');
       if (!args.layers) console.error('paper.hole: args.layers is required');
+      TIMES_LOOPED = 0;
+      NORMAL_SEGS = 1;
       GAP_FILL = (args.gapFillAmount ? args.gapFillAmount : 0) + 0.01;
       onError = args.onError;
       onFinish = args.onFinish;
