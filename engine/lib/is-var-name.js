@@ -1,7 +1,7 @@
 'use strict';
 
-/*!
- * is-var-name | ISC (c) Shinnosuke Watanabe
+/**
+ * @license is-var-name | ISC (c) Shinnosuke Watanabe
  * https://github.com/shinnn/is-var-name
 */
 function isVarName(str) {

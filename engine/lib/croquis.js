@@ -1,4 +1,4 @@
-/* croquis.js */
+/* @license croquis.js */
 /* https://github.com/disjukr/croquis.js/tree/master */
 
 function Croquis(imageDataList, properties) {

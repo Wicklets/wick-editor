@@ -1,5 +1,6 @@
 /*
- * base64-arraybuffer
+ * 
+ * @license base64-arraybuffer
  * https://github.com/niklasvh/base64-arraybuffer
  *
  * Copyright (c) 2012 Niklas von Hertzen

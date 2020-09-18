@@ -1,4 +1,5 @@
 /**
+ * @license
  * @fileoverview Implement 'currentTransform' of CanvasRenderingContext2D prototype (polyfill)
  * @author Stefan Goessner (c) 2015
  */

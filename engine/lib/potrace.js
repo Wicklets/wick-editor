@@ -1,4 +1,5 @@
-/*
+/**
+ * @license potrace
  * TypeScript port of Potrace (http://potrace.sourceforge.net).
  * https://github.com/oov/potrace
  *
