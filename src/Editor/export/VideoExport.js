@@ -58,20 +58,20 @@ class VideoExport {
                 // Load frame images into the web worker's memory
                 onProgress('Converting Frames' , EXPORT_AUDIO_START);
                 images.forEach(image => {
-                // Create Name and array buffer of frame image.
-                let paddedNum = (frameNumber + '').padStart(12, '0');
-                let name = "frame" + paddedNum + ".jpeg";
+                  // Create Name and array buffer of frame image.
+                  let paddedNum = (frameNumber + '').padStart(12, '0');
+                  let name = "frame" + paddedNum + ".jpg";
 
-                // Get the base 64 value and convert it to an array buffer.
-                let cleanBase64 = image.src.split(',')[1];
-                let buffer = b64toBuff.decode(cleanBase64);
+                  // Get the base 64 value and convert it to an array buffer.
+                  let cleanBase64 = image.src.split(',')[1];
+                  let buffer = b64toBuff.decode(cleanBase64);
 
-                // Store name and buffer in memfs appropriate object.
-                imageData.push({name:name, data:new Uint8Array(buffer)});
+                  // Store name and buffer in memfs appropriate object.
+                  imageData.push({name:name, data:new Uint8Array(buffer)});
 
-                // Increase frame number.
-                frameNumber += 1;
-              });
+                  // Increase frame number.
+                  frameNumber += 1;
+                });
 
                 resolve(imageData);
               },
@@ -152,7 +152,7 @@ class VideoExport {
 
       if (audio) allFiles = allFiles.concat([{ data:audio, name:"audio.wav"}]);
 
-      let inputs = ['-i', 'frame%12d.jpeg'];
+      let inputs = ['-i', 'frame%12d.jpg'];
 
       if (audio) {
           inputs = inputs.concat(['-i', 'audio.wav']);
@@ -174,7 +174,6 @@ class VideoExport {
           '-r', '' + Math.max(6, project.framerate),
           '-s', dimensions.width + "x" + dimensions.height,
           ...inputs,
-          '-vcodec', 'mpeg4',
           '-pix_fmt', 'yuv420p',
           '-q:v', '10', //10=good quality, 31=bad quality
           '-strict', '-2',

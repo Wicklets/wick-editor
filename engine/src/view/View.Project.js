@@ -478,7 +478,7 @@ Wick.View.Project = class extends Wick.View {
                 from: new paper.Point(borderMin, borderMin),
                 to: new paper.Point(borderMax, strokeOffset),
                 fillColor: 'black',
-                strokeWidth: 1,
+                strokeWidth: 0,
                 strokeColor: 'black',
             }),
             // bottom
@@ -486,7 +486,7 @@ Wick.View.Project = class extends Wick.View {
                 from: new paper.Point(borderMin, (bottom)-strokeOffset),
                 to: new paper.Point(borderMax, borderMax),
                 fillColor: 'black',
-                strokeWidth: 1,
+                strokeWidth: 0,
                 strokeColor: 'black',
             }),
             // left

@@ -1666,7 +1666,7 @@ Wick.Project = class extends Wick.Base {
         
 
         var renderCopy = this;
-        renderCopy.renderBlackBars = false;
+        renderCopy.renderBlackBars = true; // Turn off black bars (removes black lines)
 
         var oldCanvasContainer = this.view.canvasContainer;
 
@@ -1678,6 +1678,7 @@ Wick.Project = class extends Wick.Base {
 
         // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
         let container = window.document.createElement('div');
+
         container.style.width  = (args.width/window.devicePixelRatio)+'px';
         container.style.height = (args.height/window.devicePixelRatio)+'px';
         window.document.body.appendChild(container);

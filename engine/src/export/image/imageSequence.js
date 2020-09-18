@@ -35,7 +35,9 @@ Wick.ImageSequence = class {
             let index = 0;
             files.forEach((file) => {
                 var blob = Wick.ExportUtils.dataURItoBlob(file.src);
-                zip.file('frame' + index + '.png', blob);
+
+                let paddedNum = (index + '').padStart(12, '0');
+                zip.file('frame' + paddedNum + '.png', blob);
                 index += 1;
             });
 
