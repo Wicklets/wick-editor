@@ -163,6 +163,9 @@ import mascotMarkDark from 'resources/logo-icons/mascot-mark-dark.svg';
 import mascotMark from 'resources/logo-icons/mascot-mark.svg';
 import mascot from 'resources/logo-icons/mascot.svg';
 
+// Support Us
+import iconRedHeart from 'resources/support-us-icons/red-heart.svg';
+
 var classNames = require('classnames');
 
 class ToolIcon extends Component {
@@ -293,6 +296,7 @@ class ToolIcon extends Component {
       "edit-timeline": iconEditTimeline,
       "outliner-lock": iconLockOutliner,
       "outliner-hide": iconHideOutliner,
+      "redheart": iconRedHeart,
     }
   }
 

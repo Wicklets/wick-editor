@@ -556,3 +556,27 @@ body.hasHover .action-button-flame:hover {
   background-color: $flame-dark;
   color: $flame-text;
 }
+
+// support us button
+.action-button-support {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: transparent;
+  border: 2px solid $patreon-orange;
+  color: $patreon-text;
+
+  padding: 0 5px 0 5px;
+
+  cursor: pointer;
+}
+
+.action-button-support img{
+  width: 22px;
+  height: auto;
+  padding: 2px auto;
+}
+
+.action-button-support span{
+  padding-left: 5px;
+}

@@ -21,6 +21,7 @@ import React, { Component } from 'react';
 import './_menubar.scss';
 import MenuBarButton from './MenuBarButton/MenuBarButton';
 import MenuBarIconButton from './MenuBarIconButton/MenuBarIconButton';
+import MenuBarSupportButton from './MenuBarSupportButton/MenuBarSupportButton';
 
 class MenuBar extends Component {
 
@@ -40,7 +41,15 @@ class MenuBar extends Component {
         <div className="menu-bar-project-name" role="button" onClick={() => this.props.openModal("SimpleProjectSettings")}>
           {this.props.projectName}
         </div>
+
         <div className="menu-bar-actions-container">
+          
+        <MenuBarSupportButton
+          icon="redheart"
+          text="Support Us"
+          id="support-us-button"
+          action={() => this.props.openModal('SupportUs')}
+          />
 
           <MenuBarButton
             text="new"
@@ -77,6 +86,12 @@ class MenuBar extends Component {
     return (
       <div className="docked-pane menu-bar">
         <MenuBarIconButton icon="hamburger" action={() => this.props.openModal('MobileMenuModal')}/>
+
+        <MenuBarSupportButton
+          icon="redheart"
+          id="support-us-button"
+          action={() => this.props.openModal('SupportUs')}
+        />
         
         <div role="button" onClick={() => this.props.openModal("SimpleProjectSettings")} className="menu-bar-project-name-mobile">
           {this.props.projectName}
