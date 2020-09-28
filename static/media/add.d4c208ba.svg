@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="14px" height="14px" viewBox="0 0 14 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 53.2 (72643) - https://sketchapp.com -->
+    <title>Group 44 Copy 33</title>
+    <desc>Created with Sketch.</desc>
+    <style type="text/css">
+        .st0{fill:white;}
+        .st1{fill:white;}
+    </style>
+    <g id="Code-Editor" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Artboard-3-Copy-9" transform="translate(-347.000000, -56.000000)" fill="#696969">
+            <g id="Group-44-Copy-33" transform="translate(347.000000, 56.000000)">
+                <path class="st0" d="M7.01698893,0 L7.01698893,0 C7.50141093,-8.89868772e-17 7.89411255,0.392701619 7.89411255,0.877123617 L7.89411255,12.2797306 C7.89411255,12.7641526 7.50141093,13.1568542 7.01698893,13.1568542 L7.01698893,13.1568542 C6.53256694,13.1568542 6.13986532,12.7641526 6.13986532,12.2797306 L6.13986532,0.877123617 C6.13986532,0.392701619 6.53256694,8.89868772e-17 7.01698893,0 Z" id="Rectangle-40"></path>
+                <rect class="st1" id="Rectangle-40-Copy" transform="translate(7.016989, 6.578427) rotate(-270.000000) translate(-7.016989, -6.578427) " x="6.13986532" y="0" width="1.75424723" height="13.1568542" rx="0.877123617"></rect>
+            </g>
+        </g>
+    </g>
+</svg>

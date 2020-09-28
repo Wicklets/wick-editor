@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 23.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 28.1 28.1" style="enable-background:new 0 0 28.1 28.1;" xml:space="preserve">
+<style type="text/css">
+	<!-- .st0{fill:url(#SVGID_1_);} -->
+	.st0{fill:white;}
+</style>
+<title>Rectangle_1</title>
+<g>
+	<g>
+		<g id="Icons">
+			
+				<image style="overflow:visible;opacity:0.25;enable-background:new    ;" width="41" height="41" xlink:href="2A6F423CA7497E2D.png"  transform="matrix(1 0 0 1 -3.53 -4.82)">
+			</image>
+			
+				<linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="1.69" y1="30.4698" x2="25.13" y2="7.2098" gradientTransform="matrix(1 0 0 -1 0 32.2498)">
+				<stop  offset="0" style="stop-color:#F0F0F0"/>
+				<stop  offset="0.71" style="stop-color:#CCCCCC"/>
+			</linearGradient>
+			<path class="st0" d="M25.7,0H2.4C1.1,0,0,1.1,0,2.4v23.3c0,1.3,1.1,2.4,2.4,2.4h0h23.4c1.3,0,2.4-1.1,2.4-2.4v0V2.4
+				C28.1,1.1,27.1,0,25.7,0L25.7,0z M24.6,4.2v19.7c0,0.4-0.3,0.7-0.7,0.7H4.2c-0.4,0-0.7-0.3-0.7-0.7V4.2c0-0.4,0.3-0.7,0.7-0.7
+				h19.7C24.3,3.5,24.6,3.8,24.6,4.2z"/>
+		</g>
+	</g>
+</g>
+</svg>

@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.7.2.14.55.1";
+var WICK_ENGINE_BUILD_VERSION = "2020.9.28.15.26.35";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -17400,7 +17400,8 @@ return paper;
 }.call(this, typeof self === 'object' ? self : null);
 
 /*
- * base64-arraybuffer
+ * 
+ * @license base64-arraybuffer
  * https://github.com/niklasvh/base64-arraybuffer
  *
  * Copyright (c) 2012 Niklas von Hertzen
@@ -17472,11 +17473,11 @@ var Base64ArrayBuffer = (function () {
 
 })();
 
-// https://stackoverflow.com/questions/14224535/scaling-between-two-number-ranges
+// @license https://stackoverflow.com/questions/14224535/scaling-between-two-number-ranges
 function convertRange( value, r1, r2 ) { 
     return ( value - r1[ 0 ] ) * ( r2[ 1 ] - r2[ 0 ] ) / ( r1[ 1 ] - r1[ 0 ] ) + r2[ 0 ];
 }
-/* croquis.js */
+/* @license croquis.js */
 /* https://github.com/disjukr/croquis.js/tree/master */
 
 function Croquis(imageDataList, properties) {
@@ -19028,6 +19029,7 @@ Croquis.Brush = function () {
 };
 
 /**
+ * @license
  * @fileoverview Implement 'currentTransform' of CanvasRenderingContext2D prototype (polyfill)
  * @author Stefan Goessner (c) 2015
  */
@@ -19175,6 +19177,31 @@ if (!("currentTransform" in CanvasRenderingContext2D.prototype)) {
       }();
    }
 }
+
+/**
+ * @license esprima.js
+ * Copyright JS Foundation and other contributors, https://js.foundation/
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ * 
+ *  * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 (function webpackUniversalModuleDefinition(root, factory) {
 /* istanbul ignore next */
@@ -25885,10 +25912,11 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ ])
 });
 ;
+	/**
+	 * @license floodfill Copyright(c) Max Irwin - 2011, 2015, 2016
+	 * MIT License
+	 */
 var floodfill = (function() {
-
-	//Copyright(c) Max Irwin - 2011, 2015, 2016
-	//MIT License
 
 	function floodfill(data,x,y,fillcolor,tolerance,width,height) {
 
@@ -26033,8 +26061,9 @@ var floodfill = (function() {
 
 })();
 
-/*!
- *  howler.js v2.1.1
+/**
+ * @license howler.js 
+ * howler.js v2.1.1
  *  howlerjs.com
  *
  *  (c) 2013-2018, James Simpson of GoldFire Studios
@@ -29174,8 +29203,8 @@ var floodfill = (function() {
 
 'use strict';
 
-/*!
- * is-var-name | ISC (c) Shinnosuke Watanabe
+/**
+ * @license is-var-name | ISC (c) Shinnosuke Watanabe
  * https://github.com/shinnn/is-var-name
 */
 function isVarName(str) {
@@ -41617,11 +41646,11 @@ module.exports = ZStream;
 });
 //https://github.com/mattdesl/lerp/blob/master/index.js
 var lerp = function (v0, v1, t) { return v0*(1-t)+v1*t; };
-/*!
-    localForage -- Offline Storage, Improved
-    Version 1.7.3
-    https://localforage.github.io/localForage
-    (c) 2013-2017 Mozilla, Apache License 2.0
+/**
+ * @license localForage -- Offline Storage, Improved
+ * Version 1.7.3
+ * https://localforage.github.io/localForage
+ * (c) 2013-2017 Mozilla, Apache License 2.0
 */
 !function(a){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=a();else if("function"==typeof define&&define.amd)define([],a);else{var b;b="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:this,b.localforage=a()}}(function(){return function a(b,c,d){function e(g,h){if(!c[g]){if(!b[g]){var i="function"==typeof require&&require;if(!h&&i)return i(g,!0);if(f)return f(g,!0);var j=new Error("Cannot find module '"+g+"'");throw j.code="MODULE_NOT_FOUND",j}var k=c[g]={exports:{}};b[g][0].call(k.exports,function(a){var c=b[g][1][a];return e(c||a)},k,k.exports,a,b,c,d)}return c[g].exports}for(var f="function"==typeof require&&require,g=0;g<d.length;g++)e(d[g]);return e}({1:[function(a,b,c){(function(a){"use strict";function c(){k=!0;for(var a,b,c=l.length;c;){for(b=l,l=[],a=-1;++a<c;)b[a]();c=l.length}k=!1}function d(a){1!==l.push(a)||k||e()}var e,f=a.MutationObserver||a.WebKitMutationObserver;if(f){var g=0,h=new f(c),i=a.document.createTextNode("");h.observe(i,{characterData:!0}),e=function(){i.data=g=++g%2}}else if(a.setImmediate||void 0===a.MessageChannel)e="document"in a&&"onreadystatechange"in a.document.createElement("script")?function(){var b=a.document.createElement("script");b.onreadystatechange=function(){c(),b.onreadystatechange=null,b.parentNode.removeChild(b),b=null},a.document.documentElement.appendChild(b)}:function(){setTimeout(c,0)};else{var j=new a.MessageChannel;j.port1.onmessage=c,e=function(){j.port2.postMessage(0)}}var k,l=[];b.exports=d}).call(this,"undefined"!=typeof global?global:"undefined"!=typeof self?self:"undefined"!=typeof window?window:{})},{}],2:[function(a,b,c){"use strict";function d(){}function e(a){if("function"!=typeof a)throw new TypeError("resolver must be a function");this.state=s,this.queue=[],this.outcome=void 0,a!==d&&i(this,a)}function f(a,b,c){this.promise=a,"function"==typeof b&&(this.onFulfilled=b,this.callFulfilled=this.otherCallFulfilled),"function"==typeof c&&(this.onRejected=c,this.callRejected=this.otherCallRejected)}function g(a,b,c){o(function(){var d;try{d=b(c)}catch(b){return p.reject(a,b)}d===a?p.reject(a,new TypeError("Cannot resolve promise with itself")):p.resolve(a,d)})}function h(a){var b=a&&a.then;if(a&&("object"==typeof a||"function"==typeof a)&&"function"==typeof b)return function(){b.apply(a,arguments)}}function i(a,b){function c(b){f||(f=!0,p.reject(a,b))}function d(b){f||(f=!0,p.resolve(a,b))}function e(){b(d,c)}var f=!1,g=j(e);"error"===g.status&&c(g.value)}function j(a,b){var c={};try{c.value=a(b),c.status="success"}catch(a){c.status="error",c.value=a}return c}function k(a){return a instanceof this?a:p.resolve(new this(d),a)}function l(a){var b=new this(d);return p.reject(b,a)}function m(a){function b(a,b){function d(a){g[b]=a,++h!==e||f||(f=!0,p.resolve(j,g))}c.resolve(a).then(d,function(a){f||(f=!0,p.reject(j,a))})}var c=this;if("[object Array]"!==Object.prototype.toString.call(a))return this.reject(new TypeError("must be an array"));var e=a.length,f=!1;if(!e)return this.resolve([]);for(var g=new Array(e),h=0,i=-1,j=new this(d);++i<e;)b(a[i],i);return j}function n(a){function b(a){c.resolve(a).then(function(a){f||(f=!0,p.resolve(h,a))},function(a){f||(f=!0,p.reject(h,a))})}var c=this;if("[object Array]"!==Object.prototype.toString.call(a))return this.reject(new TypeError("must be an array"));var e=a.length,f=!1;if(!e)return this.resolve([]);for(var g=-1,h=new this(d);++g<e;)b(a[g]);return h}var o=a(1),p={},q=["REJECTED"],r=["FULFILLED"],s=["PENDING"];b.exports=e,e.prototype.catch=function(a){return this.then(null,a)},e.prototype.then=function(a,b){if("function"!=typeof a&&this.state===r||"function"!=typeof b&&this.state===q)return this;var c=new this.constructor(d);if(this.state!==s){g(c,this.state===r?a:b,this.outcome)}else this.queue.push(new f(c,a,b));return c},f.prototype.callFulfilled=function(a){p.resolve(this.promise,a)},f.prototype.otherCallFulfilled=function(a){g(this.promise,this.onFulfilled,a)},f.prototype.callRejected=function(a){p.reject(this.promise,a)},f.prototype.otherCallRejected=function(a){g(this.promise,this.onRejected,a)},p.resolve=function(a,b){var c=j(h,b);if("error"===c.status)return p.reject(a,c.value);var d=c.value;if(d)i(a,d);else{a.state=r,a.outcome=b;for(var e=-1,f=a.queue.length;++e<f;)a.queue[e].callFulfilled(b)}return a},p.reject=function(a,b){a.state=q,a.outcome=b;for(var c=-1,d=a.queue.length;++c<d;)a.queue[c].callRejected(b);return a},e.resolve=k,e.reject=l,e.all=m,e.race=n},{1:1}],3:[function(a,b,c){(function(b){"use strict";"function"!=typeof b.Promise&&(b.Promise=a(2))}).call(this,"undefined"!=typeof global?global:"undefined"!=typeof self?self:"undefined"!=typeof window?window:{})},{2:2}],4:[function(a,b,c){"use strict";function d(a,b){if(!(a instanceof b))throw new TypeError("Cannot call a class as a function")}function e(){try{if("undefined"!=typeof indexedDB)return indexedDB;if("undefined"!=typeof webkitIndexedDB)return webkitIndexedDB;if("undefined"!=typeof mozIndexedDB)return mozIndexedDB;if("undefined"!=typeof OIndexedDB)return OIndexedDB;if("undefined"!=typeof msIndexedDB)return msIndexedDB}catch(a){return}}function f(){try{if(!ua)return!1;var a="undefined"!=typeof openDatabase&&/(Safari|iPhone|iPad|iPod)/.test(navigator.userAgent)&&!/Chrome/.test(navigator.userAgent)&&!/BlackBerry/.test(navigator.platform),b="function"==typeof fetch&&-1!==fetch.toString().indexOf("[native code");return(!a||b)&&"undefined"!=typeof indexedDB&&"undefined"!=typeof IDBKeyRange}catch(a){return!1}}function g(a,b){a=a||[],b=b||{};try{return new Blob(a,b)}catch(f){if("TypeError"!==f.name)throw f;for(var c="undefined"!=typeof BlobBuilder?BlobBuilder:"undefined"!=typeof MSBlobBuilder?MSBlobBuilder:"undefined"!=typeof MozBlobBuilder?MozBlobBuilder:WebKitBlobBuilder,d=new c,e=0;e<a.length;e+=1)d.append(a[e]);return d.getBlob(b.type)}}function h(a,b){b&&a.then(function(a){b(null,a)},function(a){b(a)})}function i(a,b,c){"function"==typeof b&&a.then(b),"function"==typeof c&&a.catch(c)}function j(a){return"string"!=typeof a&&(console.warn(a+" used as a key, but it is not a string."),a=String(a)),a}function k(){if(arguments.length&&"function"==typeof arguments[arguments.length-1])return arguments[arguments.length-1]}function l(a){for(var b=a.length,c=new ArrayBuffer(b),d=new Uint8Array(c),e=0;e<b;e++)d[e]=a.charCodeAt(e);return c}function m(a){return new va(function(b){var c=a.transaction(wa,Ba),d=g([""]);c.objectStore(wa).put(d,"key"),c.onabort=function(a){a.preventDefault(),a.stopPropagation(),b(!1)},c.oncomplete=function(){var a=navigator.userAgent.match(/Chrome\/(\d+)/),c=navigator.userAgent.match(/Edge\//);b(c||!a||parseInt(a[1],10)>=43)}}).catch(function(){return!1})}function n(a){return"boolean"==typeof xa?va.resolve(xa):m(a).then(function(a){return xa=a})}function o(a){var b=ya[a.name],c={};c.promise=new va(function(a,b){c.resolve=a,c.reject=b}),b.deferredOperations.push(c),b.dbReady?b.dbReady=b.dbReady.then(function(){return c.promise}):b.dbReady=c.promise}function p(a){var b=ya[a.name],c=b.deferredOperations.pop();if(c)return c.resolve(),c.promise}function q(a,b){var c=ya[a.name],d=c.deferredOperations.pop();if(d)return d.reject(b),d.promise}function r(a,b){return new va(function(c,d){if(ya[a.name]=ya[a.name]||B(),a.db){if(!b)return c(a.db);o(a),a.db.close()}var e=[a.name];b&&e.push(a.version);var f=ua.open.apply(ua,e);b&&(f.onupgradeneeded=function(b){var c=f.result;try{c.createObjectStore(a.storeName),b.oldVersion<=1&&c.createObjectStore(wa)}catch(c){if("ConstraintError"!==c.name)throw c;console.warn('The database "'+a.name+'" has been upgraded from version '+b.oldVersion+" to version "+b.newVersion+', but the storage "'+a.storeName+'" already exists.')}}),f.onerror=function(a){a.preventDefault(),d(f.error)},f.onsuccess=function(){c(f.result),p(a)}})}function s(a){return r(a,!1)}function t(a){return r(a,!0)}function u(a,b){if(!a.db)return!0;var c=!a.db.objectStoreNames.contains(a.storeName),d=a.version<a.db.version,e=a.version>a.db.version;if(d&&(a.version!==b&&console.warn('The database "'+a.name+"\" can't be downgraded from version "+a.db.version+" to version "+a.version+"."),a.version=a.db.version),e||c){if(c){var f=a.db.version+1;f>a.version&&(a.version=f)}return!0}return!1}function v(a){return new va(function(b,c){var d=new FileReader;d.onerror=c,d.onloadend=function(c){var d=btoa(c.target.result||"");b({__local_forage_encoded_blob:!0,data:d,type:a.type})},d.readAsBinaryString(a)})}function w(a){return g([l(atob(a.data))],{type:a.type})}function x(a){return a&&a.__local_forage_encoded_blob}function y(a){var b=this,c=b._initReady().then(function(){var a=ya[b._dbInfo.name];if(a&&a.dbReady)return a.dbReady});return i(c,a,a),c}function z(a){o(a);for(var b=ya[a.name],c=b.forages,d=0;d<c.length;d++){var e=c[d];e._dbInfo.db&&(e._dbInfo.db.close(),e._dbInfo.db=null)}return a.db=null,s(a).then(function(b){return a.db=b,u(a)?t(a):b}).then(function(d){a.db=b.db=d;for(var e=0;e<c.length;e++)c[e]._dbInfo.db=d}).catch(function(b){throw q(a,b),b})}function A(a,b,c,d){void 0===d&&(d=1);try{var e=a.db.transaction(a.storeName,b);c(null,e)}catch(e){if(d>0&&(!a.db||"InvalidStateError"===e.name||"NotFoundError"===e.name))return va.resolve().then(function(){if(!a.db||"NotFoundError"===e.name&&!a.db.objectStoreNames.contains(a.storeName)&&a.version<=a.db.version)return a.db&&(a.version=a.db.version+1),t(a)}).then(function(){return z(a).then(function(){A(a,b,c,d-1)})}).catch(c);c(e)}}function B(){return{forages:[],db:null,dbReady:null,deferredOperations:[]}}function C(a){function b(){return va.resolve()}var c=this,d={db:null};if(a)for(var e in a)d[e]=a[e];var f=ya[d.name];f||(f=B(),ya[d.name]=f),f.forages.push(c),c._initReady||(c._initReady=c.ready,c.ready=y);for(var g=[],h=0;h<f.forages.length;h++){var i=f.forages[h];i!==c&&g.push(i._initReady().catch(b))}var j=f.forages.slice(0);return va.all(g).then(function(){return d.db=f.db,s(d)}).then(function(a){return d.db=a,u(d,c._defaultConfig.version)?t(d):a}).then(function(a){d.db=f.db=a,c._dbInfo=d;for(var b=0;b<j.length;b++){var e=j[b];e!==c&&(e._dbInfo.db=d.db,e._dbInfo.version=d.version)}})}function D(a,b){var c=this;a=j(a);var d=new va(function(b,d){c.ready().then(function(){A(c._dbInfo,Aa,function(e,f){if(e)return d(e);try{var g=f.objectStore(c._dbInfo.storeName),h=g.get(a);h.onsuccess=function(){var a=h.result;void 0===a&&(a=null),x(a)&&(a=w(a)),b(a)},h.onerror=function(){d(h.error)}}catch(a){d(a)}})}).catch(d)});return h(d,b),d}function E(a,b){var c=this,d=new va(function(b,d){c.ready().then(function(){A(c._dbInfo,Aa,function(e,f){if(e)return d(e);try{var g=f.objectStore(c._dbInfo.storeName),h=g.openCursor(),i=1;h.onsuccess=function(){var c=h.result;if(c){var d=c.value;x(d)&&(d=w(d));var e=a(d,c.key,i++);void 0!==e?b(e):c.continue()}else b()},h.onerror=function(){d(h.error)}}catch(a){d(a)}})}).catch(d)});return h(d,b),d}function F(a,b,c){var d=this;a=j(a);var e=new va(function(c,e){var f;d.ready().then(function(){return f=d._dbInfo,"[object Blob]"===za.call(b)?n(f.db).then(function(a){return a?b:v(b)}):b}).then(function(b){A(d._dbInfo,Ba,function(f,g){if(f)return e(f);try{var h=g.objectStore(d._dbInfo.storeName);null===b&&(b=void 0);var i=h.put(b,a);g.oncomplete=function(){void 0===b&&(b=null),c(b)},g.onabort=g.onerror=function(){var a=i.error?i.error:i.transaction.error;e(a)}}catch(a){e(a)}})}).catch(e)});return h(e,c),e}function G(a,b){var c=this;a=j(a);var d=new va(function(b,d){c.ready().then(function(){A(c._dbInfo,Ba,function(e,f){if(e)return d(e);try{var g=f.objectStore(c._dbInfo.storeName),h=g.delete(a);f.oncomplete=function(){b()},f.onerror=function(){d(h.error)},f.onabort=function(){var a=h.error?h.error:h.transaction.error;d(a)}}catch(a){d(a)}})}).catch(d)});return h(d,b),d}function H(a){var b=this,c=new va(function(a,c){b.ready().then(function(){A(b._dbInfo,Ba,function(d,e){if(d)return c(d);try{var f=e.objectStore(b._dbInfo.storeName),g=f.clear();e.oncomplete=function(){a()},e.onabort=e.onerror=function(){var a=g.error?g.error:g.transaction.error;c(a)}}catch(a){c(a)}})}).catch(c)});return h(c,a),c}function I(a){var b=this,c=new va(function(a,c){b.ready().then(function(){A(b._dbInfo,Aa,function(d,e){if(d)return c(d);try{var f=e.objectStore(b._dbInfo.storeName),g=f.count();g.onsuccess=function(){a(g.result)},g.onerror=function(){c(g.error)}}catch(a){c(a)}})}).catch(c)});return h(c,a),c}function J(a,b){var c=this,d=new va(function(b,d){if(a<0)return void b(null);c.ready().then(function(){A(c._dbInfo,Aa,function(e,f){if(e)return d(e);try{var g=f.objectStore(c._dbInfo.storeName),h=!1,i=g.openCursor();i.onsuccess=function(){var c=i.result;if(!c)return void b(null);0===a?b(c.key):h?b(c.key):(h=!0,c.advance(a))},i.onerror=function(){d(i.error)}}catch(a){d(a)}})}).catch(d)});return h(d,b),d}function K(a){var b=this,c=new va(function(a,c){b.ready().then(function(){A(b._dbInfo,Aa,function(d,e){if(d)return c(d);try{var f=e.objectStore(b._dbInfo.storeName),g=f.openCursor(),h=[];g.onsuccess=function(){var b=g.result;if(!b)return void a(h);h.push(b.key),b.continue()},g.onerror=function(){c(g.error)}}catch(a){c(a)}})}).catch(c)});return h(c,a),c}function L(a,b){b=k.apply(this,arguments);var c=this.config();a="function"!=typeof a&&a||{},a.name||(a.name=a.name||c.name,a.storeName=a.storeName||c.storeName);var d,e=this;if(a.name){var f=a.name===c.name&&e._dbInfo.db,g=f?va.resolve(e._dbInfo.db):s(a).then(function(b){var c=ya[a.name],d=c.forages;c.db=b;for(var e=0;e<d.length;e++)d[e]._dbInfo.db=b;return b});d=a.storeName?g.then(function(b){if(b.objectStoreNames.contains(a.storeName)){var c=b.version+1;o(a);var d=ya[a.name],e=d.forages;b.close();for(var f=0;f<e.length;f++){var g=e[f];g._dbInfo.db=null,g._dbInfo.version=c}return new va(function(b,d){var e=ua.open(a.name,c);e.onerror=function(a){e.result.close(),d(a)},e.onupgradeneeded=function(){e.result.deleteObjectStore(a.storeName)},e.onsuccess=function(){var a=e.result;a.close(),b(a)}}).then(function(a){d.db=a;for(var b=0;b<e.length;b++){var c=e[b];c._dbInfo.db=a,p(c._dbInfo)}}).catch(function(b){throw(q(a,b)||va.resolve()).catch(function(){}),b})}}):g.then(function(b){o(a);var c=ya[a.name],d=c.forages;b.close();for(var e=0;e<d.length;e++){d[e]._dbInfo.db=null}return new va(function(b,c){var d=ua.deleteDatabase(a.name);d.onerror=d.onblocked=function(a){var b=d.result;b&&b.close(),c(a)},d.onsuccess=function(){var a=d.result;a&&a.close(),b(a)}}).then(function(a){c.db=a;for(var b=0;b<d.length;b++)p(d[b]._dbInfo)}).catch(function(b){throw(q(a,b)||va.resolve()).catch(function(){}),b})})}else d=va.reject("Invalid arguments");return h(d,b),d}function M(){return"function"==typeof openDatabase}function N(a){var b,c,d,e,f,g=.75*a.length,h=a.length,i=0;"="===a[a.length-1]&&(g--,"="===a[a.length-2]&&g--);var j=new ArrayBuffer(g),k=new Uint8Array(j);for(b=0;b<h;b+=4)c=Da.indexOf(a[b]),d=Da.indexOf(a[b+1]),e=Da.indexOf(a[b+2]),f=Da.indexOf(a[b+3]),k[i++]=c<<2|d>>4,k[i++]=(15&d)<<4|e>>2,k[i++]=(3&e)<<6|63&f;return j}function O(a){var b,c=new Uint8Array(a),d="";for(b=0;b<c.length;b+=3)d+=Da[c[b]>>2],d+=Da[(3&c[b])<<4|c[b+1]>>4],d+=Da[(15&c[b+1])<<2|c[b+2]>>6],d+=Da[63&c[b+2]];return c.length%3==2?d=d.substring(0,d.length-1)+"=":c.length%3==1&&(d=d.substring(0,d.length-2)+"=="),d}function P(a,b){var c="";if(a&&(c=Ua.call(a)),a&&("[object ArrayBuffer]"===c||a.buffer&&"[object ArrayBuffer]"===Ua.call(a.buffer))){var d,e=Ga;a instanceof ArrayBuffer?(d=a,e+=Ia):(d=a.buffer,"[object Int8Array]"===c?e+=Ka:"[object Uint8Array]"===c?e+=La:"[object Uint8ClampedArray]"===c?e+=Ma:"[object Int16Array]"===c?e+=Na:"[object Uint16Array]"===c?e+=Pa:"[object Int32Array]"===c?e+=Oa:"[object Uint32Array]"===c?e+=Qa:"[object Float32Array]"===c?e+=Ra:"[object Float64Array]"===c?e+=Sa:b(new Error("Failed to get type for BinaryArray"))),b(e+O(d))}else if("[object Blob]"===c){var f=new FileReader;f.onload=function(){var c=Ea+a.type+"~"+O(this.result);b(Ga+Ja+c)},f.readAsArrayBuffer(a)}else try{b(JSON.stringify(a))}catch(c){console.error("Couldn't convert value into a JSON string: ",a),b(null,c)}}function Q(a){if(a.substring(0,Ha)!==Ga)return JSON.parse(a);var b,c=a.substring(Ta),d=a.substring(Ha,Ta);if(d===Ja&&Fa.test(c)){var e=c.match(Fa);b=e[1],c=c.substring(e[0].length)}var f=N(c);switch(d){case Ia:return f;case Ja:return g([f],{type:b});case Ka:return new Int8Array(f);case La:return new Uint8Array(f);case Ma:return new Uint8ClampedArray(f);case Na:return new Int16Array(f);case Pa:return new Uint16Array(f);case Oa:return new Int32Array(f);case Qa:return new Uint32Array(f);case Ra:return new Float32Array(f);case Sa:return new Float64Array(f);default:throw new Error("Unkown type: "+d)}}function R(a,b,c,d){a.executeSql("CREATE TABLE IF NOT EXISTS "+b.storeName+" (id INTEGER PRIMARY KEY, key unique, value)",[],c,d)}function S(a){var b=this,c={db:null};if(a)for(var d in a)c[d]="string"!=typeof a[d]?a[d].toString():a[d];var e=new va(function(a,d){try{c.db=openDatabase(c.name,String(c.version),c.description,c.size)}catch(a){return d(a)}c.db.transaction(function(e){R(e,c,function(){b._dbInfo=c,a()},function(a,b){d(b)})},d)});return c.serializer=Va,e}function T(a,b,c,d,e,f){a.executeSql(c,d,e,function(a,g){g.code===g.SYNTAX_ERR?a.executeSql("SELECT name FROM sqlite_master WHERE type='table' AND name = ?",[b.storeName],function(a,h){h.rows.length?f(a,g):R(a,b,function(){a.executeSql(c,d,e,f)},f)},f):f(a,g)},f)}function U(a,b){var c=this;a=j(a);var d=new va(function(b,d){c.ready().then(function(){var e=c._dbInfo;e.db.transaction(function(c){T(c,e,"SELECT * FROM "+e.storeName+" WHERE key = ? LIMIT 1",[a],function(a,c){var d=c.rows.length?c.rows.item(0).value:null;d&&(d=e.serializer.deserialize(d)),b(d)},function(a,b){d(b)})})}).catch(d)});return h(d,b),d}function V(a,b){var c=this,d=new va(function(b,d){c.ready().then(function(){var e=c._dbInfo;e.db.transaction(function(c){T(c,e,"SELECT * FROM "+e.storeName,[],function(c,d){for(var f=d.rows,g=f.length,h=0;h<g;h++){var i=f.item(h),j=i.value;if(j&&(j=e.serializer.deserialize(j)),void 0!==(j=a(j,i.key,h+1)))return void b(j)}b()},function(a,b){d(b)})})}).catch(d)});return h(d,b),d}function W(a,b,c,d){var e=this;a=j(a);var f=new va(function(f,g){e.ready().then(function(){void 0===b&&(b=null);var h=b,i=e._dbInfo;i.serializer.serialize(b,function(b,j){j?g(j):i.db.transaction(function(c){T(c,i,"INSERT OR REPLACE INTO "+i.storeName+" (key, value) VALUES (?, ?)",[a,b],function(){f(h)},function(a,b){g(b)})},function(b){if(b.code===b.QUOTA_ERR){if(d>0)return void f(W.apply(e,[a,h,c,d-1]));g(b)}})})}).catch(g)});return h(f,c),f}function X(a,b,c){return W.apply(this,[a,b,c,1])}function Y(a,b){var c=this;a=j(a);var d=new va(function(b,d){c.ready().then(function(){var e=c._dbInfo;e.db.transaction(function(c){T(c,e,"DELETE FROM "+e.storeName+" WHERE key = ?",[a],function(){b()},function(a,b){d(b)})})}).catch(d)});return h(d,b),d}function Z(a){var b=this,c=new va(function(a,c){b.ready().then(function(){var d=b._dbInfo;d.db.transaction(function(b){T(b,d,"DELETE FROM "+d.storeName,[],function(){a()},function(a,b){c(b)})})}).catch(c)});return h(c,a),c}function $(a){var b=this,c=new va(function(a,c){b.ready().then(function(){var d=b._dbInfo;d.db.transaction(function(b){T(b,d,"SELECT COUNT(key) as c FROM "+d.storeName,[],function(b,c){var d=c.rows.item(0).c;a(d)},function(a,b){c(b)})})}).catch(c)});return h(c,a),c}function _(a,b){var c=this,d=new va(function(b,d){c.ready().then(function(){var e=c._dbInfo;e.db.transaction(function(c){T(c,e,"SELECT key FROM "+e.storeName+" WHERE id = ? LIMIT 1",[a+1],function(a,c){var d=c.rows.length?c.rows.item(0).key:null;b(d)},function(a,b){d(b)})})}).catch(d)});return h(d,b),d}function aa(a){var b=this,c=new va(function(a,c){b.ready().then(function(){var d=b._dbInfo;d.db.transaction(function(b){T(b,d,"SELECT key FROM "+d.storeName,[],function(b,c){for(var d=[],e=0;e<c.rows.length;e++)d.push(c.rows.item(e).key);a(d)},function(a,b){c(b)})})}).catch(c)});return h(c,a),c}function ba(a){return new va(function(b,c){a.transaction(function(d){d.executeSql("SELECT name FROM sqlite_master WHERE type='table' AND name <> '__WebKitDatabaseInfoTable__'",[],function(c,d){for(var e=[],f=0;f<d.rows.length;f++)e.push(d.rows.item(f).name);b({db:a,storeNames:e})},function(a,b){c(b)})},function(a){c(a)})})}function ca(a,b){b=k.apply(this,arguments);var c=this.config();a="function"!=typeof a&&a||{},a.name||(a.name=a.name||c.name,a.storeName=a.storeName||c.storeName);var d,e=this;return d=a.name?new va(function(b){var d;d=a.name===c.name?e._dbInfo.db:openDatabase(a.name,"","",0),b(a.storeName?{db:d,storeNames:[a.storeName]}:ba(d))}).then(function(a){return new va(function(b,c){a.db.transaction(function(d){function e(a){return new va(function(b,c){d.executeSql("DROP TABLE IF EXISTS "+a,[],function(){b()},function(a,b){c(b)})})}for(var f=[],g=0,h=a.storeNames.length;g<h;g++)f.push(e(a.storeNames[g]));va.all(f).then(function(){b()}).catch(function(a){c(a)})},function(a){c(a)})})}):va.reject("Invalid arguments"),h(d,b),d}function da(){try{return"undefined"!=typeof localStorage&&"setItem"in localStorage&&!!localStorage.setItem}catch(a){return!1}}function ea(a,b){var c=a.name+"/";return a.storeName!==b.storeName&&(c+=a.storeName+"/"),c}function fa(){var a="_localforage_support_test";try{return localStorage.setItem(a,!0),localStorage.removeItem(a),!1}catch(a){return!0}}function ga(){return!fa()||localStorage.length>0}function ha(a){var b=this,c={};if(a)for(var d in a)c[d]=a[d];return c.keyPrefix=ea(a,b._defaultConfig),ga()?(b._dbInfo=c,c.serializer=Va,va.resolve()):va.reject()}function ia(a){var b=this,c=b.ready().then(function(){for(var a=b._dbInfo.keyPrefix,c=localStorage.length-1;c>=0;c--){var d=localStorage.key(c);0===d.indexOf(a)&&localStorage.removeItem(d)}});return h(c,a),c}function ja(a,b){var c=this;a=j(a);var d=c.ready().then(function(){var b=c._dbInfo,d=localStorage.getItem(b.keyPrefix+a);return d&&(d=b.serializer.deserialize(d)),d});return h(d,b),d}function ka(a,b){var c=this,d=c.ready().then(function(){for(var b=c._dbInfo,d=b.keyPrefix,e=d.length,f=localStorage.length,g=1,h=0;h<f;h++){var i=localStorage.key(h);if(0===i.indexOf(d)){var j=localStorage.getItem(i);if(j&&(j=b.serializer.deserialize(j)),void 0!==(j=a(j,i.substring(e),g++)))return j}}});return h(d,b),d}function la(a,b){var c=this,d=c.ready().then(function(){var b,d=c._dbInfo;try{b=localStorage.key(a)}catch(a){b=null}return b&&(b=b.substring(d.keyPrefix.length)),b});return h(d,b),d}function ma(a){var b=this,c=b.ready().then(function(){for(var a=b._dbInfo,c=localStorage.length,d=[],e=0;e<c;e++){var f=localStorage.key(e);0===f.indexOf(a.keyPrefix)&&d.push(f.substring(a.keyPrefix.length))}return d});return h(c,a),c}function na(a){var b=this,c=b.keys().then(function(a){return a.length});return h(c,a),c}function oa(a,b){var c=this;a=j(a);var d=c.ready().then(function(){var b=c._dbInfo;localStorage.removeItem(b.keyPrefix+a)});return h(d,b),d}function pa(a,b,c){var d=this;a=j(a);var e=d.ready().then(function(){void 0===b&&(b=null);var c=b;return new va(function(e,f){var g=d._dbInfo;g.serializer.serialize(b,function(b,d){if(d)f(d);else try{localStorage.setItem(g.keyPrefix+a,b),e(c)}catch(a){"QuotaExceededError"!==a.name&&"NS_ERROR_DOM_QUOTA_REACHED"!==a.name||f(a),f(a)}})})});return h(e,c),e}function qa(a,b){if(b=k.apply(this,arguments),a="function"!=typeof a&&a||{},!a.name){var c=this.config();a.name=a.name||c.name,a.storeName=a.storeName||c.storeName}var d,e=this;return d=a.name?new va(function(b){b(a.storeName?ea(a,e._defaultConfig):a.name+"/")}).then(function(a){for(var b=localStorage.length-1;b>=0;b--){var c=localStorage.key(b);0===c.indexOf(a)&&localStorage.removeItem(c)}}):va.reject("Invalid arguments"),h(d,b),d}function ra(a,b){a[b]=function(){var c=arguments;return a.ready().then(function(){return a[b].apply(a,c)})}}function sa(){for(var a=1;a<arguments.length;a++){var b=arguments[a];if(b)for(var c in b)b.hasOwnProperty(c)&&($a(b[c])?arguments[0][c]=b[c].slice():arguments[0][c]=b[c])}return arguments[0]}var ta="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(a){return typeof a}:function(a){return a&&"function"==typeof Symbol&&a.constructor===Symbol&&a!==Symbol.prototype?"symbol":typeof a},ua=e();"undefined"==typeof Promise&&a(3);var va=Promise,wa="local-forage-detect-blob-support",xa=void 0,ya={},za=Object.prototype.toString,Aa="readonly",Ba="readwrite",Ca={_driver:"asyncStorage",_initStorage:C,_support:f(),iterate:E,getItem:D,setItem:F,removeItem:G,clear:H,length:I,key:J,keys:K,dropInstance:L},Da="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",Ea="~~local_forage_type~",Fa=/^~~local_forage_type~([^~]+)~/,Ga="__lfsc__:",Ha=Ga.length,Ia="arbf",Ja="blob",Ka="si08",La="ui08",Ma="uic8",Na="si16",Oa="si32",Pa="ur16",Qa="ui32",Ra="fl32",Sa="fl64",Ta=Ha+Ia.length,Ua=Object.prototype.toString,Va={serialize:P,deserialize:Q,stringToBuffer:N,bufferToString:O},Wa={_driver:"webSQLStorage",_initStorage:S,_support:M(),iterate:V,getItem:U,setItem:X,removeItem:Y,clear:Z,length:$,key:_,keys:aa,dropInstance:ca},Xa={_driver:"localStorageWrapper",_initStorage:ha,_support:da(),iterate:ka,getItem:ja,setItem:pa,removeItem:oa,clear:ia,length:na,key:la,keys:ma,dropInstance:qa},Ya=function(a,b){return a===b||"number"==typeof a&&"number"==typeof b&&isNaN(a)&&isNaN(b)},Za=function(a,b){for(var c=a.length,d=0;d<c;){if(Ya(a[d],b))return!0;d++}return!1},$a=Array.isArray||function(a){return"[object Array]"===Object.prototype.toString.call(a)},_a={},ab={},bb={INDEXEDDB:Ca,WEBSQL:Wa,LOCALSTORAGE:Xa},cb=[bb.INDEXEDDB._driver,bb.WEBSQL._driver,bb.LOCALSTORAGE._driver],db=["dropInstance"],eb=["clear","getItem","iterate","key","keys","length","removeItem","setItem"].concat(db),fb={description:"",driver:cb.slice(),name:"localforage",size:4980736,storeName:"keyvaluepairs",version:1},gb=function(){function a(b){d(this,a);for(var c in bb)if(bb.hasOwnProperty(c)){var e=bb[c],f=e._driver;this[c]=f,_a[f]||this.defineDriver(e)}this._defaultConfig=sa({},fb),this._config=sa({},this._defaultConfig,b),this._driverSet=null,this._initDriver=null,this._ready=!1,this._dbInfo=null,this._wrapLibraryMethodsWithReady(),this.setDriver(this._config.driver).catch(function(){})}return a.prototype.config=function(a){if("object"===(void 0===a?"undefined":ta(a))){if(this._ready)return new Error("Can't call config() after localforage has been used.");for(var b in a){if("storeName"===b&&(a[b]=a[b].replace(/\W/g,"_")),"version"===b&&"number"!=typeof a[b])return new Error("Database version must be a number.");this._config[b]=a[b]}return!("driver"in a&&a.driver)||this.setDriver(this._config.driver)}return"string"==typeof a?this._config[a]:this._config},a.prototype.defineDriver=function(a,b,c){var d=new va(function(b,c){try{var d=a._driver,e=new Error("Custom driver not compliant; see https://mozilla.github.io/localForage/#definedriver");if(!a._driver)return void c(e);for(var f=eb.concat("_initStorage"),g=0,i=f.length;g<i;g++){var j=f[g];if((!Za(db,j)||a[j])&&"function"!=typeof a[j])return void c(e)}(function(){for(var b=function(a){return function(){var b=new Error("Method "+a+" is not implemented by the current driver"),c=va.reject(b);return h(c,arguments[arguments.length-1]),c}},c=0,d=db.length;c<d;c++){var e=db[c];a[e]||(a[e]=b(e))}})();var k=function(c){_a[d]&&console.info("Redefining LocalForage driver: "+d),_a[d]=a,ab[d]=c,b()};"_support"in a?a._support&&"function"==typeof a._support?a._support().then(k,c):k(!!a._support):k(!0)}catch(a){c(a)}});return i(d,b,c),d},a.prototype.driver=function(){return this._driver||null},a.prototype.getDriver=function(a,b,c){var d=_a[a]?va.resolve(_a[a]):va.reject(new Error("Driver not found."));return i(d,b,c),d},a.prototype.getSerializer=function(a){var b=va.resolve(Va);return i(b,a),b},a.prototype.ready=function(a){var b=this,c=b._driverSet.then(function(){return null===b._ready&&(b._ready=b._initDriver()),b._ready});return i(c,a,a),c},a.prototype.setDriver=function(a,b,c){function d(){g._config.driver=g.driver()}function e(a){return g._extend(a),d(),g._ready=g._initStorage(g._config),g._ready}function f(a){return function(){function b(){for(;c<a.length;){var f=a[c];return c++,g._dbInfo=null,g._ready=null,g.getDriver(f).then(e).catch(b)}d();var h=new Error("No available storage method found.");return g._driverSet=va.reject(h),g._driverSet}var c=0;return b()}}var g=this;$a(a)||(a=[a]);var h=this._getSupportedDrivers(a),j=null!==this._driverSet?this._driverSet.catch(function(){return va.resolve()}):va.resolve();return this._driverSet=j.then(function(){var a=h[0];return g._dbInfo=null,g._ready=null,g.getDriver(a).then(function(a){g._driver=a._driver,d(),g._wrapLibraryMethodsWithReady(),g._initDriver=f(h)})}).catch(function(){d();var a=new Error("No available storage method found.");return g._driverSet=va.reject(a),g._driverSet}),i(this._driverSet,b,c),this._driverSet},a.prototype.supports=function(a){return!!ab[a]},a.prototype._extend=function(a){sa(this,a)},a.prototype._getSupportedDrivers=function(a){for(var b=[],c=0,d=a.length;c<d;c++){var e=a[c];this.supports(e)&&b.push(e)}return b},a.prototype._wrapLibraryMethodsWithReady=function(){for(var a=0,b=eb.length;a<b;a++)ra(this,eb[a])},a.prototype.createInstance=function(b){return new a(b)},a}(),hb=new gb;b.exports=hb},{3:3}]},{},[4])(4)});
 /*!
@@ -42842,7 +42871,8 @@ var lerp = function (v0, v1, t) { return v0*(1-t)+v1*t; };
   }
 }.call(this));
 
-/*
+/**
+ * @license potrace
  * TypeScript port of Potrace (http://potrace.sourceforge.net).
  * https://github.com/oov/potrace
  *
@@ -46327,10 +46357,10 @@ Wick.ToolSettings = class {
       default: true
     }, {
       type: "number",
-      name: 'gapFillAmount',
-      default: 1,
+      name: 'fillSmoothing',
+      default: 100,
       min: 0,
-      max: 5,
+      max: 250,
       step: 1
     }, {
       /**
@@ -47741,15 +47771,46 @@ Wick.WickFile = class {
 
         var project = Wick.Base.fromData(projectData.project);
         Wick.ObjectCache.addObject(project);
-        var loadedAssetCount = 0; // Immediately end if the project has no assets.
+        var loadedAssetCount = 0;
+        let corruptedFiles = []; // Store a list of all files that are now missing. 
+        // Immediately end if the project has no assets.
 
         if (project.getAssets().length === 0) {
           this._prepareProject(project);
 
           callback(project);
         } else {
-          project.getAssets().forEach(assetData => {
+          // Make a copy of the assets, as we may get rid of some mid process.
+          let allAssets = project.getAssets().concat([]);
+          allAssets.forEach(assetData => {
             var assetFile = contents.files['assets/' + assetData.uuid + '.' + assetData.fileExtension];
+            /**
+             * Checks if we've loaded all assets, logs an error if an error occurred 
+             * while loading asset files.
+             */
+
+            var checkProjectLoad = () => {
+              loadedAssetCount++;
+
+              if (loadedAssetCount === allAssets.length) {
+                // Throw an error if any corrupted files were found.
+                project.errorOccured && corruptedFiles.length > 0 && project.errorOccured("Corrupted Files Were Deleted: " + corruptedFiles);
+
+                this._prepareProject(project);
+
+                callback(project);
+              }
+            };
+
+            if (!assetFile) {
+              // Try removing the asset from the project here.
+              assetData.removeAllInstances();
+              project.removeAsset(assetData);
+              corruptedFiles.push(assetData.filename);
+              checkProjectLoad();
+              return;
+            }
+
             assetFile.async('base64').then(assetFileData => {
               var assetSrc = 'data:' + assetData.MIMEType + ';base64,' + assetFileData;
               Wick.FileCache.addFile(assetSrc, assetData.uuid);
@@ -47759,13 +47820,7 @@ Wick.WickFile = class {
               callback(null);
             }).finally(() => {
               assetData.load(() => {
-                loadedAssetCount++;
-
-                if (loadedAssetCount === project.getAssets().length) {
-                  this._prepareProject(project);
-
-                  callback(project);
-                }
+                checkProjectLoad();
               });
             });
           });
@@ -48248,7 +48303,8 @@ Wick.ImageSequence = class {
       let index = 0;
       files.forEach(file => {
         var blob = Wick.ExportUtils.dataURItoBlob(file.src);
-        zip.file('frame' + index + '.png', blob);
+        let paddedNum = (index + '').padStart(12, '0');
+        zip.file('frame' + paddedNum + '.png', blob);
         index += 1;
       });
       zip.generateAsync({
@@ -48795,7 +48851,13 @@ Wick.Base = class {
 
 
   get project() {
-    return this._project;
+    if (this._project) {
+      return this._project;
+    } else if (this.parent) {
+      return this.parent.project;
+    } else {
+      return null;
+    }
   }
   /**
    * Check if an object is selected or not.
@@ -48825,6 +48887,56 @@ Wick.Base = class {
     child._setProject(this.project);
 
     this._children.push(child);
+  }
+  /**
+   * Insert a child into this at specified index.
+   * 
+   * The insertion is performed as if there is a dummy object placed
+   * at index, then the child is moved one index past the dummy,
+   * then the dummy is deleted. Therefore if the child starts out
+   * inside this._children below index, then insertChild returns true and
+   * this._children.indexOf(child) == index - 1. Otherwise, returns false and
+   * this._children.indexOf(child) == index.
+   * 
+   * @param {Wick.Base} child - the child to add.
+   * @param {number} index - where to add the child
+   * @returns {boolean} - true if an item before index was moved
+   */
+
+
+  insertChild(child, index) {
+    var classname = child.classname;
+
+    if (child._parent === this) {
+      let result = 0;
+
+      let old_index = this._children.indexOf(child);
+
+      if (old_index < index) {
+        index--;
+        result = 1;
+      }
+
+      this._children.splice(index, 0, this._children.splice(old_index, 1)[0]);
+
+      return result;
+    }
+
+    if (child._parent) {
+      child._parent.removeChild(child);
+    }
+
+    if (!this._children) {
+      this._children = [];
+    }
+
+    child._parent = this;
+
+    child._setProject(this.project);
+
+    this._children.splice(index, 0, child);
+
+    return 0;
   }
   /**
    * Remove a child from this object.
@@ -49311,7 +49423,7 @@ Wick.Project = class extends Wick.Base {
       x: 0,
       y: 0
     };
-    this.zoom = 1.0;
+    this._zoom = 1.0;
     this.rotation = 0.0;
     this._onionSkinEnabled = false;
     this.onionSkinSeekBackwards = 1;
@@ -49333,6 +49445,7 @@ Wick.Project = class extends Wick.Base {
       y: 0
     };
     this._isMouseDown = false;
+    this._internalErrorMessages = [];
     this.soundsPlayed = []; // List of all sounds that have been played during this play through of the project.
 
     this._mouseTargets = [];
@@ -49345,9 +49458,7 @@ Wick.Project = class extends Wick.Base {
     this._publishedMode = false; // Review the publishedMode setter for rules.
 
     this._showClipBorders = true;
-
-    this._userErrorCallback = () => {};
-
+    this._userErrorCallback = null;
     this._tools = {
       brush: new Wick.Tools.Brush(),
       cursor: new Wick.Tools.Cursor(),
@@ -49454,7 +49565,9 @@ Wick.Project = class extends Wick.Base {
 
 
   errorOccured(message) {
-    this._userErrorCallback(message);
+    if (this._userErrorCallback) this._userErrorCallback(message);
+
+    this._internalErrorMessages.push(message);
   }
   /**
    * The width of the project.
@@ -49591,6 +49704,20 @@ Wick.Project = class extends Wick.Base {
 
   set history(history) {
     this._history = history;
+  }
+  /**
+   * Value used to determine the zoom of the canvas.
+   */
+
+
+  get zoom() {
+    return this._zoom;
+  }
+
+  set zoom(z) {
+    const max = this.view.calculateFitZoom() * 10;
+    const min = .10;
+    this._zoom = Math.max(min, Math.min(max, z));
   }
   /**
    * Undo the last action.
@@ -49890,7 +50017,12 @@ Wick.Project = class extends Wick.Base {
     let soundTypes = Wick.SoundAsset.getValidMIMETypes();
     let fontTypes = Wick.FontAsset.getValidMIMETypes();
     let clipTypes = Wick.ClipAsset.getValidMIMETypes();
-    let svgTypes = Wick.SVGAsset.getValidMIMETypes(); // Fix missing mimetype for wickobj files
+    let svgTypes = Wick.SVGAsset.getValidMIMETypes();
+    let imageExtensions = Wick.ImageAsset.getValidExtensions();
+    let soundExtensions = Wick.SoundAsset.getValidExtensions();
+    let fontExtensions = Wick.FontAsset.getValidExtensions();
+    let clipExtensions = Wick.ClipAsset.getValidExtensions();
+    let svgExtensions = Wick.SVGAsset.getValidExtensions(); // Fix missing mimetype for wickobj files
 
     var type = file.type;
 
@@ -49898,32 +50030,44 @@ Wick.Project = class extends Wick.Base {
       type = 'application/json';
     }
 
+    var extension = "";
+
+    if (file.name) {
+      extension = file.name.split('.').pop();
+    } else if (file.file && typeof file.file === 'string') {
+      extension = file.file.split('.').pop();
+    }
+
     let asset = undefined;
 
-    if (imageTypes.indexOf(type) !== -1) {
+    if (imageTypes.indexOf(type) !== -1 || imageExtensions.indexOf(extension) !== -1) {
       asset = new Wick.ImageAsset();
-    } else if (soundTypes.indexOf(type) !== -1) {
+    } else if (soundTypes.indexOf(type) !== -1 || soundExtensions.indexOf(extension) !== -1) {
       asset = new Wick.SoundAsset();
-    } else if (fontTypes.indexOf(type) !== -1) {
+    } else if (fontTypes.indexOf(type) !== -1 || fontExtensions.indexOf(extension) !== -1) {
       asset = new Wick.FontAsset();
-    } else if (clipTypes.indexOf(type) !== -1) {
+    } else if (clipTypes.indexOf(type) !== -1 || clipExtensions.indexOf(extension) !== -1) {
       asset = new Wick.ClipAsset();
-    } else if (svgTypes.indexOf(type) !== -1) {
+    } else if (svgTypes.indexOf(type) !== -1 || svgExtensions.indexOf(extension) !== -1) {
       asset = new Wick.SVGAsset();
     }
 
     if (asset === undefined) {
       console.warn('importFile(): Could not import file ' + file.name + ', filetype: "' + file.type + '" is not supported.');
-      console.warn('supported image file types:');
-      console.log(imageTypes);
-      console.warn('supported sound file types:');
-      console.log(soundTypes);
-      console.warn('supported font file types:');
-      console.log(fontTypes);
-      console.warn('supported clip file types:');
-      console.log(clipTypes);
-      console.warn('supported SVG file types:');
-      console.log(svgTypes);
+      console.warn('Supported File Types Are:', {
+        image: imageTypes,
+        sound: soundTypes,
+        font: fontTypes,
+        clip: clipTypes,
+        svg: svgTypes
+      });
+      console.warn('Supported File Extensions Are', {
+        image: imageExtensions,
+        sound: soundExtensions,
+        font: fontExtensions,
+        clip: clipExtensions,
+        svg: svgExtensions
+      });
       callback(null);
       return;
     }
@@ -49989,7 +50133,11 @@ Wick.Project = class extends Wick.Base {
     this.selection.clear();
     this.activeTimeline.deferFrameGapResolve();
     objects.forEach(object => {
-      object.remove && object.remove();
+      if (object.remove) {
+        object.remove();
+      } else if (['ImageAsset', 'SoundAsset', 'ClipAsset', 'FontAsset', 'SVGAsset'].indexOf(object.classname) !== -1) {
+        this.removeAsset(object);
+      }
     });
     this.activeTimeline.resolveFrameGaps([]);
   }
@@ -50065,6 +50213,80 @@ Wick.Project = class extends Wick.Base {
     } else {
       return this.pasteClipboardContents();
     }
+  }
+  /**
+   * Move the current selection above, below, or inside target.
+   * @param {object} target - The target object (to become parent of selection)
+   * @param {number} index - index to insert at
+   * @returns {boolean} - true if project did change
+   */
+
+
+  moveSelection(target, index) {
+    // Indices give us a way to order the selection from top to bottom
+    let get_indices = obj => {
+      var indices = [];
+
+      while (obj.parent !== null) {
+        let parent = obj.parent;
+
+        if (parent.classname === 'Frame') {
+          indices.unshift(parent.getChildren().length - 1 - parent.getChildren().indexOf(obj));
+        } else {
+          indices.unshift(parent.getChildren().indexOf(obj));
+        }
+
+        obj = parent;
+      }
+
+      return indices;
+    }; // Assumes i1, i2 same length, ordering same as outliner
+
+
+    let compare_indices = (i1, i2) => {
+      for (let i = 0; i < i1.length; i++) {
+        if (i1[i] < i2[i]) {
+          return 1;
+        } else if (i1[i] > i2[i]) {
+          return -1;
+        }
+      }
+
+      return 0;
+    };
+
+    let selection = this.selection.getSelectedObjects();
+
+    if (selection.length === 0) {
+      return false;
+    }
+
+    let selection_indices = selection.map(get_indices);
+    let l = selection_indices[0].length;
+
+    for (let i = 0; i < selection_indices.length; i++) {
+      if (selection_indices[i].length !== l) {
+        // Must all have the same depth
+        return false;
+      }
+    }
+
+    let zip = selection_indices.map((o, i) => {
+      return [o, selection[i]];
+    });
+    zip.sort(([i1], [i2]) => compare_indices(i1, i2));
+
+    if (target.classname === 'Frame') {
+      // Render order is reversed for children of frames
+      zip.reverse();
+    }
+
+    for (let i = 0; i < zip.length; i++) {
+      let [, obj] = zip[i];
+      index -= target.insertChild(obj, index) ? 1 : 0;
+    }
+
+    return true;
   }
   /**
    * Cut the currently selected frames.
@@ -50333,13 +50555,14 @@ Wick.Project = class extends Wick.Base {
 
     var clip = new Wick[args.type]({
       identifier: args.identifier,
-      objects: this.selection.getSelectedObjects('Canvas'),
       transformation: new Wick.Transformation({
         x: this.selection.x + this.selection.width / 2,
         y: this.selection.y + this.selection.height / 2
       })
-    });
-    this.activeFrame.addClip(clip); // TODO add to asset library
+    }); // Add the clip to the frame prior to adding objects.
+
+    this.activeFrame.addClip(clip);
+    clip.addObjects(this.selection.getSelectedObjects('Canvas')); // TODO add to asset library
 
     this.selection.clear();
     this.selection.select(clip);
@@ -50734,8 +50957,7 @@ Wick.Project = class extends Wick.Base {
 
       this.selection.clear();
       this.selection.select(errorObj);
-
-      window._scriptOnErrorCallback(this.error);
+      window._scriptOnErrorCallback && window._scriptOnErrorCallback(this.error);
     } else {
       this.focus.timeline.playheadPosition = currentPlayhead;
     }
@@ -50907,6 +51129,8 @@ Wick.Project = class extends Wick.Base {
     if (!args.width) args.width = this.width;
     if (!args.height) args.height = this.height;
     var renderCopy = this;
+    renderCopy.renderBlackBars = true; // Turn off black bars (removes black lines)
+
     var oldCanvasContainer = this.view.canvasContainer;
     this.history.saveSnapshot('before-gif-render');
     this.mute();
@@ -51015,7 +51239,6 @@ Wick.Project = class extends Wick.Base {
     var renderFrame = () => {
       var currentPos = renderCopy.focus.timeline.playheadPosition;
       args.onProgress(currentPos, numMaxFrameImages);
-      console.log(currentPos);
 
       if (currentPos >= numMaxFrameImages) {
         // reset autoUpdate back to normal
@@ -53599,13 +53822,15 @@ Wick.FileAsset = class extends Wick.Asset {
     return 'FileAsset';
   }
   /**
-   * The source of the data of the asset, in base64.
+   * The source of the data of the asset, in base64. Returns null if the file is not found.
    * @type {string}
    */
 
 
   get src() {
-    return Wick.FileCache.getFile(this.uuid).src;
+    let file = Wick.FileCache.getFile(this.uuid);
+    if (file) return file.src;
+    return null;
   }
 
   set src(src) {
@@ -53621,6 +53846,7 @@ Wick.FileAsset = class extends Wick.Asset {
 
 
   load(callback) {
+    console.log("calling back");
     callback();
   }
   /**
@@ -53902,6 +54128,11 @@ Wick.ImageAsset = class extends Wick.FileAsset {
     img.onload = () => {
       var raster = new paper.Raster(img);
       raster.remove();
+      callback();
+    };
+
+    img.onerror = () => {
+      this.project.errorOccured("Error loading image " + this.filename + ". Check that this is loaded properly.");
       callback();
     };
   }
@@ -54438,6 +54669,7 @@ Wick.SoundAsset = class extends Wick.FileAsset {
     }
 
     var soundSrc = this.src;
+    if (!soundSrc) console.log("error", this, soundSrc);
     var scwf = new SCWF();
     scwf.generate(soundSrc, {
       onComplete: (png, pixels) => {
@@ -54904,10 +55136,31 @@ Wick.Tickable = class extends Wick.Base {
 
 
   getScript(name) {
-    if (Wick.Tickable.possibleScripts.indexOf(name) === -1) console.error(name + ' is not a valid script!');
-    return this._scripts.find(script => {
-      return script.name === name;
-    });
+    if (Wick.Tickable.possibleScripts.indexOf(name) === -1) {
+      console.error(name + ' is not a valid script!');
+      return null;
+    } else {
+      // Get expected script.
+      let script = this._scripts.find(script => {
+        return script.name === name;
+      });
+
+      if (!script) {
+        // Create the script if it doesn't exist.
+        script = {
+          name: name,
+          src: ""
+        };
+        return script;
+      } // If the script is missing, add an empty.
+
+
+      if (!script.src) {
+        script.src = "";
+      }
+
+      return script;
+    }
   }
   /**
    * Returns a list of script names which are not currently in use for this object.
@@ -54926,7 +55179,13 @@ Wick.Tickable = class extends Wick.Base {
 
 
   hasScript(name) {
-    return this.getScript(name) !== undefined;
+    let script = this.scripts.find(script => script.name === name);
+
+    if (script) {
+      return true;
+    }
+
+    return false;
   }
   /**
    * Check if the object has a non-empty script with a given name.
@@ -54941,7 +55200,12 @@ Wick.Tickable = class extends Wick.Base {
     }
 
     var script = this.getScript(name);
-    return script.src.trim() !== '';
+
+    if (script && script.src.trim() !== '') {
+      return true;
+    }
+
+    return false;
   }
   /**
    * Changes the source of the script with the given event name.
@@ -54951,6 +55215,8 @@ Wick.Tickable = class extends Wick.Base {
 
 
   updateScript(name, src) {
+    if (!src) src = ""; // Reset script if it is not defined.
+
     this.getScript(name).src = src;
     delete this._cachedScripts[name];
   }
@@ -55396,6 +55662,11 @@ Wick.Frame = class extends Wick.Tickable {
   }
 
   set sound(soundAsset) {
+    if (!soundAsset) {
+      this.removeSound();
+      return;
+    }
+
     this._soundAssetUUID = soundAsset.uuid;
   }
   /**
@@ -55769,22 +56040,22 @@ Wick.Frame = class extends Wick.Tickable {
     } // If more than one object exists on the frame, or if there is only one path, create a clip from those objects
 
 
-    var numClips = this.clips.length;
-    var numPaths = this.paths.length;
+    var clips = this.clips;
+    var paths = this.paths;
 
-    if (numClips === 0 && numPaths === 1 || numClips + numPaths > 1) {
-      var allObjects = this.paths.concat(this.clips);
+    if (clips.length === 0 && paths.length === 1 || clips.length + paths.length > 1) {
+      var allDrawables = paths.concat(clips);
 
-      var center = this.project.selection.view._getObjectsBounds(allObjects).center;
+      var center = this.project.selection.view._getObjectsBounds(allDrawables).center;
 
       var clip = new Wick.Clip({
-        objects: this.paths.concat(this.clips),
         transformation: new Wick.Transformation({
           x: center.x,
           y: center.y
         })
       });
       this.addClip(clip);
+      clip.addObjects(allDrawables);
     } // Create the tween (if there's not already a tween at the current playhead position)
 
 
@@ -56868,7 +57139,6 @@ Wick.Clip = class extends Wick.Tickable {
     } else if (this.animationType === 'playOnce') {
       if (!this.playedOnce) {
         if (this.timeline.playheadPosition === this.timeline.length) {
-          console.log("Reset");
           this.playedOnce = true;
         } else {
           this.timeline.advance();
@@ -58268,8 +58538,10 @@ Wick.Tools.Eraser = class extends Wick.Tool {
   }
 
   onMouseDrag(e) {
-    this.path.add(e.point);
-    this.path.smooth();
+    if (e.point) {
+      this.path.add(e.point);
+      this.path.smooth();
+    }
   }
 
   onMouseUp(e) {
@@ -58445,27 +58717,23 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
       this.paper.hole({
         point: e.point,
         bgColor: new paper.Color(this.project.backgroundColor.hex),
-        gapFillAmount: this.getSetting('gapFillAmount'),
         layers: this.project.activeFrames.filter(frame => {
           return !frame.parentLayer.hidden;
         }).map(frame => {
           return frame.view.objectsLayer;
         }),
+        fillColor: this.getSetting('fillColor'),
         onFinish: path => {
           this.setCursor('default');
 
           if (path) {
             path.fillColor = this.getSetting('fillColor').rgba;
+            path.strokeWidth = this.getSetting('fillSmoothing') / 100;
+            path.strokeColor = this.getSetting('fillColor').rgba;
             path.name = null;
             this.addPathToProject();
-
-            if (e.item) {
-              path.insertAbove(e.item);
-            } else {
-              this.paper.project.activeLayer.addChild(path);
-              this.paper.OrderingUtils.sendToBack([path]);
-            }
-
+            this.paper.project.activeLayer.addChild(path);
+            this.paper.OrderingUtils.bringToFront([path]);
             this.fireEvent('canvasModified');
           }
         },
@@ -58593,7 +58861,7 @@ Wick.Tools.Interact = class extends Wick.Tool {
       if (uuid) {
         var path = Wick.ObjectCache.getObjectByUUID(uuid);
 
-        if (!path.parentClip.isRoot) {
+        if (path && !path.parentClip.isRoot) {
           var clip = path.parentClip;
           var lineageWithoutRoot = clip.lineage;
           lineageWithoutRoot.pop();
@@ -59602,57 +59870,169 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
 /*
     paper-hole.js
-    Adds hole() to the paper Layer class which finds the shape of the hole
+    Adds hole() to paper, which finds the shape of the hole
     at a certain point. Use this to make a vector fill bucket!
 
-    This version uses a flood fill + potrace method of filling holes.
+    Description of Algorithm:
 
-    Adapted from the FillBucket tool from old Wick
+    Shoot ray to left from click location, get first intersection at
+    which color changes. If no such intersection exists, the user is filling shape
+    with a gap.
 
-    by zrispo (github.com/zrispo) (zach@wickeditor.com)
- */
+    Traverse upwards from first intersection. At the end of each curve, or at
+    intersections on the current curve (the one we are currently traversing),
+    create small circle (radius = RADIUS). 
+    
+    Get the intersections on this circle, traversing the circle counterclockwise 
+    starting from the point right after where we traversed from. 
+    Find the first intersection along the circle at which there is a color change 
+    (from the hole color to a different color, different either on stroke or fill), 
+    then traverse along this new curve with which we are intersecting.
+
+    An invariant of the traversal process is that the hole color is always to the right
+    of the point we are traversing along (where forward is the direction in which we are traversing), 
+    and a different color is always to the left.
+
+    When the traversal comes back to the beginning, we have defined a loop. 
+    If the loop is clockwise, we have filled a hole and are done.
+    Otherwise, we shoot a ray from the leftmost part of our loop, and start a new traversal.
+
+    by Nikolas Diamant (nick@wickeditor.com)
+*/
 (function () {
-  var VERBOSE = false;
-  var PREVIEW_IMAGE = false;
-  var N_RASTER_CLONE = 1;
-  var RASTER_BASE_RESOLUTION = 3;
-  var FILL_TOLERANCE = 0;
-  var EXPAND_AMT = 0.85;
   var onError;
   var onFinish;
   var layers;
-  var floodFillX;
-  var floodFillY;
-  var bgColor;
-  var gapFillAmount;
+  var layerGroup; // point clicked by user
 
-  function previewImage(image) {
-    var win = window.open('', 'Title', 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=' + image.width + ', height=' + image.height + ', top=100, left=100');
-    win.document.body.innerHTML = '<div><img src= ' + image.src + '></div>';
+  var x;
+  var y;
+  const MAX_LOOP_ATTEMPTS = 3;
+  var TIMES_LOOPED; // Number of segments to use when approximating curve bumped out along normals.
+  // Higher is more accurate and more expensive
+
+  var NORMAL_SEGS; // Distance to bump curves by to detect gaps
+
+  var GAP_FILL = 0; // Maximum number of traversals
+
+  const MAX_NEST = 16; // Maximum number of iterations in a single traversal
+
+  const MAX_ITERS = 2048;
+  const EPSILON = 0.001; // Radius of circles used in traversal
+
+  const RADIUS = 0.01;
+  const STEP_SIZE = 0.001;
+  var fillColor;
+  var holeColor = null; // Returns:
+  // 1 if traveling in the direction of vector along the curve at curveLocation
+  // is equivalent to traveling forwards along the curve.
+  // -1 " backwards ".
+
+  function getDirection(curveLocation, vector) {
+    return curveLocation.tangent.dot(vector) > 0 ? 1 : -1;
+  } // Return color of stroke of a path, null if no stroke.
+
+
+  function getPathStroke(p) {
+    if (p.hasStroke && p.strokeWidth > 0 && p.strokeColor) {
+      return p.strokeColor;
+    }
+
+    return null;
+  } // Return pixel color at point p
+
+
+  function getColorAt(p) {
+    var hit = layerGroup.hitTest(p, {
+      fill: true
+    });
+
+    if (hit === null) {
+      return null;
+    }
+
+    return hit.item.fillColor;
+  } // Return if two colors RGB are equal, ignores alpha.
+
+
+  function colorsEqual(c1, c2) {
+    if (c1 === null || c2 === null) {
+      return c1 === null && c2 === null;
+    }
+
+    return c1.red === c2.red && c1.green === c2.green && c1.blue === c2.blue && c1.alpha === c2.alpha;
+  } // Check whether the locations of p1, p2, are equal within EPSILON
+
+
+  function pointsEqual(p1, p2) {
+    return Math.abs(p1.x - p2.x) < EPSILON && Math.abs(p1.y - p2.y) < EPSILON;
   }
 
-  function rasterizePaths(callback) {
-    var layerGroup = new paper.Group({
+  function bumpedCurve(curve, direction) {
+    /*curve = curve.clone();
+    let c1 = curve.getCurvatureAtTime(0);
+    let c2 = curve.getCurvatureAtTime(1);
+    let r1 = c1 === 0 ? 2 : direction / c1;
+    let r2 = c2 === 0 ? 2 : direction / c2;
+    let scale1 = Math.max(Math.min((r1 - GAP_FILL) / r1, 2), 0);
+    let scale2 = Math.max(Math.min((r2 - GAP_FILL) / r2, 2), 0);
+    let n1 = curve.getNormalAtTime(0).multiply(-direction).normalize(GAP_FILL);
+    let n2 = curve.getNormalAtTime(1).multiply(-direction).normalize(GAP_FILL);
+    curve.point1 = curve.point1.add(n1);
+    curve.point2 = curve.point2.add(n2);
+    curve.handle1 = curve.handle1.multiply(scale1);
+    curve.handle2 = curve.handle2.multiply(scale2);
+    //console.log('bump scale', scale1, scale2);
+    return [curve];
+    */
+    let normals = [];
+    let tangentScales = [];
+
+    for (let i = 0; i <= NORMAL_SEGS; i++) {
+      normals.push(curve.getNormalAtTime(i / NORMAL_SEGS).multiply(-direction).normalize(GAP_FILL));
+      let curvature = curve.getCurvatureAtTime(i / NORMAL_SEGS);
+      let radius = curvature === 0 ? 2 : direction / curvature;
+      let scale = Math.max(Math.min((radius - GAP_FILL) / radius, 2), 0);
+      tangentScales.push(scale);
+    }
+
+    let curves = [];
+
+    for (let i = 0; i < NORMAL_SEGS; i++) {
+      let c = curve.getPart(i / NORMAL_SEGS, (i + 1) / NORMAL_SEGS);
+      let scale1 = tangentScales[i];
+      let scale2 = tangentScales[i + 1];
+      let n1 = normals[i];
+      let n2 = normals[i + 1];
+      c.point1 = c.point1.add(n1);
+      c.point2 = c.point2.add(n2);
+      c.handle1 = c.handle1.multiply(scale1);
+      c.handle2 = c.handle2.multiply(scale2);
+      curves.push(c);
+    } // Useful for debugging the bumped curve
+
+    /*for (let i = 0; i < curves.length; i++) {
+        let path = new paper.Path([new paper.Segment(curves[i].point1, curves[i].handle1), new paper.Segment(curves[i].point2, curves[i].handle2)]);
+        onFinish(path);
+    }*/
+
+
+    return curves;
+  } // Performs the algoritm described at top of file.
+
+
+  function fillHole() {
+    // Prepare/clean data
+    layerGroup = new paper.Group({
       insert: false
     });
     layers.reverse().forEach(layer => {
       layer.children.forEach(function (child) {
         if (child._class !== 'Path' && child._class !== 'CompoundPath') return;
-
-        for (var i = 0; i < N_RASTER_CLONE; i++) {
-          var clone = child.clone({
-            insert: false
-          }); //experiment: bump out all strokes a bit by expanding their stroke widths
-
-          if (!clone.strokeColor && clone.fillColor) {
-            clone.strokeColor = clone.fillColor;
-            clone.strokeWidth = gapFillAmount / RASTER_BASE_RESOLUTION;
-          } else if (clone.strokeWidth) {
-            clone.strokeWidth += gapFillAmount / RASTER_BASE_RESOLUTION;
-          }
-
-          layerGroup.addChild(clone);
-        }
+        var clone = child.clone({
+          insert: false
+        });
+        if (!clone.closed || Math.abs(clone.area) > 0.01) layerGroup.addChild(clone);
       });
     });
 
@@ -59661,168 +60041,586 @@ Wick.Tools.Zoom = class extends Wick.Tool {
       return;
     }
 
-    var rasterResolution = paper.view.resolution * RASTER_BASE_RESOLUTION / window.devicePixelRatio;
-    var layerPathsRaster = layerGroup.rasterize(rasterResolution, {
+    var p = new paper.Point(x, y);
+    holeColor = getColorAt(p);
+
+    if (colorsEqual(holeColor, {
+      red: fillColor.r,
+      green: fillColor.g,
+      blue: fillColor.b,
+      alpha: fillColor.a
+    })) {
+      onError('FILL_EQUALS_HOLE');
+      return null;
+    }
+
+    for (var i = 0; i < MAX_NEST; i++) {
+      // getShapeAroundPoint performs the traversal.
+      var path = getShapeAroundPoint(p);
+
+      if (path === null) {
+        return;
+      } // If clockwise, we are done
+
+
+      if (path.clockwise) {
+        path.remove();
+
+        if (holeColor === null) {
+          path = removeInteriorShapes(path);
+        } else {
+          path = constructShape(path);
+        }
+
+        removeDuplicatePoints(path);
+        onFinish(path);
+        return;
+      } // Update point from which we shoot ray to the left
+
+
+      p = path.getNearestLocation(path.bounds.leftCenter).point.add(new paper.Point(-1, 0));
+      path.remove();
+    }
+
+    onError('TOO_COMPLEX');
+  } // Removes redundant points from path
+
+
+  function removeDuplicatePoints(path) {
+    let paths;
+
+    if (path._class === 'CompoundPath') {
+      paths = path.children;
+    } else {
+      paths = [path];
+    }
+
+    for (let i = 0; i < paths.length; i++) {
+      let p = paths[i];
+
+      for (let j = 0; j < p.segments.length;) {
+        if (pointsEqual(p.segments[j].point, p.segments[(j + 1) % p.segments.length].point)) {
+          let removed = p.removeSegment(j);
+
+          if (p.segments.length) {
+            p.segments[j % p.segments.length].handleIn = removed.handleIn;
+          }
+        } else {
+          j++;
+        }
+      }
+    }
+  } // Assumes the path is colorless, removes all overlapping shapes
+
+
+  function removeInteriorShapes(path) {
+    var items = layerGroup.getItems({
+      inside: path.bounds.expand(-1),
+      class: paper.Path
+    });
+
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].closed) {
+        path = path.subtract(items[i], {
+          insert: false
+        });
+      }
+    }
+
+    if (path._class === 'CompoundPath') {
+      cleanupAreas(path);
+    }
+
+    return path;
+  }
+
+  function overlappingBounds(b1, b2) {
+    return !(b1.right < b2.left || b2.right < b1.left) && !(b1.bottom < b2.top || b2.bottom < b1.top);
+  } // Unites all shapes of the same color as hole, subtracts paths of different colors,
+  // intersects with path.
+
+
+  function constructShape(path) {
+    var items = layerGroup.getItems({
+      match: item => {
+        if (overlappingBounds(path.bounds, item.bounds)) {
+          if (item._class === 'Path') {
+            return item.parent._class !== 'CompoundPath';
+          }
+
+          return item._class === 'CompoundPath';
+        } else {
+          return false;
+        }
+      }
+    });
+    var p = new paper.Path({
       insert: false
     });
-    var rasterCanvas = layerPathsRaster.canvas;
-    var rasterCtx = rasterCanvas.getContext('2d');
-    var layerPathsImageData = rasterCtx.getImageData(0, 0, layerPathsRaster.width, layerPathsRaster.height);
-    var layerPathsImageDataRaw = layerPathsImageData.data;
+    items.sort((a, b) => a.isAbove(b) ? 1 : -1);
+    let pArea = p.area;
+    let newP, newPArea;
 
-    for (var i = 0; i < layerPathsImageDataRaw.length; i += 4) {
-      if (layerPathsImageDataRaw[i + 3] === 0) {
-        layerPathsImageDataRaw[i] = bgColor.red;
-        layerPathsImageDataRaw[i + 1] = bgColor.green;
-        layerPathsImageDataRaw[i + 2] = bgColor.blue;
-        layerPathsImageDataRaw[i + 3] = 255;
+    for (var i = 0; i < items.length; i++) {
+      let item = items[i];
+
+      if (item.closed) {
+        if (colorsEqual(holeColor, item.fillColor)) {
+          newP = p.unite(item, {
+            insert: false
+          });
+          newPArea = newP.area;
+
+          if (newPArea >= pArea) {
+            // shouldn't have to do this, but avoids an error in paper.js
+            p = newP;
+            pArea = newPArea;
+          }
+        } else {
+          newP = p.subtract(item, {
+            insert: false
+          });
+          newPArea = newP.area;
+
+          if (newPArea <= pArea) {
+            // shouldn't have to do this, but avoids an error in paper.js
+            p = newP;
+            pArea = newPArea;
+          }
+        }
+      } //onFinish(newP.clone());
+
+    }
+
+    newP = p.intersect(path, {
+      insert: false
+    });
+    newPArea = newP.area;
+
+    if (newPArea < pArea) {
+      // shouldn't have to do this, but avoids an error in paper.js
+      p = newP;
+      pArea = newPArea;
+    }
+
+    if (p._class === 'CompoundPath') {
+      cleanupAreas(p);
+    }
+
+    return p.area > EPSILON ? p : path;
+  } // Ensures the CompoundPath path is contiguous. This means there is a single
+  // clockwise path, and no holes within holes.
+
+
+  function cleanupAreas(path) {
+    let maxArea = 0;
+    let info = path.children.map(p => {
+      let area = p.area;
+
+      if (area > maxArea) {
+        maxArea = area;
       }
-    }
 
-    rasterCtx.putImageData(layerPathsImageData, 0, 0);
-    layerPathsImageData = rasterCtx.getImageData(0, 0, layerPathsRaster.width, layerPathsRaster.height);
-    var rasterPosition = layerPathsRaster.bounds.topLeft;
-    var x = (floodFillX - rasterPosition.x) * RASTER_BASE_RESOLUTION;
-    var y = (floodFillY - rasterPosition.y) * RASTER_BASE_RESOLUTION;
-    x = Math.round(x);
-    y = Math.round(y);
-    var floodFillCanvas = document.createElement('canvas');
-    floodFillCanvas.width = layerPathsRaster.canvas.width;
-    floodFillCanvas.height = layerPathsRaster.canvas.height;
+      return {
+        item: p,
+        area: area
+      };
+    });
 
-    if (x < 0 || y < 0 || x >= floodFillCanvas.width || y >= floodFillCanvas.height) {
-      onError('OUT_OF_BOUNDS');
-      return;
-    }
+    for (let i = 0; i < info.length;) {
+      if (Math.abs(info[i].area) < 1 || info[i].area > 0 && info[i].area < maxArea) {
+        var bounds = info[i].item.bounds;
+        info[i].item.remove();
+        info.splice(i, 1);
 
-    var floodFillCtx = floodFillCanvas.getContext('2d');
-    floodFillCtx.putImageData(layerPathsImageData, 0, 0);
-    floodFillCtx.fillStyle = "rgba(123,124,125,255)";
-    floodFillCtx.fillFlood(x, y, FILL_TOLERANCE);
-    var floodFillImageData = floodFillCtx.getImageData(0, 0, floodFillCanvas.width, floodFillCanvas.height);
-    var imageDataRaw = floodFillImageData.data;
-
-    for (var i = 0; i < imageDataRaw.length; i += 4) {
-      if (imageDataRaw[i] === 123 && imageDataRaw[i + 1] === 124 && imageDataRaw[i + 2] === 125) {
-        imageDataRaw[i] = 0;
-        imageDataRaw[i + 1] = 0;
-        imageDataRaw[i + 2] = 0;
-        imageDataRaw[i + 3] = 255;
+        for (let j = 0; j < info.length;) {
+          if (bounds.contains(info[j].item.bounds) && info[j].area < 0) {
+            info[j].item.remove();
+            info.splice(j, 1);
+          } else {
+            j++;
+          }
+        }
       } else {
-        imageDataRaw[i] = 255;
-        imageDataRaw[i + 1] = 255;
-        imageDataRaw[i + 2] = 255;
-        imageDataRaw[i + 3] = 0;
+        i++;
+      }
+    }
+  } //
+
+
+  function curveIntersections(currentCurve, gapCurveObject, currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, f) {
+    let gapCurve = null;
+    let gapCurveIndex = null;
+
+    if (gapCurveObject) {
+      gapCurve = gapCurveObject.gapCurve;
+      gapCurveIndex = gapCurveObject.index;
+    }
+
+    var pathsToIntersect = layerGroup.getItems({
+      class: paper.Path,
+      overlapping: gapCurve ? gapCurve.bounds : currentCurve.bounds,
+      match: item => !currentCurveLocation || item !== currentCurveLocation.intersection.curve.path
+    });
+    let reassigned = false;
+
+    for (let i = 0; i < pathsToIntersect.length; i++) {
+      for (let c = 0; c < pathsToIntersect[i].curves.length; c++) {
+        let intersectionsWithCurve = gapCurve ? gapCurve.getIntersections(pathsToIntersect[i].curves[c]) : currentCurve.getIntersections(pathsToIntersect[i].curves[c]);
+
+        for (let j = 0; j < intersectionsWithCurve.length; j++) {
+          let intersectionCurrentWithNext = intersectionsWithCurve[j];
+
+          if (gapCurve && intersectionCurrentWithNext.intersection.curve === currentCurve) {
+            // This means the bumped curve intersects the not bumped curve,
+            // in which case the bumped curve is no good and we abandon it.
+            // (Sometimes happens on sharp corners)
+            return [null, null, null, false];
+          }
+
+          if (gapCurve && currentDirection === 1 ? intersectionCurrentWithNext.intersection.curve === currentCurve.next : intersectionCurrentWithNext.intersection.curve === currentCurve.previous) {
+            continue;
+          }
+
+          let timeAtThisIntersection = gapCurve ? ((intersectionCurrentWithNext.time + gapCurveIndex) / NORMAL_SEGS + currentCurve.index) % currentCurve.path.curves.length : (intersectionCurrentWithNext.time + intersectionCurrentWithNext.index) % currentCurve.path.curves.length; //time to traverse forwards from currentTime to timeAtThisIntersection
+
+          let forwardsDiff = (timeAtThisIntersection - currentTime + currentCurve.path.curves.length) % currentCurve.path.curves.length; //time to traverse backwards from currentTime to timeAtThisIntersection
+
+          let backwardsDiff = currentCurve.path.curves.length - forwardsDiff; //time to traverse forwards from closestTime to timeAtThisIntersection
+
+          let forwardsDiff2 = closestTime ? (timeAtThisIntersection - closestTime + currentCurve.path.curves.length) % currentCurve.path.curves.length : 0; //time to traverse backwards from closestTime to timeAtThisIntersection
+
+          let backwardsDiff2 = currentCurve.path.curves.length - forwardsDiff2; // If the path isn't a closed loop, you can't necessarily traverse from one point
+          // to another in a given direction, so we give it essentially infinite distance.
+
+          if (!currentCurve.path.closed) {
+            if (timeAtThisIntersection - currentTime < 0) {
+              forwardsDiff = Infinity;
+            } else {
+              backwardsDiff = Infinity;
+            }
+
+            if (timeAtThisIntersection - closestTime < 0) {
+              forwardsDiff2 = Infinity;
+            } else {
+              backwardsDiff2 = Infinity;
+            }
+          }
+
+          if (currentCurve.closed ? currentDirection * forwardsDiff < currentDirection * backwardsDiff : currentDirection * forwardsDiff < currentDirection * (currentCurve.path.curves.length - currentTime) && (!currentCurveLocation && !gapCrossLocation || currentDirection * forwardsDiff2 > currentDirection * backwardsDiff2) && f(intersectionCurrentWithNext)) {
+            reassigned = true;
+
+            if (gapCurve) {
+              gapCrossLocation = intersectionCurrentWithNext;
+            } else {
+              currentCurveLocation = intersectionCurrentWithNext;
+            }
+
+            closestTime = timeAtThisIntersection;
+          }
+        }
       }
     }
 
-    floodFillCtx.putImageData(floodFillImageData, 0, 0);
-    var floodFillProcessedImage = new Image();
+    return [closestTime, currentCurveLocation, gapCrossLocation, reassigned];
+  } // Shoot ray to the left from startingPoint, perform traversal.
 
-    floodFillProcessedImage.onload = function () {
-      if (PREVIEW_IMAGE) previewImage(floodFillProcessedImage);
-      var svgString = potrace.fromImage(floodFillProcessedImage).toSVG(1);
-      var xmlString = svgString,
-          parser = new DOMParser(),
-          doc = parser.parseFromString(xmlString, "text/xml");
-      var resultHolePath = paper.project.importSVG(doc, {
-        insert: true
+
+  function getShapeAroundPoint(startingPoint) {
+    var currentCurve = new paper.Curve(startingPoint, startingPoint.add(new paper.Point(-10000, 0)));
+    var items = layerGroup.getItems({
+      class: paper.Path,
+      overlapping: currentCurve.bounds
+    });
+    var crossings = [];
+
+    for (let i = 0; i < items.length; i++) {
+      for (let c = 0; c < items[i].curves.length; c++) {
+        crossings = crossings.concat(currentCurve.getIntersections(items[i].curves[c]));
+      }
+    }
+
+    crossings.sort((a, b) => {
+      let diff = a.time - b.time;
+
+      if (Math.abs(diff) <= EPSILON) {
+        return a.intersection.path.isAbove(b.intersection.path) ? -1 : 1;
+      } else {
+        return diff;
+      }
+    });
+    var currentCurveLocation = null;
+
+    for (let c = 0; c < crossings.length; c++) {
+      let crossing = crossings[c];
+      let colorAt = getPathStroke(crossing.intersection.path);
+      let itemAt = !!colorAt && layerGroup.hitTest(crossing.point, {
+        fill: true
       });
-      resultHolePath.remove();
-      resultHolePath = resultHolePath.children[0];
-      resultHolePath.scale(1 / RASTER_BASE_RESOLUTION, new paper.Point(0, 0));
-      var rasterPosition = layerPathsRaster.bounds.topLeft;
-      resultHolePath.position.x += rasterPosition.x;
-      resultHolePath.position.y += rasterPosition.y;
-      resultHolePath.applyMatrix = true;
-      var holeIsLeaky = false;
-      var w = floodFillProcessedImage.width;
-      var h = floodFillProcessedImage.height;
+      let colorAfter = getColorAt(crossing.point.add(new paper.Point(-EPSILON, 0)));
 
-      for (var x = 0; x < floodFillProcessedImage.width; x++) {
-        if (getPixelAt(x, 0, w, h, floodFillImageData.data).r === 0 && getPixelAt(x, 0, w, h, floodFillImageData.data).a === 255) {
-          holeIsLeaky = true;
-          onError('LEAKY_HOLE');
-          return;
+      if (colorAt && !colorsEqual(holeColor, colorAt) && (!itemAt || crossing.intersection.path.isAbove(itemAt.item)) || !colorsEqual(holeColor, colorAfter)) {
+        currentCurveLocation = crossing.intersection;
+        currentCurve = currentCurveLocation.curve;
+        var currentDirection = getDirection(currentCurveLocation, new paper.Point(0, -1));
+        break;
+      }
+    }
+
+    if (currentCurveLocation === null) {
+      onError('LEAKY_HOLE');
+      return null;
+    }
+
+    var points = [];
+    var n = 0;
+    var ended = false;
+    let circle = new paper.Path([new paper.Point(RADIUS, 0), new paper.Point(0, -RADIUS), new paper.Point(-RADIUS, 0), new paper.Point(0, RADIUS)]);
+    circle.closePath();
+    circle.smooth('continuous');
+    let pointToAdd;
+
+    while (n < MAX_ITERS && !ended) {
+      //console.log('------------', n);
+      if (n === 1) {
+        points = [];
+      }
+
+      let currentTime = (currentCurveLocation.time + currentCurve.index) % currentCurve.path.curves.length;
+      currentCurveLocation = null;
+      let [clt, ccl, gcl, r] = curveIntersections(currentCurve, null, currentCurveLocation, null, currentTime, null, currentDirection, () => true);
+      let closestTime = clt;
+      currentCurveLocation = ccl;
+      let gapCrossLocation = null;
+
+      if (currentCurve.length > EPSILON) {
+        let gapCurves = bumpedCurve(currentCurve, currentDirection);
+
+        for (let i = 0; i < gapCurves.length; i++) {
+          [clt, ccl, gcl, r] = curveIntersections(currentCurve, {
+            gapCurve: gapCurves[i],
+            index: i
+          }, currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, a => colorsEqual(holeColor, getColorAt(a.point.subtract(a.tangent.multiply(currentDirection).normalize(RADIUS)))) && !colorsEqual(holeColor, getColorAt(a.point.add(a.tangent.multiply(currentDirection).normalize(RADIUS)))));
+
+          if (r) {
+            //console.log("used inner gapCross", i);
+            closestTime = clt;
+            gapCrossLocation = gcl;
+            break;
+          }
+        }
+
+        if (currentCurve.path.closed) {
+          gapCurves = bumpedCurve(currentCurve, -currentDirection);
+
+          for (let i = 0; i < gapCurves.length; i++) {
+            [clt, ccl, gcl, r] = curveIntersections(currentCurve, {
+              gapCurve: gapCurves[i],
+              index: i
+            }, currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, a => !colorsEqual(holeColor, getColorAt(a.point.subtract(a.tangent.multiply(currentDirection).normalize(RADIUS)))) && colorsEqual(holeColor, getColorAt(a.point.add(a.tangent.multiply(currentDirection).normalize(RADIUS)))));
+
+            if (r) {
+              //console.log("used outer gapCross", i);
+              gapCrossLocation = gcl;
+              break;
+            }
+          }
+        }
+      } //console.log('gapCrossLocation', gapCrossLocation);
+
+
+      if (currentCurveLocation === null) {
+        currentCurveLocation = currentCurve.getLocationAtTime(currentDirection < 0 ? 0 : 1);
+      }
+
+      points.push({
+        p1: pointToAdd,
+        p2: gapCrossLocation ? currentCurve.getNearestLocation(gapCrossLocation.point) : currentCurveLocation
+      });
+      circle.position = gapCrossLocation ? gapCrossLocation.point : currentCurveLocation.point; //console.log('circle', circle.bounds.center.toString());
+      //onFinish(circle.clone());
+
+      var crossings = [];
+      var items = layerGroup.getItems({
+        overlapping: circle.bounds.expand(RADIUS),
+        class: paper.Path
+      });
+
+      for (let i = 0; i < items.length; i++) {
+        crossings = crossings.concat(circle.getCrossings(items[i]));
+      }
+
+      crossings.sort((a, b) => {
+        let diff = a.index + a.time - b.index - b.time;
+
+        if (Math.abs(diff) <= STEP_SIZE) {
+          return a.intersection.path.isAbove(b.intersection.path) ? -1 : 1;
+        } else {
+          return diff;
+        }
+      }); //console.log('crossings');
+      //crossings.map((crossing, i) => console.log(i, crossing.index, crossing.time));
+
+      let startingIndex = 0;
+
+      if (gapCrossLocation) {
+        //console.log('gcIndex');
+        let incomingTangent = gapCrossLocation.tangent.multiply(-currentDirection);
+        let incomingIndex = (2 * Math.PI - Math.atan2(incomingTangent.y, incomingTangent.x)) * 2 / Math.PI + EPSILON;
+        let minIndexDiff = 4;
+
+        for (let i = 0; i < crossings.length; i++) {
+          let indexDiff = (crossings[i].time + crossings[i].index - incomingIndex + 4) % 4;
+
+          if (indexDiff < minIndexDiff) {
+            minIndexDiff = indexDiff;
+            startingIndex = i;
+          }
+        }
+      } else {
+        let good = false;
+
+        for (let i = 0; i < crossings.length; i++) {
+          let crossing = crossings[i]; // Looking for first intersection counterclockwise of where we're coming from,
+          // so first find the intersection we're coming from (must be on currentCurve.path, within 1 index, and if we go back in that direction the direction should change)
+
+          if (crossing.intersection.curve.path === currentCurve.path && ((currentCurve.index - crossing.intersection.curve.index) * currentDirection + currentCurve.path.curves.length) % currentCurve.path.curves.length <= 1 && currentDirection !== getDirection(crossing.intersection, crossing.point.subtract(currentCurveLocation.point))) {
+            startingIndex = i + 1; //console.log(i);
+            // Now find the first intersection after the one we're coming from that is at least 0.01 "radians" away (not actually radians, it's units of 4/(2PI) radians)
+
+            for (let j = 1; j < crossings.length; j++) {
+              let crossing2 = crossings[(i + j) % crossings.length];
+
+              if (Math.abs(Math.abs(crossing2.time + crossing2.index - crossing.time - crossing.index) - 2) < 1.99) {
+                startingIndex = (i + j) % crossings.length; //good = true;
+
+                break;
+              }
+            }
+
+            break;
+          }
+        } //if (!good) console.log("!good");
+
+      } //console.log('startingIndex', startingIndex);
+
+
+      let good = false;
+
+      for (let i = 0; i < crossings.length; i++) {
+        //console.log((startingIndex + i) % crossings.length);
+        let crossing = crossings[(startingIndex + i) % crossings.length];
+        let colorBefore = getColorAt(crossing.point.subtract(crossing.tangent.normalize(RADIUS * STEP_SIZE)));
+
+        if (colorsEqual(colorBefore, holeColor)) {
+          //console.log('colorsEqual');
+          let colorAt = getPathStroke(crossing.intersection.path);
+          let itemAt = !!colorAt && layerGroup.hitTest(crossing.point, {
+            fill: true
+          });
+          let colorAfter = getColorAt(crossing.point.add(crossing.tangent.normalize(RADIUS * STEP_SIZE))); //console.log(crossing.point.add(crossing.tangent.normalize(RADIUS * STEP_SIZE)).toString());
+
+          if (colorAt && !colorsEqual(holeColor, colorAt) && (!itemAt || crossing.intersection.path.isAbove(itemAt.item)) || !colorsEqual(holeColor, colorAfter)) {
+            //console.log('colorChange', colorAt && !colorsEqual(holeColor, colorAt), !itemAt || crossing.intersection.path.isAbove(itemAt.item), !colorsEqual(holeColor, colorAfter));
+            //console.log(holeColor, colorAfter);
+            currentDirection = getDirection(crossing.intersection, crossing.point.subtract(circle.bounds.center));
+            currentCurveLocation = crossing.intersection;
+            pointToAdd = crossing.intersection.curve.getNearestLocation(circle.bounds.center);
+            currentCurve = crossing.intersection.curve;
+            good = true;
+            break;
+          }
         }
       }
 
-      expandHole(resultHolePath);
-      callback(resultHolePath);
-    };
-
-    floodFillProcessedImage.src = floodFillCanvas.toDataURL();
-  }
-
-  function expandHole(path) {
-    if (path instanceof paper.Group) {
-      path = path.children[0];
-    }
-
-    var children;
-
-    if (path instanceof paper.Path) {
-      children = [path];
-    } else if (path instanceof paper.CompoundPath) {
-      children = path.children;
-    }
-
-    children.forEach(function (hole) {
-      var normals = [];
-      hole.closePath();
-      hole.segments.forEach(function (segment) {
-        var a = segment.previous.point;
-        var b = segment.point;
-        var c = segment.next.point;
-        var ab = {
-          x: b.x - a.x,
-          y: b.y - a.y
-        };
-        var cb = {
-          x: b.x - c.x,
-          y: b.y - c.y
-        };
-        var d = {
-          x: ab.x - cb.x,
-          y: ab.y - cb.y
-        };
-        d.h = Math.sqrt(d.x * d.x + d.y * d.y);
-        d.x /= d.h;
-        d.y /= d.h;
-        d = rotate_point(d.x, d.y, 0, 0, 90);
-        normals.push({
-          x: d.x,
-          y: d.y
-        });
-      });
-
-      for (var i = 0; i < hole.segments.length; i++) {
-        var segment = hole.segments[i];
-        var normal = normals[i];
-        segment.point.x += normal.x * EXPAND_AMT;
-        segment.point.y += normal.y * EXPAND_AMT;
+      if (!good) {
+        onError("NO_VALID_CROSSINGS");
+        onFinish(circle.scale(1 / RADIUS));
+        return null;
       }
-    });
-  } // http://www.felixeve.co.uk/how-to-rotate-a-point-around-an-origin-with-javascript/
+
+      if (points.length >= 2) {
+        let p = points[points.length - 1];
+
+        for (let i = 0; i < points.length - 1; i++) {
+          if (p.p1.curve === points[i].p1.curve && p.p2.curve === points[i].p2.curve && Math.abs(p.p1.time - points[i].p1.time) < EPSILON && Math.abs(p.p2.time - points[i].p2.time) < EPSILON) {
+            points = points.slice(i);
+
+            if (i > 2) {
+              TIMES_LOOPED++;
+              console.log("LOOP", TIMES_LOOPED);
+
+              if (TIMES_LOOPED >= MAX_LOOP_ATTEMPTS) {
+                onError("LOOPING");
+                onFinish(circle.scale(1 / RADIUS));
+                return null;
+              }
+
+              var addedCircle = circle.clone().scale(1 / RADIUS);
+              addedCircle.fillColor = holeColor.red === 0 ? new paper.Color(1, 1, 1) : new paper.Color(0, 0, 0);
+              layerGroup.addChild(addedCircle);
+              circle.remove();
+              NORMAL_SEGS += 4;
+              return getShapeAroundPoint(startingPoint);
+            }
+
+            ended = true;
+            break;
+          }
+        }
+      }
+
+      n++;
+    }
+
+    circle.remove();
+
+    if (n === MAX_ITERS) {
+      onError('TOO_COMPLEX');
+      return null;
+    }
+
+    return pathFromPoints(points);
+  } // Constructs path with correct tangents
 
 
-  function rotate_point(pointX, pointY, originX, originY, angle) {
-    angle = angle * Math.PI / 180.0;
-    return {
-      x: Math.cos(angle) * (pointX - originX) - Math.sin(angle) * (pointY - originY) + originX,
-      y: Math.sin(angle) * (pointX - originX) + Math.cos(angle) * (pointY - originY) + originY
-    };
-  }
+  function pathFromPoints(points) {
+    points.shift();
+    let curves = [];
 
-  function getPixelAt(x, y, width, height, imageData) {
-    if (x < 0 || y < 0 || x >= width || y >= height) return null;
-    var offset = (y * width + x) * 4;
-    return {
-      r: imageData[offset],
-      g: imageData[offset + 1],
-      b: imageData[offset + 2],
-      a: imageData[offset + 3]
-    };
+    for (let i = 0; i < points.length; i++) {
+      let p1 = points[i].p1;
+      let p2 = points[i].p2;
+
+      if (p1.curve === p2.curve) {
+        curves.push(p1.curve.getPart(p1.time, p2.time));
+      } else {
+        if (p1.curve.path.closed ? (p1.curve.index + 1) % p1.curve.path.curves.length === p2.curve.index : p1.curve.index + 1 === p2.curve.index) {
+          if (p1.time > 1 - EPSILON) {
+            curves.push(p2.curve.getPart(0, p2.time));
+          } else {
+            curves.push(p1.curve.getPart(p1.time, 1));
+          }
+        } else {
+          if (p1.time < EPSILON) {
+            curves.push(p2.curve.getPart(1, p2.time));
+          } else {
+            curves.push(p1.curve.getPart(p1.time, 0));
+          }
+        }
+      }
+    }
+
+    let segments = [];
+
+    for (let c = 0; c < curves.length; c++) {
+      segments.push(new paper.Segment(curves[c].point1, null, curves[c].handle1));
+      segments.push(new paper.Segment(curves[c].point2, curves[c].handle2, null));
+    }
+
+    let path = new paper.Path(segments);
+    path.closePath();
+    return path;
   }
   /* Add hole() method to paper */
 
@@ -59833,16 +60631,17 @@ Wick.Tools.Zoom = class extends Wick.Tool {
       if (!args.point) console.error('paper.hole: args.point is required');
       if (!args.onFinish) console.error('paper.hole: args.onFinish is required');
       if (!args.onError) console.error('paper.hole: args.onError is required');
-      if (!args.bgColor) console.error('paper.hole: args.bgColor is required');
       if (!args.layers) console.error('paper.hole: args.layers is required');
-      onFinish = args.onFinish;
+      TIMES_LOOPED = 0;
+      NORMAL_SEGS = 1;
+      GAP_FILL = (args.gapFillAmount ? args.gapFillAmount : 0) + 0.01;
       onError = args.onError;
+      onFinish = args.onFinish;
       layers = args.layers;
-      floodFillX = args.point.x;
-      floodFillY = args.point.y;
-      gapFillAmount = args.gapFillAmount === undefined ? 1 : args.gapFillAmount;
-      bgColor = args.bgColor;
-      rasterizePaths(onFinish);
+      x = args.point.x;
+      y = args.point.y;
+      fillColor = args.fillColor;
+      fillHole();
     }
   });
 })();
@@ -61247,20 +62046,28 @@ Wick.View.Project = class extends Wick.View {
     var hr = h / this.model.height;
     return Math.min(wr, hr);
   }
+  /**
+   *  This is a hacky way to create scroll-to-zoom functionality
+   *  (Using https://github.com/jquery/jquery-mousewheel for cross-browser mousewheel event)
+   * @param {*} event - jquery mousewheel event.
+   */
+
+
+  scrollToZoom(event) {
+    if (!this.model.isPublished) {
+      var d = event.deltaY * event.deltaFactor * 0.001;
+      this.paper.view.zoom = Math.max(0.1, this.paper.view.zoom + d);
+
+      this._applyZoomAndPanChangesFromPaper();
+    }
+  }
 
   _setupTools() {
-    // This is a hacky way to create scroll-to-zoom functionality.
-    // (Using https://github.com/jquery/jquery-mousewheel for cross-browser mousewheel event)
-    if (!this.model.isPublished) {
-      $(this._svgCanvas).on('mousewheel', e => {
-        e.preventDefault();
-        var d = e.deltaY * e.deltaFactor * 0.001;
-        this.paper.view.zoom = Math.max(0.1, this.paper.view.zoom + d);
-
-        this._applyZoomAndPanChangesFromPaper();
-      });
-    } // Connect all Wick Tools into the paper.js project
-
+    // Attach scroll to zoom event.
+    $(this._svgCanvas).on('mousewheel', e => {
+      e.preventDefault();
+      this.scrollToZoom(e);
+    }); // Connect all Wick Tools into the paper.js project
 
     for (var toolName in this.model.tools) {
       var tool = this.model.tools[toolName];
@@ -61475,14 +62282,14 @@ Wick.View.Project = class extends Wick.View {
       from: new paper.Point(borderMin, borderMin),
       to: new paper.Point(borderMax, strokeOffset),
       fillColor: 'black',
-      strokeWidth: 1,
+      strokeWidth: 0,
       strokeColor: 'black'
     }), // bottom
     new paper.Path.Rectangle({
       from: new paper.Point(borderMin, bottom - strokeOffset),
       to: new paper.Point(borderMax, borderMax),
       fillColor: 'black',
-      strokeWidth: 1,
+      strokeWidth: 0,
       strokeColor: 'black'
     }), // left
     new paper.Path.Rectangle({
@@ -62558,6 +63365,7 @@ Wick.GUIElement = class {
   }
 
 };
+Wick.GUIElement.IS_MOBILE = window.innerWidth < 600;
 Wick.GUIElement.GRID_SMALL_CELL_WIDTH = 22;
 Wick.GUIElement.GRID_SMALL_CELL_HEIGHT = 32;
 Wick.GUIElement.GRID_NORMAL_CELL_WIDTH = 38;
@@ -62590,7 +63398,10 @@ Wick.GUIElement.BREADCRUMBS_DROP_SHADOW_DEPTH = 2;
 Wick.GUIElement.BREADCRUMBS_ACTIVE_BORDER_COLOR = '#1EE29A';
 Wick.GUIElement.BREADCRUMBS_HIGHLIGHT_HEIGHT = 3;
 Wick.GUIElement.BREADCRUMBS_PADDING = 5;
-Wick.GUIElement.LAYERS_CONTAINER_WIDTH = 160;
+Wick.GUIElement.LAYERS_CONTAINER_LARGE = 160;
+Wick.GUIElement.LAYERS_CONTAINER_SMALL = 100; // Shrink the Layer Container if the screen is small.
+
+Wick.GUIElement.LAYERS_CONTAINER_WIDTH = Wick.GUIElement.IS_MOBILE ? Wick.GUIElement.LAYERS_CONTAINER_SMALL : Wick.GUIElement.LAYERS_CONTAINER_LARGE;
 Wick.GUIElement.NUMBER_LINE_HEIGHT = 35;
 Wick.GUIElement.NUMBER_LINE_NUMBERS_HIGHLIGHT_COLOR = '#ffffff';
 Wick.GUIElement.NUMBER_LINE_NUMBERS_COMMON_COLOR = '#494949';
@@ -62948,33 +63759,36 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
         this.model.project.createTween();
         this.projectWasModified();
       }
-    });
-    this.fillGapsModeButton = new Wick.GUIElement.ActionButton(this.model, {
-      tooltip: 'Gap Fill Mode',
-      icon: 'gap_fill_menu_blank_frames',
-      height: 8,
-      width: 16,
-      clickFn: () => {
-        this.project.openPopupMenu(new Wick.GUIElement.PopupMenu(this.model, {
-          x: 0,
-          y: this.canvas.height - Wick.GUIElement.SCROLLBAR_SIZE,
-          mode: 'gapfill'
-        }));
-      }
-    });
-    this.gridSizeButton = new Wick.GUIElement.ActionButton(this.model, {
-      tooltip: 'Frame Size',
-      icon: 'frame_size_menu',
-      height: 8,
-      width: 16,
-      clickFn: () => {
-        this.project.openPopupMenu(new Wick.GUIElement.PopupMenu(this.model, {
-          x: 20,
-          y: this.canvas.height - Wick.GUIElement.SCROLLBAR_SIZE,
-          mode: 'framesize'
-        }));
-      }
-    });
+    }); // Only draw action buttons on bottom if we're not on mobile.
+
+    if (!Wick.GUIElement.IS_MOBILE) {
+      this.fillGapsModeButton = new Wick.GUIElement.ActionButton(this.model, {
+        tooltip: 'Gap Fill Mode',
+        icon: 'gap_fill_menu_blank_frames',
+        height: 8,
+        width: 16,
+        clickFn: () => {
+          this.project.openPopupMenu(new Wick.GUIElement.PopupMenu(this.model, {
+            x: 0,
+            y: this.canvas.height - Wick.GUIElement.SCROLLBAR_SIZE,
+            mode: 'gapfill'
+          }));
+        }
+      });
+      this.gridSizeButton = new Wick.GUIElement.ActionButton(this.model, {
+        tooltip: 'Frame Size',
+        icon: 'frame_size_menu',
+        height: 8,
+        width: 16,
+        clickFn: () => {
+          this.project.openPopupMenu(new Wick.GUIElement.PopupMenu(this.model, {
+            x: 20,
+            y: this.canvas.height - Wick.GUIElement.SCROLLBAR_SIZE,
+            mode: 'framesize'
+          }));
+        }
+      });
+    }
   }
 
   draw() {
@@ -62988,41 +63802,49 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
     ctx.fillStyle = '#111';
     ctx.beginPath();
     ctx.rect(0, this.canvas.height - Wick.GUIElement.BREADCRUMBS_HEIGHT - Wick.GUIElement.SCROLLBAR_SIZE, Wick.GUIElement.LAYERS_CONTAINER_WIDTH, Wick.GUIElement.SCROLLBAR_SIZE);
-    ctx.fill(); // Gap Fill Mode button
+    ctx.fill(); // Only draw action buttons on bottom if we're not on mobile.
 
-    ctx.save();
-    var method = this.project.model.activeTimeline.fillGapsMethod;
+    if (!Wick.GUIElement.IS_MOBILE) {
+      // Gap Fill Mode button
+      ctx.save();
+      var method = this.project.model.activeTimeline.fillGapsMethod;
 
-    if (method === 'auto_extend') {
-      this.fillGapsModeButton.icon = 'gap_fill_menu_extend_frames';
-    } else if (method === 'blank_frames') {
-      this.fillGapsModeButton.icon = 'gap_fill_menu_blank_frames';
+      if (method === 'auto_extend') {
+        this.fillGapsModeButton.icon = 'gap_fill_menu_extend_frames';
+      } else if (method === 'blank_frames') {
+        this.fillGapsModeButton.icon = 'gap_fill_menu_blank_frames';
+      }
+
+      ctx.translate(18, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 4);
+      this.fillGapsModeButton.draw(true);
+      ctx.restore(); // Frame Size button
+
+      ctx.save();
+      ctx.translate(54, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 4);
+      this.gridSizeButton.draw(true);
+      ctx.restore();
     }
 
-    ctx.translate(18, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 4);
-    this.fillGapsModeButton.draw(true);
-    ctx.restore(); // Frame Size button
-
-    ctx.save();
-    ctx.translate(54, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 4);
-    this.gridSizeButton.draw(true);
-    ctx.restore();
     var tweenButtonIsActive = this.model.project.canCreateTween;
     var deleteButtonIsActive = this.model.project.selection.getSelectedObjects('Timeline').length > 0;
     ctx.save();
     ctx.save();
-    ctx.translate(80, 0); // Delete Frame button
+    var widthOfActionButtonContainer = 90;
+    var bump = 10;
+    var leftOfContainer = Wick.GUIElement.LAYERS_CONTAINER_WIDTH + bump - widthOfActionButtonContainer;
+    ctx.translate(leftOfContainer, 0); // Delete Frame button
 
     ctx.save();
     ctx.globalAlpha = deleteButtonIsActive ? 1.0 : 0.3;
     ctx.translate(0, 20);
     this.deleteFrameButton.draw(deleteButtonIsActive);
-    ctx.restore(); // Copy Frame Forward button
+    ctx.restore(); // Insert Blank Frame Button
 
     ctx.save();
     ctx.globalAlpha = 1.0;
     ctx.translate(30, 20);
-    this.insertBlankFrameButton.draw(true);
+    this.insertBlankFrameButton.draw(true); // Insert frame is always active...
+
     ctx.restore(); // Add Tween button
 
     ctx.save();
@@ -64322,6 +65144,10 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement {
     this._movePlayhead();
   }
 
+  onMouseUp(e) {
+    this.projectWasModified();
+  }
+
   get bounds() {
     return {
       x: this.project.scrollX,
@@ -65099,14 +65925,22 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
       this._doAutoScroll(target);
     }
   }
+  /**
+   * Refers to mousewheel events on the timeline.
+   * @param {*} e 
+   */
+
 
   _onMouseWheel(e) {
     e.preventDefault();
-    var dx = e.deltaX * e.deltaFactor * 0.5;
-    var dy = e.deltaY * e.deltaFactor * 0.5;
-    this.scrollX += dx;
-    this.scrollY -= dy;
-    this.draw();
+
+    if (!this.model.isPublished) {
+      var dx = e.deltaX * e.deltaFactor * 0.5;
+      var dy = e.deltaY * e.deltaFactor * 0.5;
+      this.scrollX += dx;
+      this.scrollY -= dy;
+      this.draw();
+    }
   }
 
   _getTopMouseTarget() {

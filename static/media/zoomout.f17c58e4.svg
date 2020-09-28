@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 23.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 25 25" style="enable-background:new 0 0 25 25;" xml:space="preserve">
+<style type="text/css">
+	<!-- .st0{fill:url(#SVGID_1_);}
+	.st1{fill:url(#SVGID_2_);} -->
+	.st0{fill:white;}
+	.st1{fill:white;}
+</style>
+<title>Zoom Out_4</title>
+<g>
+	<g>
+		<g id="Icons">
+			
+				<image style="overflow:visible;opacity:0.5;enable-background:new    ;" width="44" height="45" xlink:href="19580A57889D2DB7.png"  transform="matrix(1 0 0 1 -3.9042 -4.6181)">
+			</image>
+			
+				<linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="0" y1="21.2527" x2="30.4058" y2="21.2527" gradientTransform="matrix(1 0 0 -1 0 36.6536)">
+				<stop  offset="0" style="stop-color:#F0F0F0"/>
+				<stop  offset="0.71" style="stop-color:#CCCCCC"/>
+			</linearGradient>
+			<path class="st0" d="M30.4,30.8 M22.6,19.8c4.1-5.6,2.8-13.4-2.8-17.4S6.4-0.4,2.4,5.1s-2.8,13.4,2.8,17.4
+				c4.2,3.1,9.9,3.2,14.2,0.3L22.6,19.8z M12.5,21.5c-5,0-9-4-9-9s4-9,9-9s9,4,9,9l0,0C21.5,17.5,17.5,21.5,12.5,21.5z"/>
+			
+				<linearGradient id="SVGID_2_" gradientUnits="userSpaceOnUse" x1="7.3758" y1="24.1717" x2="17.6358" y2="24.1717" gradientTransform="matrix(1 0 0 -1 0 36.6536)">
+				<stop  offset="0" style="stop-color:#F0F0F0"/>
+				<stop  offset="0.71" style="stop-color:#CCCCCC"/>
+			</linearGradient>
+			<path class="st1" d="M9,10.8h7c0.9,0,1.6,0.7,1.6,1.6l0,0c0,0.9-0.7,1.6-1.6,1.6H9c-0.9,0-1.6-0.7-1.6-1.6l0,0
+				C7.4,11.6,8.1,10.8,9,10.8z"/>
+		</g>
+	</g>
+</g>
+</svg>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 23.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 32.5 32.4" style="enable-background:new 0 0 32.5 32.4;" xml:space="preserve">
+<style type="text/css">
+	<!-- .st0{fill:url(#SVGID_1_);}
+	.st1{fill:url(#SVGID_2_);} -->
+	.st0{fill:white;}
+	.st1{fill:white;}
+</style>
+<title>Eyedropper_1</title>
+<g>
+	<g>
+		<g id="Icons">
+			
+				<image style="overflow:visible;opacity:0.25;enable-background:new    ;" width="44" height="43" xlink:href="AEDF94449FFCA701.png"  transform="matrix(1 0 0 1 -2.6637 -3.2354)">
+			</image>
+			
+				<linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="455.7298" y1="697.8939" x2="469.1295" y2="697.8939" gradientTransform="matrix(0.7071 0.7071 0.7071 -0.7071 -795.5222 174.0038)">
+				<stop  offset="0" style="stop-color:#F0F0F0"/>
+				<stop  offset="0.71" style="stop-color:#CCCCCC"/>
+			</linearGradient>
+			<path class="st0" d="M26.3,14L26,13.6c-0.3-0.3-0.3-0.8,0-1.1l1.1-1.1l3.2-3.1c1.8-1.6,1.9-4.4,0.2-6.1s-4.4-1.9-6.1-0.2
+				c-0.1,0.1-0.2,0.2-0.2,0.2l-3.2,3.1l-1.1,1.1c-0.3,0.3-0.8,0.3-1.1,0l-0.4-0.4c-0.4-0.4-1.1-0.4-1.6,0l-1.4,1.4
+				c-0.4,0.4-0.4,1.1,0,1.6c0,0,0,0,0,0l0.9,0.9l6.1,6.1l0.9,0.9c0.4,0.4,1.1,0.4,1.6,0c0,0,0,0,0,0l1.3-1.4
+				C26.8,15.1,26.8,14.4,26.3,14C26.3,14,26.3,14,26.3,14z"/>
+			
+				<linearGradient id="SVGID_2_" gradientUnits="userSpaceOnUse" x1="458.1172" y1="675.8865" x2="466.7472" y2="675.8865" gradientTransform="matrix(0.7071 0.7071 0.7071 -0.7071 -795.5222 174.0038)">
+				<stop  offset="0" style="stop-color:#F0F0F0"/>
+				<stop  offset="0.71" style="stop-color:#CCCCCC"/>
+			</linearGradient>
+			<path class="st1" d="M15.6,12.6c-0.5-0.5-1.4-0.5-1.9,0l-8.2,8.1c-0.1,0.1-0.2,0.2-0.2,0.3c0,0.1-0.1,0.1-0.1,0.2
+				c-0.1,0.1-0.1,0.2-0.1,0.2c-1.4,3-2.8,6-4.3,9.1c0,0.1,0,0.2,0,0.4c0,0.2,0.1,0.4,0.2,0.5c0.1,0.1,0.3,0.2,0.5,0.2
+				c0.1,0,0.3,0,0.4,0l9.1-4.3c0.1,0,0.1-0.1,0.2-0.1l0.2-0.1l0.3-0.2l8.1-8.1c0.5-0.5,0.5-1.4,0-1.9c0,0,0,0,0,0L15.6,12.6z"/>
+		</g>
+	</g>
+</g>
+</svg>
