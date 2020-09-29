@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.9.28.15.26.35";
+var WICK_ENGINE_BUILD_VERSION = "2020.9.29.14.42.32";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -46342,10 +46342,10 @@ Wick.ToolSettings = class {
       default: true
     }, {
       type: "number",
-      name: 'fillSmoothing',
-      default: 100,
+      name: 'gapFillAmount',
+      default: 1,
       min: 0,
-      max: 250,
+      max: 5,
       step: 1
     }, {
       /**
@@ -58702,23 +58702,27 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
       this.paper.hole({
         point: e.point,
         bgColor: new paper.Color(this.project.backgroundColor.hex),
+        gapFillAmount: this.getSetting('gapFillAmount'),
         layers: this.project.activeFrames.filter(frame => {
           return !frame.parentLayer.hidden;
         }).map(frame => {
           return frame.view.objectsLayer;
         }),
-        fillColor: this.getSetting('fillColor'),
         onFinish: path => {
           this.setCursor('default');
 
           if (path) {
             path.fillColor = this.getSetting('fillColor').rgba;
-            path.strokeWidth = this.getSetting('fillSmoothing') / 100;
-            path.strokeColor = this.getSetting('fillColor').rgba;
             path.name = null;
             this.addPathToProject();
-            this.paper.project.activeLayer.addChild(path);
-            this.paper.OrderingUtils.bringToFront([path]);
+
+            if (e.item) {
+              path.insertAbove(e.item);
+            } else {
+              this.paper.project.activeLayer.addChild(path);
+              this.paper.OrderingUtils.sendToBack([path]);
+            }
+
             this.fireEvent('canvasModified');
           }
         },
@@ -59855,169 +59859,54 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
 /*
     paper-hole.js
-    Adds hole() to paper, which finds the shape of the hole
+    Adds hole() to the paper Layer class which finds the shape of the hole
     at a certain point. Use this to make a vector fill bucket!
-
-    Description of Algorithm:
-
-    Shoot ray to left from click location, get first intersection at
-    which color changes. If no such intersection exists, the user is filling shape
-    with a gap.
-
-    Traverse upwards from first intersection. At the end of each curve, or at
-    intersections on the current curve (the one we are currently traversing),
-    create small circle (radius = RADIUS). 
-    
-    Get the intersections on this circle, traversing the circle counterclockwise 
-    starting from the point right after where we traversed from. 
-    Find the first intersection along the circle at which there is a color change 
-    (from the hole color to a different color, different either on stroke or fill), 
-    then traverse along this new curve with which we are intersecting.
-
-    An invariant of the traversal process is that the hole color is always to the right
-    of the point we are traversing along (where forward is the direction in which we are traversing), 
-    and a different color is always to the left.
-
-    When the traversal comes back to the beginning, we have defined a loop. 
-    If the loop is clockwise, we have filled a hole and are done.
-    Otherwise, we shoot a ray from the leftmost part of our loop, and start a new traversal.
-
-    by Nikolas Diamant (nick@wickeditor.com)
-*/
+    This version uses a flood fill + potrace method of filling holes.
+    Adapted from the FillBucket tool from old Wick
+    by zrispo (github.com/zrispo) (zach@wickeditor.com)
+ */
 (function () {
+  var VERBOSE = false;
+  var PREVIEW_IMAGE = false;
+  var N_RASTER_CLONE = 1;
+  var RASTER_BASE_RESOLUTION = 3;
+  var FILL_TOLERANCE = 0;
+  var EXPAND_AMT = 0.85;
   var onError;
   var onFinish;
   var layers;
-  var layerGroup; // point clicked by user
+  var floodFillX;
+  var floodFillY;
+  var bgColor;
+  var gapFillAmount;
 
-  var x;
-  var y;
-  const MAX_LOOP_ATTEMPTS = 3;
-  var TIMES_LOOPED; // Number of segments to use when approximating curve bumped out along normals.
-  // Higher is more accurate and more expensive
-
-  var NORMAL_SEGS; // Distance to bump curves by to detect gaps
-
-  var GAP_FILL = 0; // Maximum number of traversals
-
-  const MAX_NEST = 16; // Maximum number of iterations in a single traversal
-
-  const MAX_ITERS = 2048;
-  const EPSILON = 0.001; // Radius of circles used in traversal
-
-  const RADIUS = 0.01;
-  const STEP_SIZE = 0.001;
-  var fillColor;
-  var holeColor = null; // Returns:
-  // 1 if traveling in the direction of vector along the curve at curveLocation
-  // is equivalent to traveling forwards along the curve.
-  // -1 " backwards ".
-
-  function getDirection(curveLocation, vector) {
-    return curveLocation.tangent.dot(vector) > 0 ? 1 : -1;
-  } // Return color of stroke of a path, null if no stroke.
-
-
-  function getPathStroke(p) {
-    if (p.hasStroke && p.strokeWidth > 0 && p.strokeColor) {
-      return p.strokeColor;
-    }
-
-    return null;
-  } // Return pixel color at point p
-
-
-  function getColorAt(p) {
-    var hit = layerGroup.hitTest(p, {
-      fill: true
-    });
-
-    if (hit === null) {
-      return null;
-    }
-
-    return hit.item.fillColor;
-  } // Return if two colors RGB are equal, ignores alpha.
-
-
-  function colorsEqual(c1, c2) {
-    if (c1 === null || c2 === null) {
-      return c1 === null && c2 === null;
-    }
-
-    return c1.red === c2.red && c1.green === c2.green && c1.blue === c2.blue && c1.alpha === c2.alpha;
-  } // Check whether the locations of p1, p2, are equal within EPSILON
-
-
-  function pointsEqual(p1, p2) {
-    return Math.abs(p1.x - p2.x) < EPSILON && Math.abs(p1.y - p2.y) < EPSILON;
+  function previewImage(image) {
+    var win = window.open('', 'Title', 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=' + image.width + ', height=' + image.height + ', top=100, left=100');
+    win.document.body.innerHTML = '<div><img src= ' + image.src + '></div>';
   }
 
-  function bumpedCurve(curve, direction) {
-    /*curve = curve.clone();
-    let c1 = curve.getCurvatureAtTime(0);
-    let c2 = curve.getCurvatureAtTime(1);
-    let r1 = c1 === 0 ? 2 : direction / c1;
-    let r2 = c2 === 0 ? 2 : direction / c2;
-    let scale1 = Math.max(Math.min((r1 - GAP_FILL) / r1, 2), 0);
-    let scale2 = Math.max(Math.min((r2 - GAP_FILL) / r2, 2), 0);
-    let n1 = curve.getNormalAtTime(0).multiply(-direction).normalize(GAP_FILL);
-    let n2 = curve.getNormalAtTime(1).multiply(-direction).normalize(GAP_FILL);
-    curve.point1 = curve.point1.add(n1);
-    curve.point2 = curve.point2.add(n2);
-    curve.handle1 = curve.handle1.multiply(scale1);
-    curve.handle2 = curve.handle2.multiply(scale2);
-    //console.log('bump scale', scale1, scale2);
-    return [curve];
-    */
-    let normals = [];
-    let tangentScales = [];
-
-    for (let i = 0; i <= NORMAL_SEGS; i++) {
-      normals.push(curve.getNormalAtTime(i / NORMAL_SEGS).multiply(-direction).normalize(GAP_FILL));
-      let curvature = curve.getCurvatureAtTime(i / NORMAL_SEGS);
-      let radius = curvature === 0 ? 2 : direction / curvature;
-      let scale = Math.max(Math.min((radius - GAP_FILL) / radius, 2), 0);
-      tangentScales.push(scale);
-    }
-
-    let curves = [];
-
-    for (let i = 0; i < NORMAL_SEGS; i++) {
-      let c = curve.getPart(i / NORMAL_SEGS, (i + 1) / NORMAL_SEGS);
-      let scale1 = tangentScales[i];
-      let scale2 = tangentScales[i + 1];
-      let n1 = normals[i];
-      let n2 = normals[i + 1];
-      c.point1 = c.point1.add(n1);
-      c.point2 = c.point2.add(n2);
-      c.handle1 = c.handle1.multiply(scale1);
-      c.handle2 = c.handle2.multiply(scale2);
-      curves.push(c);
-    } // Useful for debugging the bumped curve
-
-    /*for (let i = 0; i < curves.length; i++) {
-        let path = new paper.Path([new paper.Segment(curves[i].point1, curves[i].handle1), new paper.Segment(curves[i].point2, curves[i].handle2)]);
-        onFinish(path);
-    }*/
-
-
-    return curves;
-  } // Performs the algoritm described at top of file.
-
-
-  function fillHole() {
-    // Prepare/clean data
-    layerGroup = new paper.Group({
+  function rasterizePaths(callback) {
+    var layerGroup = new paper.Group({
       insert: false
     });
     layers.reverse().forEach(layer => {
       layer.children.forEach(function (child) {
         if (child._class !== 'Path' && child._class !== 'CompoundPath') return;
-        var clone = child.clone({
-          insert: false
-        });
-        if (!clone.closed || Math.abs(clone.area) > 0.01) layerGroup.addChild(clone);
+
+        for (var i = 0; i < N_RASTER_CLONE; i++) {
+          var clone = child.clone({
+            insert: false
+          }); //experiment: bump out all strokes a bit by expanding their stroke widths
+
+          if (!clone.strokeColor && clone.fillColor) {
+            clone.strokeColor = clone.fillColor;
+            clone.strokeWidth = gapFillAmount / RASTER_BASE_RESOLUTION;
+          } else if (clone.strokeWidth) {
+            clone.strokeWidth += gapFillAmount / RASTER_BASE_RESOLUTION;
+          }
+
+          layerGroup.addChild(clone);
+        }
       });
     });
 
@@ -60026,586 +59915,168 @@ Wick.Tools.Zoom = class extends Wick.Tool {
       return;
     }
 
-    var p = new paper.Point(x, y);
-    holeColor = getColorAt(p);
-
-    if (colorsEqual(holeColor, {
-      red: fillColor.r,
-      green: fillColor.g,
-      blue: fillColor.b,
-      alpha: fillColor.a
-    })) {
-      onError('FILL_EQUALS_HOLE');
-      return null;
-    }
-
-    for (var i = 0; i < MAX_NEST; i++) {
-      // getShapeAroundPoint performs the traversal.
-      var path = getShapeAroundPoint(p);
-
-      if (path === null) {
-        return;
-      } // If clockwise, we are done
-
-
-      if (path.clockwise) {
-        path.remove();
-
-        if (holeColor === null) {
-          path = removeInteriorShapes(path);
-        } else {
-          path = constructShape(path);
-        }
-
-        removeDuplicatePoints(path);
-        onFinish(path);
-        return;
-      } // Update point from which we shoot ray to the left
-
-
-      p = path.getNearestLocation(path.bounds.leftCenter).point.add(new paper.Point(-1, 0));
-      path.remove();
-    }
-
-    onError('TOO_COMPLEX');
-  } // Removes redundant points from path
-
-
-  function removeDuplicatePoints(path) {
-    let paths;
-
-    if (path._class === 'CompoundPath') {
-      paths = path.children;
-    } else {
-      paths = [path];
-    }
-
-    for (let i = 0; i < paths.length; i++) {
-      let p = paths[i];
-
-      for (let j = 0; j < p.segments.length;) {
-        if (pointsEqual(p.segments[j].point, p.segments[(j + 1) % p.segments.length].point)) {
-          let removed = p.removeSegment(j);
-
-          if (p.segments.length) {
-            p.segments[j % p.segments.length].handleIn = removed.handleIn;
-          }
-        } else {
-          j++;
-        }
-      }
-    }
-  } // Assumes the path is colorless, removes all overlapping shapes
-
-
-  function removeInteriorShapes(path) {
-    var items = layerGroup.getItems({
-      inside: path.bounds.expand(-1),
-      class: paper.Path
+    var rasterResolution = paper.view.resolution * RASTER_BASE_RESOLUTION / window.devicePixelRatio;
+    var layerPathsRaster = layerGroup.rasterize(rasterResolution, {
+      insert: false
     });
+    var rasterCanvas = layerPathsRaster.canvas;
+    var rasterCtx = rasterCanvas.getContext('2d');
+    var layerPathsImageData = rasterCtx.getImageData(0, 0, layerPathsRaster.width, layerPathsRaster.height);
+    var layerPathsImageDataRaw = layerPathsImageData.data;
 
-    for (var i = 0; i < items.length; i++) {
-      if (items[i].closed) {
-        path = path.subtract(items[i], {
-          insert: false
-        });
+    for (var i = 0; i < layerPathsImageDataRaw.length; i += 4) {
+      if (layerPathsImageDataRaw[i + 3] === 0) {
+        layerPathsImageDataRaw[i] = bgColor.red;
+        layerPathsImageDataRaw[i + 1] = bgColor.green;
+        layerPathsImageDataRaw[i + 2] = bgColor.blue;
+        layerPathsImageDataRaw[i + 3] = 255;
       }
     }
 
-    if (path._class === 'CompoundPath') {
-      cleanupAreas(path);
+    rasterCtx.putImageData(layerPathsImageData, 0, 0);
+    layerPathsImageData = rasterCtx.getImageData(0, 0, layerPathsRaster.width, layerPathsRaster.height);
+    var rasterPosition = layerPathsRaster.bounds.topLeft;
+    var x = (floodFillX - rasterPosition.x) * RASTER_BASE_RESOLUTION;
+    var y = (floodFillY - rasterPosition.y) * RASTER_BASE_RESOLUTION;
+    x = Math.round(x);
+    y = Math.round(y);
+    var floodFillCanvas = document.createElement('canvas');
+    floodFillCanvas.width = layerPathsRaster.canvas.width;
+    floodFillCanvas.height = layerPathsRaster.canvas.height;
+
+    if (x < 0 || y < 0 || x >= floodFillCanvas.width || y >= floodFillCanvas.height) {
+      onError('OUT_OF_BOUNDS');
+      return;
     }
 
-    return path;
+    var floodFillCtx = floodFillCanvas.getContext('2d');
+    floodFillCtx.putImageData(layerPathsImageData, 0, 0);
+    floodFillCtx.fillStyle = "rgba(123,124,125,255)";
+    floodFillCtx.fillFlood(x, y, FILL_TOLERANCE);
+    var floodFillImageData = floodFillCtx.getImageData(0, 0, floodFillCanvas.width, floodFillCanvas.height);
+    var imageDataRaw = floodFillImageData.data;
+
+    for (var i = 0; i < imageDataRaw.length; i += 4) {
+      if (imageDataRaw[i] === 123 && imageDataRaw[i + 1] === 124 && imageDataRaw[i + 2] === 125) {
+        imageDataRaw[i] = 0;
+        imageDataRaw[i + 1] = 0;
+        imageDataRaw[i + 2] = 0;
+        imageDataRaw[i + 3] = 255;
+      } else {
+        imageDataRaw[i] = 255;
+        imageDataRaw[i + 1] = 255;
+        imageDataRaw[i + 2] = 255;
+        imageDataRaw[i + 3] = 0;
+      }
+    }
+
+    floodFillCtx.putImageData(floodFillImageData, 0, 0);
+    var floodFillProcessedImage = new Image();
+
+    floodFillProcessedImage.onload = function () {
+      if (PREVIEW_IMAGE) previewImage(floodFillProcessedImage);
+      var svgString = potrace.fromImage(floodFillProcessedImage).toSVG(1);
+      var xmlString = svgString,
+          parser = new DOMParser(),
+          doc = parser.parseFromString(xmlString, "text/xml");
+      var resultHolePath = paper.project.importSVG(doc, {
+        insert: true
+      });
+      resultHolePath.remove();
+      resultHolePath = resultHolePath.children[0];
+      resultHolePath.scale(1 / RASTER_BASE_RESOLUTION, new paper.Point(0, 0));
+      var rasterPosition = layerPathsRaster.bounds.topLeft;
+      resultHolePath.position.x += rasterPosition.x;
+      resultHolePath.position.y += rasterPosition.y;
+      resultHolePath.applyMatrix = true;
+      var holeIsLeaky = false;
+      var w = floodFillProcessedImage.width;
+      var h = floodFillProcessedImage.height;
+
+      for (var x = 0; x < floodFillProcessedImage.width; x++) {
+        if (getPixelAt(x, 0, w, h, floodFillImageData.data).r === 0 && getPixelAt(x, 0, w, h, floodFillImageData.data).a === 255) {
+          holeIsLeaky = true;
+          onError('LEAKY_HOLE');
+          return;
+        }
+      }
+
+      expandHole(resultHolePath);
+      callback(resultHolePath);
+    };
+
+    floodFillProcessedImage.src = floodFillCanvas.toDataURL();
   }
 
-  function overlappingBounds(b1, b2) {
-    return !(b1.right < b2.left || b2.right < b1.left) && !(b1.bottom < b2.top || b2.bottom < b1.top);
-  } // Unites all shapes of the same color as hole, subtracts paths of different colors,
-  // intersects with path.
-
-
-  function constructShape(path) {
-    var items = layerGroup.getItems({
-      match: item => {
-        if (overlappingBounds(path.bounds, item.bounds)) {
-          if (item._class === 'Path') {
-            return item.parent._class !== 'CompoundPath';
-          }
-
-          return item._class === 'CompoundPath';
-        } else {
-          return false;
-        }
-      }
-    });
-    var p = new paper.Path({
-      insert: false
-    });
-    items.sort((a, b) => a.isAbove(b) ? 1 : -1);
-    let pArea = p.area;
-    let newP, newPArea;
-
-    for (var i = 0; i < items.length; i++) {
-      let item = items[i];
-
-      if (item.closed) {
-        if (colorsEqual(holeColor, item.fillColor)) {
-          newP = p.unite(item, {
-            insert: false
-          });
-          newPArea = newP.area;
-
-          if (newPArea >= pArea) {
-            // shouldn't have to do this, but avoids an error in paper.js
-            p = newP;
-            pArea = newPArea;
-          }
-        } else {
-          newP = p.subtract(item, {
-            insert: false
-          });
-          newPArea = newP.area;
-
-          if (newPArea <= pArea) {
-            // shouldn't have to do this, but avoids an error in paper.js
-            p = newP;
-            pArea = newPArea;
-          }
-        }
-      } //onFinish(newP.clone());
-
+  function expandHole(path) {
+    if (path instanceof paper.Group) {
+      path = path.children[0];
     }
 
-    newP = p.intersect(path, {
-      insert: false
-    });
-    newPArea = newP.area;
+    var children;
 
-    if (newPArea < pArea) {
-      // shouldn't have to do this, but avoids an error in paper.js
-      p = newP;
-      pArea = newPArea;
+    if (path instanceof paper.Path) {
+      children = [path];
+    } else if (path instanceof paper.CompoundPath) {
+      children = path.children;
     }
 
-    if (p._class === 'CompoundPath') {
-      cleanupAreas(p);
-    }
-
-    return p.area > EPSILON ? p : path;
-  } // Ensures the CompoundPath path is contiguous. This means there is a single
-  // clockwise path, and no holes within holes.
-
-
-  function cleanupAreas(path) {
-    let maxArea = 0;
-    let info = path.children.map(p => {
-      let area = p.area;
-
-      if (area > maxArea) {
-        maxArea = area;
-      }
-
-      return {
-        item: p,
-        area: area
-      };
-    });
-
-    for (let i = 0; i < info.length;) {
-      if (Math.abs(info[i].area) < 1 || info[i].area > 0 && info[i].area < maxArea) {
-        var bounds = info[i].item.bounds;
-        info[i].item.remove();
-        info.splice(i, 1);
-
-        for (let j = 0; j < info.length;) {
-          if (bounds.contains(info[j].item.bounds) && info[j].area < 0) {
-            info[j].item.remove();
-            info.splice(j, 1);
-          } else {
-            j++;
-          }
-        }
-      } else {
-        i++;
-      }
-    }
-  } //
-
-
-  function curveIntersections(currentCurve, gapCurveObject, currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, f) {
-    let gapCurve = null;
-    let gapCurveIndex = null;
-
-    if (gapCurveObject) {
-      gapCurve = gapCurveObject.gapCurve;
-      gapCurveIndex = gapCurveObject.index;
-    }
-
-    var pathsToIntersect = layerGroup.getItems({
-      class: paper.Path,
-      overlapping: gapCurve ? gapCurve.bounds : currentCurve.bounds,
-      match: item => !currentCurveLocation || item !== currentCurveLocation.intersection.curve.path
-    });
-    let reassigned = false;
-
-    for (let i = 0; i < pathsToIntersect.length; i++) {
-      for (let c = 0; c < pathsToIntersect[i].curves.length; c++) {
-        let intersectionsWithCurve = gapCurve ? gapCurve.getIntersections(pathsToIntersect[i].curves[c]) : currentCurve.getIntersections(pathsToIntersect[i].curves[c]);
-
-        for (let j = 0; j < intersectionsWithCurve.length; j++) {
-          let intersectionCurrentWithNext = intersectionsWithCurve[j];
-
-          if (gapCurve && intersectionCurrentWithNext.intersection.curve === currentCurve) {
-            // This means the bumped curve intersects the not bumped curve,
-            // in which case the bumped curve is no good and we abandon it.
-            // (Sometimes happens on sharp corners)
-            return [null, null, null, false];
-          }
-
-          if (gapCurve && currentDirection === 1 ? intersectionCurrentWithNext.intersection.curve === currentCurve.next : intersectionCurrentWithNext.intersection.curve === currentCurve.previous) {
-            continue;
-          }
-
-          let timeAtThisIntersection = gapCurve ? ((intersectionCurrentWithNext.time + gapCurveIndex) / NORMAL_SEGS + currentCurve.index) % currentCurve.path.curves.length : (intersectionCurrentWithNext.time + intersectionCurrentWithNext.index) % currentCurve.path.curves.length; //time to traverse forwards from currentTime to timeAtThisIntersection
-
-          let forwardsDiff = (timeAtThisIntersection - currentTime + currentCurve.path.curves.length) % currentCurve.path.curves.length; //time to traverse backwards from currentTime to timeAtThisIntersection
-
-          let backwardsDiff = currentCurve.path.curves.length - forwardsDiff; //time to traverse forwards from closestTime to timeAtThisIntersection
-
-          let forwardsDiff2 = closestTime ? (timeAtThisIntersection - closestTime + currentCurve.path.curves.length) % currentCurve.path.curves.length : 0; //time to traverse backwards from closestTime to timeAtThisIntersection
-
-          let backwardsDiff2 = currentCurve.path.curves.length - forwardsDiff2; // If the path isn't a closed loop, you can't necessarily traverse from one point
-          // to another in a given direction, so we give it essentially infinite distance.
-
-          if (!currentCurve.path.closed) {
-            if (timeAtThisIntersection - currentTime < 0) {
-              forwardsDiff = Infinity;
-            } else {
-              backwardsDiff = Infinity;
-            }
-
-            if (timeAtThisIntersection - closestTime < 0) {
-              forwardsDiff2 = Infinity;
-            } else {
-              backwardsDiff2 = Infinity;
-            }
-          }
-
-          if (currentCurve.closed ? currentDirection * forwardsDiff < currentDirection * backwardsDiff : currentDirection * forwardsDiff < currentDirection * (currentCurve.path.curves.length - currentTime) && (!currentCurveLocation && !gapCrossLocation || currentDirection * forwardsDiff2 > currentDirection * backwardsDiff2) && f(intersectionCurrentWithNext)) {
-            reassigned = true;
-
-            if (gapCurve) {
-              gapCrossLocation = intersectionCurrentWithNext;
-            } else {
-              currentCurveLocation = intersectionCurrentWithNext;
-            }
-
-            closestTime = timeAtThisIntersection;
-          }
-        }
-      }
-    }
-
-    return [closestTime, currentCurveLocation, gapCrossLocation, reassigned];
-  } // Shoot ray to the left from startingPoint, perform traversal.
-
-
-  function getShapeAroundPoint(startingPoint) {
-    var currentCurve = new paper.Curve(startingPoint, startingPoint.add(new paper.Point(-10000, 0)));
-    var items = layerGroup.getItems({
-      class: paper.Path,
-      overlapping: currentCurve.bounds
-    });
-    var crossings = [];
-
-    for (let i = 0; i < items.length; i++) {
-      for (let c = 0; c < items[i].curves.length; c++) {
-        crossings = crossings.concat(currentCurve.getIntersections(items[i].curves[c]));
-      }
-    }
-
-    crossings.sort((a, b) => {
-      let diff = a.time - b.time;
-
-      if (Math.abs(diff) <= EPSILON) {
-        return a.intersection.path.isAbove(b.intersection.path) ? -1 : 1;
-      } else {
-        return diff;
-      }
-    });
-    var currentCurveLocation = null;
-
-    for (let c = 0; c < crossings.length; c++) {
-      let crossing = crossings[c];
-      let colorAt = getPathStroke(crossing.intersection.path);
-      let itemAt = !!colorAt && layerGroup.hitTest(crossing.point, {
-        fill: true
-      });
-      let colorAfter = getColorAt(crossing.point.add(new paper.Point(-EPSILON, 0)));
-
-      if (colorAt && !colorsEqual(holeColor, colorAt) && (!itemAt || crossing.intersection.path.isAbove(itemAt.item)) || !colorsEqual(holeColor, colorAfter)) {
-        currentCurveLocation = crossing.intersection;
-        currentCurve = currentCurveLocation.curve;
-        var currentDirection = getDirection(currentCurveLocation, new paper.Point(0, -1));
-        break;
-      }
-    }
-
-    if (currentCurveLocation === null) {
-      onError('LEAKY_HOLE');
-      return null;
-    }
-
-    var points = [];
-    var n = 0;
-    var ended = false;
-    let circle = new paper.Path([new paper.Point(RADIUS, 0), new paper.Point(0, -RADIUS), new paper.Point(-RADIUS, 0), new paper.Point(0, RADIUS)]);
-    circle.closePath();
-    circle.smooth('continuous');
-    let pointToAdd;
-
-    while (n < MAX_ITERS && !ended) {
-      //console.log('------------', n);
-      if (n === 1) {
-        points = [];
-      }
-
-      let currentTime = (currentCurveLocation.time + currentCurve.index) % currentCurve.path.curves.length;
-      currentCurveLocation = null;
-      let [clt, ccl, gcl, r] = curveIntersections(currentCurve, null, currentCurveLocation, null, currentTime, null, currentDirection, () => true);
-      let closestTime = clt;
-      currentCurveLocation = ccl;
-      let gapCrossLocation = null;
-
-      if (currentCurve.length > EPSILON) {
-        let gapCurves = bumpedCurve(currentCurve, currentDirection);
-
-        for (let i = 0; i < gapCurves.length; i++) {
-          [clt, ccl, gcl, r] = curveIntersections(currentCurve, {
-            gapCurve: gapCurves[i],
-            index: i
-          }, currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, a => colorsEqual(holeColor, getColorAt(a.point.subtract(a.tangent.multiply(currentDirection).normalize(RADIUS)))) && !colorsEqual(holeColor, getColorAt(a.point.add(a.tangent.multiply(currentDirection).normalize(RADIUS)))));
-
-          if (r) {
-            //console.log("used inner gapCross", i);
-            closestTime = clt;
-            gapCrossLocation = gcl;
-            break;
-          }
-        }
-
-        if (currentCurve.path.closed) {
-          gapCurves = bumpedCurve(currentCurve, -currentDirection);
-
-          for (let i = 0; i < gapCurves.length; i++) {
-            [clt, ccl, gcl, r] = curveIntersections(currentCurve, {
-              gapCurve: gapCurves[i],
-              index: i
-            }, currentCurveLocation, gapCrossLocation, currentTime, closestTime, currentDirection, a => !colorsEqual(holeColor, getColorAt(a.point.subtract(a.tangent.multiply(currentDirection).normalize(RADIUS)))) && colorsEqual(holeColor, getColorAt(a.point.add(a.tangent.multiply(currentDirection).normalize(RADIUS)))));
-
-            if (r) {
-              //console.log("used outer gapCross", i);
-              gapCrossLocation = gcl;
-              break;
-            }
-          }
-        }
-      } //console.log('gapCrossLocation', gapCrossLocation);
-
-
-      if (currentCurveLocation === null) {
-        currentCurveLocation = currentCurve.getLocationAtTime(currentDirection < 0 ? 0 : 1);
-      }
-
-      points.push({
-        p1: pointToAdd,
-        p2: gapCrossLocation ? currentCurve.getNearestLocation(gapCrossLocation.point) : currentCurveLocation
-      });
-      circle.position = gapCrossLocation ? gapCrossLocation.point : currentCurveLocation.point; //console.log('circle', circle.bounds.center.toString());
-      //onFinish(circle.clone());
-
-      var crossings = [];
-      var items = layerGroup.getItems({
-        overlapping: circle.bounds.expand(RADIUS),
-        class: paper.Path
+    children.forEach(function (hole) {
+      var normals = [];
+      hole.closePath();
+      hole.segments.forEach(function (segment) {
+        var a = segment.previous.point;
+        var b = segment.point;
+        var c = segment.next.point;
+        var ab = {
+          x: b.x - a.x,
+          y: b.y - a.y
+        };
+        var cb = {
+          x: b.x - c.x,
+          y: b.y - c.y
+        };
+        var d = {
+          x: ab.x - cb.x,
+          y: ab.y - cb.y
+        };
+        d.h = Math.sqrt(d.x * d.x + d.y * d.y);
+        d.x /= d.h;
+        d.y /= d.h;
+        d = rotate_point(d.x, d.y, 0, 0, 90);
+        normals.push({
+          x: d.x,
+          y: d.y
+        });
       });
 
-      for (let i = 0; i < items.length; i++) {
-        crossings = crossings.concat(circle.getCrossings(items[i]));
+      for (var i = 0; i < hole.segments.length; i++) {
+        var segment = hole.segments[i];
+        var normal = normals[i];
+        segment.point.x += normal.x * EXPAND_AMT;
+        segment.point.y += normal.y * EXPAND_AMT;
       }
-
-      crossings.sort((a, b) => {
-        let diff = a.index + a.time - b.index - b.time;
-
-        if (Math.abs(diff) <= STEP_SIZE) {
-          return a.intersection.path.isAbove(b.intersection.path) ? -1 : 1;
-        } else {
-          return diff;
-        }
-      }); //console.log('crossings');
-      //crossings.map((crossing, i) => console.log(i, crossing.index, crossing.time));
-
-      let startingIndex = 0;
-
-      if (gapCrossLocation) {
-        //console.log('gcIndex');
-        let incomingTangent = gapCrossLocation.tangent.multiply(-currentDirection);
-        let incomingIndex = (2 * Math.PI - Math.atan2(incomingTangent.y, incomingTangent.x)) * 2 / Math.PI + EPSILON;
-        let minIndexDiff = 4;
-
-        for (let i = 0; i < crossings.length; i++) {
-          let indexDiff = (crossings[i].time + crossings[i].index - incomingIndex + 4) % 4;
-
-          if (indexDiff < minIndexDiff) {
-            minIndexDiff = indexDiff;
-            startingIndex = i;
-          }
-        }
-      } else {
-        let good = false;
-
-        for (let i = 0; i < crossings.length; i++) {
-          let crossing = crossings[i]; // Looking for first intersection counterclockwise of where we're coming from,
-          // so first find the intersection we're coming from (must be on currentCurve.path, within 1 index, and if we go back in that direction the direction should change)
-
-          if (crossing.intersection.curve.path === currentCurve.path && ((currentCurve.index - crossing.intersection.curve.index) * currentDirection + currentCurve.path.curves.length) % currentCurve.path.curves.length <= 1 && currentDirection !== getDirection(crossing.intersection, crossing.point.subtract(currentCurveLocation.point))) {
-            startingIndex = i + 1; //console.log(i);
-            // Now find the first intersection after the one we're coming from that is at least 0.01 "radians" away (not actually radians, it's units of 4/(2PI) radians)
-
-            for (let j = 1; j < crossings.length; j++) {
-              let crossing2 = crossings[(i + j) % crossings.length];
-
-              if (Math.abs(Math.abs(crossing2.time + crossing2.index - crossing.time - crossing.index) - 2) < 1.99) {
-                startingIndex = (i + j) % crossings.length; //good = true;
-
-                break;
-              }
-            }
-
-            break;
-          }
-        } //if (!good) console.log("!good");
-
-      } //console.log('startingIndex', startingIndex);
+    });
+  } // http://www.felixeve.co.uk/how-to-rotate-a-point-around-an-origin-with-javascript/
 
 
-      let good = false;
+  function rotate_point(pointX, pointY, originX, originY, angle) {
+    angle = angle * Math.PI / 180.0;
+    return {
+      x: Math.cos(angle) * (pointX - originX) - Math.sin(angle) * (pointY - originY) + originX,
+      y: Math.sin(angle) * (pointX - originX) + Math.cos(angle) * (pointY - originY) + originY
+    };
+  }
 
-      for (let i = 0; i < crossings.length; i++) {
-        //console.log((startingIndex + i) % crossings.length);
-        let crossing = crossings[(startingIndex + i) % crossings.length];
-        let colorBefore = getColorAt(crossing.point.subtract(crossing.tangent.normalize(RADIUS * STEP_SIZE)));
-
-        if (colorsEqual(colorBefore, holeColor)) {
-          //console.log('colorsEqual');
-          let colorAt = getPathStroke(crossing.intersection.path);
-          let itemAt = !!colorAt && layerGroup.hitTest(crossing.point, {
-            fill: true
-          });
-          let colorAfter = getColorAt(crossing.point.add(crossing.tangent.normalize(RADIUS * STEP_SIZE))); //console.log(crossing.point.add(crossing.tangent.normalize(RADIUS * STEP_SIZE)).toString());
-
-          if (colorAt && !colorsEqual(holeColor, colorAt) && (!itemAt || crossing.intersection.path.isAbove(itemAt.item)) || !colorsEqual(holeColor, colorAfter)) {
-            //console.log('colorChange', colorAt && !colorsEqual(holeColor, colorAt), !itemAt || crossing.intersection.path.isAbove(itemAt.item), !colorsEqual(holeColor, colorAfter));
-            //console.log(holeColor, colorAfter);
-            currentDirection = getDirection(crossing.intersection, crossing.point.subtract(circle.bounds.center));
-            currentCurveLocation = crossing.intersection;
-            pointToAdd = crossing.intersection.curve.getNearestLocation(circle.bounds.center);
-            currentCurve = crossing.intersection.curve;
-            good = true;
-            break;
-          }
-        }
-      }
-
-      if (!good) {
-        onError("NO_VALID_CROSSINGS");
-        onFinish(circle.scale(1 / RADIUS));
-        return null;
-      }
-
-      if (points.length >= 2) {
-        let p = points[points.length - 1];
-
-        for (let i = 0; i < points.length - 1; i++) {
-          if (p.p1.curve === points[i].p1.curve && p.p2.curve === points[i].p2.curve && Math.abs(p.p1.time - points[i].p1.time) < EPSILON && Math.abs(p.p2.time - points[i].p2.time) < EPSILON) {
-            points = points.slice(i);
-
-            if (i > 2) {
-              TIMES_LOOPED++;
-              console.log("LOOP", TIMES_LOOPED);
-
-              if (TIMES_LOOPED >= MAX_LOOP_ATTEMPTS) {
-                onError("LOOPING");
-                onFinish(circle.scale(1 / RADIUS));
-                return null;
-              }
-
-              var addedCircle = circle.clone().scale(1 / RADIUS);
-              addedCircle.fillColor = holeColor.red === 0 ? new paper.Color(1, 1, 1) : new paper.Color(0, 0, 0);
-              layerGroup.addChild(addedCircle);
-              circle.remove();
-              NORMAL_SEGS += 4;
-              return getShapeAroundPoint(startingPoint);
-            }
-
-            ended = true;
-            break;
-          }
-        }
-      }
-
-      n++;
-    }
-
-    circle.remove();
-
-    if (n === MAX_ITERS) {
-      onError('TOO_COMPLEX');
-      return null;
-    }
-
-    return pathFromPoints(points);
-  } // Constructs path with correct tangents
-
-
-  function pathFromPoints(points) {
-    points.shift();
-    let curves = [];
-
-    for (let i = 0; i < points.length; i++) {
-      let p1 = points[i].p1;
-      let p2 = points[i].p2;
-
-      if (p1.curve === p2.curve) {
-        curves.push(p1.curve.getPart(p1.time, p2.time));
-      } else {
-        if (p1.curve.path.closed ? (p1.curve.index + 1) % p1.curve.path.curves.length === p2.curve.index : p1.curve.index + 1 === p2.curve.index) {
-          if (p1.time > 1 - EPSILON) {
-            curves.push(p2.curve.getPart(0, p2.time));
-          } else {
-            curves.push(p1.curve.getPart(p1.time, 1));
-          }
-        } else {
-          if (p1.time < EPSILON) {
-            curves.push(p2.curve.getPart(1, p2.time));
-          } else {
-            curves.push(p1.curve.getPart(p1.time, 0));
-          }
-        }
-      }
-    }
-
-    let segments = [];
-
-    for (let c = 0; c < curves.length; c++) {
-      segments.push(new paper.Segment(curves[c].point1, null, curves[c].handle1));
-      segments.push(new paper.Segment(curves[c].point2, curves[c].handle2, null));
-    }
-
-    let path = new paper.Path(segments);
-    path.closePath();
-    return path;
+  function getPixelAt(x, y, width, height, imageData) {
+    if (x < 0 || y < 0 || x >= width || y >= height) return null;
+    var offset = (y * width + x) * 4;
+    return {
+      r: imageData[offset],
+      g: imageData[offset + 1],
+      b: imageData[offset + 2],
+      a: imageData[offset + 3]
+    };
   }
   /* Add hole() method to paper */
 
@@ -60616,17 +60087,16 @@ Wick.Tools.Zoom = class extends Wick.Tool {
       if (!args.point) console.error('paper.hole: args.point is required');
       if (!args.onFinish) console.error('paper.hole: args.onFinish is required');
       if (!args.onError) console.error('paper.hole: args.onError is required');
+      if (!args.bgColor) console.error('paper.hole: args.bgColor is required');
       if (!args.layers) console.error('paper.hole: args.layers is required');
-      TIMES_LOOPED = 0;
-      NORMAL_SEGS = 1;
-      GAP_FILL = (args.gapFillAmount ? args.gapFillAmount : 0) + 0.01;
-      onError = args.onError;
       onFinish = args.onFinish;
+      onError = args.onError;
       layers = args.layers;
-      x = args.point.x;
-      y = args.point.y;
-      fillColor = args.fillColor;
-      fillHole();
+      floodFillX = args.point.x;
+      floodFillY = args.point.y;
+      gapFillAmount = args.gapFillAmount === undefined ? 1 : args.gapFillAmount;
+      bgColor = args.bgColor;
+      rasterizePaths(onFinish);
     }
   });
 })();
@@ -62946,7 +62416,7 @@ Wick.View.Frame = class extends Wick.View {
     var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
     var pathJSON = Wick.View.Path.exportJSON(child);
     var wickPath = new Wick.Path({json:pathJSON});
-     this.model.addPath(wickPath);
+      this.model.addPath(wickPath);
     wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
     wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
     wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;

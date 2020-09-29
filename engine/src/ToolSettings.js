@@ -72,10 +72,10 @@ Wick.ToolSettings = class {
             default: true,
         }, {
             type: "number",
-            name: 'fillSmoothing',
-            default: 100,
+            name: 'gapFillAmount',
+            default: 1,
             min: 0,
-            max: 250,
+            max: 5,
             step: 1,
         }, {
         /**
