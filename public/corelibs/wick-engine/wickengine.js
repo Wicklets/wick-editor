@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.9.28.15.26.35";
+var WICK_ENGINE_BUILD_VERSION = "2020.9.29.19.26.19";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -50538,16 +50538,30 @@ Wick.Project = class extends Wick.Base {
       return;
     }
 
-    var clip = new Wick[args.type]({
-      identifier: args.identifier,
-      transformation: new Wick.Transformation({
-        x: this.selection.x + this.selection.width / 2,
-        y: this.selection.y + this.selection.height / 2
-      })
-    }); // Add the clip to the frame prior to adding objects.
+    let clip;
 
-    this.activeFrame.addClip(clip);
-    clip.addObjects(this.selection.getSelectedObjects('Canvas')); // TODO add to asset library
+    if (args.type === 'Button') {
+      clip = new Wick[args.type]({
+        identifier: args.identifier,
+        transformation: new Wick.Transformation({
+          x: this.selection.x + this.selection.width / 2,
+          y: this.selection.y + this.selection.height / 2
+        }),
+        objects: this.selection.getSelectedObjects('Canvas')
+      });
+    } else {
+      clip = new Wick[args.type]({
+        identifier: args.identifier,
+        transformation: new Wick.Transformation({
+          x: this.selection.x + this.selection.width / 2,
+          y: this.selection.y + this.selection.height / 2
+        })
+      });
+      clip.addObjects(this.selection.getSelectedObjects('Canvas'));
+    } // Add the clip to the frame prior to adding objects.
+
+
+    this.activeFrame.addClip(clip); // TODO add to asset library
 
     this.selection.clear();
     this.selection.select(clip);

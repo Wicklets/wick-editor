@@ -1103,17 +1103,30 @@ Wick.Project = class extends Wick.Base {
             return;
         }
 
-        var clip = new Wick[args.type]({
-            identifier: args.identifier,
-            transformation: new Wick.Transformation({
-                x: this.selection.x + this.selection.width / 2,
-                y: this.selection.y + this.selection.height / 2,
-            }),
-        });
+        let clip;
+
+        if (args.type === 'Button') {
+            clip = new Wick[args.type]({
+                identifier: args.identifier,
+                transformation: new Wick.Transformation({
+                    x: this.selection.x + this.selection.width / 2,
+                    y: this.selection.y + this.selection.height / 2,
+                }),
+                objects: this.selection.getSelectedObjects('Canvas')
+            });
+        } else {
+            clip = new Wick[args.type]({
+                identifier: args.identifier,
+                transformation: new Wick.Transformation({
+                    x: this.selection.x + this.selection.width / 2,
+                    y: this.selection.y + this.selection.height / 2,
+                })
+            });
+            clip.addObjects(this.selection.getSelectedObjects('Canvas'));
+        }
 
         // Add the clip to the frame prior to adding objects.
         this.activeFrame.addClip(clip);
-        clip.addObjects(this.selection.getSelectedObjects('Canvas'));
 
         // TODO add to asset library
         this.selection.clear();
