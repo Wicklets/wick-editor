@@ -22,13 +22,5 @@
 .menu-bar-support-button {
   height: 100%;
   padding: 2px; 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  float: right;
-  margin-right: 2em;
-}
-
-.menu-bar-support-button:last-child {
-  margin-right: 6px; 
+  float: left;
 }

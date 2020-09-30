@@ -38,18 +38,19 @@ class MenuBar extends Component {
           action={() => this.props.openModal('EditorInfo')}
           icon="mascotmark"
           />
+
+        <MenuBarSupportButton
+          icon="redheart"
+          text="support us"
+          id="support-us-button"
+          action={() => this.props.openModal('SupportUs')}
+          />
+
         <div className="menu-bar-project-name" role="button" onClick={() => this.props.openModal("SimpleProjectSettings")}>
           {this.props.projectName}
         </div>
 
         <div className="menu-bar-actions-container">
-          
-        <MenuBarSupportButton
-          icon="redheart"
-          text="Support Us"
-          id="support-us-button"
-          action={() => this.props.openModal('SupportUs')}
-          />
 
           <MenuBarButton
             text="new"

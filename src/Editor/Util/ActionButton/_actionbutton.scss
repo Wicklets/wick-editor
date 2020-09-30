@@ -564,19 +564,31 @@ body.hasHover .action-button-flame:hover {
 
   background-color: transparent;
   border: 2px solid $patreon-orange;
-  color: $patreon-text;
+  color: #e0e0e0;
 
-  padding: 0 5px 0 5px;
+  padding: 2px 6px 2px 6px;
+  font-size: 16px;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
 
   cursor: pointer;
 }
 
 .action-button-support img{
-  width: 22px;
+  width: 18px;
   height: auto;
-  padding: 2px auto;
+  order: 1;
 }
 
 .action-button-support span{
+  font-family: 'Nunito Sans';
   padding-left: 5px;
+  order: 2;
+}
+
+.action-button-support:hover {
+  color: white;
 }

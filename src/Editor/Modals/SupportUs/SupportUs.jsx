@@ -39,8 +39,8 @@ class SupportUs extends Component {
   constructor () {
     super();
 
-    this.progressData = {patreonProgress: 280, 
-                        patreonGoal: 3000, 
+    this.progressData = {patreonProgress: 205, 
+                        patreonGoal: 1000, 
                         githubProgress: 1, 
                         githubGoal: 10};
   }
