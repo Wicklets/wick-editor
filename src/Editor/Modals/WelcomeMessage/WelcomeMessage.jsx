@@ -39,10 +39,10 @@ class WelcomeModal extends Component {
       "New Fill Bucket and More!",
     ] // No More than 3
 
-    let t1 = ["Hyun's Dojo", "Guy de Bree", "Dimp"]
-    let t2 = ["Constance Ye"]
-    let t3 = ["Gautaum Bose", "Trevor"]
-    let t4 = ["Golan Levin", "ThisPodcastIsInEnglish", "Daniel Sun", "Benjamin Briand", "Joseph Hocking", "Anonymous"]
+    let t1 = ["Guy de Bree", "Dimp", "Hyun's Dojo"]
+    let t2 = ["Constance Ye", "Anonymous"]
+    let t3 = ["Gautaum Bose", "Trevor", "David Teton-Landis", "Jovanny Rodriguez"]
+    let t4 = ["Golan Levin", "ThisPodcastIsInEnglish", "Daniel Sun", "Benjamin Briand", "Joseph Hocking", "Charisse Hampton", "Jessie Young", "O.K. Keyes", "Anonymous"]
     let t5 = ["Joe", "Karlin Fox", "StepSwitcher", "Kandy Kat", "Pablosaurs910"]
     this.patreonSupporters = t1.concat(t2, t3, t4, t5)
   }

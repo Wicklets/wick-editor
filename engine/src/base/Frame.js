@@ -117,6 +117,11 @@ Wick.Frame = class extends Wick.Tickable {
     }
 
     set sound(soundAsset) {
+        if (!soundAsset) { 
+            this.removeSound();
+            return;
+        }
+
         this._soundAssetUUID = soundAsset.uuid;
     }
 

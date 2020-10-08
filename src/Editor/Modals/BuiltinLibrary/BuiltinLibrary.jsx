@@ -64,7 +64,6 @@ class BuiltinLibrary extends Component {
   importForPreview = (asset, callback) => {
     var path = BuiltinLibrary.ROOT_ASSET_PATH + asset.file;
 
-    console.log(asset, callback, path);
     fetch (path)
     .then((response) => response.blob())
     .then((blob) => {

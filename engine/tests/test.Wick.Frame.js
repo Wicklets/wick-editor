@@ -492,6 +492,16 @@ describe('Wick.Frame', function() {
         });
     });
 
+    describe('#sounds', function () {
+        it('should not crash on null sound', function() {
+            var project = new Wick.Project();
+            var frame1 = project.activeFrame;
+            frame1.sound = null;
+            expect(frame1.sound).to.equal(null);
+        });
+    });
+
+
     describe('#createTween', function () {
         it('should create a blank tween if the frame is empty', function () {
             var project = new Wick.Project();
