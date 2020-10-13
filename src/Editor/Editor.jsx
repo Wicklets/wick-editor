@@ -21,6 +21,7 @@ import React from 'react';
 import ReactGA from 'react-ga';
 
 import './_editor.scss';
+import './styles/default_theme.css';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -50,7 +51,8 @@ import Toolbox from './Panels/Toolbox/Toolbox';
 import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
 import Outliner from './Panels/Outliner/Outliner';
 import OutlinerExpandButton from './Panels/OutlinerExpandButton/OutlinerExpandButton';
-import PopOutCodeEditor from './PopOuts/PopOutCodeEditor/PopOutCodeEditor';
+import WickCodeEditor from './PopOuts/WickCodeEditor/WickCodeEditor';
+// import PopOutCodeEditor from './PopOuts/PopOutCodeEditor/PopOutCodeEditor';
 
 import EditorWrapper from './EditorWrapper';
 
@@ -389,6 +391,8 @@ class Editor extends EditorCore {
         y: window.innerHeight/2 - height/2,
         minWidth: 500,
         minHeight: 300,
+        consoleHeight: 100,
+        consoleOpen: true,
       }
     );
   }
@@ -1157,7 +1161,7 @@ class Editor extends EditorCore {
             </ReflexContainer>
           </div>
           {this.state.codeEditorOpen &&
-            <PopOutCodeEditor
+            <WickCodeEditor
               codeEditorWindowProperties={this.state.codeEditorWindowProperties}
               updateCodeEditorWindowProperties={this.updateCodeEditorWindowProperties}
               scriptInfoInterface={this.scriptInfoInterface}

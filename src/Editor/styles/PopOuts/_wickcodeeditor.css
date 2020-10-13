@@ -1,0 +1,75 @@
+
+
+#wick-code-editor-resizeable {
+    /* Local Variables */
+    --handle-height: 40px;
+    overflow: hidden;
+    display: flex;
+    box-shadow: var(--wick-box-shadow);
+    background-color: transparent;
+    border-radius: var(--border-radius-primary);
+}
+
+.wick-code-editor-body {
+    display: flex;
+    background-color: var(--wick-secondary);
+    color: var(--wick-text-secondary);
+    width: 100%;
+    height: calc(100% - var(--handle-height));
+    flex: 1;
+    flex-direction: row;
+}
+
+.wick-code-editor-drag-handle {
+
+    position: relative;
+    width: 100%;
+    height: var(--handle-height);
+    background-color: var(--wick-primary);
+    color: var(--wick-text-primary); 
+    cursor: move;
+}
+
+.wick-code-editor-icon {
+    position: absolute; 
+    left: 40px;
+    top: 10px;
+    width: 60px;
+    height: 60px;
+    background-color: var(--wick-primary);
+    border: none; 
+    border-radius: 30px;
+    font-family: 'Nunito';
+    font-size: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wick-code-editor-tabs {
+    height: var(--handle-height);
+    background-color: tomato;
+}
+
+.wick-code-editor-reference {
+    width: 140px;
+    background-color: red;
+}
+
+.wick-code-editor-content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+.wick-code-editor-code {
+    background-color:black;
+    height: 100%;
+}
+
+.wick-code-editor-console {
+    background-color: green;
+    height: 100%; 
+}
+
+
