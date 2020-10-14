@@ -75,7 +75,7 @@ class Editor extends EditorCore {
       previewPlaying: false,
       activeModalName: window.localStorage.skipWelcomeMessage ? null : "WelcomeMessage",
       activeModalQueue: [],
-      codeEditorOpen: false,
+      codeEditorOpen: true,
       scriptToEdit: "default",
       showCanvasActions: false,
       showBrushModes: false,

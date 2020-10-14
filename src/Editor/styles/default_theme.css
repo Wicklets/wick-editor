@@ -7,12 +7,26 @@
     --wick-primary: #303030;
     --wick-secondary: #3B3B3B;
     --wick-tertiary: #3F3D3D;
+    --wick-disabled: #666666;
 
 
     /* Text Colors */
     --wick-text-primary: white;
     --wick-text-secondary: #BDBDBD;
     --wick-text-tertiary: #919191;
+    --wick-text-disabled: white;
+    --wick-text-event: black;
+
+    /* Events */
+    --wick-event-mouse: #01C094;
+    --wick-event-keyboard: #E9AA02;
+    --wick-event-timeline: #00A1E0;
+
+    --wick-event-mouse-selected: #29F1A3;
+    --wick-event-keyboard-selected: #FFE243;
+    --wick-event-timeline-selected: #05B8FF;
+
+
 
     /* Shadows */
     --wick-box-shadow: 2px 2px 8px var(--wick-primary); 

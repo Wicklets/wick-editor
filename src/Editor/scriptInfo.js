@@ -1,5 +1,26 @@
 
 class ScriptInfoInterface extends Object {
+    
+    /**
+     * Returns an array of objects that represent all possible scripts that can be added.
+     * @returns {object[]}
+     */
+    get scriptData () {
+        let scriptData = [];
+
+        for (let scriptType of Object.keys(this.scriptsByType)) {
+            for (let scriptName of this.scriptsByType[scriptType]) {
+                scriptData.push({
+                    name: scriptName,
+                    type: scriptType,
+                    description: this.scriptDescriptions[scriptName],
+                });
+            }
+        }
+
+        return scriptData;
+    }
+
     get scriptsByType () {
         return {
             'Mouse': ['mouseenter', 'mouseleave', 'mousehover', 'mousepressed', 'mousedown', 'mousereleased', 'mousedrag', 'mouseclick'],

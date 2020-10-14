@@ -20,10 +20,20 @@
 import React, { useState } from 'react';
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import { Rnd } from 'react-rnd';
+import ActionButton from 'Editor/Util/ActionButton/ActionButton';
+import AddScriptPanel from './AddScriptPanel/AddScriptPanel';
 
+// Import Ace Editor and themes.
+import AceEditor from 'react-ace';
+import 'brace/mode/javascript';
+import 'brace/theme/monokai';
 import 'Editor/styles/PopOuts/_wickcodeeditor.css';
 
+import capitalize from 'Editor/Util/DataFunctions/capitalize';
+
 export default function WickCodeEditor(props) {
+
+  const [addScriptTab, setAddScriptTab] = useState('Mouse');
 
   function onDragHandler (e, d) {
     props.updateCodeEditorWindowProperties({
@@ -39,11 +49,47 @@ export default function WickCodeEditor(props) {
     });
   }
 
+  /**
+   * To run when the console is resized. Should update
+   * the size of the console in the main editor.
+   * @param {object} console 
+   */
   function resizeConsole (console) {
     props.updateCodeEditorWindowProperties({
       consoleHeight: console.domElement.offsetHeight,
     });
   }
+
+
+  /**
+   * Adds a script to the currently selected object.
+   */
+  function addScript (scriptName) {
+    props.script.addScript(scriptName);
+    props.editScript(scriptName);
+    // props.rerenderCodeEditor();
+  }
+
+  /**
+   * To run when the script changes.
+   * @param {script} newScript - New script to change. 
+   */
+  let scriptOnChange = (newScript) => {
+    if (props.script) {
+      props.requestAutosave();
+      props.script.updateScript(props.scriptToEdit, newScript);
+      props.onMinorScriptUpdate(newScript);
+    }
+  }
+
+  // Determine the script to display.
+  let scriptToShow = 'No Script';
+  if (props.script) {
+    scriptToShow = props.script.src;
+  }
+
+  let scriptsByType = props.scriptInfoInterface.scriptsByType;
+  let scriptDescriptions = props.scriptInfoInterface.scriptDescriptions;
 
   return (
     <Rnd
@@ -60,6 +106,12 @@ export default function WickCodeEditor(props) {
       <div className="wick-code-editor-drag-handle">
         <div className="wick-code-editor-icon">{"</>"}</div>
         Code Editor
+
+        <ActionButton 
+          className="we-code-close-button" 
+          color="tool" 
+          icon="cancel-white" 
+          action={props.toggleCodeEditor}/>
       </div>
       <div className="wick-code-editor-body">
         <div className="wick-code-editor-reference">
@@ -67,18 +119,66 @@ export default function WickCodeEditor(props) {
         </div>
         <div className="wick-code-editor-content">
           <div className="wick-code-editor-tabs">
-              Tabs
+            {props.script && props.script.scripts.map(script => {
+              return <button 
+                onClick={() => {
+                  props.editScript(script.name)
+                  props.clearCodeEditorError();
+                }}
+                className="we-code-script-button"
+              >
+                {capitalize(script.name)}
+                </button>
+            })}
+              <button 
+                  onClick={() => {
+                    props.editScript('add')
+                    props.clearCodeEditorError();
+                  }}
+                  className="we-code-script-button"
+                >
+                +
+              </button>
           </div>
           <ReflexContainer>
             <ReflexElement>
               <div className="wick-code-editor-code">
-                Code
+                {
+                  props.scriptToEdit === 'add' && <AddScriptPanel 
+                  availableScripts={props.script && props.script.getAvailableScripts()}
+                  scripts={props.scriptInfoInterface.scriptData.filter(script => script.type === addScriptTab)}
+                  changeTab={(tab) => setAddScriptTab(tab)}
+                  addScript={addScript}
+                  addScriptTab={addScriptTab}
+                  /> 
+                }
+                {
+                  props.scriptToEdit !== 'add' && 
+                  <AceEditor
+                    value={scriptToShow}
+                    mode="javascript"
+                    theme="monokai"
+                    fontSize={16} // TODO: Controllable by User
+                    width="100%"
+                    height="100%"
+                    name="wick-ace-editor"
+                    focus={props.focus}
+                    editorProps={{$blockScrolling: true}}
+                    onChange={scriptOnChange}
+
+                    // onCursorChange={this.props.onCursorChange}
+                    // focus={this.props.focus}
+                    // onLoad={this.onLoad}
+                    // markers={this.mapErrorToMarkers(this.props.error)}
+                  />
+                }
               </div>
             </ReflexElement>
             
             <ReflexSplitter></ReflexSplitter>
             
             <ReflexElement
+              minSize={40}
               size={props.codeEditorWindowProperties.consoleOpen ? props.codeEditorWindowProperties.consoleHeight : 1}
               onStopResize={resizeConsole}>
               <div className="wick-code-editor-console">

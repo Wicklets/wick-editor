@@ -44,7 +44,6 @@ class WickTabCodeEditor extends Component {
     }
 
     this.scriptsByType = this.props.scriptInfoInterface.scriptsByType;
-
     this.scriptDescriptions = this.props.scriptInfoInterface.scriptDescriptions;
 
     this.focusError = null;
