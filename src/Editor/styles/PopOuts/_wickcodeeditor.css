@@ -211,3 +211,22 @@
     justify-content: center;
     margin-bottom: 8px;
 }
+
+.we-code-options-selected {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.we-code-options-selected > .reference-button {
+    margin: 0px;
+
+}
+
+.we-code-options-back {
+    border-radius: var(--border-radius-secondary);
+    background-color: var(--wick-primary);
+    color: white;
+    border: none;
+}

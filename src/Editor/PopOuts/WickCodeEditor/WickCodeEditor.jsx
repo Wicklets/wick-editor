@@ -238,23 +238,59 @@ export default function WickCodeEditor(props) {
  * Interactive code reference
  */
 function CodeReference (props) {
+  const [selected, setSelected] = useState('');
 
   let referenceKeys = Object.keys(props.referenceItems);
+
+  function renderChoices () {
+    return (
+      referenceKeys.map(refKey => {
+        return <button
+          key={"code-reference-button-" + refKey}
+          className={classNames("reference-button", "we-code", refKey)}
+          onClick={() => setSelected(refKey)}
+          >
+            <ToolIcon name={'code' + refKey} className="reference-icon"/>
+            <div className="reference-button-title">{refKey}</div> 
+          </button>
+      })
+    )
+  }
+
+  function renderCodeOptions(referenceKey) {
+    return (
+      <div
+        className="we-code-options"
+      >
+        <div className="we-code-options-selected">
+          <button 
+          className="we-code-options-back"
+          onClick={() => setSelected('')}>{'<-'}</button>
+          <button
+            key={"code-reference-button-" + selected}
+            className={classNames("reference-button", "we-code", selected)}
+          >
+            <ToolIcon name={'code' + selected} className="reference-icon"/>
+            <div className="reference-button-title">{selected}</div> 
+          </button>
+        </div>
+
+      </div>
+    )
+  }
 
   return (
     <div className="we-code-reference">
       <div className="we-code-reference-title">
         Reference
       </div>
-      {referenceKeys.map(refKey => {
-        return <button
-          key={"code-reference-button-" + refKey}
-          className={classNames("reference-button", "we-code", refKey)}
-          >
-            <ToolIcon name={'code' + refKey} className="reference-icon"/>
-            <div className="reference-button-title">{refKey}</div> 
-          </button>
-      })}
+      {
+        selected === '' && renderChoices()
+      }
+
+      {
+        selected !== '' && renderCodeOptions(selected)
+      }
     </div>
   )
 }
