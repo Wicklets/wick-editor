@@ -26,8 +26,6 @@
     --wick-event-keyboard-selected: #FFE243;
     --wick-event-timeline-selected: #05B8FF;
 
-
-
     /* Shadows */
     --wick-box-shadow: 2px 2px 8px var(--wick-primary); 
 }

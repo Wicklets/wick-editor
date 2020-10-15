@@ -1,0 +1,26 @@
+/* Defines how theme colors can be used around editor */
+
+/* Events */
+.we-event.Mouse {
+    background-color: var(--wick-event-mouse);
+}
+
+.we-event.Mouse.selected {
+    background-color: var(--wick-event-mouse-selected);
+}
+
+.we-event.Keyboard {
+    background-color: var(--wick-event-keyboard);
+}
+
+.we-event.Keyboard.selected {
+    background-color: var(--wick-event-keyboard-selected);
+}
+
+.we-event.Timeline {
+    background-color: var(--wick-event-timeline);
+}
+
+.we-event.Timeline.selected {
+    background-color: var(--wick-event-timeline-selected);
+}

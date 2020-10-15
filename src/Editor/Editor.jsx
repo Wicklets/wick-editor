@@ -22,6 +22,7 @@ import ReactGA from 'react-ga';
 
 import './_editor.scss';
 import './styles/default_theme.css';
+import './styles/default_styles.css';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { HTML5Backend } from 'react-dnd-html5-backend'

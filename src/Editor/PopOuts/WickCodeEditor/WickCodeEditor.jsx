@@ -31,6 +31,8 @@ import 'Editor/styles/PopOuts/_wickcodeeditor.css';
 
 import capitalize from 'Editor/Util/DataFunctions/capitalize';
 
+let classNames = require('classnames');
+
 export default function WickCodeEditor(props) {
 
   const [addScriptTab, setAddScriptTab] = useState('Mouse');
@@ -65,6 +67,8 @@ export default function WickCodeEditor(props) {
    * Adds a script to the currently selected object.
    */
   function addScript (scriptName) {
+    if (!props.script) return;
+
     props.script.addScript(scriptName);
     props.editScript(scriptName);
     // props.rerenderCodeEditor();
@@ -74,7 +78,7 @@ export default function WickCodeEditor(props) {
    * To run when the script changes.
    * @param {script} newScript - New script to change. 
    */
-  let scriptOnChange = (newScript) => {
+  function scriptOnChange (newScript) {
     if (props.script) {
       props.requestAutosave();
       props.script.updateScript(props.scriptToEdit, newScript);
@@ -82,14 +86,18 @@ export default function WickCodeEditor(props) {
     }
   }
 
+
+
+
   // Determine the script to display.
   let scriptToShow = 'No Script';
   if (props.script) {
     scriptToShow = props.script.src;
   }
 
-  let scriptsByType = props.scriptInfoInterface.scriptsByType;
-  let scriptDescriptions = props.scriptInfoInterface.scriptDescriptions;
+  
+  // Sort scripts if needed.
+  props.script && props.script.scripts.sort(props.scriptInfoInterface.sortScripts);
 
   return (
     <Rnd
@@ -125,7 +133,10 @@ export default function WickCodeEditor(props) {
                   props.editScript(script.name)
                   props.clearCodeEditorError();
                 }}
-                className="we-code-script-button"
+                className={classNames("we-code-script-button", 
+                "we-event", 
+                props.scriptInfoInterface.getScriptType(script.name),
+                {selected: props.scriptToEdit === script.name})}
               >
                 {capitalize(script.name)}
                 </button>
@@ -135,7 +146,7 @@ export default function WickCodeEditor(props) {
                     props.editScript('add')
                     props.clearCodeEditorError();
                   }}
-                  className="we-code-script-button"
+                  className={classNames("we-code-script-button", "we-code-add")}
                 >
                 +
               </button>

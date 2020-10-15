@@ -32,13 +32,13 @@ class AddScriptPanel extends Component {
 
         <div className="add-script-tabs">
           <button 
-          className={classNames("add-script-tab", "Mouse", {selected: "Mouse" === this.props.addScriptTab})} 
+          className={classNames("add-script-tab", "we-event", "Mouse", {selected: "Mouse" === this.props.addScriptTab})} 
           onClick={() => this.props.changeTab('Mouse')}>Mouse</button>
           <button 
-          className={classNames("add-script-tab", "Keyboard", {selected: "Keyboard" === this.props.addScriptTab})}  
+          className={classNames("add-script-tab", "we-event", "Keyboard", {selected: "Keyboard" === this.props.addScriptTab})}  
           onClick={() => this.props.changeTab('Keyboard')}>Keyboard</button>
           <button 
-          className={classNames("add-script-tab", "Timeline", {selected: "Timeline" === this.props.addScriptTab})}  
+          className={classNames("add-script-tab", "we-event", "Timeline", {selected: "Timeline" === this.props.addScriptTab})}  
           onClick={() => this.props.changeTab('Timeline')}>Timeline</button>
         </div>
 
@@ -47,8 +47,8 @@ class AddScriptPanel extends Component {
             return <button
               className={classNames("add-script-button", script.type)}
               key={'add-script-button-' + i}
-              disabled={this.props.availableScripts.indexOf(script.name) === -1}
-              onClick={() => this.props.addScript(script.name)}
+              disabled={this.props.availableScripts && this.props.availableScripts.indexOf(script.name) === -1}
+              onClick={() => this.props.addScript && this.props.addScript(script.name)}
             >
               <div className="add-script-button-title">{capitalize(script.name)}</div>
               <div className="add-script-button-description"> {script.description}</div>

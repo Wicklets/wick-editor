@@ -148,6 +148,7 @@
 .add-script-tabs {
     margin: 6px;
     border-bottom: 4px solid var(--wick-primary);
+    padding-left: 6px;
 }
 
 .add-script-tab {
@@ -155,28 +156,4 @@
     border: none;
     border-top-left-radius: var(--border-radius-secondary);
     border-top-right-radius: var(--border-radius-secondary);
-}
-
-.add-script-tab.Mouse {
-    background-color: var(--wick-event-mouse);
-}
-
-.add-script-tab.Mouse.selected {
-    background-color: var(--wick-event-mouse-selected);
-}
-
-.add-script-tab.Keyboard {
-    background-color: var(--wick-event-keyboard);
-}
-
-.add-script-tab.Keyboard.selected {
-    background-color: var(--wick-event-keyboard-selected);
-}
-
-.add-script-tab.Timeline {
-    background-color: var(--wick-event-timeline);
-}
-
-.add-script-tab.Timeline.selected {
-    background-color: var(--wick-event-timeline-selected);
 }
