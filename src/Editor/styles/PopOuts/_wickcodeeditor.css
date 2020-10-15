@@ -79,7 +79,7 @@
 }
 
 .wick-code-editor-console {
-    background-color: green;
+    background-color: black;
     height: 100%; 
 }
 
@@ -156,4 +156,21 @@
     border: none;
     border-top-left-radius: var(--border-radius-secondary);
     border-top-right-radius: var(--border-radius-secondary);
+}
+
+.we-code-console-bar {
+    width: 100%;
+    height: 30px;
+    background-color: var(--wick-primary);
+    padding-left: 8px;
+    display: flex;
+    align-items: center;
+    font-family: monospace;
+}
+
+.we-code-clear-console {
+    width: 26px;
+    height: 26px;
+    margin-left: auto;
+    margin-right: 6px;
 }

@@ -17,11 +17,12 @@
  * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import { Rnd } from 'react-rnd';
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import AddScriptPanel from './AddScriptPanel/AddScriptPanel';
+import { Console, Hook, Unhook } from 'console-feed'
 
 // Import Ace Editor and themes.
 import AceEditor from 'react-ace';
@@ -36,6 +37,13 @@ let classNames = require('classnames');
 export default function WickCodeEditor(props) {
 
   const [addScriptTab, setAddScriptTab] = useState('Mouse');
+  const [logs, setLogs] = useState([]);
+
+  // Run once, connect the console to the console object.
+  useEffect(() => {
+    Hook(window.console, log => setLogs(currLogs => [...currLogs, log]), false)
+    return () => Unhook(window.console)
+  }, [])
 
   function onDragHandler (e, d) {
     props.updateCodeEditorWindowProperties({
@@ -87,6 +95,12 @@ export default function WickCodeEditor(props) {
   }
 
 
+  /**
+   * Clears the console in the code editor.
+   */
+  function clearConsole () {
+    setLogs([]);
+  }
 
 
   // Determine the script to display.
@@ -129,6 +143,7 @@ export default function WickCodeEditor(props) {
           <div className="wick-code-editor-tabs">
             {props.script && props.script.scripts.map(script => {
               return <button 
+                key={"script-tab-" + script.name}
                 onClick={() => {
                   props.editScript(script.name)
                   props.clearCodeEditorError();
@@ -193,7 +208,19 @@ export default function WickCodeEditor(props) {
               size={props.codeEditorWindowProperties.consoleOpen ? props.codeEditorWindowProperties.consoleHeight : 1}
               onStopResize={resizeConsole}>
               <div className="wick-code-editor-console">
-                Console
+
+                <div className="we-code-console-bar">
+                  <div className="we-code-console-title">Console</div>
+                  <ActionButton
+                    className="we-code-clear-console"
+                    icon="clear"
+                    action={clearConsole}
+                    tooltip="Clear Console"
+                    tooltipPlace="left"
+                    color='tool' />
+                </div>
+
+                <Console logs={logs} variant="dark" />
               </div>
             </ReflexElement>
           </ReflexContainer>
