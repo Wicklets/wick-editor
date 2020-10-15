@@ -31,6 +31,7 @@ import 'brace/theme/monokai';
 import 'Editor/styles/PopOuts/_wickcodeeditor.css';
 
 import capitalize from 'Editor/Util/DataFunctions/capitalize';
+import ToolIcon from '../../Util/ToolIcon/ToolIcon';
 
 let classNames = require('classnames');
 
@@ -137,22 +138,23 @@ export default function WickCodeEditor(props) {
       </div>
       <div className="wick-code-editor-body">
         <div className="wick-code-editor-reference">
-
+          <CodeReference referenceItems={props.scriptInfoInterface.referenceItems} />
         </div>
         <div className="wick-code-editor-content">
           <div className="wick-code-editor-tabs">
             {props.script && props.script.scripts.map(script => {
               return <button 
-                key={"script-tab-" + script.name}
-                onClick={() => {
-                  props.editScript(script.name)
-                  props.clearCodeEditorError();
-                }}
-                className={classNames("we-code-script-button", 
-                "we-event", 
-                props.scriptInfoInterface.getScriptType(script.name),
-                {selected: props.scriptToEdit === script.name})}
-              >
+                  key={"script-tab-" + script.name}
+                  onClick={() => {
+                    props.editScript(script.name)
+                    props.clearCodeEditorError();
+                  }}
+
+                  className={classNames("we-code-script-button", 
+                  "we-event", 
+                  props.scriptInfoInterface.getScriptType(script.name),
+                  {selected: props.scriptToEdit === script.name})}
+                >
                 {capitalize(script.name)}
                 </button>
             })}
@@ -170,12 +172,13 @@ export default function WickCodeEditor(props) {
             <ReflexElement>
               <div className="wick-code-editor-code">
                 {
-                  props.scriptToEdit === 'add' && <AddScriptPanel 
-                  availableScripts={props.script && props.script.getAvailableScripts()}
-                  scripts={props.scriptInfoInterface.scriptData.filter(script => script.type === addScriptTab)}
-                  changeTab={(tab) => setAddScriptTab(tab)}
-                  addScript={addScript}
-                  addScriptTab={addScriptTab}
+                  props.scriptToEdit === 'add' && 
+                  <AddScriptPanel 
+                    availableScripts={props.script && props.script.getAvailableScripts()}
+                    scripts={props.scriptInfoInterface.scriptData.filter(script => script.type === addScriptTab)}
+                    changeTab={(tab) => setAddScriptTab(tab)}
+                    addScript={addScript}
+                    addScriptTab={addScriptTab}
                   /> 
                 }
                 {
@@ -228,5 +231,30 @@ export default function WickCodeEditor(props) {
       </div>
 
     </Rnd>
+  )
+}
+
+/**
+ * Interactive code reference
+ */
+function CodeReference (props) {
+
+  let referenceKeys = Object.keys(props.referenceItems);
+
+  return (
+    <div className="we-code-reference">
+      <div className="we-code-reference-title">
+        Reference
+      </div>
+      {referenceKeys.map(refKey => {
+        return <button
+          key={"code-reference-button-" + refKey}
+          className={classNames("reference-button", "we-code", refKey)}
+          >
+            <ToolIcon name={'code' + refKey} className="reference-icon"/>
+            <div className="reference-button-title">{refKey}</div> 
+          </button>
+      })}
+    </div>
   )
 }

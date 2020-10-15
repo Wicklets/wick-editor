@@ -26,6 +26,29 @@
     --wick-event-keyboard-selected: #FFE243;
     --wick-event-timeline-selected: #05B8FF;
 
+    /* Theme Colors */
+    --wick-red: #FF7878;
+    --wick-red-light: #ff5c5c;
+    
+    --wick-green: #09F197;
+    --wick-green-light: #19ffa7;
+
+    --wick-yellow: #F0CC00;
+    --wick-yellow-light: #ffde20;
+
+    --wick-light-blue: #92D8FF;
+    --wick-light-blue-light: #74ceff;
+
+    --wick-purple: #C987FA;
+    --wick-purple-light: #d49bff;
+
+    --wick-teal: #26DED2;
+    --wick-teal-light: #43fff2;
+
+    --wick-pink: #FF66F0;
+    --wick-pink-light: #ff80f2;
+
+
     /* Shadows */
     --wick-box-shadow: 2px 2px 8px var(--wick-primary); 
 }

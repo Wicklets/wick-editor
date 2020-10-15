@@ -62,7 +62,7 @@
 
 .wick-code-editor-reference {
     min-width: var(--reference-width);
-    background-color: red;
+    background-color: var(--wick-secondary);
 }
 
 .wick-code-editor-content {
@@ -148,7 +148,6 @@
 .add-script-tabs {
     margin: 6px;
     border-bottom: 4px solid var(--wick-primary);
-    padding-left: 6px;
 }
 
 .add-script-tab {
@@ -173,4 +172,42 @@
     height: 26px;
     margin-left: auto;
     margin-right: 6px;
+}
+
+.we-code-reference {
+    display: flex;
+    flex-direction: column;
+    margin-top: 40px;
+}
+
+.reference-button {
+    border-radius: var(--border-radius-secondary);
+    border: none;
+    width: 70%;
+    margin-bottom: 8px;
+    margin-left: auto;
+    margin-right: auto;
+    transition: .3s all;
+    display: flex;
+    align-items: center;
+}
+
+.reference-button-title {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+}
+
+.reference-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.we-code-reference-title {
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 8px;
 }
