@@ -242,6 +242,8 @@ function CodeReference (props) {
 
   let referenceKeys = Object.keys(props.referenceItems);
 
+  let codeOptions = props.referenceItems[selected];
+
   function renderChoices () {
     return (
       referenceKeys.map(refKey => {
@@ -262,17 +264,14 @@ function CodeReference (props) {
       <div
         className="we-code-options"
       >
-        <div className="we-code-options-selected">
-          <button 
-          className="we-code-options-back"
-          onClick={() => setSelected('')}>{'<-'}</button>
-          <button
-            key={"code-reference-button-" + selected}
-            className={classNames("reference-button", "we-code", selected)}
-          >
-            <ToolIcon name={'code' + selected} className="reference-icon"/>
-            <div className="reference-button-title">{selected}</div> 
-          </button>
+        <div className="we-code-options-body">
+          {codeOptions.map(option => {
+            return <button
+              key={"code-option-button-" + option.name}
+              className="code-option-button">
+              {option.name}
+            </button>
+          })}
         </div>
 
       </div>
@@ -282,15 +281,34 @@ function CodeReference (props) {
   return (
     <div className="we-code-reference">
       <div className="we-code-reference-title">
-        Reference
-      </div>
-      {
-        selected === '' && renderChoices()
-      }
+        <div className="we-code-reference-title-text">Reference</div>
 
-      {
-        selected !== '' && renderCodeOptions(selected)
-      }
+        {
+          selected !== '' && 
+          <div className="we-code-options-selected">
+            <button 
+            className="we-code-options-back"
+            onClick={() => setSelected('')}>{'<-'}</button>
+            <button
+              key={"code-reference-button-" + selected}
+              className={classNames("reference-button", "we-code", selected)}
+            >
+              <ToolIcon name={'code' + selected} className="reference-icon"/>
+              <div className="reference-button-title">{selected}</div> 
+            </button>
+          </div>
+        }
+      </div>
+      <div className="we-code-reference-body">
+        {
+          selected === '' && renderChoices()
+        }
+
+        {
+          selected !== '' && renderCodeOptions(selected)
+        }
+      </div>
+
     </div>
   )
 }

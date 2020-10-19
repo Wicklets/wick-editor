@@ -178,6 +178,7 @@
     display: flex;
     flex-direction: column;
     margin-top: 40px;
+    height: calc(100% - 40px);
 }
 
 .reference-button {
@@ -207,9 +208,21 @@
     color: white;
     font-size: 14px;
     font-weight: bold;
-    display: flex;
     justify-content: center;
     margin-bottom: 8px;
+    display: flex;
+    flex-direction: column;
+
+}
+
+.we-code-reference-title-text {
+    display: flex;
+    justify-content: center;
+}
+
+.we-code-options {
+    display: flex;
+    flex-direction: column;
 }
 
 .we-code-options-selected {
@@ -229,4 +242,23 @@
     background-color: var(--wick-primary);
     color: white;
     border: none;
+}
+
+.we-code-options-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.code-option-button {
+    display: inline-block;
+    border: none;
+    background-color: var(--wick-tertiary);
+    color: white;
+    margin: 4px;
+    border-radius: var(--border-radius-secondary);
+}
+
+.we-code-reference-body {
+    overflow-y: scroll;
 }
