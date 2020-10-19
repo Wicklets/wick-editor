@@ -394,6 +394,7 @@ class Editor extends EditorCore {
         minHeight: 300,
         consoleHeight: 100,
         consoleOpen: true,
+        fontSize: 16,
       }
     );
   }

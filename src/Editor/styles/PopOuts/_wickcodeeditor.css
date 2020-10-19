@@ -167,10 +167,14 @@
     font-family: monospace;
 }
 
-.we-code-clear-console {
+.we-code-console-options-container {
+    margin-left: auto;
+    display: flex;
+}
+
+.we-code-console-option {
     width: 26px;
     height: 26px;
-    margin-left: auto;
     margin-right: 6px;
 }
 
@@ -261,4 +265,8 @@
 
 .we-code-reference-body {
     overflow-y: scroll;
+}
+
+.code-editor-option-input {
+    width: 100%;
 }

@@ -19,6 +19,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
+import WickInput from 'Editor/Util/WickInput/WickInput';
 import { Rnd } from 'react-rnd';
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import AddScriptPanel from './AddScriptPanel/AddScriptPanel';
@@ -38,6 +39,9 @@ let classNames = require('classnames');
 export default function WickCodeEditor(props) {
 
   const [addScriptTab, setAddScriptTab] = useState('Mouse');
+  const [consoleType, setConsoleType] = useState('console');
+  const [aceEditor, setAceEditor] = useState(null);
+
   const [logs, setLogs] = useState([]);
 
   // Run once, connect the console to the console object.
@@ -46,14 +50,14 @@ export default function WickCodeEditor(props) {
     return () => Unhook(window.console)
   }, [])
 
-  function onDragHandler (e, d) {
+  function onDragHandler(e, d) {
     props.updateCodeEditorWindowProperties({
       x: d.x,
       y: d.y,
     });
   }
 
-  function onResizeHandler (e, dir, ref, delta, position) {
+  function onResizeHandler(e, dir, ref, delta, position) {
     props.updateCodeEditorWindowProperties({
       width: ref.style.width,
       height: ref.style.height,
@@ -65,7 +69,7 @@ export default function WickCodeEditor(props) {
    * the size of the console in the main editor.
    * @param {object} console 
    */
-  function resizeConsole (console) {
+  function resizeConsole(console) {
     props.updateCodeEditorWindowProperties({
       consoleHeight: console.domElement.offsetHeight,
     });
@@ -75,7 +79,7 @@ export default function WickCodeEditor(props) {
   /**
    * Adds a script to the currently selected object.
    */
-  function addScript (scriptName) {
+  function addScript(scriptName) {
     if (!props.script) return;
 
     props.script.addScript(scriptName);
@@ -87,7 +91,7 @@ export default function WickCodeEditor(props) {
    * To run when the script changes.
    * @param {script} newScript - New script to change. 
    */
-  function scriptOnChange (newScript) {
+  function scriptOnChange(newScript) {
     if (props.script) {
       props.requestAutosave();
       props.script.updateScript(props.scriptToEdit, newScript);
@@ -99,20 +103,86 @@ export default function WickCodeEditor(props) {
   /**
    * Clears the console in the code editor.
    */
-  function clearConsole () {
+  function clearConsole() {
     setLogs([]);
   }
 
 
   // Determine the script to display.
-  let scriptToShow = 'No Script';
+  let scriptToShow = 'No Scriptable Object Selected';
   if (props.script) {
     scriptToShow = props.script.src;
   }
 
-  
+
   // Sort scripts if needed.
   props.script && props.script.scripts.sort(props.scriptInfoInterface.sortScripts);
+
+  /**
+   * Adds code to the currently accessed code tab at the current cursor position.
+   * @param {string} code to add to tab.
+   */
+  function addCodeToTab(code) {
+    if (aceEditor && props.scriptToEdit !== "add") {
+      aceEditor.session.insert(aceEditor.getCursorPosition(), code);
+    }
+  }
+
+  /**
+   * Map error from editor to markers for Ace Editor
+   * @param {object} error - Object representing error from editor. Should include lineNumber.
+   */
+  function mapErrorToMarkers(error) {
+    if (!error) {
+      return [];
+    }
+
+    let marker = {};
+    marker.startRow = error.lineNumber - 1;
+    marker.endRow = error.lineNumber - 1;
+    marker.startCol = 0;
+    marker.endCol = 1000; // Set length to an arbitrary amount that should encompass the whole line.
+    marker.className = 'error-marker';
+    marker.type = 'background';
+    return [marker];
+  }
+
+  /**
+   * Sets code editor font size. 
+   * @param {*} size 
+   */
+  function setCodeEditorFontSize(size) {
+    props.updateCodeEditorWindowProperties({
+      fontSize: size,
+    })
+  }
+
+  /**
+   * Renders all code editor options.
+   */
+  function renderCodeEditorOptions() {
+    return <div className="we-code-options-panel">
+
+      <table>
+        <tbody>
+          <tr>
+            <th>Option</th>
+            <th></th>
+          </tr>
+          <tr>
+            <td>Font Size</td>
+            <td> <WickInput
+              className="code-editor-option-input"
+              id="code-editor-font"
+              type="numeric"
+              value={props.codeEditorWindowProperties.fontSize}
+              onChange={(val) => { setCodeEditorFontSize(val) }}
+            /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  }
 
   return (
     <Rnd
@@ -130,82 +200,83 @@ export default function WickCodeEditor(props) {
         <div className="wick-code-editor-icon">{"</>"}</div>
         Code Editor
 
-        <ActionButton 
-          className="we-code-close-button" 
-          color="tool" 
-          icon="cancel-white" 
-          action={props.toggleCodeEditor}/>
+        <ActionButton
+          className="we-code-close-button"
+          color="tool"
+          icon="cancel-white"
+          action={props.toggleCodeEditor} />
       </div>
       <div className="wick-code-editor-body">
         <div className="wick-code-editor-reference">
-          <CodeReference referenceItems={props.scriptInfoInterface.referenceItems} />
+          <CodeReference
+            referenceItems={props.scriptInfoInterface.referenceItems}
+            addCodeToTab={addCodeToTab} />
         </div>
         <div className="wick-code-editor-content">
           <div className="wick-code-editor-tabs">
             {props.script && props.script.scripts.map(script => {
-              return <button 
-                  key={"script-tab-" + script.name}
-                  onClick={() => {
-                    props.editScript(script.name)
-                    props.clearCodeEditorError();
-                  }}
+              return <button
+                key={"script-tab-" + script.name}
+                onClick={() => {
+                  props.editScript(script.name)
+                  props.clearCodeEditorError();
+                }}
 
-                  className={classNames("we-code-script-button", 
-                  "we-event", 
+                className={classNames("we-code-script-button",
+                  "we-event",
                   props.scriptInfoInterface.getScriptType(script.name),
-                  {selected: props.scriptToEdit === script.name})}
-                >
+                  { selected: props.scriptToEdit === script.name })}
+              >
                 {capitalize(script.name)}
-                </button>
+              </button>
             })}
-              <button 
-                  onClick={() => {
-                    props.editScript('add')
-                    props.clearCodeEditorError();
-                  }}
-                  className={classNames("we-code-script-button", "we-code-add")}
-                >
-                +
+            <button
+              onClick={() => {
+                props.editScript('add')
+                props.clearCodeEditorError();
+              }}
+              className={classNames("we-code-script-button", "we-code-add")}
+            >
+              +
               </button>
           </div>
           <ReflexContainer>
             <ReflexElement>
               <div className="wick-code-editor-code">
                 {
-                  props.scriptToEdit === 'add' && 
-                  <AddScriptPanel 
+                  props.scriptToEdit === 'add' &&
+                  <AddScriptPanel
                     availableScripts={props.script && props.script.getAvailableScripts()}
                     scripts={props.scriptInfoInterface.scriptData.filter(script => script.type === addScriptTab)}
                     changeTab={(tab) => setAddScriptTab(tab)}
                     addScript={addScript}
                     addScriptTab={addScriptTab}
-                  /> 
+                  />
                 }
                 {
-                  props.scriptToEdit !== 'add' && 
+                  props.scriptToEdit !== 'add' &&
                   <AceEditor
                     value={scriptToShow}
                     mode="javascript"
                     theme="monokai"
-                    fontSize={16} // TODO: Controllable by User
+                    fontSize={props.codeEditorWindowProperties.fontSize} // TODO: Controllable by User
                     width="100%"
                     height="100%"
                     name="wick-ace-editor"
                     focus={props.focus}
-                    editorProps={{$blockScrolling: true}}
+                    editorProps={{ $blockScrolling: true }}
                     onChange={scriptOnChange}
-
-                    // onCursorChange={this.props.onCursorChange}
-                    // focus={this.props.focus}
-                    // onLoad={this.onLoad}
-                    // markers={this.mapErrorToMarkers(this.props.error)}
+                    onLoad={(editor) => setAceEditor(editor)}
+                    annotations={false}
+                    markers={mapErrorToMarkers(props.error)}
+                    readOnly={!props.script}
                   />
                 }
               </div>
             </ReflexElement>
-            
+
             <ReflexSplitter></ReflexSplitter>
-            
+
             <ReflexElement
               minSize={40}
               size={props.codeEditorWindowProperties.consoleOpen ? props.codeEditorWindowProperties.consoleHeight : 1}
@@ -213,17 +284,49 @@ export default function WickCodeEditor(props) {
               <div className="wick-code-editor-console">
 
                 <div className="we-code-console-bar">
-                  <div className="we-code-console-title">Console</div>
-                  <ActionButton
-                    className="we-code-clear-console"
-                    icon="clear"
-                    action={clearConsole}
-                    tooltip="Clear Console"
-                    tooltipPlace="left"
-                    color='tool' />
+                  <div className="we-code-console-title">{consoleType === 'options' ? 'Editor Options' : 'Console'}</div>
+                  <div className="we-code-console-options-container">
+                    {
+                      consoleType === 'options' &&
+                      <ActionButton
+                        className="we-code-console-option"
+                        id="console-console-button"
+                        icon="codeConsole"
+                        action={() => { setConsoleType('console') }}
+                        tooltip="Show Console"
+                        tooltipPlace="left"
+                        color='tool' />
+                    }
+
+                    {
+                      consoleType === 'console' &&
+                      <ActionButton
+                        className="we-code-console-option"
+                        id="console-option-button"
+                        icon="gear"
+                        action={() => { setConsoleType('options') }}
+                        tooltip="Show Options"
+                        tooltipPlace="left"
+                        color='tool' />
+                    }
+
+                    {
+                      consoleType === 'console' &&
+                      <ActionButton
+                        className="we-code-console-option we-code-clear-console"
+                        id="clear-console-button"
+                        icon="clear"
+                        action={clearConsole}
+                        tooltip="Clear Console"
+                        tooltipPlace="left"
+                        color='tool' />
+                    }
+                  </div>
+
                 </div>
 
-                <Console logs={logs} variant="dark" />
+                {consoleType === 'console' && <Console logs={logs} variant="dark" />}
+                {consoleType === 'options' && renderCodeEditorOptions()}
               </div>
             </ReflexElement>
           </ReflexContainer>
@@ -237,24 +340,24 @@ export default function WickCodeEditor(props) {
 /**
  * Interactive code reference
  */
-function CodeReference (props) {
+function CodeReference(props) {
   const [selected, setSelected] = useState('');
 
   let referenceKeys = Object.keys(props.referenceItems);
 
   let codeOptions = props.referenceItems[selected];
 
-  function renderChoices () {
+  function renderChoices() {
     return (
       referenceKeys.map(refKey => {
         return <button
           key={"code-reference-button-" + refKey}
           className={classNames("reference-button", "we-code", refKey)}
           onClick={() => setSelected(refKey)}
-          >
-            <ToolIcon name={'code' + refKey} className="reference-icon"/>
-            <div className="reference-button-title">{refKey}</div> 
-          </button>
+        >
+          <ToolIcon name={'code' + refKey} className="reference-icon" />
+          <div className="reference-button-title">{refKey}</div>
+        </button>
       })
     )
   }
@@ -267,6 +370,7 @@ function CodeReference (props) {
         <div className="we-code-options-body">
           {codeOptions.map(option => {
             return <button
+              onClick={() => { props.addCodeToTab(option.snippet) }}
               key={"code-option-button-" + option.name}
               className="code-option-button">
               {option.name}
@@ -284,21 +388,22 @@ function CodeReference (props) {
         <div className="we-code-reference-title-text">Reference</div>
 
         {
-          selected !== '' && 
+          selected !== '' &&
           <div className="we-code-options-selected">
-            <button 
-            className="we-code-options-back"
-            onClick={() => setSelected('')}>{'<-'}</button>
+            <button
+              className="we-code-options-back"
+              onClick={() => setSelected('')}>{'<-'}</button>
             <button
               key={"code-reference-button-" + selected}
               className={classNames("reference-button", "we-code", selected)}
             >
-              <ToolIcon name={'code' + selected} className="reference-icon"/>
-              <div className="reference-button-title">{selected}</div> 
+              <ToolIcon name={'code' + selected} className="reference-icon" />
+              <div className="reference-button-title">{selected}</div>
             </button>
           </div>
         }
       </div>
+
       <div className="we-code-reference-body">
         {
           selected === '' && renderChoices()

@@ -172,6 +172,7 @@ import iconCodeProject from 'resources/code-icons/project.svg';
 import iconCodeRandom from 'resources/code-icons/random.svg';
 import iconCodeSound from 'resources/code-icons/sound.svg';
 import iconCodeTimeline from 'resources/code-icons/timeline.svg';
+import iconCodeConsole from 'resources/code-icons/console.svg';
 
 var classNames = require('classnames');
 
@@ -311,6 +312,7 @@ class ToolIcon extends Component {
       "codeProject": iconCodeProject,
       "codeSound": iconCodeSound,
       "codeTimeline": iconCodeTimeline,
+      "codeConsole": iconCodeConsole,
     }
   }
 

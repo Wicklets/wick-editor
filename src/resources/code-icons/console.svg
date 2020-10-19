@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 225 225" width="225" height="225">
+	<style>
+		tspan { white-space:pre }
+		.txt0 { font-size: 175px;fill: #ffffff;font-weight: 400;font-family: "Nunito-Regular", "Nunito" } 
+	</style>
+	<text id="&gt;_ " style="transform: matrix(1,0,0,1,11,153)" >
+		<tspan x="0" y="0" class="txt0">&gt;_</tspan>
+	</text>
+</svg>
