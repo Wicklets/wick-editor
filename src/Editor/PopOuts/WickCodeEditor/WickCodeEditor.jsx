@@ -30,6 +30,7 @@ import AceEditor from 'react-ace';
 import 'brace/mode/javascript';
 
 import 'brace/theme/monokai';
+import 'brace/theme/cobalt';
 import 'brace/theme/dracula';
 import 'brace/theme/eclipse';
 import 'brace/theme/github';
@@ -275,7 +276,7 @@ export default function WickCodeEditor(props) {
                 {capitalize(script.name)}
               </button>
             })}
-            <button
+            {props.script && <button
               onClick={() => {
                 props.editScript('add')
                 props.clearCodeEditorError();
@@ -283,7 +284,7 @@ export default function WickCodeEditor(props) {
               className={classNames("we-code-script-button", "we-code-add")}
             >
               +
-              </button>
+            </button> }
           </div>
           <ReflexContainer>
             <ReflexElement>
@@ -442,7 +443,7 @@ function CodeReference(props) {
           <div className="we-code-options-selected">
             <button
               className="we-code-options-back"
-              onClick={() => setSelected('')}>{'<-'}</button>
+              onClick={() => setSelected('')}><ToolIcon name="codeBack" /></button>
             <button
               key={"code-reference-button-" + selected}
               className={classNames("reference-button", "we-code", selected)}

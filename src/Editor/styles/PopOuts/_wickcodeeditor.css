@@ -60,6 +60,8 @@
 .wick-code-editor-reference {
     min-width: var(--reference-width);
     background-color: var(--wick-secondary);
+    margin-left: 4px;
+    margin-right: 4px;
 }
 
 .wick-code-editor-content {
@@ -239,10 +241,13 @@
 }
 
 .we-code-options-back {
+    width: 28px;
+    height: 28px;
     border-radius: var(--border-radius-secondary);
     background-color: var(--wick-primary);
     color: white;
     border: none;
+    padding: 6px;
 }
 
 .we-code-options-body {
