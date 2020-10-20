@@ -244,8 +244,9 @@ export default function WickCodeEditor(props) {
 
       <div className="wick-code-editor-drag-handle">
         <div className="wick-code-editor-icon">{"</>"}</div>
-        {`Code Editor | editing`}
-
+          <div className="we-code-editor-title">
+            Code Editor | <div className="we-code-editor-title-selected">{`editing ${props.selectionType}`}</div>
+          </div>
         <ActionButton
           className="we-code-close-button"
           color="tool"
@@ -422,7 +423,7 @@ function CodeReference(props) {
                   id={"code-reference-button-" + option.name}
                   action={() => { props.addCodeToTab(option.snippet) }}
                   tooltip={option.description}
-                  tooltipPlace="left"
+                  tooltipPlace="top"
                   color='reference'
                   text={option.name} />
             </div>

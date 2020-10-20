@@ -195,12 +195,14 @@
     transition: .3s all;
     display: flex;
     align-items: center;
+    height: 28px;
 }
 
 .reference-button-title {
     display: flex;
     flex: 1;
     justify-content: center;
+    margin-left: 4px;
 }
 
 .reference-icon {
@@ -280,9 +282,18 @@
     min-width: 50px;
 }
 
+.we-code-editor-title {
+    color: white;
+    display: flex;
+    flex-direction: row;
+}
+
+.we-code-editor-title-selected {
+    color: var(--wick-text-secondary);
+    margin-left: 4px;
+}
+
 /* Theme Overrides */
-
-
 .theme-monokai > .ace_gutter {
     background: #292929 !important;
     color: #FFFFFF !important;
