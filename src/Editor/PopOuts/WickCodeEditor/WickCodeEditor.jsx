@@ -152,7 +152,7 @@ export default function WickCodeEditor(props) {
    * @param {string} code to add to tab.
    */
   function addCodeToTab(code) {
-    if (aceEditor && props.scriptToEdit !== "add") {
+    if (aceEditor && props.script && props.scriptToEdit !== "add") {
       aceEditor.session.insert(aceEditor.getCursorPosition(), code);
     }
   }

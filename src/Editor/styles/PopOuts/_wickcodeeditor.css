@@ -4,8 +4,6 @@
     --reference-width: 140px;
     display: flex;
     box-shadow: var(--wick-box-shadow);
-    background-color: transparent;
-    border-radius: var(--border-radius-primary);
 }
 
 .wick-code-editor-body {
@@ -30,6 +28,8 @@
     flex-direction: row;
     align-items: center;
     padding-left: var(--reference-width);
+    border-top-right-radius: var(--border-radius-primary);
+    border-top-left-radius: var(--border-radius-primary);
 }
 
 .wick-code-editor-icon {
