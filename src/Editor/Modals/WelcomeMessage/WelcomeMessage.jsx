@@ -34,13 +34,13 @@ class WelcomeModal extends Component {
     super();
     this.forumPost = "https://forum.wickeditor.com/t/help-needed-wick-editor-version-1-18-new-fill-bucket-outliner-tool-mobile-improvements/3314";
     this.updates = [
-      "New Outliner Tool!",
-      "Accessibility Updates!",
-      "New Fill Bucket and More!",
+      "New Code Editor!",
+      "New Hit Test Options",
+      "And Much More!",
     ] // No More than 3
 
     let t1 = ["Guy de Bree", "Dimp", "Hyun's Dojo"]
-    let t2 = ["Constance Ye", "Anonymous"]
+    let t2 = ["Constance Ye", "Dan Dogget", "Anonymous"]
     let t3 = ["Gautaum Bose", "Trevor", "David Teton-Landis", "Jovanny Rodriguez"]
     let t4 = ["Golan Levin", "ThisPodcastIsInEnglish", "Daniel Sun", "Benjamin Briand", "Joseph Hocking", "Charisse Hampton", "Jessie Young", "O.K. Keyes", "Anonymous"]
     let t5 = ["Joe", "Karlin Fox", "StepSwitcher", "Kandy Kat", "Pablosaurs910"]
