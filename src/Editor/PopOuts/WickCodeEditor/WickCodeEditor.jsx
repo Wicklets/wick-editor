@@ -17,7 +17,7 @@
  * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import WickInput from 'Editor/Util/WickInput/WickInput';
 import { Rnd } from 'react-rnd';
@@ -28,11 +28,38 @@ import { Console, Hook, Unhook } from 'console-feed'
 // Import Ace Editor and themes.
 import AceEditor from 'react-ace';
 import 'brace/mode/javascript';
+
 import 'brace/theme/monokai';
+import 'brace/theme/dracula';
+import 'brace/theme/eclipse';
+import 'brace/theme/github';
+
 import 'Editor/styles/PopOuts/_wickcodeeditor.css';
 
 import capitalize from 'Editor/Util/DataFunctions/capitalize';
 import ToolIcon from '../../Util/ToolIcon/ToolIcon';
+
+const editorThemes = [
+  {
+    value: 'monokai',
+    label: 'Monokai'
+  }, 
+  {
+    value: 'cobalt',
+    label: 'Cobalt'
+  },
+  {
+    value: 'dracula',
+    label: 'Dracula'
+  },
+  {
+    value: 'eclipse',
+    label: 'Eclipse'
+  },
+  {
+    value: 'github',
+    label: 'Github',
+  }]
 
 let classNames = require('classnames');
 
@@ -41,8 +68,9 @@ export default function WickCodeEditor(props) {
   const [addScriptTab, setAddScriptTab] = useState('Mouse');
   const [consoleType, setConsoleType] = useState('console');
   const [aceEditor, setAceEditor] = useState(null);
-
   const [logs, setLogs] = useState([]);
+
+  const editorThemeSelectRef = useRef();
 
   // Run once, connect the console to the console object.
   useEffect(() => {
@@ -179,6 +207,23 @@ export default function WickCodeEditor(props) {
               onChange={(val) => { setCodeEditorFontSize(val) }}
             /></td>
           </tr>
+          <tr>
+            <td>Editor Style</td>
+            <td> 
+              <select 
+              selected={props.codeEditorWindowProperties.theme}
+              ref={editorThemeSelectRef}
+              onChange={(e) => {
+                props.updateCodeEditorWindowProperties({theme: editorThemeSelectRef.current.value})}}>
+                {editorThemes.map(theme => {
+                  return <option 
+                  value={theme.value}
+                  key={'code-theme-' + theme.value}>{theme.label}</option>
+                })}
+
+              </select>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -242,7 +287,7 @@ export default function WickCodeEditor(props) {
           </div>
           <ReflexContainer>
             <ReflexElement>
-              <div className="wick-code-editor-code">
+              <div className={classNames("wick-code-editor-code", 'theme' + props.codeEditorWindowProperties.theme)}>
                 {
                   props.scriptToEdit === 'add' &&
                   <AddScriptPanel
@@ -258,7 +303,7 @@ export default function WickCodeEditor(props) {
                   <AceEditor
                     value={scriptToShow}
                     mode="javascript"
-                    theme="monokai"
+                    theme={props.codeEditorWindowProperties.theme}
                     fontSize={props.codeEditorWindowProperties.fontSize} // TODO: Controllable by User
                     width="100%"
                     height="100%"
@@ -267,7 +312,6 @@ export default function WickCodeEditor(props) {
                     editorProps={{ $blockScrolling: true }}
                     onChange={scriptOnChange}
                     onLoad={(editor) => setAceEditor(editor)}
-                    annotations={false}
                     markers={mapErrorToMarkers(props.error)}
                     readOnly={!props.script}
                   />
@@ -368,14 +412,20 @@ function CodeReference(props) {
         className="we-code-options"
       >
         <div className="we-code-options-body">
-          {codeOptions.map(option => {
-            return <button
-              onClick={() => { props.addCodeToTab(option.snippet) }}
-              key={"code-option-button-" + option.name}
-              className="code-option-button">
-              {option.name}
-            </button>
-          })}
+          {/* Interactive Reference Buttons */}
+          {codeOptions.map(option => 
+            <div
+            key={"code-option-button-" + option.name}
+            className="code-option-button">
+              <ActionButton
+                  id={"code-reference-button-" + option.name}
+                  action={() => { props.addCodeToTab(option.snippet) }}
+                  tooltip={option.description}
+                  tooltipPlace="left"
+                  color='reference'
+                  text={option.name} />
+            </div>
+          )}
         </div>
 
       </div>

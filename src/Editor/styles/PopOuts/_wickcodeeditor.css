@@ -1,10 +1,7 @@
-/* Needed for code mirror editor */
-
 #wick-code-editor-resizeable {
     /* Local Variables */
     --handle-height: 40px;
     --reference-width: 140px;
-    overflow: hidden;
     display: flex;
     box-shadow: var(--wick-box-shadow);
     background-color: transparent;
@@ -257,10 +254,9 @@
 .code-option-button {
     display: inline-block;
     border: none;
-    background-color: var(--wick-tertiary);
     color: white;
     margin: 4px;
-    border-radius: var(--border-radius-secondary);
+    margin-right: auto;
 }
 
 .we-code-reference-body {
@@ -269,4 +265,35 @@
 
 .code-editor-option-input {
     width: 100%;
+}
+
+.action-button-reference {
+    padding-left: 4px;
+    padding-right: 4px;
+    border-radius: var(--border-radius-secondary);
+    min-width: 50px;
+}
+
+/* Theme Overrides */
+
+
+.theme-monokai > .ace_gutter {
+    background: #292929 !important;
+    color: #FFFFFF !important;
+  }
+  
+.theme-monokai > .ace_scroller {
+background-color: #202020;
+}
+
+.theme-monokai > .ace_constant.ace_numeric {
+color: #CAADFF !important;
+}
+
+.theme-monokai > .ace_comment {
+color: #ABABAB !important;
+}
+
+.theme-monokai > .ace_keyword {
+color: #FF80B9 !important;
 }
