@@ -175,6 +175,9 @@ import iconCodeTimeline from 'resources/code-icons/timeline.svg';
 import iconCodeConsole from 'resources/code-icons/console.svg';
 import iconCodeBack from 'resources/code-icons/back.svg';
 
+// Support Us
+import iconRedHeart from 'resources/support-us-icons/red-heart.svg';
+
 var classNames = require('classnames');
 
 class ToolIcon extends Component {
@@ -315,6 +318,7 @@ class ToolIcon extends Component {
       "codeTimeline": iconCodeTimeline,
       "codeConsole": iconCodeConsole,
       "codeBack": iconCodeBack,
+      "redheart": iconRedHeart,
     }
   }
 

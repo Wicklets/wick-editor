@@ -1,0 +1,232 @@
+/*
+ * Copyright 2020 WICKLETS LLC
+ *
+ * This file is part of Wick Editor.
+ *
+ * Wick Editor is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Editor is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+@import 'Editor/_wickbrand.scss';
+
+.support-modal-x-symbol {
+  text-align: center;
+  vertical-align: center;
+  margin-left: 4px;
+  margin-right: 4px;
+  color: white;
+}
+ 
+.support-modal-body {
+  width: 568px;
+  min-width: 240px;  
+  // height: 400px;
+  height: auto;
+  padding: 20px; 
+  transition: height .5s, width .5s;
+  transition-timing-function: ease-in-out;
+  color: white;
+  font-family: 'Nunito Sans';
+}
+
+#support-modal-interior-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%; 
+  height: 100%;
+  // justify-content: center;
+  // align-items: center;
+}
+ 
+#support-modal-title{
+  color: $editor-modal-text-gray;
+  font-weight: bold; 
+  text-align: left;
+  width: 100%; 
+  margin-bottom: 1em;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+#support-modal-title-img {
+  width: 42px;
+  height: auto;
+  margin-right: 10px;
+}
+
+#support-modal-title-text {
+  font-size: 24px;
+  margin-bottom: 0;
+}
+
+#support-modal-benefit-text {
+  display: inline-block;
+  font-size: 18px;
+}
+
+.support-modal-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.support-modal-col {
+  background-color: #525252;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  flex-basis: 100%;
+  flex: 1;
+  margin-bottom: 1em;
+}
+
+.left-col {
+  margin-right: 0.5em;
+}
+
+.right-col {
+  margin-left: 0.5em;
+}
+
+.support-modal-col-title {
+  margin: 0.5em 0 0 5%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.support-modal-col-title-img {
+  width: 20px;
+  height: auto;
+}
+
+.support-modal-col-title-text {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0 0 0 5px;
+}
+
+.support-modal-col-text {
+  margin: 0.5em 0.5em 0.5em 5%;
+}
+
+.support-modal-progress-bar {
+  background-color: white;
+  width: 90%;
+  margin: 0 auto;
+  border-radius: 10px;
+}
+
+.support-modal-patreon-progress {
+  background-color: #E85B46;
+  border-radius: 10px 0 0 10px;
+  height: 10px;
+}
+
+.support-modal-github-progress {
+  background-color: #EC6CB9;
+  border-radius: 10px 0 0 10px;
+  height: 10px;
+}
+
+.support-modal-button {
+  display: block;
+  background-color: transparent;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  border-radius: 30px;
+  padding: 5px;
+  margin: 0 auto 0.8em auto;
+}
+
+.patreon-button {
+  background-color: $patreon-orange;
+  color: $patreon-text;
+  width: 80%;
+}
+
+.github-button {
+  background-color: $github-button;
+  color: $github-text;
+  width: 60%;
+}
+
+.support-modal-button-img {
+  width: 18px;
+  height: auto;
+  display: inline-block;
+}
+
+.support-modal-button-text {
+  display: inline-block;
+  margin: 0 0 0 5px;
+}
+
+#support-modal-follow-text {
+  font-size: 18px;
+  margin-bottom: 0;
+}
+
+#support-modal-hashtag {
+  color: $wick-green;
+  display: inline-block;
+}
+
+#support-modal-social-icons {
+  height: auto;
+  margin: 0 auto;
+}
+
+.support-modal-social-icon {
+  display: inline-block;
+  border: none;
+  background-color: transparent;
+}
+
+.support-modal-social-img {
+  display: inline-block !important;
+  width: 40px;
+  height: auto;
+}
+
+.support-modal-body-mobile {
+  width: 300px;
+  min-width: 240px;  
+  height: auto;
+  padding: 20px; 
+  transition: height .5s, width .5s;
+  transition-timing-function: ease-in-out;
+  color: white;
+  font-family: 'Nunito Sans';
+}
+
+#support-modal-title-mobile{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  color: $editor-modal-text-gray;
+  font-weight: bold; 
+  text-align: left;
+  width: 100%; 
+  margin-bottom: 0.5em;
+}
+
+.support-modal-title-img-mobile {
+  width: 24px;
+  height: auto;
+  margin-right: 10px;
+  display: inline-block;
+}
