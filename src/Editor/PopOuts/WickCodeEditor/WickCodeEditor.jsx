@@ -124,7 +124,7 @@ export default function WickCodeEditor(props) {
     if (props.script) {
       props.requestAutosave();
       props.script.updateScript(props.scriptToEdit, newScript);
-      props.onMinorScriptUpdate(newScript);
+      props.onScriptUpdate(newScript);
     }
   }
 
@@ -244,7 +244,7 @@ export default function WickCodeEditor(props) {
 
       <div className="wick-code-editor-drag-handle">
         <div className="wick-code-editor-icon">{"</>"}</div>
-        Code Editor
+        {`Code Editor | editing`}
 
         <ActionButton
           className="we-code-close-button"
