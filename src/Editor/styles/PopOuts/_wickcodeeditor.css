@@ -4,6 +4,7 @@
     --reference-width: 140px;
     display: flex;
     box-shadow: var(--wick-box-shadow);
+    border-radius: var(--border-radius-primary);
 }
 
 .wick-code-editor-body {
