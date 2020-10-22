@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.8.14.13.57.16";
+var WICK_ENGINE_BUILD_VERSION = "2020.10.22.12.7.3";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -57147,19 +57147,14 @@ Wick.Clip = class extends Wick.Tickable {
   }
 
   circleHits(other, options) {
-    let bounds1 = this.view.absoluteBounds;
-    let bounds2 = other.view.absoluteBounds;
-
-    if (!bounds1.intersects(bounds2)) {
-      return null;
-    }
-
+    let bounds1 = this.absoluteBounds;
+    let bounds2 = other.absoluteBounds;
     let c1 = bounds1.center;
     let c2 = bounds2.center;
-    let distance = c1.getDistance(c2);
-    let r1 = options.radius ? options.radius : this.view.radius;
-    let r2 = other.view.radius;
-    let overlap = r1 + r2 - distance;
+    let distance = Math.sqrt((c1.x - c2.x) * (c1.x - c2.x) + (c1.y - c2.y) * (c1.y - c2.y));
+    let r1 = options.radius ? options.radius : this.radius;
+    let r2 = other.radius;
+    let overlap = r1 + r2 - distance; // TODO: Maybe add a case for overlap === 0?
 
     if (overlap > 0) {
       let x = c1.x - c2.x;
@@ -57206,8 +57201,8 @@ Wick.Clip = class extends Wick.Tickable {
   }
 
   rectangleHits(other, options) {
-    let bounds1 = this.view.absoluteBounds;
-    let bounds2 = other.view.absoluteBounds;
+    let bounds1 = this.absoluteBounds;
+    let bounds2 = other.absoluteBounds; // TODO: write intersects so we don't rely on paper Rectangle objects
 
     if (bounds1.intersects(bounds2)) {
       let result = {};
@@ -57294,18 +57289,19 @@ Wick.Clip = class extends Wick.Tickable {
     } else {
       return null;
     }
-  } // Return whether triangle p1 p2 p3 is clockwise
+  } // Return whether triangle p1 p2 p3 is clockwise (in screen space,
+  // means ccw in regular axes)
 
 
   cw(x1, y1, x2, y2, x3, y3) {
     const cw = (y3 - y1) * (x2 - x1) - (y2 - y1) * (x3 - x1);
-    return cw > 0 ? true : cw < 0 ? false : true; // colinear
+    return cw >= 0; // colinear ?
   }
 
   convexHits(other, options) {
     // Efficient check first
-    let bounds1 = this.view.absoluteBounds;
-    let bounds2 = other.view.absoluteBounds;
+    let bounds1 = this.absoluteBounds;
+    let bounds2 = other.absoluteBounds; // TODO: write intersects so we don't rely on paper Rectangle objects
 
     if (!bounds1.intersects(bounds2)) {
       return null;
@@ -57314,8 +57310,8 @@ Wick.Clip = class extends Wick.Tickable {
     let c1 = bounds1.center;
     let c2 = bounds2.center; // clockwise arrays of points in format [[x1, y1], [x2, y2], ...]
 
-    let hull1 = this.view.convexHull;
-    let hull2 = other.view.convexHull;
+    let hull1 = this.convexHull;
+    let hull2 = other.convexHull;
     let finished1 = false;
     let finished2 = false;
     let i1 = hull1.length - 1;
@@ -57323,7 +57319,7 @@ Wick.Clip = class extends Wick.Tickable {
     let intersections = [];
     let n = 0; // Algorithm from https://www.bowdoin.edu/~ltoma/teaching/cs3250-CompGeom/spring17/Lectures/cg-convexintersection.pdf
 
-    while ((!finished1 || !finished2) && n <= hull1.length + hull2.length) {
+    while ((!finished1 || !finished2) && n <= 2 * (hull1.length + hull2.length)) {
       n++; // line segments A is ab, B is cd
 
       let a = hull1[i1],
@@ -57390,8 +57386,6 @@ Wick.Clip = class extends Wick.Tickable {
     } // Ok, we have all the intersections now. 
 
 
-    console.log("ssssss", intersections.length);
-
     if (intersections.length === 0) {
       return null;
     }
@@ -57420,8 +57414,8 @@ Wick.Clip = class extends Wick.Tickable {
 
       avgIntersection.x /= intersections.length;
       avgIntersection.y /= intersections.length;
-      console.log(avgIntersection.x, avgIntersection.y);
-      let targetTheta = Math.atan2(c2.y - c1.y, c2.x - c1.x);
+      let targetTheta = Math.atan2(c2.y - c1.y, c2.x - c1.x); //from c1 to c2
+
       let r = this.radiusAtPointInDirection(hull1, avgIntersection, targetTheta);
       targetTheta = (targetTheta + Math.PI) % (2 * Math.PI);
       r += this.radiusAtPointInDirection(hull2, avgIntersection, targetTheta);
@@ -57434,7 +57428,66 @@ Wick.Clip = class extends Wick.Tickable {
       result.offsetY = directionY;
     }
 
-    if (options.overlap) {}
+    if (options.overlap) {
+      //same as offset except instead of center to center, 
+      //we will move perpendicular to the best fit line
+      //of the intersection points
+      let avgIntersection = {
+        x: 0,
+        y: 0
+      };
+
+      for (let i = 0; i < intersections.length; i++) {
+        avgIntersection.x += intersections[i].x;
+        avgIntersection.y += intersections[i].y;
+      }
+
+      avgIntersection.x /= intersections.length;
+      avgIntersection.y /= intersections.length;
+      let directionX, directionY;
+
+      if (intersections.length < 2) {
+        directionX = c2.x - c1.x;
+        directionY = c2.y - c1.y;
+      } else {
+        let max_d = 0;
+
+        for (let i = 1; i < intersections.length; i++) {
+          let d = (intersections[i].y - intersections[0].y) * (intersections[i].y - intersections[0].y) + (intersections[i].x - intersections[0].x) * (intersections[i].x - intersections[0].x);
+
+          if (d > max_d) {
+            max_d = d;
+            directionX = -(intersections[i].y - intersections[0].y);
+            directionY = intersections[i].x - intersections[0].x;
+
+            if (directionX * (c1.x - avgIntersection.x) + directionY * (c1.y - avgIntersection.y) > 0) {
+              directionX = -directionX;
+              directionY = -directionY;
+            }
+          }
+        }
+      }
+
+      let targetTheta = Math.atan2(directionY, directionX);
+      let r = this.radiusAtPointInDirection(hull1, avgIntersection, targetTheta);
+      targetTheta = (targetTheta + Math.PI) % (2 * Math.PI);
+      r += this.radiusAtPointInDirection(hull2, avgIntersection, targetTheta);
+      let r2 = this.radiusAtPointInDirection(hull1, avgIntersection, targetTheta);
+      targetTheta = (targetTheta + Math.PI) % (2 * Math.PI);
+      r2 += this.radiusAtPointInDirection(hull2, avgIntersection, targetTheta);
+
+      if (r2 < r) {
+        r = r2;
+        directionX *= -1;
+        directionY *= -1;
+      }
+
+      let mag = Math.sqrt(directionX * directionX + directionY * directionY);
+      directionX *= -r / mag;
+      directionY *= -r / mag;
+      result.overlapX = directionX;
+      result.overlapY = directionY;
+    }
 
     return result;
   }
@@ -57445,7 +57498,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     for (let i = 0; i < ch.length; i++) {
       let theta = Math.atan2(ch[i][1] - p.y, ch[i][0] - p.x);
-      let thetaDiff = ((theta - targetTheta) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+      let thetaDiff = ((targetTheta - theta) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI); //positive mod
 
       if (thetaDiff < minThetaDiff) {
         minThetaDiff = thetaDiff;
@@ -57454,7 +57507,7 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     let a = ch[index];
-    let b = ch[(index - 1 + ch.length) % ch.length];
+    let b = ch[(index + 1) % ch.length];
     let c = [p.x, p.y];
     let d = [p.x + 100 * Math.cos(targetTheta), p.y + 100 * Math.sin(targetTheta)]; //Use parametric line intersection
     //<x,y> = a + (b - a)t1
@@ -57467,7 +57520,6 @@ Wick.Clip = class extends Wick.Tickable {
 
     let t2 = (c[1] - a[1] - (b[1] - a[1]) * (c[0] - a[0]) / (b[0] - a[0])) / ((b[1] - a[1]) * (d[0] - c[0]) / (b[0] - a[0]) - d[1] + c[1]);
     let t1 = (c[0] + (d[0] - c[0]) * t2 - a[0]) / (b[0] - a[0]);
-    console.log(a[0] + (b[0] - a[0]) * t1, a[1] + (b[1] - a[1]) * t1);
     return Math.hypot(a[0] + (b[0] - a[0]) * t1 - p.x, a[1] + (b[1] - a[1]) * t1 - p.y);
   }
 
@@ -57514,7 +57566,8 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   hitTest(other) {
-    return this.view.absoluteBounds.intersects(other.view.absoluteBounds);
+    // TODO: write intersects so we don't rely on paper Rectangle objects
+    return this.absoluteBounds.intersects(other.absoluteBounds);
   }
   /**
    * The bounding box of the clip.
@@ -57525,6 +57578,52 @@ Wick.Clip = class extends Wick.Tickable {
   get bounds() {
     // TODO: Refactor so that getting bounds does not rely on the view
     return this.view.bounds;
+  }
+
+  get absoluteBounds() {
+    // TODO: Refactor so that getting bounds does not rely on the view
+    return this.view.absoluteBounds;
+  }
+
+  get points() {
+    // TODO: Refactor so that does not rely on the view
+    return this.view.points;
+  }
+
+  get radius() {
+    let center = this.absoluteBounds.center;
+    let points = this.points;
+    let max_r = 0;
+
+    for (let p = 0; p < points.length; p++) {
+      let point = points[p];
+      let x = point[0] - center.x;
+      let y = point[1] - center.y;
+      max_r = Math.max(max_r, x * x + y * y);
+    }
+
+    return Math.sqrt(max_r);
+  } // Gives clockwise in screen space, which is ccw in regular axes
+
+
+  get convexHull() {
+    let points = this.points; // Infinity gets us the convex hull
+
+    let ch = hull(points, Infinity);
+    let removedDuplicates = [];
+    let epsilon = 0.01;
+
+    for (let i = 0; i < ch.length; i++) {
+      if (removedDuplicates.length > 0) {
+        if ((Math.abs(ch[i][0] - removedDuplicates[removedDuplicates.length - 1][0]) > epsilon || Math.abs(ch[i][1] - removedDuplicates[removedDuplicates.length - 1][1]) > epsilon) && (Math.abs(ch[i][0] - removedDuplicates[0][0]) > epsilon || Math.abs(ch[i][1] - removedDuplicates[0][1]) > epsilon)) {
+          removedDuplicates.push(ch[i]);
+        }
+      } else {
+        removedDuplicates.push(ch[i]);
+      }
+    }
+
+    return removedDuplicates;
   }
   /**
    * The X position of the clip.
@@ -63112,8 +63211,7 @@ Wick.View.Clip = class extends Wick.View {
     this.group = new this.paper.Group();
     this.group.remove();
     this.group.applyMatrix = false;
-    this._bounds = new paper.Rectangle();
-    this._radius = null;
+    this._bounds = new paper.Rectangle(); //this._radius = null;
   }
 
   get bounds() {
@@ -63122,25 +63220,45 @@ Wick.View.Clip = class extends Wick.View {
 
   get absoluteBounds() {
     return this.group.bounds;
-  }
+  } // get radius () {
+  //     if (this._radius) {
+  //         return this._radius;
+  //     }
+  //     let center = this.absoluteBounds.center;
+  //     let convert = (point) => point.getDistance(center, true);
+  //     let compare = (a, b) => Math.max(a,b);
+  //     let initial = 0;
+  //     this._radius = Math.sqrt(this.reducePointsFromGroup(this.group, initial, convert, compare));
+  //     return this._radius;
+  // }
+  // get convexHull () {
+  //     let group = this.group;
+  //     let initial = [];
+  //     let convert = (point) => [[point.x, point.y]];
+  //     let compare = (list1, list2) => list1.concat(list2);
+  //     let points = this.reducePointsFromGroup(group, initial, convert, compare);
+  //     // Infinity gets us the convex hull
+  //     let ch = hull(points, Infinity);
+  //     let removedDuplicates = [];
+  //     let epsilon = 0.01;
+  //     for (let i = 0; i < ch.length; i++) {
+  //         if (removedDuplicates.length > 0) {
+  //             if ((Math.abs(ch[i][0] - removedDuplicates[removedDuplicates.length - 1][0]) > epsilon ||
+  //                 Math.abs(ch[i][1] - removedDuplicates[removedDuplicates.length - 1][1]) > epsilon) && 
+  //                 (Math.abs(ch[i][0] - removedDuplicates[0][0]) > epsilon ||
+  //                 Math.abs(ch[i][1] - removedDuplicates[0][1]) > epsilon)) {
+  //                 removedDuplicates.push(ch[i]);
+  //             }
+  //         }
+  //         else {
+  //             removedDuplicates.push(ch[i]);
+  //         }
+  //     }
+  //     return removedDuplicates;
+  // }
 
-  get radius() {
-    if (this._radius) {
-      return this._radius;
-    }
 
-    let center = this.absoluteBounds.center;
-
-    let convert = point => point.getDistance(center, true);
-
-    let compare = (a, b) => Math.max(a, b);
-
-    let initial = 0;
-    this._radius = Math.sqrt(this.reducePointsFromGroup(this.group, initial, convert, compare));
-    return this._radius;
-  }
-
-  get convexHull() {
+  get points() {
     let group = this.group;
     let initial = [];
 
@@ -63148,23 +63266,7 @@ Wick.View.Clip = class extends Wick.View {
 
     let compare = (list1, list2) => list1.concat(list2);
 
-    let points = this.reducePointsFromGroup(group, initial, convert, compare); // Infinity gets us the convex hull
-
-    let ch = hull(points, Infinity);
-    let removedDuplicates = [];
-    let epsilon = 0.01;
-
-    for (let i = 0; i < ch.length; i++) {
-      if (removedDuplicates.length > 0) {
-        if ((Math.abs(ch[i][0] - removedDuplicates[removedDuplicates.length - 1][0]) > epsilon || Math.abs(ch[i][1] - removedDuplicates[removedDuplicates.length - 1][1]) > epsilon) && (Math.abs(ch[i][0] - removedDuplicates[0][0]) > epsilon || Math.abs(ch[i][1] - removedDuplicates[0][1]) > epsilon)) {
-          removedDuplicates.push(ch[i]);
-        }
-      } else {
-        removedDuplicates.push(ch[i]);
-      }
-    }
-
-    return removedDuplicates;
+    return this.reducePointsFromGroup(group, initial, convert, compare);
   } // group: the paper group of objects
   // initial: the initial value, should be of return type
   // convert: point -> return type
@@ -63178,8 +63280,10 @@ Wick.View.Clip = class extends Wick.View {
       let child = group.children[i];
 
       if (child.className === 'Layer') {
-        for (let j = 0; j < child.children.length; j++) {
-          let item = child.children[i];
+        let ch = child.children;
+
+        for (let j = 0; j < ch.length; j++) {
+          let item = ch[j];
 
           if (item.className === 'Path') {
             let matrix = item.globalMatrix;
@@ -63222,8 +63326,8 @@ Wick.View.Clip = class extends Wick.View {
     }); // Update transformations
 
     this.group.matrix.set(new paper.Matrix());
-    this._bounds = this.group.bounds.clone();
-    this._radius = null;
+    this._bounds = this.group.bounds.clone(); //this._radius = null;
+
     this.group.pivot = new this.paper.Point(0, 0);
     this.group.position.x = this.model.transformation.x;
     this.group.position.y = this.model.transformation.y;
