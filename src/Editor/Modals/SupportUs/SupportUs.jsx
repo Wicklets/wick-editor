@@ -27,7 +27,6 @@ import githubHeart from '../../../resources/support-us-icons/github-heart.svg';
 import facebookIcon from '../../../resources/support-us-icons/facebook.svg';
 import instagramIcon from '../../../resources/support-us-icons/instagram.svg';
 import twitterIcon from '../../../resources/support-us-icons/twitter.svg';
-import youtubeIcon from '../../../resources/support-us-icons/youtube.svg';
 import whiteHeart from '../../../resources/support-us-icons/white-heart.svg';
 
 
@@ -133,9 +132,6 @@ class SupportUs extends Component {
         </button>
         <button class="support-modal-social-icon" onClick={function(){window.open("https://twitter.com/wickeditor", "_blank")}}>
           <img class="support-modal-social-img" src={twitterIcon} alt="twitter logo"></img>
-        </button>
-        <button class="support-modal-social-icon" onClick={function(){window.open("https://www.youtube.com/channel/UCXUM4laL0jXCO4wJjY15xqg", "_blank")}}>
-          <img class="support-modal-social-img" src={youtubeIcon} alt="youtube logo"></img>
         </button>
       </div>
     </Fragment>];
