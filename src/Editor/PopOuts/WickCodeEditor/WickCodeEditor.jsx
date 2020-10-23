@@ -44,7 +44,7 @@ const editorThemes = [
   {
     value: 'monokai',
     label: 'Monokai'
-  }, 
+  },
   {
     value: 'cobalt',
     label: 'Cobalt'
@@ -79,6 +79,9 @@ export default function WickCodeEditor(props) {
     return () => Unhook(window.console)
   }, [])
 
+  /**
+   * To be called when the code editor popout is repositioned.
+   */
   function onDragHandler(e, d) {
     props.updateCodeEditorWindowProperties({
       x: d.x,
@@ -86,6 +89,9 @@ export default function WickCodeEditor(props) {
     });
   }
 
+  /**
+   * To be called when the code editor popout is resized.
+   */
   function onResizeHandler(e, dir, ref, delta, position) {
     props.updateCodeEditorWindowProperties({
       width: ref.style.width,
@@ -104,7 +110,6 @@ export default function WickCodeEditor(props) {
     });
   }
 
-
   /**
    * Adds a script to the currently selected object.
    */
@@ -113,7 +118,6 @@ export default function WickCodeEditor(props) {
 
     props.script.addScript(scriptName);
     props.editScript(scriptName);
-    // props.rerenderCodeEditor();
   }
 
   /**
@@ -135,14 +139,6 @@ export default function WickCodeEditor(props) {
   function clearConsole() {
     setLogs([]);
   }
-
-
-  // Determine the script to display.
-  let scriptToShow = 'No Scriptable Object Selected';
-  if (props.script) {
-    scriptToShow = props.script.src;
-  }
-
 
   // Sort scripts if needed.
   props.script && props.script.scripts.sort(props.scriptInfoInterface.sortScripts);
@@ -210,16 +206,17 @@ export default function WickCodeEditor(props) {
           </tr>
           <tr>
             <td>Editor Style</td>
-            <td> 
-              <select 
-              selected={props.codeEditorWindowProperties.theme}
-              ref={editorThemeSelectRef}
-              onChange={(e) => {
-                props.updateCodeEditorWindowProperties({theme: editorThemeSelectRef.current.value})}}>
+            <td>
+              <select
+                selected={props.codeEditorWindowProperties.theme}
+                ref={editorThemeSelectRef}
+                onChange={(e) => {
+                  props.updateCodeEditorWindowProperties({ theme: editorThemeSelectRef.current.value })
+                }}>
                 {editorThemes.map(theme => {
-                  return <option 
-                  value={theme.value}
-                  key={'code-theme-' + theme.value}>{theme.label}</option>
+                  return <option
+                    value={theme.value}
+                    key={'code-theme-' + theme.value}>{theme.label}</option>
                 })}
 
               </select>
@@ -228,6 +225,19 @@ export default function WickCodeEditor(props) {
         </tbody>
       </table>
     </div>
+  }
+
+
+  // Determine the script to display.
+  let scriptToShow = 'No Scriptable Object Selected';
+  if (props.script) {
+
+    let script = props.script.scripts.find(s => s.name === props.scriptToEdit);
+    if (script) {
+      scriptToShow = script.src;
+    } else {
+      scriptToShow = "Can't Find Script...";
+    }
   }
 
   return (
@@ -244,9 +254,9 @@ export default function WickCodeEditor(props) {
 
       <div className="wick-code-editor-drag-handle">
         <div className="wick-code-editor-icon">{"</>"}</div>
-          <div className="we-code-editor-title">
-            Code Editor | <div className="we-code-editor-title-selected">{`editing ${props.selectionType}`}</div>
-          </div>
+        <div className="we-code-editor-title">
+          Code Editor | <div className="we-code-editor-title-selected">{`editing ${props.selectionType}`}</div>
+        </div>
         <ActionButton
           className="we-code-close-button"
           color="tool"
@@ -285,7 +295,7 @@ export default function WickCodeEditor(props) {
               className={classNames("we-code-script-button", "we-code-add")}
             >
               +
-            </button> }
+            </button>}
           </div>
           <ReflexContainer>
             <ReflexElement>
@@ -415,17 +425,17 @@ function CodeReference(props) {
       >
         <div className="we-code-options-body">
           {/* Interactive Reference Buttons */}
-          {codeOptions.map(option => 
+          {codeOptions.map(option =>
             <div
-            key={"code-option-button-" + option.name}
-            className="code-option-button">
+              key={"code-option-button-" + option.name}
+              className="code-option-button">
               <ActionButton
-                  id={"code-reference-button-" + option.name}
-                  action={() => { props.addCodeToTab(option.snippet) }}
-                  tooltip={option.description}
-                  tooltipPlace="top"
-                  color='reference'
-                  text={option.name} />
+                id={"code-reference-button-" + option.name}
+                action={() => { props.addCodeToTab(option.snippet) }}
+                tooltip={option.description}
+                tooltipPlace="top"
+                color='reference'
+                text={option.name} />
             </div>
           )}
         </div>
