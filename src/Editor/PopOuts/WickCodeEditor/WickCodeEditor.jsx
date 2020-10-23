@@ -75,9 +75,10 @@ export default function WickCodeEditor(props) {
 
   // Run once, connect the console to the console object.
   useEffect(() => {
-    Hook(window.console, log => setLogs(currLogs => [...currLogs, log]), false)
+    Hook(window.console, log => props.setConsoleLogs([...props.consoleLogs, log]), false)
     return () => Unhook(window.console)
   }, [])
+
 
   /**
    * To be called when the code editor popout is repositioned.
@@ -381,7 +382,7 @@ export default function WickCodeEditor(props) {
 
                 </div>
 
-                {consoleType === 'console' && <Console logs={logs} variant="dark" />}
+                {consoleType === 'console' && <Console logs={props.consoleLogs} variant="dark" />}
                 {consoleType === 'options' && renderCodeEditorOptions()}
               </div>
             </ReflexElement>

@@ -1348,11 +1348,12 @@ Wick.Project = class extends Wick.Base {
     }
 
     set error (error) {
-        // Don't replace an existing error with a new error
-        // (The error can only be cleared, by setting it to null)
-        if(this._error && error) {
+        if (this._error && error) {
             return;
+        } else if (error && !this._error) {
+            console.error(error);
         }
+
         this._error = error;
     }
 

@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.10.12.16.28.26";
+var WICK_ENGINE_BUILD_VERSION = "2020.10.23.18.57.7";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -50813,10 +50813,10 @@ Wick.Project = class extends Wick.Base {
   }
 
   set error(error) {
-    // Don't replace an existing error with a new error
-    // (The error can only be cleared, by setting it to null)
     if (this._error && error) {
       return;
+    } else if (error && !this._error) {
+      console.error(error);
     }
 
     this._error = error;

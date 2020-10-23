@@ -85,6 +85,7 @@ class Editor extends EditorCore {
       inspectorSize: 250,
       timelineSize: 175,
       assetLibrarySize: 150,
+      consoleLogs: [], 
       warningModalInfo: {
         description: "No Description Given",
         title: "Title",
@@ -1170,6 +1171,8 @@ class Editor extends EditorCore {
               toggleCodeEditor={this.toggleCodeEditor}
               requestAutosave={this.requestAutosave}
               clearCodeEditorError={this.clearCodeEditorError}
+              consoleLogs={this.state.consoleLogs}
+              setConsoleLogs={(logs) => {this.setState({consoleLogs: logs})}}
             />}
         </div>
       </EditorWrapper>
