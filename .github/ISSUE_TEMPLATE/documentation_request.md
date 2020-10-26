@@ -1,6 +1,6 @@
 ---
 name: Documentation Request
-about: Suggest a documentation improvment
+about: Suggest a documentation improvement
 title: ''
 labels: documentation
 assignees: ''
