@@ -314,3 +314,8 @@ color: #ABABAB !important;
 .theme-monokai > .ace_keyword {
 color: #FF80B9 !important;
 }
+
+.error-marker {
+    background-color: var(--wick-error);
+    padding-right: 4px;
+}

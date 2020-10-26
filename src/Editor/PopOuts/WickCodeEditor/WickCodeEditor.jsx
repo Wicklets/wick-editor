@@ -138,7 +138,7 @@ export default function WickCodeEditor(props) {
    * Clears the console in the code editor.
    */
   function clearConsole() {
-    setLogs([]);
+    props.setConsoleLogs([]);
   }
 
   // Sort scripts if needed.
