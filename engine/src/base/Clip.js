@@ -514,6 +514,12 @@ Wick.Clip = class extends Wick.Tickable {
         }
     }
 
+    /**
+     * Perform circular hit test with other clip.
+     * @param {Wick.Clip} other - the clip to hit test with
+     * @param {object} options - Hit test options
+     * @returns {object} Hit information
+     */
     circleHits(other, options) {
         let bounds1 = this.absoluteBounds;
         let bounds2 = other.absoluteBounds;
@@ -521,7 +527,7 @@ Wick.Clip = class extends Wick.Tickable {
         let c2 = bounds2.center;
         let distance = Math.sqrt((c1.x - c2.x)*(c1.x - c2.x) + (c1.y - c2.y)*(c1.y - c2.y));
         let r1 = options.radius ? options.radius : this.radius;
-        let r2 = other.radius;
+        let r2 = other.radius; //should add option for other radius?
         let overlap = r1 + r2 - distance;
         // TODO: Maybe add a case for overlap === 0?
         if (overlap > 0) {
@@ -561,6 +567,12 @@ Wick.Clip = class extends Wick.Tickable {
         return null;
     }
 
+    /**
+     * Perform rectangular hit test with other clip.
+     * @param {Wick.Clip} other - the clip to hit test with
+     * @param {object} options - Hit test options
+     * @returns {object} Hit information
+     */
     rectangleHits(other, options) {
         let bounds1 = this.absoluteBounds;
         let bounds2 = other.absoluteBounds;
@@ -650,12 +662,18 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     // Return whether triangle p1 p2 p3 is clockwise (in screen space,
-    // means ccw in regular axes)
+    // means counterclockwise in a normal space with y axis pointed up)
     cw(x1, y1, x2, y2, x3, y3) {           
         const cw = ((y3 - y1) * (x2 - x1)) - ((y2 - y1) * (x3 - x1));
         return cw >= 0; // colinear ?
     }
 
+    /**
+     * Perform convex hull hit test with other clip.
+     * @param {Wick.Clip} other - the clip to hit test with
+     * @param {object} options - Hit test options
+     * @returns {object} Hit information
+     */
     convexHits(other, options) {
         // Efficient check first
         let bounds1 = this.absoluteBounds;
@@ -743,9 +761,19 @@ Wick.Clip = class extends Wick.Tickable {
                 }
             }
         }
-        // Ok, we have all the intersections now. 
+        // Ok, we have all the intersections now
+        let avgIntersection = {x: 0, y: 0};
         if (intersections.length === 0) {
-            return null;
+            avgIntersection.x = bounds1.width < bounds2.width ? c1.x : c2.x;
+            avgIntersection.y = bounds1.width < bounds2.width ? c1.y : c2.y;
+        }
+        else {
+            for (let i = 0; i < intersections.length; i++) {
+                avgIntersection.x += intersections[i].x;
+                avgIntersection.y += intersections[i].y;
+            }
+            avgIntersection.x /= intersections.length;
+            avgIntersection.y /= intersections.length;
         }
 
         let result = {};
@@ -758,14 +786,6 @@ Wick.Clip = class extends Wick.Tickable {
             // from this center to that center,
             // Then, the offset is a vector in the direction from that center to this center
             // with magnitude of that radius
-
-            let avgIntersection = {x: 0, y: 0};
-            for (let i = 0; i < intersections.length; i++) {
-                avgIntersection.x += intersections[i].x;
-                avgIntersection.y += intersections[i].y;
-            }
-            avgIntersection.x /= intersections.length;
-            avgIntersection.y /= intersections.length;
 
             let targetTheta = Math.atan2(c2.y - c1.y, c2.x - c1.x); //from c1 to c2
             let r = this.radiusAtPointInDirection(hull1, avgIntersection, targetTheta);
@@ -785,14 +805,6 @@ Wick.Clip = class extends Wick.Tickable {
             //we will move perpendicular to the best fit line
             //of the intersection points
 
-            let avgIntersection = {x: 0, y: 0};
-            for (let i = 0; i < intersections.length; i++) {
-                avgIntersection.x += intersections[i].x;
-                avgIntersection.y += intersections[i].y;
-            }
-            avgIntersection.x /= intersections.length;
-            avgIntersection.y /= intersections.length;
-            
             let directionX, directionY;
             if (intersections.length < 2) {
                 directionX = c2.x - c1.x;
@@ -840,6 +852,14 @@ Wick.Clip = class extends Wick.Tickable {
         return result;
     }
 
+    /**
+     * Casts a ray from p in the direction targetTheta and intersects it with the hull ch,
+     * returns the distance from p to the surface of ch.
+     * @param {list} ch - the convex hull to intersect a ray with
+     * @param {object} p - the point of origin of the ray
+     * @param {number} targetTheta - the direction of the ray
+     * @returns {number} the distance to the surface of the convex hull from the point in the direction theta
+     */
     radiusAtPointInDirection(ch, p, targetTheta) {
         let minThetaDiff = Infinity;
         let index;
@@ -868,6 +888,12 @@ Wick.Clip = class extends Wick.Tickable {
         return Math.hypot(a[0] + (b[0] - a[0])*t1 - p.x, a[1] + (b[1] - a[1]) * t1 - p.y);
     }
 
+    /**
+     * Perform hit test with other clip.
+     * @param {Wick.Clip} other - the clip to hit test with
+     * @param {object} options - Hit test options
+     * @returns {object} Hit information
+     */
     hits(other, options) {
         // Get hit options
         let finalOptions = {...this.project.hitTestOptions};
@@ -930,6 +956,12 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     get radius () {
+        // Use length of half diagonal of bounding box
+        let b = this.absoluteBounds;
+        return Math.sqrt(b.width*b.width + b.height*b.height)/2/Math.sqrt(2);
+        
+        // Alternative: use largest distance from center to a point on the object
+        /*
         let center = this.absoluteBounds.center;
         let points = this.points;
         let max_r = 0;
@@ -941,6 +973,7 @@ Wick.Clip = class extends Wick.Tickable {
         }
 
         return Math.sqrt(max_r);
+        */
     }
 
     // Gives clockwise in screen space, which is ccw in regular axes
