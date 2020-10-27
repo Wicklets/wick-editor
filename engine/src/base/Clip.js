@@ -17,6 +17,7 @@
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
 /**
  * A class representing a Wick Clip.
  */
@@ -516,13 +517,425 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     /**
+     * Perform circular hit test with other clip.
+     * @param {Wick.Clip} other - the clip to hit test with
+     * @param {object} options - Hit test options
+     * @returns {object} Hit information
+     */
+    circleHits(other, options) {
+        let bounds1 = this.absoluteBounds;
+        let bounds2 = other.absoluteBounds;
+        let c1 = bounds1.center;
+        let c2 = bounds2.center;
+        let distance = Math.sqrt((c1.x - c2.x)*(c1.x - c2.x) + (c1.y - c2.y)*(c1.y - c2.y));
+        let r1 = options.radius ? options.radius : this.radius;
+        let r2 = other.radius; //should add option for other radius?
+        let overlap = r1 + r2 - distance;
+        // TODO: Maybe add a case for overlap === 0?
+        if (overlap > 0) {
+            let x = c1.x - c2.x;
+            let y = c1.y - c2.y;
+            let magnitude = Math.sqrt(x*x + y*y);
+            x = x / magnitude;
+            y = y / magnitude;
+            // <x,y> is now a normalized vector from c2 to c1 
+            
+            let result = {};
+            if (options.overlap) {
+                result.overlapX = overlap * x;
+                result.overlapY = overlap * y;
+            }
+            if (options.offset) {
+                result.offsetX = overlap * x;
+                result.offsetY = overlap * y;
+            }
+            if (options.intersections) {
+                if (r2 - distance > r1 || r1 - distance > r2 || distance === 0) {
+                    result.intersections = [];
+                }
+                else {
+                    // Using https://mathworld.wolfram.com/Circle-CircleIntersection.html
+                    let d = (distance * distance + r1*r1 - r2*r2) / (2 * distance);
+                    let h = Math.sqrt(r1 * r1 - d * d);
+                    let x0 = c1.x - d*x;
+                    let y0 = c1.y - d*y;
+                    result.intersections = [{x: x0 + h*y, y: y0 - h*x}, 
+                        {x: x0 - h*y, y: y0 + h*x}];
+                }
+            }
+            return result;
+        }
+        
+        return null;
+    }
+
+    /**
+     * Perform rectangular hit test with other clip.
+     * @param {Wick.Clip} other - the clip to hit test with
+     * @param {object} options - Hit test options
+     * @returns {object} Hit information
+     */
+    rectangleHits(other, options) {
+        let bounds1 = this.absoluteBounds;
+        let bounds2 = other.absoluteBounds;
+
+        // TODO: write intersects so we don't rely on paper Rectangle objects
+        if (bounds1.intersects(bounds2)) {
+            let result = {};
+
+            if (options.overlap) {
+                // Find the direction along which we have to travel the least distance to no longer overlap
+                let left = bounds2.left - bounds1.right;
+                let right = bounds2.right - bounds1.left;
+                let up = bounds2.top - bounds1.bottom;
+                let down = bounds2.bottom - bounds1.top;
+                let overlapX = Math.abs(left) < Math.abs(right) ? left : right;
+                let overlapY = Math.abs(up) < Math.abs(down) ? up : down;
+                if (Math.abs(overlapX) < Math.abs(overlapY)) {
+                    overlapY = 0;
+                }
+                else {
+                    overlapX = 0;
+                }
+
+                result.overlapX = overlapX;
+                result.overlapY = overlapY;
+            }
+            if (options.offset) {
+                // Find how far along the center to center vector we must travel to no longer overlap
+                let vectorX = bounds1.center.x - bounds2.center.x;
+                let vectorY = bounds1.center.y - bounds2.center.y;
+                let magnitude = Math.sqrt(vectorX*vectorX + vectorY*vectorY);
+                vectorX /= magnitude;
+                vectorY /= magnitude;
+
+                // Choose p1, p2, based on quadrant of center to center vector
+                let p1 = vectorX > 0 ? (vectorY > 0 ? bounds1.topLeft : bounds1.bottomLeft) : (vectorY > 0 ? bounds1.topRight : bounds1.bottomRight);
+                let p2 = vectorX > 0 ? (vectorY > 0 ? bounds2.bottomRight : bounds2.topRight) : (vectorY > 0 ? bounds2.bottomLeft : bounds2.topLeft);
+                
+                if (Math.abs(p2.x - p1.x) < Math.abs((p2.y - p1.y) * vectorX / vectorY)) {
+                    result.offsetX = p2.x - p1.x;
+                    result.offsetY = result.offsetX * vectorY / vectorX;
+                }
+                else {
+                    result.offsetY = p2.y - p1.y;
+                    result.offsetX = result.offsetY * vectorX / vectorY;
+                }
+            }
+            if (options.intersections) {
+                result.intersections = [];
+                let ps1 = [bounds1.topLeft, bounds1.topRight, bounds1.bottomRight, bounds1.bottomLeft];
+                let ps2 = [bounds2.topLeft, bounds2.topRight, bounds2.bottomRight, bounds2.bottomLeft];
+                for (let i = 0; i < 4; i++) {
+                    for (let j = (i + 1) % 2; j < 4; j += 2) { // iterate over the perpendicular lines
+                        let a = ps1[i];
+                        let b = ps1[(i + 1) % 4];
+                        let c = ps2[j];
+                        let d = ps2[(j + 1) % 4];
+
+                        // Perpendicular lines will intersect, we'll use parametric line intersection
+                        //<x,y> = a + (b - a)t1
+                        //<x,y> = c + (d - c)t2
+                        //a + (b - a)t1 = c + (d - c)t2
+                        //t1(b - a) = (c + (d - c)t2 - a)
+                        //(a - c)/(d - c) = t2
+                        let t1, t2;
+                        if (a.x === b.x) {
+                            t2 = (a.x - c.x) / (d.x - c.x);
+                            t1 = (c.y + (d.y - c.y) * t2 - a.y) / (b.y - a.y);
+                        }
+                        else {
+                            //a.y === b.y
+                            t2 = (a.y - c.y) / (d.y - c.y);
+                            t1 = (c.x + (d.x - c.x) * t2 - a.x) / (b.x - a.x);
+                        }
+                        if (0 <= t1 && t1 <= 1 && 0 <= t2 && t2 <= 1) {
+                            result.intersections.push({x: a.x + (b.x - a.x) * t1, y: a.y + (b.y - a.y) * t1});
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+        else {
+            return null;
+        }
+    }
+
+    // Return whether triangle p1 p2 p3 is clockwise (in screen space,
+    // means counterclockwise in a normal space with y axis pointed up)
+    cw(x1, y1, x2, y2, x3, y3) {           
+        const cw = ((y3 - y1) * (x2 - x1)) - ((y2 - y1) * (x3 - x1));
+        return cw >= 0; // colinear ?
+    }
+
+    /**
+     * Perform convex hull hit test with other clip.
+     * @param {Wick.Clip} other - the clip to hit test with
+     * @param {object} options - Hit test options
+     * @returns {object} Hit information
+     */
+    convexHits(other, options) {
+        // Efficient check first
+        let bounds1 = this.absoluteBounds;
+        let bounds2 = other.absoluteBounds;
+        // TODO: write intersects so we don't rely on paper Rectangle objects
+        if (!bounds1.intersects(bounds2)) {
+            return null;
+        }
+        let c1 = bounds1.center;
+        let c2 = bounds2.center;
+
+        // clockwise arrays of points in format [[x1, y1], [x2, y2], ...]
+        let hull1 = this.convexHull;
+        let hull2 = other.convexHull;
+
+        let finished1 = false;
+        let finished2 = false;
+
+        let i1 = hull1.length - 1;
+        let i2 = hull2.length - 1;
+
+        let intersections = [];
+
+        let n = 0;
+        // Algorithm from https://www.bowdoin.edu/~ltoma/teaching/cs3250-CompGeom/spring17/Lectures/cg-convexintersection.pdf
+        while ((!finished1 || !finished2) && n <= 2 * (hull1.length + hull2.length)) {
+            n++;
+            // line segments A is ab, B is cd
+            let a = hull1[i1],
+            b = hull1[((i1 - 1) % hull1.length + hull1.length) % hull1.length],
+            c = hull2[i2],
+            d = hull2[((i2 - 1) % hull2.length + hull2.length) % hull2.length];
+
+            //Use parametric line intersection
+            //<x,y> = a + (b - a)t1
+            //<x,y> = c + (d - c)t2
+            //a + (b - a)t1 = c + (d - c)t2
+            //t1 = (c.x + (d.x - c.x)t2 - a.x) / (b.x - a.x)
+            //a.y + (b.y - a.y) * (c.x + (d.x - c.x)t2 - a.x) / (b.x - a.x) = c.y + (d.y - c.y)t2
+            //t2((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y)) = c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x)
+            //t2 = (c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x))  /  ((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y))
+            let t2 = (c[1] - a[1] - (b[1] - a[1]) * (c[0] - a[0]) / (b[0] - a[0]))  /  ((b[1] - a[1]) * (d[0] - c[0]) / (b[0] - a[0]) - d[1] + c[1]);
+            let t1 = (c[0] + (d[0] - c[0]) * t2 - a[0]) / (b[0] - a[0]);
+
+            if (0 <= t1 && t1 <= 1 && 0 <= t2 && t2 <= 1) {
+                intersections.push({x: a[0] + (b[0] - a[0])*t1, y: a[1] + (b[1] - a[1]) * t1});
+            }
+
+            let APointingToB = t1 > 1;
+            let BPointingToA = t2 > 1;
+
+            if (BPointingToA && !APointingToB) {
+                // Advance B
+                i2 -= 1;
+                if (i2 < 0) {
+                    finished2 = true;
+                    i2 += hull2.length;
+                }
+            }
+            else if (APointingToB && !BPointingToA) {
+                // Advance A
+                i1 -= 1;
+                if (i1 < 0) {
+                    finished1 = true;
+                    i1 += hull1.length;
+                }
+            }
+            else {
+                // Advance outside
+                if (this.cw(a[0], a[1], b[0], b[1], d[0], d[1])) {
+                    // Advance B
+                    i2 -= 1;
+                    if (i2 < 0) {
+                        finished2 = true;
+                        i2 += hull2.length;
+                    }
+                }
+                else {
+                    // Advance A
+                    i1 -= 1;
+                    if (i1 < 0) {
+                        finished1 = true;
+                        i1 += hull1.length;
+                    }
+                }
+            }
+        }
+        // Ok, we have all the intersections now
+        let avgIntersection = {x: 0, y: 0};
+        if (intersections.length === 0) {
+            avgIntersection.x = bounds1.width < bounds2.width ? c1.x : c2.x;
+            avgIntersection.y = bounds1.width < bounds2.width ? c1.y : c2.y;
+        }
+        else {
+            for (let i = 0; i < intersections.length; i++) {
+                avgIntersection.x += intersections[i].x;
+                avgIntersection.y += intersections[i].y;
+            }
+            avgIntersection.x /= intersections.length;
+            avgIntersection.y /= intersections.length;
+        }
+
+        let result = {};
+        if (options.intersections) {
+            result.intersections = intersections;
+        }
+        if (options.offset) {
+            // Calculate offset by taking the center of mass of the intersection, call it P,
+            // get the radius from P on this convex hull in the direction
+            // from this center to that center,
+            // Then, the offset is a vector in the direction from that center to this center
+            // with magnitude of that radius
+
+            let targetTheta = Math.atan2(c2.y - c1.y, c2.x - c1.x); //from c1 to c2
+            let r = this.radiusAtPointInDirection(hull1, avgIntersection, targetTheta);
+            targetTheta = (targetTheta + Math.PI) % (2 * Math.PI);
+            r += this.radiusAtPointInDirection(hull2, avgIntersection, targetTheta);
+
+            let directionX = c1.x - c2.x;
+            let directionY = c1.y - c2.y;
+            let mag = Math.sqrt(directionX*directionX + directionY*directionY);
+            directionX *= r / mag;
+            directionY *= r / mag;
+            result.offsetX = directionX;
+            result.offsetY = directionY;
+        }
+        if (options.overlap) {
+            //same as offset except instead of center to center, 
+            //we will move perpendicular to the best fit line
+            //of the intersection points
+
+            let directionX, directionY;
+            if (intersections.length < 2) {
+                directionX = c2.x - c1.x;
+                directionY = c2.y - c1.y;
+            }
+            else {
+                let max_d = 0;
+                for (let i = 1; i < intersections.length; i++) {
+                    let d = (intersections[i].y - intersections[0].y) * (intersections[i].y - intersections[0].y) +
+                        (intersections[i].x - intersections[0].x) * (intersections[i].x - intersections[0].x);
+                    if (d > max_d) {
+                        max_d = d;
+                        directionX = -(intersections[i].y - intersections[0].y);
+                        directionY = intersections[i].x - intersections[0].x;
+                        if (directionX * (c1.x - avgIntersection.x) + directionY * (c1.y - avgIntersection.y) > 0) {
+                            directionX = -directionX;
+                            directionY = -directionY;
+                        }
+                    }
+                }
+            }
+
+            let targetTheta = Math.atan2(directionY, directionX); 
+            let r = this.radiusAtPointInDirection(hull1, avgIntersection, targetTheta);
+            targetTheta = (targetTheta + Math.PI) % (2 * Math.PI);
+            r += this.radiusAtPointInDirection(hull2, avgIntersection, targetTheta);
+
+            let r2 = this.radiusAtPointInDirection(hull1, avgIntersection, targetTheta);
+            targetTheta = (targetTheta + Math.PI) % (2 * Math.PI);
+            r2 += this.radiusAtPointInDirection(hull2, avgIntersection, targetTheta);
+
+            if (r2 < r) {
+                r = r2;
+                directionX *= -1;
+                directionY *= -1;
+            }
+
+
+            let mag = Math.sqrt(directionX*directionX + directionY*directionY);
+            directionX *= -r / mag;
+            directionY *= -r / mag;
+            result.overlapX = directionX;
+            result.overlapY = directionY;
+        }
+        return result;
+    }
+
+    /**
+     * Casts a ray from p in the direction targetTheta and intersects it with the hull ch,
+     * returns the distance from p to the surface of ch.
+     * @param {list} ch - the convex hull to intersect a ray with
+     * @param {object} p - the point of origin of the ray
+     * @param {number} targetTheta - the direction of the ray
+     * @returns {number} the distance to the surface of the convex hull from the point in the direction theta
+     */
+    radiusAtPointInDirection(ch, p, targetTheta) {
+        let minThetaDiff = Infinity;
+        let index;
+        for (let i = 0; i < ch.length; i++) {
+            let theta = Math.atan2(ch[i][1] - p.y, ch[i][0] - p.x);
+            let thetaDiff = ((targetTheta - theta) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI); //positive mod
+            if (thetaDiff < minThetaDiff) {
+                minThetaDiff = thetaDiff;
+                index = i;
+            }
+        }
+        let a = ch[index];
+        let b = ch[(index + 1) % ch.length];
+        let c = [p.x, p.y];
+        let d = [p.x + 100 * Math.cos(targetTheta), p.y + 100 * Math.sin(targetTheta)];
+        //Use parametric line intersection
+        //<x,y> = a + (b - a)t1
+        //<x,y> = c + (d - c)t2
+        //a + (b - a)t1 = c + (d - c)t2
+        //t1 = (c.x + (d.x - c.x)t2 - a.x) / (b.x - a.x)
+        //a.y + (b.y - a.y) * (c.x + (d.x - c.x)t2 - a.x) / (b.x - a.x) = c.y + (d.y - c.y)t2
+        //t2((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y)) = c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x)
+        //t2 = (c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x))  /  ((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y))
+        let t2 = (c[1] - a[1] - (b[1] - a[1]) * (c[0] - a[0]) / (b[0] - a[0]))  /  ((b[1] - a[1]) * (d[0] - c[0]) / (b[0] - a[0]) - d[1] + c[1]);
+        let t1 = (c[0] + (d[0] - c[0]) * t2 - a[0]) / (b[0] - a[0]);
+        return Math.hypot(a[0] + (b[0] - a[0])*t1 - p.x, a[1] + (b[1] - a[1]) * t1 - p.y);
+    }
+
+    /**
+     * Perform hit test with other clip.
+     * @param {Wick.Clip} other - the clip to hit test with
+     * @param {object} options - Hit test options
+     * @returns {object} Hit information
+     */
+    hits(other, options) {
+        // Get hit options
+        let finalOptions = {...this.project.hitTestOptions};
+        if (options) {
+            if (options.mode === 'CIRCLE' || options.mode === 'RECTANGLE' || options.mode === 'CONVEX') {
+                finalOptions.mode = options.mode;
+            }
+            if (typeof options.offset === "boolean") {
+                finalOptions.offset = options.offset;
+            }
+            if (typeof options.overlap === "boolean") {
+                finalOptions.overlap = options.overlap;
+            }
+            if (typeof options.intersections === "boolean") {
+                finalOptions.intersections = options.intersections;
+            }
+            if (options.radius) {
+                finalOptions.radius = options.radius;
+            }
+        }
+
+        if (finalOptions.mode === 'CIRCLE') {
+            return this.circleHits(other, finalOptions);
+        }
+        else if (finalOptions.mode === 'CONVEX') {
+            return this.convexHits(other, finalOptions);
+        }
+        else {
+            return this.rectangleHits(other, finalOptions);
+        }
+    }
+
+    /**
      * Returns true if this clip collides with another clip.
      * @param {Wick.Clip} other - The other clip to check collision with.
      * @returns {boolean} True if this clip collides the other clip.
      */
     hitTest(other) {
-        // TODO: Refactor so that getting bounds does not rely on the view
-        return this.view.absoluteBounds.intersects(other.view.absoluteBounds);
+        // TODO: write intersects so we don't rely on paper Rectangle objects
+        return this.absoluteBounds.intersects(other.absoluteBounds);
     }
 
     /**
@@ -532,6 +945,63 @@ Wick.Clip = class extends Wick.Tickable {
     get bounds() {
         // TODO: Refactor so that getting bounds does not rely on the view
         return this.view.bounds;
+    }
+
+    get absoluteBounds() {
+        // TODO: Refactor so that getting bounds does not rely on the view
+        return this.view.absoluteBounds;
+    }
+
+    get points () {
+        // TODO: Refactor so that does not rely on the view
+        return this.view.points;
+    }
+
+    get radius () {
+        // Use length of half diagonal of bounding box
+        let b = this.absoluteBounds;
+        return Math.sqrt(b.width*b.width + b.height*b.height)/2/Math.sqrt(2);
+        
+        // Alternative: use largest distance from center to a point on the object
+        /*
+        let center = this.absoluteBounds.center;
+        let points = this.points;
+        let max_r = 0;
+        for (let p = 0; p < points.length; p++) {
+            let point = points[p];
+            let x = point[0] - center.x;
+            let y = point[1] - center.y;
+            max_r = Math.max(max_r, x*x + y*y);
+        }
+
+        return Math.sqrt(max_r);
+        */
+    }
+
+    // Gives clockwise in screen space, which is ccw in regular axes
+    get convexHull () {
+        let points = this.points;
+
+        // Infinity gets us the convex hull
+        let ch = hull(points, Infinity);
+
+        let removedDuplicates = [];
+        let epsilon = 0.01;
+        for (let i = 0; i < ch.length; i++) {
+            if (removedDuplicates.length > 0) {
+                if ((Math.abs(ch[i][0] - removedDuplicates[removedDuplicates.length - 1][0]) > epsilon ||
+                    Math.abs(ch[i][1] - removedDuplicates[removedDuplicates.length - 1][1]) > epsilon) && 
+                    (Math.abs(ch[i][0] - removedDuplicates[0][0]) > epsilon ||
+                    Math.abs(ch[i][1] - removedDuplicates[0][1]) > epsilon)) {
+                    removedDuplicates.push(ch[i]);
+                }
+            }
+            else {
+                removedDuplicates.push(ch[i]);
+            }
+        }
+
+        return removedDuplicates;
     }
 
     /**
