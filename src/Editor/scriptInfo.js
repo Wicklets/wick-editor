@@ -197,6 +197,16 @@ class ScriptInfoInterface extends Object {
                     description: 'The opacity of the object. 0 is completely transparent, 1 is completely opaque.',
                 },
                 {
+                    name: 'currentFrameName',
+                    snippet: 'this.currentFrameName',
+                    description: 'The name of the current frame. Returns empty string if the current frame does not have a name.'
+                },
+                {
+                    name: 'currentFrameNumber',
+                    snippet: 'this.currentFrameNumber',
+                    description: 'The number of the current frame being displayed.'
+                },
+                {
                     name: 'parent',
                     snippet: 'parent',
                     description: 'Returns the object that owns the calling object.',

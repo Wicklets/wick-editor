@@ -48,6 +48,8 @@
     --wick-pink: #FF66F0;
     --wick-pink-light: #ff80f2;
 
+    --wick-error: rgba(255, 0, 0, .6);
+
 
     /* Shadows */
     --wick-box-shadow: 2px 2px 8px var(--wick-primary); 
