@@ -945,7 +945,7 @@ class Inspector extends Component {
   render() {
     let selectionType = this.props.getSelectionType();
     return(
-      <div className="docked-pane inspector">
+      <div className="docked-pane inspector" aria-label="Inspector Panel">
         {this.renderTitle(selectionType)}
         <div className="inspector-body">
           {this.renderDisplay(selectionType)}

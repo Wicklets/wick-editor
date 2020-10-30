@@ -49,6 +49,11 @@
     justify-content: center;
 }
 
+/* Hide scrollbar for Chrome, Safari and Opera */
+.wick-code-editor-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
 .wick-code-editor-tabs {
     height: var(--handle-height);
     background-color: var(--wick-secondary);
@@ -56,6 +61,9 @@
     flex-direction: row;
     align-items: baseline;
     overflow-x: scroll;
+    overflow-y: scroll;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
 }
 
 .wick-code-editor-reference {
@@ -71,11 +79,18 @@
     flex-direction: column;
 }
 
+/* Hide scrollbar for Chrome, Safari and Opera */
+.wick-code-editor-code::-webkit-scrollbar {
+    display: none;
+}
+  
 .wick-code-editor-code {
     background-color:black;
     height: 100%;
     max-width: 100%;
     overflow-x: scroll;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
 }
 
 .wick-code-editor-console {
@@ -267,8 +282,15 @@
     margin-right: auto;
 }
 
+/* Hide scrollbar for Chrome, Safari and Opera */
+.we-code-reference-body::-webkit-scrollbar {
+    display: none;
+}
+
 .we-code-reference-body {
     overflow-y: scroll;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
 }
 
 .code-editor-option-input {
@@ -294,23 +316,23 @@
 }
 
 /* Theme Overrides */
-.theme-monokai > .ace_gutter {
+.ace-monokai > .ace_gutter {
     background: #292929 !important;
     color: #FFFFFF !important;
   }
   
-.theme-monokai > .ace_scroller {
-background-color: #202020;
+.ace-monokai > .ace_scroller {
+    background-color: #202020;
 }
 
-.theme-monokai > .ace_constant.ace_numeric {
-color: #CAADFF !important;
+.ace-monokai > .ace_constant.ace_numeric {
+    color: #CAADFF !important;
 }
 
-.theme-monokai > .ace_comment {
-color: #ABABAB !important;
+.ace-monokai > .ace_comment {
+    color: #ABABAB !important;
 }
 
-.theme-monokai > .ace_keyword {
-color: #FF80B9 !important;
+.ace-monokai > .ace_keyword {
+    color: #FF80B9 !important;
 }

@@ -382,7 +382,7 @@ export default function WickCodeEditor(props) {
 
                 </div>
 
-                {consoleType === 'console' && <Console logs={props.consoleLogs} variant="dark" />}
+                {consoleType === 'console' && <Console logs={props.consoleLogs} variant="dark" styles={{}}/>}
                 {consoleType === 'options' && renderCodeEditorOptions()}
               </div>
             </ReflexElement>

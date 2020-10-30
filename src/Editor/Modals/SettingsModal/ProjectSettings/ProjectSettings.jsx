@@ -306,7 +306,7 @@ class ProjectSettings extends Component {
         {this.presets.map((preset,i) => {
           return (
             <ActionButton
-            buttonProps={{"aria-labelledby": "resolution presets"}}
+            buttonProps={{"aria-labelledby": "resolution-presets"}}
             key={"preset" + i}
             className="project-settings-modal-preset"
             text={preset.name}
@@ -322,7 +322,7 @@ class ProjectSettings extends Component {
   renderPresets = () => {
     return (
       <div className="project-setting-element project-settings-presets-container">
-        <label id="resolution presets" className="project-settings-property-label">
+        <label id="resolution-presets" className="project-settings-property-label">
           Presets
         </label>
         <div className="project-settings-presets-body-container">

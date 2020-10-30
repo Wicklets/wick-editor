@@ -122,6 +122,7 @@ export const AudioPlayer = ({src, loadSrc}) => {
                     type="slider"
                     containerclassname="time-slider-container"
                     className="time-slider"
+                    aria-label="audio control slider"
                     onChange={(t) => {
                         setCurrentT(t);
                         if (canPlay) {

@@ -212,7 +212,7 @@ class WickInput extends Component {
 
     return (
       <Select
-        id={this.props.id}
+        inputId={this.props.id}
         onChange={this.props.onChange}
         defaultValue={value}
         options={this.props.options}
@@ -246,12 +246,12 @@ class WickInput extends Component {
     return (
       <div className="wick-checkbox-container">
         {this.props.label && 
-          <label id={this.props.label} className="wick-checkbox-label">
+          <label for={this.props.label} className="wick-checkbox-label">
             {this.props.label}
           </label>
         }
         <input 
-          aria-labelledby={this.props.label}
+          id={this.props.label}
           className="wick-checkbox"
           {...this.props} 
           type="checkbox" />

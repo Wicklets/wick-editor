@@ -180,6 +180,7 @@ class ExportOptions extends Component {
         {this.state.useAdvanced &&
           <div className="export-modal-advanced-options-content">
 
+          {/* label is this because overwriting default library react-select */}
           <label htmlFor="resolution" className="export-modal-advanced-option-title">
             Resolution
           </label>
@@ -187,6 +188,7 @@ class ExportOptions extends Component {
           <div className="export-modal-resolution-inputs">
             <div className="export-modal-resolution-dropdown-container">
               <WickInput
+                id="resolution"
                 inputProps={{id: "resolution"}}
                 type="select"
                 value={this.state.exportResolution}
@@ -451,7 +453,8 @@ class ExportOptions extends Component {
               type="text"
               value={this.state.name}
               onChange={this.updateExportName}
-              placeholder={this.placeholderName} />
+              placeholder={this.placeholderName}
+              aria-label="project name" />
           </div>
           <TabbedInterface
             tabNames={window.allowedExportTypes}
@@ -479,7 +482,8 @@ class ExportOptions extends Component {
               type="text"
               value={this.state.name}
               onChange={this.updateExportName}
-              placeholder={this.placeholderName} />
+              placeholder={this.placeholderName}
+              aria-label="project name" />
           </div>
           <TabbedInterface
             tabNames={["GIF", "Video"]}

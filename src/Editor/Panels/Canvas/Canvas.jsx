@@ -68,7 +68,7 @@ class Canvas extends Component {
     const { connectDropTarget, isOver } = this.props;
 
     return connectDropTarget (
-      <div id="canvas-container-wrapper" style={{width:"100%", height:"100%"}}>
+      <div id="canvas-container-wrapper" style={{width:"100%", height:"100%"}} aria-label="Canvas">
         { isOver && <div className="drag-drop-overlay" /> }
         <div id="wick-canvas-container" ref={this.canvasContainer}></div>
       </div>

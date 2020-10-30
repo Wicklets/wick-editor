@@ -122,7 +122,7 @@ class AssetLibrary extends Component {
     let filteredAssets = this.filterArray(this.props.assets);
     let sortedFilteredAssets = this.sortAssets(filteredAssets);
     return(
-      <div className="docked-pane asset-library">
+      <div className="docked-pane asset-library" aria-label="Asset Library">
         {this.renderTitle()}
         <div className="asset-library-body">
           <div className="asset-library-filter">
@@ -131,6 +131,7 @@ class AssetLibrary extends Component {
             </div>
             <WickInput
               id="asset-library-filter-input"
+              aria-label="filter"
               placeholder="filter..."
               type="text"
               onChange={this.updateFilter}

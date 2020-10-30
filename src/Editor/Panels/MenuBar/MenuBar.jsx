@@ -31,7 +31,7 @@ class MenuBar extends Component {
 
   renderDesktop = () => {
     return(
-      <div className="docked-pane menu-bar">
+      <div className="docked-pane menu-bar" aria-label="Menu Bar">
         <MenuBarIconButton
           id="tool-information-button"
           tooltip="Editor Information"

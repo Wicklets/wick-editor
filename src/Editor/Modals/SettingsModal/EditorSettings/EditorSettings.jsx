@@ -43,11 +43,11 @@ class EditorSettings extends Component {
     return (
       <div className="editor-settings-modal-body">
         <div className="editor-settings-group">
-          <label htmlFor="onion skin style" className="editor-settings-group-title">Onion Skinning</label>
+          <label htmlFor="onion-skin-style" className="editor-settings-group-title">Onion Skinning</label>
             Style:
             <WickInput
               type="select"
-              id="onion skin style"
+              id="onion-skin-style"
               value={this.props.getToolSetting('onionSkinStyle')}
               options={optionsLabels}
               onChange={(val) => {this.props.setToolSetting('onionSkinStyle', val.value)}}
