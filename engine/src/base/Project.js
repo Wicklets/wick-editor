@@ -1435,8 +1435,6 @@ Wick.Project = class extends Wick.Base {
      * @param {object} args - Optional arguments
      */
     play(args) {
-        console.log("Project:", Wick.ObjectCache.getAllObjects());
-
         if (!args) args = {};
         if (!args.onError) args.onError = () => {};
         if (!args.onBeforeTick) args.onBeforeTick = () => {};
