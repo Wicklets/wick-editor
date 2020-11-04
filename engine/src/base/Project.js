@@ -1435,6 +1435,8 @@ Wick.Project = class extends Wick.Base {
      * @param {object} args - Optional arguments
      */
     play(args) {
+        console.log("Project:", Wick.ObjectCache.getAllObjects());
+
         if (!args) args = {};
         if (!args.onError) args.onError = () => {};
         if (!args.onBeforeTick) args.onBeforeTick = () => {};
@@ -1534,6 +1536,7 @@ Wick.Project = class extends Wick.Base {
 
         // Load the state of the project before it was played
         this.history.loadSnapshot('state-before-play');
+        Wick.ObjectCache.removeUnusedObjects(this);
 
         if (this.error) {
             // An error occured.

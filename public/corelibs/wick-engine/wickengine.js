@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.10.27.11.50.0";
+var WICK_ENGINE_BUILD_VERSION = "2020.11.4.15.7.45";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -46492,6 +46492,15 @@ WickObjectCache = class {
     delete this._objects[object.uuid];
   }
   /**
+   * Remove an object from the cache.
+   * @param {string} uuid - uuid of the object to remove from the cache
+   */
+
+
+  removeObjectByUUID(uuid) {
+    delete this._objects[uuid];
+  }
+  /**
    * Remove all objects from the Object Cache.
    */
 
@@ -46545,8 +46554,12 @@ WickObjectCache = class {
 
   removeUnusedObjects(project) {
     var activeObjects = this.getActiveObjects(project);
+    let uuids = activeObjects.map(obj => obj.uuid);
+    uuids.push(project.uuid); // Don't forget to include the project itself...
+
+    let uuidSet = new Set(uuids);
     this.getAllObjects().forEach(object => {
-      if (activeObjects.indexOf(object) === -1) {
+      if (!uuidSet.has(object.uuid)) {
         this.removeObject(object);
       }
     });
@@ -49050,8 +49063,10 @@ Wick.Base = class {
   }
 
   set uuid(uuid) {
-    // Please try to avoid using this unless you absolutely have to ;_;
+    let oldUUID = this._uuid; // Please try to avoid using this unless you absolutely have to ;_;
+
     this._uuid = uuid;
+    Wick.ObjectCache.removeObjectByUUID(oldUUID);
     Wick.ObjectCache.addObject(this);
   }
   /**
@@ -51303,6 +51318,7 @@ Wick.Project = class extends Wick.Base {
 
 
   play(args) {
+    console.log("Project:", Wick.ObjectCache.getAllObjects());
     if (!args) args = {};
     if (!args.onError) args.onError = () => {};
     if (!args.onBeforeTick) args.onBeforeTick = () => {};
@@ -51390,6 +51406,7 @@ Wick.Project = class extends Wick.Base {
     var currentPlayhead = this.focus.timeline.playheadPosition; // Load the state of the project before it was played
 
     this.history.loadSnapshot('state-before-play');
+    Wick.ObjectCache.removeUnusedObjects(this);
 
     if (this.error) {
       // An error occured.

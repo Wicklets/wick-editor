@@ -264,8 +264,11 @@ Wick.Base = class {
     }
 
     set uuid(uuid) {
+        let oldUUID = this._uuid;
         // Please try to avoid using this unless you absolutely have to ;_;
         this._uuid = uuid;
+
+        Wick.ObjectCache.removeObjectByUUID(oldUUID);
         Wick.ObjectCache.addObject(this);
     }
 
