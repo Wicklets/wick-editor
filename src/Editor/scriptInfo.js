@@ -238,6 +238,12 @@ class ScriptInfoInterface extends Object {
                     param: [{name: 'that', type: 'object'}],
                     returns: [{type: 'object', description: 'Returns {offsetX, offsetY, overlapX, overlapY, intersections}'}],
                 },
+                {
+                    name: 'if (hits)',
+                    snippet: 'if (this.hits(that)) {\n //Do Something!\n}',
+                    description: 'A conditional that can be used to check if two objects collide.',
+                    param: [{name: 'that', type: 'object'}],
+                },
                 /*{
                     name: 'hitTest',
                     snippet: 'this.hitTest(that)',
