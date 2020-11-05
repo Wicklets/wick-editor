@@ -38,6 +38,7 @@ Wick.Project = class extends Wick.Base {
         this._height = args.height || 480;
         this._framerate = args.framerate || 12;
         this._backgroundColor = args.backgroundColor || new Wick.Color('#ffffff');
+        this._hitTestOptions = this.getDefaultHitTestOptions();
 
         this.pan = { x: 0, y: 0 };
         this._zoom = 1.0;
@@ -144,6 +145,8 @@ Wick.Project = class extends Wick.Base {
         this._muted = false;
         this._renderBlackBars = true;
 
+        this._hitTestOptions = this.getDefaultHitTestOptions();
+
         // reset rotation, but not pan/zoom.
         // not resetting pan/zoom is convenient when preview playing.
         this.rotation = 0;
@@ -168,6 +171,10 @@ Wick.Project = class extends Wick.Base {
         data.metadata = Wick.WickFile.generateMetaData();
 
         return data;
+    }
+
+    getDefaultHitTestOptions() {
+        return {mode: 'RECTANGLE', offset: true, overlap: true, intersections: false};
     }
 
     get classname() {
@@ -247,6 +254,27 @@ Wick.Project = class extends Wick.Base {
 
     set backgroundColor(backgroundColor) {
         this._backgroundColor = backgroundColor;
+    }
+
+    get hitTestOptions() {
+        return this._hitTestOptions;
+    }
+
+    set hitTestOptions(options) {
+        if (options) {
+            if (options.mode === 'CIRCLE' || options.mode === 'RECTANGLE' || options.mode === 'CONVEX') {
+                this._hitTestOptions.mode = options.mode;
+            }
+            if (typeof options.offset === 'boolean') {
+                this._hitTestOptions.offset = options.offset;
+            }
+            if (typeof options.overlap === 'boolean') {
+                this._hitTestOptions.overlap = options.overlap;
+            }
+            if (typeof options.intersections === 'boolean') {
+                this._hitTestOptions.intersections = options.intersections;
+            }
+        }
     }
 
     /**
@@ -1506,6 +1534,7 @@ Wick.Project = class extends Wick.Base {
 
         // Load the state of the project before it was played
         this.history.loadSnapshot('state-before-play');
+        Wick.ObjectCache.removeUnusedObjects(this);
 
         if (this.error) {
             // An error occured.

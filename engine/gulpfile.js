@@ -30,6 +30,7 @@ gulp.task("default", function() {
       'lib/esprima.js',
       'lib/floodfill.min.js',
       'lib/howler.js',
+      'lib/hull.js',
       'lib/invert.min.js',
       'lib/is-var-name.js',
       'lib/jquery-3.3.1.min.js',

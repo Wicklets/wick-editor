@@ -281,6 +281,11 @@ window.wickDocs =
             "description": "True if the objects collide, false otherwise."
           }
         },
+        { //TODO
+          "name": "hits(that, options)",
+          "description": "Checks for a collision with another object, returns information about the collision.",
+          "example": "// "
+        },
         /*{
           "name": "getHitInfo(otherObject)",
           "description": "Returns information about a collision between two objects if they are touching.",

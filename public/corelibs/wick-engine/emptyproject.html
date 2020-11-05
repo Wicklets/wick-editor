@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.10.23.18.57.7";
+var WICK_ENGINE_BUILD_VERSION = "2020.11.4.15.7.45";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -29198,6 +29198,405 @@ var floodfill = (function() {
   };
 })();
 
+// Copyright (c) 2014-2019, Andrii Heonia
+// All rights reserved.
+
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+
+// * Redistributions of source code must retain the above copyright notice, this
+//   list of conditions and the following disclaimer.
+
+// * Redistributions in binary form must reproduce the above copyright notice,
+//   this list of conditions and the following disclaimer in the documentation
+//   and/or other materials provided with the distribution.
+
+// * Neither the name of the author nor the names of its
+//   contributors may be used to endorse or promote products derived from
+//   this software without specific prior written permission.
+
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.hull = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+function _cross(o, a, b) {
+    return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+}
+
+function _upperTangent(pointset) {
+    const lower = [];
+    for (let l = 0; l < pointset.length; l++) {
+        while (lower.length >= 2 && (_cross(lower[lower.length - 2], lower[lower.length - 1], pointset[l]) <= 0)) {
+            lower.pop();
+        }
+        lower.push(pointset[l]);
+    }
+    lower.pop();
+    return lower;
+}
+
+function _lowerTangent(pointset) {
+    const reversed = pointset.reverse(),
+        upper = [];
+    for (let u = 0; u < reversed.length; u++) {
+        while (upper.length >= 2 && (_cross(upper[upper.length - 2], upper[upper.length - 1], reversed[u]) <= 0)) {
+            upper.pop();
+        }
+        upper.push(reversed[u]);
+    }
+    upper.pop();
+    return upper;
+}
+
+// pointset has to be sorted by X
+function convex(pointset) {
+    const upper = _upperTangent(pointset),
+          lower = _lowerTangent(pointset);
+    const convex = lower.concat(upper);
+    convex.push(pointset[0]);  
+    return convex;  
+}
+
+module.exports = convex;
+
+},{}],2:[function(require,module,exports){
+module.exports = {
+
+    toXy: function(pointset, format) {
+        if (format === undefined) {
+            return pointset.slice();
+        }
+        return pointset.map(function(pt) {
+            /*jslint evil: true */
+            const _getXY = new Function('pt', 'return [pt' + format[0] + ',' + 'pt' + format[1] + '];');
+            return _getXY(pt);
+        });
+    },
+
+    fromXy: function(pointset, format) {
+        if (format === undefined) {
+            return pointset.slice();
+        }
+        return pointset.map(function(pt) {
+            /*jslint evil: true */
+            const _getObj = new Function('pt', 'const o = {}; o' + format[0] + '= pt[0]; o' + format[1] + '= pt[1]; return o;');
+            return _getObj(pt);
+        });
+    }
+
+}
+},{}],3:[function(require,module,exports){
+function Grid(points, cellSize) {
+    this._cells = [];
+    this._cellSize = cellSize;
+    this._reverseCellSize = 1 / cellSize;
+
+    for (let i = 0; i < points.length; i++) {
+        const point = points[i];
+        const x = this.coordToCellNum(point[0]);
+        const y = this.coordToCellNum(point[1]);
+        if (!this._cells[x]) {
+            const array = [];
+            array[y] = [point];
+            this._cells[x] = array;
+        } else if (!this._cells[x][y]) {
+            this._cells[x][y] = [point];
+        } else {
+            this._cells[x][y].push(point);
+        }
+    }
+}
+
+Grid.prototype = {
+    cellPoints: function(x, y) { // (Number, Number) -> Array
+        return (this._cells[x] !== undefined && this._cells[x][y] !== undefined) ? this._cells[x][y] : [];
+    },
+
+    rangePoints: function(bbox) { // (Array) -> Array
+        const tlCellX = this.coordToCellNum(bbox[0]);
+        const tlCellY = this.coordToCellNum(bbox[1]);
+        const brCellX = this.coordToCellNum(bbox[2]);
+        const brCellY = this.coordToCellNum(bbox[3]);
+        const points = [];
+
+        for (let x = tlCellX; x <= brCellX; x++) {
+            for (let y = tlCellY; y <= brCellY; y++) {
+                Array.prototype.push.apply(points, this.cellPoints(x, y));
+            }
+        }
+
+        return points;
+    },
+
+    removePoint: function(point) { // (Array) -> Array
+        const cellX = this.coordToCellNum(point[0]);
+        const cellY = this.coordToCellNum(point[1]);
+        const cell = this._cells[cellX][cellY];
+        let pointIdxInCell;
+        
+        for (let i = 0; i < cell.length; i++) {
+            if (cell[i][0] === point[0] && cell[i][1] === point[1]) {
+                pointIdxInCell = i;
+                break;
+            }
+        }
+
+        cell.splice(pointIdxInCell, 1);
+
+        return cell;
+    },
+
+    trunc: Math.trunc || function(val) { // (number) -> number
+        return val - val % 1;
+    },
+
+    coordToCellNum: function(x) { // (number) -> number
+        return this.trunc(x * this._reverseCellSize);
+    },
+
+    extendBbox: function(bbox, scaleFactor) { // (Array, Number) -> Array
+        return [
+            bbox[0] - (scaleFactor * this._cellSize),
+            bbox[1] - (scaleFactor * this._cellSize),
+            bbox[2] + (scaleFactor * this._cellSize),
+            bbox[3] + (scaleFactor * this._cellSize)
+        ];
+    }
+};
+
+function grid(points, cellSize) {
+    return new Grid(points, cellSize);
+}
+
+module.exports = grid;
+},{}],4:[function(require,module,exports){
+/*
+ (c) 2014-2019, Andrii Heonia
+ Hull.js, a JavaScript library for concave hull generation by set of points.
+ https://github.com/AndriiHeonia/hull
+*/
+
+'use strict';
+
+const intersect = require('./intersect.js');
+const grid = require('./grid.js');
+const formatUtil = require('./format.js');
+const convexHull = require('./convex.js');
+
+function _filterDuplicates(pointset) {
+    const unique = [pointset[0]];
+    let lastPoint = pointset[0];
+    for (let i = 1; i < pointset.length; i++) {
+        const currentPoint = pointset[i];
+        if (lastPoint[0] !== currentPoint[0] || lastPoint[1] !== currentPoint[1]) {
+            unique.push(currentPoint);
+        }
+        lastPoint = currentPoint;
+    }
+    return unique;
+}
+
+function _sortByX(pointset) {
+    return pointset.sort(function(a, b) {
+        return (a[0] - b[0]) || (a[1] - b[1]);
+    });
+}
+
+function _sqLength(a, b) {
+    return Math.pow(b[0] - a[0], 2) + Math.pow(b[1] - a[1], 2);
+}
+
+function _cos(o, a, b) {
+    const aShifted = [a[0] - o[0], a[1] - o[1]],
+        bShifted = [b[0] - o[0], b[1] - o[1]],
+        sqALen = _sqLength(o, a),
+        sqBLen = _sqLength(o, b),
+        dot = aShifted[0] * bShifted[0] + aShifted[1] * bShifted[1];
+
+    return dot / Math.sqrt(sqALen * sqBLen);
+}
+
+function _intersect(segment, pointset) {
+    for (let i = 0; i < pointset.length - 1; i++) {
+        const seg = [pointset[i], pointset[i + 1]];
+        if (segment[0][0] === seg[0][0] && segment[0][1] === seg[0][1] ||
+            segment[0][0] === seg[1][0] && segment[0][1] === seg[1][1]) {
+            continue;
+        }
+        if (intersect(segment, seg)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function _occupiedArea(pointset) {
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+
+    for (let i = pointset.length - 1; i >= 0; i--) {
+        if (pointset[i][0] < minX) {
+            minX = pointset[i][0];
+        }
+        if (pointset[i][1] < minY) {
+            minY = pointset[i][1];
+        }
+        if (pointset[i][0] > maxX) {
+            maxX = pointset[i][0];
+        }
+        if (pointset[i][1] > maxY) {
+            maxY = pointset[i][1];
+        }
+    }
+
+    return [
+        maxX - minX, // width
+        maxY - minY  // height
+    ];
+}
+
+function _bBoxAround(edge) {
+    return [
+        Math.min(edge[0][0], edge[1][0]), // left
+        Math.min(edge[0][1], edge[1][1]), // top
+        Math.max(edge[0][0], edge[1][0]), // right
+        Math.max(edge[0][1], edge[1][1])  // bottom
+    ];
+}
+
+function _midPoint(edge, innerPoints, convex) {
+    let point = null,
+        angle1Cos = MAX_CONCAVE_ANGLE_COS,
+        angle2Cos = MAX_CONCAVE_ANGLE_COS,
+        a1Cos, a2Cos;
+
+    for (let i = 0; i < innerPoints.length; i++) {
+        a1Cos = _cos(edge[0], edge[1], innerPoints[i]);
+        a2Cos = _cos(edge[1], edge[0], innerPoints[i]);
+
+        if (a1Cos > angle1Cos && a2Cos > angle2Cos &&
+            !_intersect([edge[0], innerPoints[i]], convex) &&
+            !_intersect([edge[1], innerPoints[i]], convex)) {
+
+            angle1Cos = a1Cos;
+            angle2Cos = a2Cos;
+            point = innerPoints[i];
+        }
+    }
+
+    return point;
+}
+
+function _concave(convex, maxSqEdgeLen, maxSearchArea, grid, edgeSkipList) {
+    let midPointInserted = false;
+
+    for (let i = 0; i < convex.length - 1; i++) {
+        const edge = [convex[i], convex[i + 1]];
+        // generate a key in the format X0,Y0,X1,Y1
+        const keyInSkipList = edge[0][0] + ',' + edge[0][1] + ',' + edge[1][0] + ',' + edge[1][1];
+
+        if (_sqLength(edge[0], edge[1]) < maxSqEdgeLen ||
+            edgeSkipList.has(keyInSkipList)) { continue; }
+
+        let scaleFactor = 0;
+        let bBoxAround = _bBoxAround(edge);
+        let bBoxWidth;
+        let bBoxHeight;
+        let midPoint;
+        do {
+            bBoxAround = grid.extendBbox(bBoxAround, scaleFactor);
+            bBoxWidth = bBoxAround[2] - bBoxAround[0];
+            bBoxHeight = bBoxAround[3] - bBoxAround[1];
+
+            midPoint = _midPoint(edge, grid.rangePoints(bBoxAround), convex);
+            scaleFactor++;
+        }  while (midPoint === null && (maxSearchArea[0] > bBoxWidth || maxSearchArea[1] > bBoxHeight));
+
+        if (bBoxWidth >= maxSearchArea[0] && bBoxHeight >= maxSearchArea[1]) {
+            edgeSkipList.add(keyInSkipList);
+        }
+
+        if (midPoint !== null) {
+            convex.splice(i + 1, 0, midPoint);
+            grid.removePoint(midPoint);
+            midPointInserted = true;
+        }
+    }
+
+    if (midPointInserted) {
+        return _concave(convex, maxSqEdgeLen, maxSearchArea, grid, edgeSkipList);
+    }
+
+    return convex;
+}
+
+function hull(pointset, concavity, format) {
+    let maxEdgeLen = concavity || 20;
+
+    const points = _filterDuplicates(_sortByX(formatUtil.toXy(pointset, format)));
+
+    if (points.length < 4) {
+        return points.concat([points[0]]);
+    }
+
+    const occupiedArea = _occupiedArea(points);
+    const maxSearchArea = [
+        occupiedArea[0] * MAX_SEARCH_BBOX_SIZE_PERCENT,
+        occupiedArea[1] * MAX_SEARCH_BBOX_SIZE_PERCENT
+    ];
+
+    const convex = convexHull(points);
+    const innerPoints = points.filter(function(pt) {
+        return convex.indexOf(pt) < 0;
+    });
+
+    const cellSize = Math.ceil(1 / (points.length / (occupiedArea[0] * occupiedArea[1])));
+
+    const concave = _concave(
+        convex, Math.pow(maxEdgeLen, 2),
+        maxSearchArea, grid(innerPoints, cellSize), new Set());
+
+    if (format) {
+        return formatUtil.fromXy(concave, format);
+    } else {
+        return concave;
+    }
+}
+
+const MAX_CONCAVE_ANGLE_COS = Math.cos(90 / (180 / Math.PI)); // angle = 90 deg
+const MAX_SEARCH_BBOX_SIZE_PERCENT = 0.6;
+
+module.exports = hull;
+
+},{"./convex.js":1,"./format.js":2,"./grid.js":3,"./intersect.js":5}],5:[function(require,module,exports){
+function ccw(x1, y1, x2, y2, x3, y3) {           
+    const cw = ((y3 - y1) * (x2 - x1)) - ((y2 - y1) * (x3 - x1));
+    return cw > 0 ? true : cw < 0 ? false : true; // colinear
+}
+
+function intersect(seg1, seg2) {
+  const x1 = seg1[0][0], y1 = seg1[0][1],
+      x2 = seg1[1][0], y2 = seg1[1][1],
+      x3 = seg2[0][0], y3 = seg2[0][1],
+      x4 = seg2[1][0], y4 = seg2[1][1];
+
+    return ccw(x1, y1, x3, y3, x4, y4) !== ccw(x2, y2, x3, y3, x4, y4) && ccw(x1, y1, x2, y2, x3, y3) !== ccw(x1, y1, x2, y2, x4, y4);
+}
+
+module.exports = intersect;
+},{}]},{},[4])(4)
+});
+
 /*! @license MIT. https://github.com/onury/invert-color */
 !function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t():"function"==typeof define&&define.amd?define("invert",[],t):"object"==typeof exports?exports.invert=t():e.invert=t()}(this,function(){return function(e){var t={};function r(n){if(t[n])return t[n].exports;var o=t[n]={i:n,l:!1,exports:{}};return e[n].call(o.exports,o,o.exports,r),o.l=!0,o.exports}return r.m=e,r.c=t,r.d=function(e,t,n){r.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:n})},r.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},r.t=function(e,t){if(1&t&&(e=r(e)),8&t)return e;if(4&t&&"object"==typeof e&&e&&e.__esModule)return e;var n=Object.create(null);if(r.r(n),Object.defineProperty(n,"default",{enumerable:!0,value:e}),2&t&&"string"!=typeof e)for(var o in e)r.d(n,o,function(t){return e[t]}.bind(null,o));return n},r.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return r.d(t,"a",t),t},r.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},r.p="lib/",r(r.s=0)}([function(e,t,r){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var n=Math.sqrt(1.05*.05)-.05,o=/^(?:[0-9a-f]{3}){1,2}$/i,i={black:"#000000",white:"#ffffff"};function u(e){if("#"===e.slice(0,1)&&(e=e.slice(1)),!o.test(e))throw new Error('Invalid HEX color: "'+e+'"');return 3===e.length&&(e=e[0]+e[0]+e[1]+e[1]+e[2]+e[2]),[parseInt(e.slice(0,2),16),parseInt(e.slice(2,4),16),parseInt(e.slice(4,6),16)]}function f(e){if(!e)throw new Error("Invalid color value");return Array.isArray(e)?e:"string"==typeof e?u(e):[e.r,e.g,e.b]}function c(e,t,r){var o=!0===t?i:Object.assign({},i,t);return function(e){var t,r,n=[];for(t=0;t<e.length;t++)r=e[t]/255,n[t]=r<=.03928?r/12.92:Math.pow((r+.055)/1.055,2.4);return.2126*n[0]+.7152*n[1]+.0722*n[2]}(e)>n?r?u(o.black):o.black:r?u(o.white):o.white}function a(e,t){return void 0===t&&(t=!1),e=f(e),t?c(e,t):"#"+e.map(function(e){return t=(255-e).toString(16),void 0===r&&(r=2),(new Array(r).join("0")+t).slice(-r);var t,r}).join("")}t.invert=a,function(e){function t(e,t){void 0===t&&(t=!1),e=f(e);var r,n=t?c(e,t,!0):e.map(function(e){return 255-e});return{r:(r=n)[0],g:r[1],b:r[2]}}e.asRGB=t,e.asRgbArray=function(e,t){return void 0===t&&(t=!1),e=f(e),t?c(e,t,!0):e.map(function(e){return 255-e})},e.asRgbObject=t}(a||(a={})),t.invert=a,t.default=a}]).default});
 
@@ -46108,6 +46507,15 @@ WickObjectCache = class {
     delete this._objects[object.uuid];
   }
   /**
+   * Remove an object from the cache.
+   * @param {string} uuid - uuid of the object to remove from the cache
+   */
+
+
+  removeObjectByUUID(uuid) {
+    delete this._objects[uuid];
+  }
+  /**
    * Remove all objects from the Object Cache.
    */
 
@@ -46161,8 +46569,12 @@ WickObjectCache = class {
 
   removeUnusedObjects(project) {
     var activeObjects = this.getActiveObjects(project);
+    let uuids = activeObjects.map(obj => obj.uuid);
+    uuids.push(project.uuid); // Don't forget to include the project itself...
+
+    let uuidSet = new Set(uuids);
     this.getAllObjects().forEach(object => {
-      if (activeObjects.indexOf(object) === -1) {
+      if (!uuidSet.has(object.uuid)) {
         this.removeObject(object);
       }
     });
@@ -46603,7 +47015,7 @@ GlobalAPI = class {
     return ['stop', 'play', 'gotoAndStop', 'gotoAndPlay', 'gotoNextFrame', 'gotoPrevFrame', // These are currently disabled, they are very slow for some reason.
     // They are currently hacked in inside Tickable._runFunction
     //'project','root','parent','parentObject',
-    'isMouseDown', 'mouseX', 'mouseY', 'mouseMoveX', 'mouseMoveY', 'key', 'keys', 'isKeyDown', 'keyIsDown', 'isKeyJustPressed', 'keyIsJustPressed', 'random', 'playSound', 'stopAllSounds', 'onEvent', 'hideCursor', 'showCursor'];
+    'isMouseDown', 'mouseX', 'mouseY', 'mouseMoveX', 'mouseMoveY', 'key', 'keys', 'isKeyDown', 'keyIsDown', 'isKeyJustPressed', 'keyIsJustPressed', 'random', 'playSound', 'stopAllSounds', 'onEvent', 'hideCursor', 'showCursor', 'hitTestOptions'];
   }
   /**
    * @param {object} scriptOwner The tickable object which owns the script being evaluated.
@@ -46685,6 +47097,10 @@ GlobalAPI = class {
   gotoPrevFrame() {
     this.scriptOwner.parentClip.gotoPrevFrame();
   }
+
+  hitTestOptions(options) {
+    this.scriptOwner.project.hitTestOptions = options;
+  }
   /**
    * Returns an object representing the project with properties such as width, height, framerate, background color, and name.
    * @returns {object} Project object.
@@ -46701,6 +47117,7 @@ GlobalAPI = class {
       project.framerate = this.scriptOwner.project.framerate;
       project.backgroundColor = this.scriptOwner.project.backgroundColor;
       project.name = this.scriptOwner.project.name;
+      project.hitTestOptions = this.scriptOwner.project.hitTestOptions;
     }
 
     return project;
@@ -48661,8 +49078,10 @@ Wick.Base = class {
   }
 
   set uuid(uuid) {
-    // Please try to avoid using this unless you absolutely have to ;_;
+    let oldUUID = this._uuid; // Please try to avoid using this unless you absolutely have to ;_;
+
     this._uuid = uuid;
+    Wick.ObjectCache.removeObjectByUUID(oldUUID);
     Wick.ObjectCache.addObject(this);
   }
   /**
@@ -49424,6 +49843,7 @@ Wick.Project = class extends Wick.Base {
     this._height = args.height || 480;
     this._framerate = args.framerate || 12;
     this._backgroundColor = args.backgroundColor || new Wick.Color('#ffffff');
+    this._hitTestOptions = this.getDefaultHitTestOptions();
     this.pan = {
       x: 0,
       y: 0
@@ -49527,7 +49947,8 @@ Wick.Project = class extends Wick.Base {
     this._focus = data.focus;
     this._hideCursor = false;
     this._muted = false;
-    this._renderBlackBars = true; // reset rotation, but not pan/zoom.
+    this._renderBlackBars = true;
+    this._hitTestOptions = this.getDefaultHitTestOptions(); // reset rotation, but not pan/zoom.
     // not resetting pan/zoom is convenient when preview playing.
 
     this.rotation = 0;
@@ -49548,6 +49969,15 @@ Wick.Project = class extends Wick.Base {
 
     data.metadata = Wick.WickFile.generateMetaData();
     return data;
+  }
+
+  getDefaultHitTestOptions() {
+    return {
+      mode: 'RECTANGLE',
+      offset: true,
+      overlap: true,
+      intersections: false
+    };
   }
 
   get classname() {
@@ -49634,6 +50064,30 @@ Wick.Project = class extends Wick.Base {
 
   set backgroundColor(backgroundColor) {
     this._backgroundColor = backgroundColor;
+  }
+
+  get hitTestOptions() {
+    return this._hitTestOptions;
+  }
+
+  set hitTestOptions(options) {
+    if (options) {
+      if (options.mode === 'CIRCLE' || options.mode === 'RECTANGLE' || options.mode === 'CONVEX') {
+        this._hitTestOptions.mode = options.mode;
+      }
+
+      if (typeof options.offset === 'boolean') {
+        this._hitTestOptions.offset = options.offset;
+      }
+
+      if (typeof options.overlap === 'boolean') {
+        this._hitTestOptions.overlap = options.overlap;
+      }
+
+      if (typeof options.intersections === 'boolean') {
+        this._hitTestOptions.intersections = options.intersections;
+      }
+    }
   }
   /**
    * The timeline of the active clip.
@@ -50879,6 +51333,7 @@ Wick.Project = class extends Wick.Base {
 
 
   play(args) {
+    console.log("Project:", Wick.ObjectCache.getAllObjects());
     if (!args) args = {};
     if (!args.onError) args.onError = () => {};
     if (!args.onBeforeTick) args.onBeforeTick = () => {};
@@ -50966,6 +51421,7 @@ Wick.Project = class extends Wick.Base {
     var currentPlayhead = this.focus.timeline.playheadPosition; // Load the state of the project before it was played
 
     this.history.loadSnapshot('state-before-play');
+    Wick.ObjectCache.removeUnusedObjects(this);
 
     if (this.error) {
       // An error occured.
@@ -55497,7 +55953,7 @@ Wick.Tickable = class extends Wick.Base {
         y: project.height
       };
       window.project.framerate = project.framerate;
-      window.project.backgroundColor = project.backgroundColor;
+      window.project.backgroundColor = project.backgroundColor; //window.project.hitTestOptions = project.hitTestOptions;
     }
 
     window.root = root;
@@ -56886,6 +57342,447 @@ Wick.Clip = class extends Wick.Tickable {
     }
   }
   /**
+   * Perform circular hit test with other clip.
+   * @param {Wick.Clip} other - the clip to hit test with
+   * @param {object} options - Hit test options
+   * @returns {object} Hit information
+   */
+
+
+  circleHits(other, options) {
+    let bounds1 = this.absoluteBounds;
+    let bounds2 = other.absoluteBounds;
+    let c1 = bounds1.center;
+    let c2 = bounds2.center;
+    let distance = Math.sqrt((c1.x - c2.x) * (c1.x - c2.x) + (c1.y - c2.y) * (c1.y - c2.y));
+    let r1 = options.radius ? options.radius : this.radius;
+    let r2 = other.radius; //should add option for other radius?
+
+    let overlap = r1 + r2 - distance; // TODO: Maybe add a case for overlap === 0?
+
+    if (overlap > 0) {
+      let x = c1.x - c2.x;
+      let y = c1.y - c2.y;
+      let magnitude = Math.sqrt(x * x + y * y);
+      x = x / magnitude;
+      y = y / magnitude; // <x,y> is now a normalized vector from c2 to c1 
+
+      let result = {};
+
+      if (options.overlap) {
+        result.overlapX = overlap * x;
+        result.overlapY = overlap * y;
+      }
+
+      if (options.offset) {
+        result.offsetX = overlap * x;
+        result.offsetY = overlap * y;
+      }
+
+      if (options.intersections) {
+        if (r2 - distance > r1 || r1 - distance > r2 || distance === 0) {
+          result.intersections = [];
+        } else {
+          // Using https://mathworld.wolfram.com/Circle-CircleIntersection.html
+          let d = (distance * distance + r1 * r1 - r2 * r2) / (2 * distance);
+          let h = Math.sqrt(r1 * r1 - d * d);
+          let x0 = c1.x - d * x;
+          let y0 = c1.y - d * y;
+          result.intersections = [{
+            x: x0 + h * y,
+            y: y0 - h * x
+          }, {
+            x: x0 - h * y,
+            y: y0 + h * x
+          }];
+        }
+      }
+
+      return result;
+    }
+
+    return null;
+  }
+  /**
+   * Perform rectangular hit test with other clip.
+   * @param {Wick.Clip} other - the clip to hit test with
+   * @param {object} options - Hit test options
+   * @returns {object} Hit information
+   */
+
+
+  rectangleHits(other, options) {
+    let bounds1 = this.absoluteBounds;
+    let bounds2 = other.absoluteBounds; // TODO: write intersects so we don't rely on paper Rectangle objects
+
+    if (bounds1.intersects(bounds2)) {
+      let result = {};
+
+      if (options.overlap) {
+        // Find the direction along which we have to travel the least distance to no longer overlap
+        let left = bounds2.left - bounds1.right;
+        let right = bounds2.right - bounds1.left;
+        let up = bounds2.top - bounds1.bottom;
+        let down = bounds2.bottom - bounds1.top;
+        let overlapX = Math.abs(left) < Math.abs(right) ? left : right;
+        let overlapY = Math.abs(up) < Math.abs(down) ? up : down;
+
+        if (Math.abs(overlapX) < Math.abs(overlapY)) {
+          overlapY = 0;
+        } else {
+          overlapX = 0;
+        }
+
+        result.overlapX = overlapX;
+        result.overlapY = overlapY;
+      }
+
+      if (options.offset) {
+        // Find how far along the center to center vector we must travel to no longer overlap
+        let vectorX = bounds1.center.x - bounds2.center.x;
+        let vectorY = bounds1.center.y - bounds2.center.y;
+        let magnitude = Math.sqrt(vectorX * vectorX + vectorY * vectorY);
+        vectorX /= magnitude;
+        vectorY /= magnitude; // Choose p1, p2, based on quadrant of center to center vector
+
+        let p1 = vectorX > 0 ? vectorY > 0 ? bounds1.topLeft : bounds1.bottomLeft : vectorY > 0 ? bounds1.topRight : bounds1.bottomRight;
+        let p2 = vectorX > 0 ? vectorY > 0 ? bounds2.bottomRight : bounds2.topRight : vectorY > 0 ? bounds2.bottomLeft : bounds2.topLeft;
+
+        if (Math.abs(p2.x - p1.x) < Math.abs((p2.y - p1.y) * vectorX / vectorY)) {
+          result.offsetX = p2.x - p1.x;
+          result.offsetY = result.offsetX * vectorY / vectorX;
+        } else {
+          result.offsetY = p2.y - p1.y;
+          result.offsetX = result.offsetY * vectorX / vectorY;
+        }
+      }
+
+      if (options.intersections) {
+        result.intersections = [];
+        let ps1 = [bounds1.topLeft, bounds1.topRight, bounds1.bottomRight, bounds1.bottomLeft];
+        let ps2 = [bounds2.topLeft, bounds2.topRight, bounds2.bottomRight, bounds2.bottomLeft];
+
+        for (let i = 0; i < 4; i++) {
+          for (let j = (i + 1) % 2; j < 4; j += 2) {
+            // iterate over the perpendicular lines
+            let a = ps1[i];
+            let b = ps1[(i + 1) % 4];
+            let c = ps2[j];
+            let d = ps2[(j + 1) % 4]; // Perpendicular lines will intersect, we'll use parametric line intersection
+            //<x,y> = a + (b - a)t1
+            //<x,y> = c + (d - c)t2
+            //a + (b - a)t1 = c + (d - c)t2
+            //t1(b - a) = (c + (d - c)t2 - a)
+            //(a - c)/(d - c) = t2
+
+            let t1, t2;
+
+            if (a.x === b.x) {
+              t2 = (a.x - c.x) / (d.x - c.x);
+              t1 = (c.y + (d.y - c.y) * t2 - a.y) / (b.y - a.y);
+            } else {
+              //a.y === b.y
+              t2 = (a.y - c.y) / (d.y - c.y);
+              t1 = (c.x + (d.x - c.x) * t2 - a.x) / (b.x - a.x);
+            }
+
+            if (0 <= t1 && t1 <= 1 && 0 <= t2 && t2 <= 1) {
+              result.intersections.push({
+                x: a.x + (b.x - a.x) * t1,
+                y: a.y + (b.y - a.y) * t1
+              });
+            }
+          }
+        }
+      }
+
+      return result;
+    } else {
+      return null;
+    }
+  } // Return whether triangle p1 p2 p3 is clockwise (in screen space,
+  // means counterclockwise in a normal space with y axis pointed up)
+
+
+  cw(x1, y1, x2, y2, x3, y3) {
+    const cw = (y3 - y1) * (x2 - x1) - (y2 - y1) * (x3 - x1);
+    return cw >= 0; // colinear ?
+  }
+  /**
+   * Perform convex hull hit test with other clip.
+   * @param {Wick.Clip} other - the clip to hit test with
+   * @param {object} options - Hit test options
+   * @returns {object} Hit information
+   */
+
+
+  convexHits(other, options) {
+    // Efficient check first
+    let bounds1 = this.absoluteBounds;
+    let bounds2 = other.absoluteBounds; // TODO: write intersects so we don't rely on paper Rectangle objects
+
+    if (!bounds1.intersects(bounds2)) {
+      return null;
+    }
+
+    let c1 = bounds1.center;
+    let c2 = bounds2.center; // clockwise arrays of points in format [[x1, y1], [x2, y2], ...]
+
+    let hull1 = this.convexHull;
+    let hull2 = other.convexHull;
+    let finished1 = false;
+    let finished2 = false;
+    let i1 = hull1.length - 1;
+    let i2 = hull2.length - 1;
+    let intersections = [];
+    let n = 0; // Algorithm from https://www.bowdoin.edu/~ltoma/teaching/cs3250-CompGeom/spring17/Lectures/cg-convexintersection.pdf
+
+    while ((!finished1 || !finished2) && n <= 2 * (hull1.length + hull2.length)) {
+      n++; // line segments A is ab, B is cd
+
+      let a = hull1[i1],
+          b = hull1[((i1 - 1) % hull1.length + hull1.length) % hull1.length],
+          c = hull2[i2],
+          d = hull2[((i2 - 1) % hull2.length + hull2.length) % hull2.length]; //Use parametric line intersection
+      //<x,y> = a + (b - a)t1
+      //<x,y> = c + (d - c)t2
+      //a + (b - a)t1 = c + (d - c)t2
+      //t1 = (c.x + (d.x - c.x)t2 - a.x) / (b.x - a.x)
+      //a.y + (b.y - a.y) * (c.x + (d.x - c.x)t2 - a.x) / (b.x - a.x) = c.y + (d.y - c.y)t2
+      //t2((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y)) = c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x)
+      //t2 = (c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x))  /  ((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y))
+
+      let t2 = (c[1] - a[1] - (b[1] - a[1]) * (c[0] - a[0]) / (b[0] - a[0])) / ((b[1] - a[1]) * (d[0] - c[0]) / (b[0] - a[0]) - d[1] + c[1]);
+      let t1 = (c[0] + (d[0] - c[0]) * t2 - a[0]) / (b[0] - a[0]);
+
+      if (0 <= t1 && t1 <= 1 && 0 <= t2 && t2 <= 1) {
+        intersections.push({
+          x: a[0] + (b[0] - a[0]) * t1,
+          y: a[1] + (b[1] - a[1]) * t1
+        });
+      }
+
+      let APointingToB = t1 > 1;
+      let BPointingToA = t2 > 1;
+
+      if (BPointingToA && !APointingToB) {
+        // Advance B
+        i2 -= 1;
+
+        if (i2 < 0) {
+          finished2 = true;
+          i2 += hull2.length;
+        }
+      } else if (APointingToB && !BPointingToA) {
+        // Advance A
+        i1 -= 1;
+
+        if (i1 < 0) {
+          finished1 = true;
+          i1 += hull1.length;
+        }
+      } else {
+        // Advance outside
+        if (this.cw(a[0], a[1], b[0], b[1], d[0], d[1])) {
+          // Advance B
+          i2 -= 1;
+
+          if (i2 < 0) {
+            finished2 = true;
+            i2 += hull2.length;
+          }
+        } else {
+          // Advance A
+          i1 -= 1;
+
+          if (i1 < 0) {
+            finished1 = true;
+            i1 += hull1.length;
+          }
+        }
+      }
+    } // Ok, we have all the intersections now
+
+
+    let avgIntersection = {
+      x: 0,
+      y: 0
+    };
+
+    if (intersections.length === 0) {
+      avgIntersection.x = bounds1.width < bounds2.width ? c1.x : c2.x;
+      avgIntersection.y = bounds1.width < bounds2.width ? c1.y : c2.y;
+    } else {
+      for (let i = 0; i < intersections.length; i++) {
+        avgIntersection.x += intersections[i].x;
+        avgIntersection.y += intersections[i].y;
+      }
+
+      avgIntersection.x /= intersections.length;
+      avgIntersection.y /= intersections.length;
+    }
+
+    let result = {};
+
+    if (options.intersections) {
+      result.intersections = intersections;
+    }
+
+    if (options.offset) {
+      // Calculate offset by taking the center of mass of the intersection, call it P,
+      // get the radius from P on this convex hull in the direction
+      // from this center to that center,
+      // Then, the offset is a vector in the direction from that center to this center
+      // with magnitude of that radius
+      let targetTheta = Math.atan2(c2.y - c1.y, c2.x - c1.x); //from c1 to c2
+
+      let r = this.radiusAtPointInDirection(hull1, avgIntersection, targetTheta);
+      targetTheta = (targetTheta + Math.PI) % (2 * Math.PI);
+      r += this.radiusAtPointInDirection(hull2, avgIntersection, targetTheta);
+      let directionX = c1.x - c2.x;
+      let directionY = c1.y - c2.y;
+      let mag = Math.sqrt(directionX * directionX + directionY * directionY);
+      directionX *= r / mag;
+      directionY *= r / mag;
+      result.offsetX = directionX;
+      result.offsetY = directionY;
+    }
+
+    if (options.overlap) {
+      //same as offset except instead of center to center, 
+      //we will move perpendicular to the best fit line
+      //of the intersection points
+      let directionX, directionY;
+
+      if (intersections.length < 2) {
+        directionX = c2.x - c1.x;
+        directionY = c2.y - c1.y;
+      } else {
+        let max_d = 0;
+
+        for (let i = 1; i < intersections.length; i++) {
+          let d = (intersections[i].y - intersections[0].y) * (intersections[i].y - intersections[0].y) + (intersections[i].x - intersections[0].x) * (intersections[i].x - intersections[0].x);
+
+          if (d > max_d) {
+            max_d = d;
+            directionX = -(intersections[i].y - intersections[0].y);
+            directionY = intersections[i].x - intersections[0].x;
+
+            if (directionX * (c1.x - avgIntersection.x) + directionY * (c1.y - avgIntersection.y) > 0) {
+              directionX = -directionX;
+              directionY = -directionY;
+            }
+          }
+        }
+      }
+
+      let targetTheta = Math.atan2(directionY, directionX);
+      let r = this.radiusAtPointInDirection(hull1, avgIntersection, targetTheta);
+      targetTheta = (targetTheta + Math.PI) % (2 * Math.PI);
+      r += this.radiusAtPointInDirection(hull2, avgIntersection, targetTheta);
+      let r2 = this.radiusAtPointInDirection(hull1, avgIntersection, targetTheta);
+      targetTheta = (targetTheta + Math.PI) % (2 * Math.PI);
+      r2 += this.radiusAtPointInDirection(hull2, avgIntersection, targetTheta);
+
+      if (r2 < r) {
+        r = r2;
+        directionX *= -1;
+        directionY *= -1;
+      }
+
+      let mag = Math.sqrt(directionX * directionX + directionY * directionY);
+      directionX *= -r / mag;
+      directionY *= -r / mag;
+      result.overlapX = directionX;
+      result.overlapY = directionY;
+    }
+
+    return result;
+  }
+  /**
+   * Casts a ray from p in the direction targetTheta and intersects it with the hull ch,
+   * returns the distance from p to the surface of ch.
+   * @param {list} ch - the convex hull to intersect a ray with
+   * @param {object} p - the point of origin of the ray
+   * @param {number} targetTheta - the direction of the ray
+   * @returns {number} the distance to the surface of the convex hull from the point in the direction theta
+   */
+
+
+  radiusAtPointInDirection(ch, p, targetTheta) {
+    let minThetaDiff = Infinity;
+    let index;
+
+    for (let i = 0; i < ch.length; i++) {
+      let theta = Math.atan2(ch[i][1] - p.y, ch[i][0] - p.x);
+      let thetaDiff = ((targetTheta - theta) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI); //positive mod
+
+      if (thetaDiff < minThetaDiff) {
+        minThetaDiff = thetaDiff;
+        index = i;
+      }
+    }
+
+    let a = ch[index];
+    let b = ch[(index + 1) % ch.length];
+    let c = [p.x, p.y];
+    let d = [p.x + 100 * Math.cos(targetTheta), p.y + 100 * Math.sin(targetTheta)]; //Use parametric line intersection
+    //<x,y> = a + (b - a)t1
+    //<x,y> = c + (d - c)t2
+    //a + (b - a)t1 = c + (d - c)t2
+    //t1 = (c.x + (d.x - c.x)t2 - a.x) / (b.x - a.x)
+    //a.y + (b.y - a.y) * (c.x + (d.x - c.x)t2 - a.x) / (b.x - a.x) = c.y + (d.y - c.y)t2
+    //t2((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y)) = c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x)
+    //t2 = (c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x))  /  ((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y))
+
+    let t2 = (c[1] - a[1] - (b[1] - a[1]) * (c[0] - a[0]) / (b[0] - a[0])) / ((b[1] - a[1]) * (d[0] - c[0]) / (b[0] - a[0]) - d[1] + c[1]);
+    let t1 = (c[0] + (d[0] - c[0]) * t2 - a[0]) / (b[0] - a[0]);
+    return Math.hypot(a[0] + (b[0] - a[0]) * t1 - p.x, a[1] + (b[1] - a[1]) * t1 - p.y);
+  }
+  /**
+   * Perform hit test with other clip.
+   * @param {Wick.Clip} other - the clip to hit test with
+   * @param {object} options - Hit test options
+   * @returns {object} Hit information
+   */
+
+
+  hits(other, options) {
+    // Get hit options
+    let finalOptions = { ...this.project.hitTestOptions
+    };
+
+    if (options) {
+      if (options.mode === 'CIRCLE' || options.mode === 'RECTANGLE' || options.mode === 'CONVEX') {
+        finalOptions.mode = options.mode;
+      }
+
+      if (typeof options.offset === "boolean") {
+        finalOptions.offset = options.offset;
+      }
+
+      if (typeof options.overlap === "boolean") {
+        finalOptions.overlap = options.overlap;
+      }
+
+      if (typeof options.intersections === "boolean") {
+        finalOptions.intersections = options.intersections;
+      }
+
+      if (options.radius) {
+        finalOptions.radius = options.radius;
+      }
+    }
+
+    if (finalOptions.mode === 'CIRCLE') {
+      return this.circleHits(other, finalOptions);
+    } else if (finalOptions.mode === 'CONVEX') {
+      return this.convexHits(other, finalOptions);
+    } else {
+      return this.rectangleHits(other, finalOptions);
+    }
+  }
+  /**
    * Returns true if this clip collides with another clip.
    * @param {Wick.Clip} other - The other clip to check collision with.
    * @returns {boolean} True if this clip collides the other clip.
@@ -56893,8 +57790,8 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   hitTest(other) {
-    // TODO: Refactor so that getting bounds does not rely on the view
-    return this.view.absoluteBounds.intersects(other.view.absoluteBounds);
+    // TODO: write intersects so we don't rely on paper Rectangle objects
+    return this.absoluteBounds.intersects(other.absoluteBounds);
   }
   /**
    * The bounding box of the clip.
@@ -56905,6 +57802,56 @@ Wick.Clip = class extends Wick.Tickable {
   get bounds() {
     // TODO: Refactor so that getting bounds does not rely on the view
     return this.view.bounds;
+  }
+
+  get absoluteBounds() {
+    // TODO: Refactor so that getting bounds does not rely on the view
+    return this.view.absoluteBounds;
+  }
+
+  get points() {
+    // TODO: Refactor so that does not rely on the view
+    return this.view.points;
+  }
+
+  get radius() {
+    // Use length of half diagonal of bounding box
+    let b = this.absoluteBounds;
+    return Math.sqrt(b.width * b.width + b.height * b.height) / 2 / Math.sqrt(2); // Alternative: use largest distance from center to a point on the object
+
+    /*
+    let center = this.absoluteBounds.center;
+    let points = this.points;
+    let max_r = 0;
+    for (let p = 0; p < points.length; p++) {
+        let point = points[p];
+        let x = point[0] - center.x;
+        let y = point[1] - center.y;
+        max_r = Math.max(max_r, x*x + y*y);
+    }
+     return Math.sqrt(max_r);
+    */
+  } // Gives clockwise in screen space, which is ccw in regular axes
+
+
+  get convexHull() {
+    let points = this.points; // Infinity gets us the convex hull
+
+    let ch = hull(points, Infinity);
+    let removedDuplicates = [];
+    let epsilon = 0.01;
+
+    for (let i = 0; i < ch.length; i++) {
+      if (removedDuplicates.length > 0) {
+        if ((Math.abs(ch[i][0] - removedDuplicates[removedDuplicates.length - 1][0]) > epsilon || Math.abs(ch[i][1] - removedDuplicates[removedDuplicates.length - 1][1]) > epsilon) && (Math.abs(ch[i][0] - removedDuplicates[0][0]) > epsilon || Math.abs(ch[i][1] - removedDuplicates[0][1]) > epsilon)) {
+          removedDuplicates.push(ch[i]);
+        }
+      } else {
+        removedDuplicates.push(ch[i]);
+      }
+    }
+
+    return removedDuplicates;
   }
   /**
    * The X position of the clip.
@@ -62094,7 +63041,7 @@ Wick.View.Clip = class extends Wick.View {
     this.group = new this.paper.Group();
     this.group.remove();
     this.group.applyMatrix = false;
-    this._bounds = new paper.Rectangle();
+    this._bounds = new paper.Rectangle(); //this._radius = null;
   }
 
   get bounds() {
@@ -62103,6 +63050,94 @@ Wick.View.Clip = class extends Wick.View {
 
   get absoluteBounds() {
     return this.group.bounds;
+  } // get radius () {
+  //     if (this._radius) {
+  //         return this._radius;
+  //     }
+  //     let center = this.absoluteBounds.center;
+  //     let convert = (point) => point.getDistance(center, true);
+  //     let compare = (a, b) => Math.max(a,b);
+  //     let initial = 0;
+  //     this._radius = Math.sqrt(this.reducePointsFromGroup(this.group, initial, convert, compare));
+  //     return this._radius;
+  // }
+  // get convexHull () {
+  //     let group = this.group;
+  //     let initial = [];
+  //     let convert = (point) => [[point.x, point.y]];
+  //     let compare = (list1, list2) => list1.concat(list2);
+  //     let points = this.reducePointsFromGroup(group, initial, convert, compare);
+  //     // Infinity gets us the convex hull
+  //     let ch = hull(points, Infinity);
+  //     let removedDuplicates = [];
+  //     let epsilon = 0.01;
+  //     for (let i = 0; i < ch.length; i++) {
+  //         if (removedDuplicates.length > 0) {
+  //             if ((Math.abs(ch[i][0] - removedDuplicates[removedDuplicates.length - 1][0]) > epsilon ||
+  //                 Math.abs(ch[i][1] - removedDuplicates[removedDuplicates.length - 1][1]) > epsilon) && 
+  //                 (Math.abs(ch[i][0] - removedDuplicates[0][0]) > epsilon ||
+  //                 Math.abs(ch[i][1] - removedDuplicates[0][1]) > epsilon)) {
+  //                 removedDuplicates.push(ch[i]);
+  //             }
+  //         }
+  //         else {
+  //             removedDuplicates.push(ch[i]);
+  //         }
+  //     }
+  //     return removedDuplicates;
+  // }
+
+
+  get points() {
+    let group = this.group;
+    let initial = [];
+
+    let convert = point => [[point.x, point.y]];
+
+    let compare = (list1, list2) => list1.concat(list2);
+
+    return this.reducePointsFromGroup(group, initial, convert, compare);
+  } // group: the paper group of objects
+  // initial: the initial value, should be of return type
+  // convert: point -> return type
+  // compare: (return type, return type) -> return type
+
+
+  reducePointsFromGroup(group, initial, convert, compare) {
+    let val = initial;
+
+    for (let i = 0; i < group.children.length; i++) {
+      let child = group.children[i];
+
+      if (child.className === 'Layer') {
+        let ch = child.children;
+
+        for (let j = 0; j < ch.length; j++) {
+          let item = ch[j];
+
+          if (item.className === 'Path') {
+            let matrix = item.globalMatrix;
+
+            for (let s = 0; s < item.segments.length; s++) {
+              val = compare(val, convert(matrix.transform(item.segments[s].point)));
+            }
+          } else if (item.className === 'CompoundPath') {
+            for (let p = 0; p < item.children.length; p++) {
+              let path = item.children[p];
+              let matrix = item.globalMatrix;
+
+              for (let s = 0; s < path.segments.length; s++) {
+                val = compare(val, convert(matrix.transform(path.segments[s].point)));
+              }
+            }
+          } else if (item.className === 'Group') {
+            val = compare(val, this.reducePointsFromGroup(item));
+          }
+        }
+      }
+    }
+
+    return val;
   }
 
   render() {
@@ -62121,7 +63156,8 @@ Wick.View.Clip = class extends Wick.View {
     }); // Update transformations
 
     this.group.matrix.set(new paper.Matrix());
-    this._bounds = this.group.bounds.clone();
+    this._bounds = this.group.bounds.clone(); //this._radius = null;
+
     this.group.pivot = new this.paper.Point(0, 0);
     this.group.position.x = this.model.transformation.x;
     this.group.position.y = this.model.transformation.y;

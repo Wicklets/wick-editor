@@ -232,6 +232,19 @@ class ScriptInfoInterface extends Object {
                     description: 'Changes the content of a text object.',
                 },
                 {
+                    name: 'hits',
+                    snippet: 'this.hits(that)',
+                    description: 'Determines if the hitboxes of two objects overlap, returns information on their collision.',
+                    param: [{name: 'that', type: 'object'}],
+                    returns: [{type: 'object', description: 'Returns {offsetX, offsetY, overlapX, overlapY, intersections}'}],
+                },
+                {
+                    name: 'if (hits)',
+                    snippet: 'if (this.hits(that)) {\n //Do Something!\n}',
+                    description: 'A conditional that can be used to check if two objects collide.',
+                    param: [{name: 'that', type: 'object'}],
+                },
+                /*{
                     name: 'hitTest',
                     snippet: 'this.hitTest(that)',
                     description: 'Determines if the hitboxes of two objects overlap.',
@@ -246,7 +259,7 @@ class ScriptInfoInterface extends Object {
                     param: [{ name: 'that', type: '{string}' }],
                     returns: [{ type: 'bool', description: 'Returns true if the given object intersects this object.' }],
                     deprecated: true,
-                },
+                },*/
 
             ]
         );
@@ -286,6 +299,17 @@ class ScriptInfoInterface extends Object {
                     name: 'project.framerate',
                     snippet: 'project.framerate',
                     description: 'The framerate of the project.',
+                },
+                {
+                    name: 'project.hitTestOptions',
+                    snippet: 'project.hitTestOptions',
+                    description: 'The current hit test options.',
+                },
+                {
+                    name: 'hitTestOptions',
+                    snippet: 'hitTestOptions({mode: "CIRCLE", offset: true, overlap: true, intersections: true})',
+                    description: 'Sets global settings for hit testing, project.hitTestOptions.',
+                    param: [{name: 'that', type: 'object'}],
                 },
             ]
         )

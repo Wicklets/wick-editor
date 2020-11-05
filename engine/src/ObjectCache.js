@@ -54,6 +54,14 @@ WickObjectCache = class {
     }
 
     /**
+     * Remove an object from the cache.
+     * @param {string} uuid - uuid of the object to remove from the cache
+     */
+    removeObjectByUUID(uuid) {
+        delete this._objects[uuid];
+    }
+
+    /**
      * Remove all objects from the Object Cache.
      */
     clear () {
@@ -101,8 +109,13 @@ WickObjectCache = class {
      */
     removeUnusedObjects (project) {
         var activeObjects = this.getActiveObjects(project);
+        let uuids = activeObjects.map(obj => obj.uuid);
+        uuids.push(project.uuid); // Don't forget to include the project itself...
+
+        let uuidSet = new Set(uuids);
+
         this.getAllObjects().forEach(object => {
-            if(activeObjects.indexOf(object) === -1) {
+            if(!uuidSet.has(object.uuid)) {
                 this.removeObject(object);
             }
         });
