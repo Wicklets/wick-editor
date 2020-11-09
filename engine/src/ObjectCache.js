@@ -50,6 +50,9 @@ WickObjectCache = class {
      * @param {Wick.Base} object - the object to remove from the cache
      */
     removeObject (object) {
+        if (object.classname === 'Project') {
+            object.destroy();
+        }
         delete this._objects[object.uuid];
     }
 
@@ -119,6 +122,17 @@ WickObjectCache = class {
                 this.removeObject(object);
             }
         });
+    }
+
+    /**
+     * Removes all objects with the temporary flag set to true.
+     */
+    removeTemporaryObjects () {
+        this.getAllObjects().forEach(obj => {
+            if (obj.temporary) {
+                this.removeObject(obj);
+            }
+        })
     }
 
     /**

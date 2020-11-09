@@ -120,6 +120,16 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
+     * Prepares the project to be used in an editor.
+     */
+    prepareProjectForEditor () {
+        this.project.resetCache();
+        this.project.recenter();
+        this.project.view.prerender();
+        this.project.view.render();
+    }
+
+    /**
      * Used to initialize the state of elements within the project. Should only be called after
      * deserialization of project and all objects within the project.
      */
@@ -128,6 +138,22 @@ Wick.Project = class extends Wick.Base {
         this.activeFrame && this.activeFrame.clips.forEach(clip => {
             clip.applySingleFramePosition();
         });
+    }
+
+    /**
+     * Resets the cache and removes all unlinked items from the project.
+     */
+    resetCache () {
+      Wick.ObjectCache.removeUnusedObjects(this);
+      this.history.reset();
+    }
+
+    /**
+     * TODO: Remove all elements created by this project.
+     */
+    destroy () {
+        console.log("TODO: Remove event listeners.")
+        // this.guiElement.removeAllEventListeners();
     }
 
     _deserialize (data) {
@@ -1181,20 +1207,26 @@ Wick.Project = class extends Wick.Base {
 
     /**
      * Sets the project focus to the timeline of the selected clip.
+     * @returns {boolean} True if selected clip is focused, false otherwise.
      */
     focusTimelineOfSelectedClip() {
         if (this.selection.getSelectedObject() instanceof Wick.Clip) {
             this.focus = this.selection.getSelectedObject();
+            return true;
         }
+        return false;
     }
 
     /**
      * Sets the project focus to the parent timeline of the currently focused clip.
+     * @returns {boolean} True if parent clip is focused, false otherwise.
      */
     focusTimelineOfParentClip() {
         if (!this.focus.isRoot) {
             this.focus = this.focus.parentClip;
+            return true;
         }
+        return false;
     }
 
     /**
@@ -1534,7 +1566,7 @@ Wick.Project = class extends Wick.Base {
 
         // Load the state of the project before it was played
         this.history.loadSnapshot('state-before-play');
-        Wick.ObjectCache.removeUnusedObjects(this);
+        // Wick.ObjectCache.removeUnusedObjects(this);
 
         if (this.error) {
             // An error occured.

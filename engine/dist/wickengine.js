@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.11.4.15.7.45";
+var WICK_ENGINE_BUILD_VERSION = "2020.11.9.16.1.8";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -46245,9 +46245,35 @@ Wick.History = class {
 
 
   constructor() {
+    this.reset();
+    this.lastHistoryPush = Date.now();
+  }
+  /**
+   * Resets history in the editor. This is non-reversible.
+   */
+
+
+  reset() {
     this._undoStack = [];
     this._redoStack = [];
     this._snapshots = {};
+  }
+  /**
+   * Returns all objects that are currently referenced by the history.
+   * @returns {Set} uuids of all objects currently referenced in the history.
+   */
+
+
+  getObjectsUsed() {
+    let objects = new Set();
+
+    for (let state of this._undoStack) {
+      objects = new Set([...objects, ...state.objects]);
+    }
+
+    for (let state of this._redoStack) {
+      objects = new Set([...objects, ...state.objects]);
+    }
   }
   /**
    * Push the current state of the ObjectCache to the undo stack.
@@ -46258,12 +46284,22 @@ Wick.History = class {
 
   pushState(filter, actionName) {
     this._redoStack = [];
+    let now = Date.now();
+
+    let state = this._generateState(filter);
+
+    let objects = new Set(state.map(obj => obj.uuid));
     let stateObject = {
       state: this._generateState(filter),
-      actionName: actionName || "Unknown Action"
+      objects: objects,
+      actionName: actionName || "Unknown Action",
+      timeSinceLastPush: now - this.lastHistoryPush
     };
+    this.lastHistoryPush = now;
 
     this._undoStack.push(stateObject);
+
+    this._undoStack = this._undoStack.slice(-64); // get the last 64 items in the undo stack
   }
   /**
    * Pop the last state in the undo stack off and apply the new last state to the project.
@@ -46489,6 +46525,10 @@ WickObjectCache = class {
 
 
   removeObject(object) {
+    if (object.classname === 'Project') {
+      object.destroy();
+    }
+
     delete this._objects[object.uuid];
   }
   /**
@@ -46561,6 +46601,18 @@ WickObjectCache = class {
     this.getAllObjects().forEach(object => {
       if (!uuidSet.has(object.uuid)) {
         this.removeObject(object);
+      }
+    });
+  }
+  /**
+   * Removes all objects with the temporary flag set to true.
+   */
+
+
+  removeTemporaryObjects() {
+    this.getAllObjects().forEach(obj => {
+      if (obj.temporary) {
+        this.removeObject(obj);
       }
     });
   }
@@ -48848,6 +48900,8 @@ Wick.Base = class {
     this._project = this.classname === 'Project' ? this : args.project ? args.project : null;
     this.needsAutosave = true;
     this._cachedSerializeData = null;
+    this._temporary = false; // Defines if this object is "temporary"
+
     Wick.ObjectCache.addObject(this);
   }
   /**
@@ -48954,14 +49008,19 @@ Wick.Base = class {
    */
 
 
-  copy() {
+  copy(temporary) {
     var data = this.serialize();
     data.uuid = uuidv4();
     var copy = Wick.Base.fromData(data);
+
+    if (temporary) {
+      copy._temporary = true;
+    }
+
     copy._childrenData = null; // Copy children
 
     this.getChildren().forEach(child => {
-      copy.addChild(child.copy());
+      copy.addChild(child.copy(temporary));
     });
     return copy;
   }
@@ -49053,6 +49112,15 @@ Wick.Base = class {
     return 'Base';
   }
   /**
+   * A marker if this object is temporary. Meaning it 
+   * should be garbage collected after a play.
+   */
+
+
+  get temporary() {
+    return this._temporary;
+  }
+  /**
    * The uuid of a Wick Base object.
    * @type {string}
    */
@@ -49063,10 +49131,10 @@ Wick.Base = class {
   }
 
   set uuid(uuid) {
-    let oldUUID = this._uuid; // Please try to avoid using this unless you absolutely have to ;_;
+    // let oldUUID = this._uuid;
+    // Please try to avoid using this unless you absolutely have to ;_;
+    this._uuid = uuid; // Wick.ObjectCache.removeObjectByUUID(oldUUID);
 
-    this._uuid = uuid;
-    Wick.ObjectCache.removeObjectByUUID(oldUUID);
     Wick.ObjectCache.addObject(this);
   }
   /**
@@ -49909,6 +49977,17 @@ Wick.Project = class extends Wick.Base {
     this.history.pushState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
   }
   /**
+   * Prepares the project to be used in an editor.
+   */
+
+
+  prepareProjectForEditor() {
+    this.project.resetCache();
+    this.project.recenter();
+    this.project.view.prerender();
+    this.project.view.render();
+  }
+  /**
    * Used to initialize the state of elements within the project. Should only be called after
    * deserialization of project and all objects within the project.
    */
@@ -49919,6 +49998,23 @@ Wick.Project = class extends Wick.Base {
     this.activeFrame && this.activeFrame.clips.forEach(clip => {
       clip.applySingleFramePosition();
     });
+  }
+  /**
+   * Resets the cache and removes all unlinked items from the project.
+   */
+
+
+  resetCache() {
+    Wick.ObjectCache.removeUnusedObjects(this);
+    this.history.reset();
+  }
+  /**
+   * TODO: Remove all elements created by this project.
+   */
+
+
+  destroy() {
+    console.log("TODO: Remove event listeners."); // this.guiElement.removeAllEventListeners();
   }
 
   _deserialize(data) {
@@ -51043,23 +51139,31 @@ Wick.Project = class extends Wick.Base {
   }
   /**
    * Sets the project focus to the timeline of the selected clip.
+   * @returns {boolean} True if selected clip is focused, false otherwise.
    */
 
 
   focusTimelineOfSelectedClip() {
     if (this.selection.getSelectedObject() instanceof Wick.Clip) {
       this.focus = this.selection.getSelectedObject();
+      return true;
     }
+
+    return false;
   }
   /**
    * Sets the project focus to the parent timeline of the currently focused clip.
+   * @returns {boolean} True if parent clip is focused, false otherwise.
    */
 
 
   focusTimelineOfParentClip() {
     if (!this.focus.isRoot) {
       this.focus = this.focus.parentClip;
+      return true;
     }
+
+    return false;
   }
   /**
    * Plays the sound in the asset library with the given name.
@@ -51318,7 +51422,6 @@ Wick.Project = class extends Wick.Base {
 
 
   play(args) {
-    console.log("Project:", Wick.ObjectCache.getAllObjects());
     if (!args) args = {};
     if (!args.onError) args.onError = () => {};
     if (!args.onBeforeTick) args.onBeforeTick = () => {};
@@ -51405,8 +51508,7 @@ Wick.Project = class extends Wick.Base {
 
     var currentPlayhead = this.focus.timeline.playheadPosition; // Load the state of the project before it was played
 
-    this.history.loadSnapshot('state-before-play');
-    Wick.ObjectCache.removeUnusedObjects(this);
+    this.history.loadSnapshot('state-before-play'); // Wick.ObjectCache.removeUnusedObjects(this);
 
     if (this.error) {
       // An error occured.
@@ -58422,10 +58524,15 @@ Wick.Tool = class {
    * Call the functions attached to a given event.
    * @param {string} eventName - the name of the event to fire
    * @param {object} e - (optional) an object to attach some data to, if needed
+   * @param {string} actionName - Name of the action committed.
    */
 
 
-  fireEvent(eventName, e) {
+  fireEvent({
+    eventName,
+    e,
+    actionName
+  }) {
     if (!e) e = {};
 
     if (!e.layers) {
@@ -58433,7 +58540,7 @@ Wick.Tool = class {
     }
 
     var fn = this._eventCallbacks[eventName];
-    fn && fn(e);
+    fn && fn(e, actionName);
   }
   /**
    *
@@ -58911,7 +59018,10 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
 
       this.croquis.clearLayer();
-      this.fireEvent('canvasModified');
+      this.fireEvent({
+        eventName: 'canvasModified',
+        actionName: 'brush'
+      });
     }, Wick.Tools.Brush.CROQUIS_WAIT_AMT_MS);
   }
 
@@ -59043,7 +59153,10 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       if (e.modifiers.shift) {
         this._deselectItem(this.hitResult.item);
 
-        this.fireEvent('canvasModified');
+        this.fireEvent({
+          eventName: 'canvasModified',
+          actionName: 'cursorDeselect'
+        });
       }
     } else if (this.hitResult.item && this.hitResult.type === 'fill') {
       if (!e.modifiers.shift) {
@@ -59054,14 +59167,20 @@ Wick.Tools.Cursor = class extends Wick.Tool {
 
       this._selectItem(this.hitResult.item);
 
-      this.fireEvent('canvasModified');
+      this.fireEvent({
+        eventName: 'canvasModified',
+        actionName: 'cursorSelect'
+      });
     } else {
       // Nothing was clicked, so clear the selection and start a new selection box
       // (don't clear the selection if shift is held, though)
       if (this._selection.numObjects > 0 && !e.modifiers.shift) {
         this._clearSelection();
 
-        this.fireEvent('canvasModified');
+        this.fireEvent({
+          eventName: 'canvasModified',
+          actionName: 'cursorClearSelect'
+        });
       }
 
       this.selectionBox.start(e.point);
@@ -59073,14 +59192,22 @@ Wick.Tools.Cursor = class extends Wick.Tool {
 
     if (selectedObject && selectedObject instanceof Wick.Clip) {
       // Double clicked a Clip, set the focus to that Clip.
-      this.project.focusTimelineOfSelectedClip();
-      this.fireEvent('canvasModified');
+      if (this.project.focusTimelineOfSelectedClip()) {
+        this.fireEvent({
+          eventName: 'canvasModified',
+          actionName: 'cursorFocusTimelineSelected'
+        });
+      }
     } else if (selectedObject && selectedObject instanceof Wick.Path && selectedObject.view.item instanceof paper.PointText) {// Double clicked text, switch to text tool and edit the text item.
       // TODO
     } else if (!selectedObject) {
       // Double clicked the canvas, leave the current focus.
-      this.project.focusTimelineOfParentClip();
-      this.fireEvent('canvasModified');
+      if (this.project.focusTimelineOfParentClip()) {
+        this.fireEvent({
+          eventName: 'canvasModified',
+          actionName: 'cursorFocusTimelineParent'
+        });
+      }
     }
   }
 
@@ -59129,7 +59256,10 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       }); // Only modify the canvas if you actually selected something.
 
       if (this.selectionBox.items.length > 0) {
-        this.fireEvent('canvasModified');
+        this.fireEvent({
+          eventName: 'canvasModified',
+          actionName: 'cursorSelectMultiple'
+        });
       }
     } else if (this._selection.numObjects > 0) {
       if (this.__isDragging) {
@@ -59138,7 +59268,10 @@ Wick.Tools.Cursor = class extends Wick.Tool {
 
         this._widget.finishTransformation();
 
-        this.fireEvent('canvasModified');
+        this.fireEvent({
+          eventName: 'canvasModified',
+          actionName: 'cursorDrag'
+        });
       }
     }
   }
@@ -59401,7 +59534,10 @@ Wick.Tools.Ellipse = class extends Wick.Tool {
     this.path.remove();
     this.addPathToProject(this.path);
     this.path = null;
-    this.fireEvent('canvasModified');
+    this.fireEvent({
+      eventName: 'canvasModified',
+      actionName: 'ellipse'
+    });
   }
 
 };
@@ -59503,7 +59639,10 @@ Wick.Tools.Eraser = class extends Wick.Tool {
         this.path.remove();
         this.paper.project.activeLayer.erase(tracedPath, {});
         this.path = null;
-        this.fireEvent('canvasModified');
+        this.fireEvent({
+          eventName: 'canvasModified',
+          actionName: 'eraser'
+        });
       },
       resolution: potraceResolution * this.paper.view.zoom
     });
@@ -59576,8 +59715,11 @@ Wick.Tools.Eyedropper = class extends Wick.Tool {
   onMouseDown(e) {
     this._destroyColorPreview();
 
-    this.fireEvent('eyedropperPickedColor', {
-      color: this.hoverColor
+    this.fireEvent({
+      eventName: 'eyedropperPickedColor',
+      e: {
+        color: this.hoverColor
+      }
     });
   }
 
@@ -59689,7 +59831,10 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
               this.paper.OrderingUtils.sendToBack([path]);
             }
 
-            this.fireEvent('canvasModified');
+            this.fireEvent({
+              eventName: 'canvasModified',
+              actionName: 'fillbucket'
+            });
           }
         },
         onError: message => {
@@ -59922,7 +60067,10 @@ Wick.Tools.Line = class extends Wick.Tool {
   onMouseUp(e) {
     this.path.remove();
     this.addPathToProject(this.path);
-    this.fireEvent('canvasModified');
+    this.fireEvent({
+      eventName: 'canvasModified',
+      actionName: 'line'
+    });
   }
 
 };
@@ -60039,7 +60187,9 @@ Wick.Tools.Pan = class extends Wick.Tool {
   }
 
   onMouseUp(e) {
-    this.fireEvent('canvasViewTransformed');
+    this.fireEvent({
+      eventName: 'canvasViewTransformed'
+    });
   }
 
 };
@@ -60175,7 +60325,10 @@ Wick.Tools.PathCursor = class extends Wick.Tool {
 
   onMouseUp(e) {
     if (this.hitResult.type === 'segment' || this.hitResult.type === 'curve') {
-      this.fireEvent('canvasModified');
+      this.fireEvent({
+        eventName: 'canvasModified',
+        actionName: 'pathcursor'
+      });
     }
   }
 
@@ -60323,7 +60476,10 @@ Wick.Tools.Pencil = class extends Wick.Tool {
     this.path.remove();
     this.addPathToProject(this.path);
     this.path = null;
-    this.fireEvent('canvasModified');
+    this.fireEvent({
+      eventName: 'canvasModified',
+      actionName: 'pencil'
+    });
   }
 
 };
@@ -60418,7 +60574,10 @@ Wick.Tools.Rectangle = class extends Wick.Tool {
     this.path.remove();
     this.addPathToProject(this.path);
     this.path = null;
-    this.fireEvent('canvasModified');
+    this.fireEvent({
+      eventName: 'canvasModified',
+      actionName: 'rectangle'
+    });
   }
 
 };
@@ -60531,7 +60690,10 @@ Wick.Tools.Text = class extends Wick.Tool {
     }
 
     this.editingText = null;
-    this.fireEvent('canvasModified');
+    this.fireEvent({
+      eventName: 'canvasModified',
+      actionName: 'text'
+    });
   }
 
 };
@@ -60603,7 +60765,9 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     }
 
     this.deleteZoomBox();
-    this.fireEvent('canvasViewTransformed');
+    this.fireEvent({
+      eventName: 'canvasViewTransformed'
+    });
   }
 
   createZoomBox(e) {
@@ -62208,11 +62372,11 @@ Wick.View = class {
    */
 
 
-  fireEvent(eventName, e) {
+  fireEvent(eventName, e, actionName) {
     var eventFns = this._eventHandlers[eventName];
     if (!eventFns) return;
     eventFns.forEach(fn => {
-      fn(e);
+      fn(e, actionName);
     });
   }
 
@@ -62493,14 +62657,14 @@ Wick.View.Project = class extends Wick.View {
     for (var toolName in this.model.tools) {
       var tool = this.model.tools[toolName];
       tool.project = this.model;
-      tool.on('canvasModified', e => {
+      tool.on('canvasModified', (e, actionName) => {
         this.applyChanges();
-        this.fireEvent('canvasModified', e);
+        this.fireEvent('canvasModified', e, actionName);
       });
       tool.on('canvasViewTransformed', e => {
         this._applyZoomAndPanChangesFromPaper();
 
-        this.fireEvent('canvasModified', e);
+        this.fireEvent('canvasModified', e, `viewTransform-${toolName}`);
       });
       tool.on('eyedropperPickedColor', e => {
         this.fireEvent('eyedropperPickedColor', e);

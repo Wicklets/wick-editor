@@ -263,13 +263,13 @@ Wick.View.Project = class extends Wick.View {
         for (var toolName in this.model.tools) {
             var tool = this.model.tools[toolName];
             tool.project = this.model;
-            tool.on('canvasModified', (e) => {
+            tool.on('canvasModified', (e, actionName) => {
                 this.applyChanges();
-                this.fireEvent('canvasModified', e);
+                this.fireEvent('canvasModified', e, actionName);
             });
             tool.on('canvasViewTransformed', (e) => {
                 this._applyZoomAndPanChangesFromPaper();
-                this.fireEvent('canvasModified', e);
+                this.fireEvent('canvasModified', e, `viewTransform-${toolName}`);
             });
             tool.on('eyedropperPickedColor', (e) => {
                 this.fireEvent('eyedropperPickedColor', e);

@@ -51,8 +51,8 @@ class Canvas extends Component {
     project.view.canvasContainer = this.canvasContainer.current;
     project.view.resize();
 
-    project.view.on('canvasModified', (e) => {
-      this.props.projectDidChange({ actionName: "Canvas Modified" });
+    project.view.on('canvasModified', (e, actionName) => {
+      this.props.projectDidChange({ actionName: `Canvas Modified ${actionName}` });
     });
 
     project.view.on('eyedropperPickedColor', (e) => {
