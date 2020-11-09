@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.11.9.16.1.8";
+var WICK_ENGINE_BUILD_VERSION = "2020.11.9.16.31.21";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -46264,7 +46264,7 @@ Wick.History = class {
    */
 
 
-  getObjectsUsed() {
+  getObjectUUIDs() {
     let objects = new Set();
 
     for (let state of this._undoStack) {
@@ -46274,6 +46274,8 @@ Wick.History = class {
     for (let state of this._redoStack) {
       objects = new Set([...objects, ...state.objects]);
     }
+
+    return objects;
   }
   /**
    * Push the current state of the ObjectCache to the undo stack.
@@ -46527,6 +46529,7 @@ WickObjectCache = class {
   removeObject(object) {
     if (object.classname === 'Project') {
       object.destroy();
+      return; // TODO, remove this.
     }
 
     delete this._objects[object.uuid];
@@ -46586,8 +46589,8 @@ WickObjectCache = class {
   }
   /**
    * Remove all objects that are in the project, but are no longer linked to the root object.
-   * This is basically a garbage collection function.
-   * Only call this when you're ready to finish editing the project because old objects need to be retained somewhere for undo/redo.
+   * This is basically a garbage collection function. This function attempts to keep objects
+   * that are referenced in undo/redo.
    * @param {Wick.Project} project - the project to use to determine which objects have no references
    */
 
@@ -46598,6 +46601,8 @@ WickObjectCache = class {
     uuids.push(project.uuid); // Don't forget to include the project itself...
 
     let uuidSet = new Set(uuids);
+    let historyIDs = project.history.getObjectUUIDs();
+    uuidSet = new Set([...historyIDs, ...uuidSet]);
     this.getAllObjects().forEach(object => {
       if (!uuidSet.has(object.uuid)) {
         this.removeObject(object);
@@ -50006,7 +50011,6 @@ Wick.Project = class extends Wick.Base {
 
   resetCache() {
     Wick.ObjectCache.removeUnusedObjects(this);
-    this.history.reset();
   }
   /**
    * TODO: Remove all elements created by this project.

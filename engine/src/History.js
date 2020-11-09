@@ -61,7 +61,7 @@ Wick.History = class {
      * Returns all objects that are currently referenced by the history.
      * @returns {Set} uuids of all objects currently referenced in the history.
      */
-    getObjectsUsed () {
+    getObjectUUIDs () {
         let objects = new Set();
 
         for (let state of this._undoStack) {
@@ -72,8 +72,7 @@ Wick.History = class {
             objects = new Set([...objects, ...state.objects]);
         }
 
-        
-
+        return objects;
     }
 
     /**

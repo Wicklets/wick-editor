@@ -145,7 +145,6 @@ Wick.Project = class extends Wick.Base {
      */
     resetCache () {
       Wick.ObjectCache.removeUnusedObjects(this);
-      this.history.reset();
     }
 
     /**
