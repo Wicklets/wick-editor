@@ -151,8 +151,7 @@ Wick.Project = class extends Wick.Base {
      * TODO: Remove all elements created by this project.
      */
     destroy () {
-        console.log("TODO: Remove event listeners.")
-        // this.guiElement.removeAllEventListeners();
+        this.guiElement.removeAllEventListeners();
     }
 
     _deserialize (data) {
@@ -1583,6 +1582,8 @@ Wick.Project = class extends Wick.Base {
         } else {
             this.focus.timeline.playheadPosition = currentPlayhead;
         }
+
+        this.resetCache();
 
         delete window._scriptOnErrorCallback;
     }

@@ -47,6 +47,48 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
 
         this._onProjectModified = () => {};
         this._onProjectSoftModified = () => {};
+
+        this._attachedDocumentEvents = [];
+        this._attachedCanvasEvents = [];
+
+    }
+
+    /**
+     * Create an event on the document. Saves a reference to the event internally.
+     */
+    createDocumentEvent (event, callback, c) {
+        document.addEventListener(event, callback, c);
+
+        this._attachedDocumentEvents.push({
+            event,
+            fn: callback,
+        });
+    }
+
+    /**
+     * Create an event on the canvas. Saves a reference to the event internally.
+     */
+    createCanvasEvent (event, callback, c) {
+        this._canvas.addEventListener(event, callback, c);
+
+        this._attachedCanvasEvents.push({
+            event,
+            fn: callback,
+        });
+    }
+
+
+    /**
+     * Removes all events from the document and canvas.
+     */
+    removeAllEventListeners () {
+        this._attachedDocumentEvents.forEach((evt) => {
+            document.removeEventListener(evt.event, evt.fn);
+        }); 
+
+        this._attachedCanvasEvents.forEach((evt) => {
+            this._canvas.removeEventListener(evt.event, evt.fn);
+        });
     }
 
     /**
@@ -67,23 +109,23 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         if(!this._mouseEventsAttached) {
             // Mouse events
             // (Only call these with non-touch devices)
-            document.addEventListener('mousemove', e => {
+            this.createDocumentEvent('mousemove', e => {
                 if(e.touches) return;
                 this._onMouseMove(e);
             }, false);
 
-            document.addEventListener('mouseup', e => {
+            this.createDocumentEvent('mouseup', e => {
                 if(e.touches) return;
                 this._onMouseUp(e);
             }, false);
 
-            this._canvas.addEventListener('mousedown', e => {
+            this.createCanvasEvent('mousedown', e => {
                 if(e.touches) return;
                 this._onMouseDown(e);
             }, false);
 
             // Auto-close popup menu if there is a click off-canvas
-            document.addEventListener('mousedown', e => {
+            this.createDocumentEvent('mousedown', e => {
                 if(e.touches) return;
                 if(e.target !== this._canvas) {
                     this.closePopupMenu();
@@ -92,10 +134,10 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
             }, false);
 
             // Scroll events
-            $(this._canvas).on('mousewheel', this._onMouseWheel.bind(this));
+            this.createCanvasEvent('mousewheel', this._onMouseWheel.bind(this));
 
             // Touch events
-            this._canvas.addEventListener('touchstart', e => {
+            this.createCanvasEvent('touchstart', e => {
                 e.buttons = 0;
                 e.clientX = e.touches[0].clientX;
                 e.clientY = e.touches[0].clientY;
@@ -106,7 +148,8 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
                 this._onMouseMove(e);
                 this._onMouseDown(e);
             }, false);
-            document.addEventListener('touchmove', e => {
+
+            this.createDocumentEvent('touchmove', e => {
                 e.buttons = 1;
                 e.clientX = e.touches[0].clientX;
                 e.clientY = e.touches[0].clientY;
@@ -116,7 +159,8 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
                 this._touchStartY = e.clientY;
                 this._onMouseMove(e);
             }, false);
-            document.addEventListener('touchend', e => {
+
+            this.createDocumentEvent('touchend', e => {
                 this._onMouseUp(e);
             }, false);
 
