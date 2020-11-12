@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.11.12.12.1.27";
+var WICK_ENGINE_BUILD_VERSION = "2020.11.12.13.13.53";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -47375,28 +47375,40 @@ GlobalAPI = class {
 GlobalAPI.Random = class {
   constructor() {}
   /**
-   * Returns a random integer (whole number) between two given integers.
-   * @param {number} min The minimum of the returned integer.
+   * Returns a random integer (whole number) between two given numbers, 0 and a given number, or 0 and 1.
+   * @param {number} num1 The minimum of the returned intege, or the maximum of the returned number if it is the only argument.
    * @param {number} max The maximum of the returned integer.
-   * @returns {number} A random number between min and max.
+   * @returns {number} A random number between num1 and num2, 0 and num1, or 0 and 1.
    * https://stackoverflow.com/questions/4959975/generate-random-number-between-two-numbers-in-javascript
    */
 
 
-  integer(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
+  integer(num1, num2) {
+    if (typeof num1 !== "undefined" && typeof num2 !== "undefined") {
+      return Math.floor(Math.random() * (num2 - num1) + num1);
+    } else if (typeof num1 !== "undefined" && typeof num2 == "undefined") {
+      return Math.floor(Math.random() * num1);
+    } else {
+      return Math.floor(Math.random() * 2);
+    }
   }
   /**
-   * Returns a random floating point (decimal) number between two given integers.
-   * @param {number} min The minimum of the returned number.
-   * @param {number} max The maximum of the returned number.
-   * @returns {number} A random number between min and max.
+   * Returns a random floating point (decimal) number between two given numbers, 0 and a given number, or 0 and 1.
+   * @param {number} num1 The minimum of the returned number, or the maximum of the returned number if it is the only argument.
+   * @param {number} num2 The maximum of the returned number.
+   * @returns {number} A random number between num1 and num2, 0 and num1, or 0 and 1.
    * https://stackoverflow.com/questions/4959975/generate-random-number-between-two-numbers-in-javascript
    */
 
 
-  float(min, max) {
-    return Math.random() * (max - min + 1) + min;
+  float(num1, num2) {
+    if (typeof num1 !== "undefined" && typeof num2 !== "undefined") {
+      return Math.random() * (num2 - num1) + num1;
+    } else if (typeof num1 !== "undefined" && typeof num2 == "undefined") {
+      return Math.random() * num1;
+    } else {
+      return Math.random();
+    }
   }
   /**
    * Returns a random item from an array of items.
