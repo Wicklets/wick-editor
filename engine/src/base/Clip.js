@@ -169,6 +169,16 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     /**
+     * Returns the source clip of this clip if this clip is a clone. Null otherwise.
+     * 
+     */
+    get sourceClip () {
+        if (!this.sourceClipUUID) return null;
+
+        return this.project.getObjectByUUID(this.sourceClipUUID);
+    }
+
+    /**
      * The uuid of the ClipAsset that this clip was created from.
      * @type {string}
      */
@@ -359,6 +369,15 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     /**
+     * Remove a clone from the clones array by uuid.
+     * @param {string} uuid 
+     */
+    removeClone (uuid) {
+        if (this.isClone) return;
+        this._clones = this.clones.filter(obj => obj.uuid !== uuid);
+    }
+
+    /**
      * Remove this clip from its parent frame.
      */
     remove() {
@@ -366,6 +385,8 @@ Wick.Clip = class extends Wick.Tickable {
         // (This is caused by calling remove() multiple times on one object inside a script.)
         if (!this.parent) return;
 
+        // Remove from the clones array.
+        this.sourceClip && this.sourceClip.removeClone(this.uuid);
         this.parent.removeClip(this);
     }
 

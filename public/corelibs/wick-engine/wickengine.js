@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.11.12.11.15.9";
+var WICK_ENGINE_BUILD_VERSION = "2020.11.12.11.46.12";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -51656,6 +51656,15 @@ Wick.Project = class extends Wick.Base {
     this._activeTool = newTool;
   }
   /**
+   * Returns an object associated with this project, by uuid.
+   * @param {string} uuid 
+   */
+
+
+  getObjectByUUID(uuid) {
+    return Wick.ObjectCache.getObjectByUUID(uuid);
+  }
+  /**
    * Adds an object to the project.
    * @param {Wick.Base} object
    * @return {boolean} returns true if the obejct was added successfully, false otherwise.
@@ -57073,6 +57082,16 @@ Wick.Clip = class extends Wick.Tickable {
     return this._sourceClipUUID;
   }
   /**
+   * Returns the source clip of this clip if this clip is a clone. Null otherwise.
+   * 
+   */
+
+
+  get sourceClip() {
+    if (!this.sourceClipUUID) return null;
+    return this.project.getObjectByUUID(this.sourceClipUUID);
+  }
+  /**
    * The uuid of the ClipAsset that this clip was created from.
    * @type {string}
    */
@@ -57274,6 +57293,16 @@ Wick.Clip = class extends Wick.Tickable {
     }
   }
   /**
+   * Remove a clone from the clones array by uuid.
+   * @param {string} uuid 
+   */
+
+
+  removeClone(uuid) {
+    if (this.isClone) return;
+    this._clones = this.clones.filter(obj => obj.uuid !== uuid);
+  }
+  /**
    * Remove this clip from its parent frame.
    */
 
@@ -57281,7 +57310,9 @@ Wick.Clip = class extends Wick.Tickable {
   remove() {
     // Don't attempt to remove if the object has already been removed.
     // (This is caused by calling remove() multiple times on one object inside a script.)
-    if (!this.parent) return;
+    if (!this.parent) return; // Remove from the clones array.
+
+    this.sourceClip && this.sourceClip.removeClone(this.uuid);
     this.parent.removeClip(this);
   }
   /**

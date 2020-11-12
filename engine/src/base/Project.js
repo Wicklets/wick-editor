@@ -1699,6 +1699,14 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
+     * Returns an object associated with this project, by uuid.
+     * @param {string} uuid 
+     */
+    getObjectByUUID(uuid) {
+        return Wick.ObjectCache.getObjectByUUID(uuid);
+    }
+
+    /**
      * Adds an object to the project.
      * @param {Wick.Base} object
      * @return {boolean} returns true if the obejct was added successfully, false otherwise.
