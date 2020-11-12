@@ -52,7 +52,7 @@ import ModalHandler from './Modals/ModalHandler/ModalHandler';
                     allowChanges={true}
                     keyMap={this.props.editor.getKeyMap()}
                     handlers={this.props.editor.getKeyHandlers()}/>
-                <div id="editor">
+                <div id="editor" className="theme-default">
                     <ModalHandler
                         getRenderSize={this.props.editor.getRenderSize}
                         activeModalName={this.props.editor.state.activeModalName}

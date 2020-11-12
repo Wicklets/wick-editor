@@ -78,7 +78,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
                             this.paper.project.activeLayer.addChild(path);
                             this.paper.OrderingUtils.sendToBack([path]);
                         }
-                        this.fireEvent('canvasModified');
+                        this.fireEvent({eventName:'canvasModified', actionName:'fillbucket'});
                     }
                 },
                 onError: (message) => {

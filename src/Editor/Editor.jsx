@@ -21,6 +21,8 @@ import React from 'react';
 import ReactGA from 'react-ga';
 
 import './_editor.scss';
+import './styles/default_theme.css';
+import './styles/default_styles.css';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -50,7 +52,7 @@ import Toolbox from './Panels/Toolbox/Toolbox';
 import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
 import Outliner from './Panels/Outliner/Outliner';
 import OutlinerExpandButton from './Panels/OutlinerExpandButton/OutlinerExpandButton';
-import PopOutCodeEditor from './PopOuts/PopOutCodeEditor/PopOutCodeEditor';
+import WickCodeEditor from './PopOuts/WickCodeEditor/WickCodeEditor';
 
 import EditorWrapper from './EditorWrapper';
 
@@ -65,7 +67,7 @@ class Editor extends EditorCore {
     // "Live" editor states
     this.project = null;
     this.paper = null;
-    this.editorVersion = "1.18";
+    this.editorVersion = "1.19";
 
     // GUI state
     this.state = {
@@ -83,6 +85,7 @@ class Editor extends EditorCore {
       inspectorSize: 250,
       timelineSize: 175,
       assetLibrarySize: 150,
+      consoleLogs: [], 
       warningModalInfo: {
         description: "No Description Given",
         title: "Title",
@@ -389,6 +392,10 @@ class Editor extends EditorCore {
         y: window.innerHeight/2 - height/2,
         minWidth: 500,
         minHeight: 300,
+        consoleHeight: 100,
+        consoleOpen: true,
+        fontSize: 16,
+        theme: 'monokai'
       }
     );
   }
@@ -448,21 +455,14 @@ class Editor extends EditorCore {
     });
   }
 
+
   /**
-   * An event called when a minor code update happens as defined by the code editor.
+   * Called when any script is updated.
    */
-  onMinorScriptUpdate = () => {
+  onScriptUpdate = () => {
     if (this.project.error) {
       this.clearCodeEditorError();
     }
-  }
-
-  /**
-   * An event called when a major code update happens as defined by the code editor.
-   * @return {[type]} [description]
-   */
-  onMajorScriptUpdate = () => {
-
   }
 
   /**
@@ -1157,22 +1157,22 @@ class Editor extends EditorCore {
             </ReflexContainer>
           </div>
           {this.state.codeEditorOpen &&
-            <PopOutCodeEditor
+            <WickCodeEditor
+              selectionType={this.getSelectionType()}
               codeEditorWindowProperties={this.state.codeEditorWindowProperties}
               updateCodeEditorWindowProperties={this.updateCodeEditorWindowProperties}
               scriptInfoInterface={this.scriptInfoInterface}
               selectionIsScriptable={this.selectionIsScriptable}
-              getSelectionType={this.getSelectionType}
               script={this.getSelectedObjectScript()}
-              error={this.project.error}
-              onMinorScriptUpdate={this.onMinorScriptUpdate}
-              onMajorScriptUpdate={this.onMajorScriptUpdate}
-              deleteScript={this.deleteScript}
               scriptToEdit={this.state.scriptToEdit}
+              error={this.project.error}
+              onScriptUpdate={this.onScriptUpdate}
               editScript={this.editScript}
               toggleCodeEditor={this.toggleCodeEditor}
               requestAutosave={this.requestAutosave}
               clearCodeEditorError={this.clearCodeEditorError}
+              consoleLogs={this.state.consoleLogs}
+              setConsoleLogs={(logs) => {this.setState({consoleLogs: logs})}}
             />}
         </div>
       </EditorWrapper>

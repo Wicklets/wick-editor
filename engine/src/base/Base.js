@@ -56,6 +56,7 @@ Wick.Base = class {
 
         this.needsAutosave = true;
         this._cachedSerializeData = null;
+        this._temporary = false; // Defines if this object is "temporary"
 
         Wick.ObjectCache.addObject(this);
     }
@@ -151,15 +152,21 @@ Wick.Base = class {
      * Returns a copy of a Wick Base object.
      * @return {Wick.Base} The object resulting from the copy
      */
-    copy() {
+    copy(temporary) {
         var data = this.serialize();
         data.uuid = uuidv4();
         var copy = Wick.Base.fromData(data);
+
+        if (temporary) {
+            copy._temporary = true;
+        }
+
         copy._childrenData = null;
 
         // Copy children
         this.getChildren().forEach(child => {
-            copy.addChild(child.copy());
+
+            copy.addChild(child.copy(temporary));
         });
 
         return copy;
@@ -256,6 +263,14 @@ Wick.Base = class {
     }
 
     /**
+     * A marker if this object is temporary. Meaning it 
+     * should be garbage collected after a play.
+     */
+    get temporary() {
+        return this._temporary;
+    }
+
+    /**
      * The uuid of a Wick Base object.
      * @type {string}
      */
@@ -263,8 +278,11 @@ Wick.Base = class {
         return this._uuid;
     }
 
+    /**
+     * Changes an object's uuid. This function should not be used consistently, as it creates an entire copy of the object
+     * in the object cache. Avoid using this if possile.
+     */
     set uuid(uuid) {
-        // Please try to avoid using this unless you absolutely have to ;_;
         this._uuid = uuid;
         Wick.ObjectCache.addObject(this);
     }

@@ -334,14 +334,19 @@ Wick.AudioTrack = class {
         // For each channel in the audiobuffer...
         for (var srcChannel = 0; srcChannel < originalBuffer.numberOfChannels; srcChannel++) {
             // Retrieve sample data...
-            var delayedBufferChannelData = delayedBuffer.getChannelData(srcChannel);
             var originalBufferChannelData = originalBuffer.getChannelData(srcChannel);
 
             // Copy samples from the original buffer to the delayed buffer with an offset equal to the delay
             var delayOffset = ctx.sampleRate * delaySeconds;
-            
-            // Copy in the data from the original buffer into the delayed buffer, starting at the delayed position.
-            delayedBuffer.getChannelData(srcChannel).set(originalBufferChannelData, delayOffset);
+
+            try {
+                // Copy in the data from the original buffer into the delayed buffer, starting at the delayed position.
+                delayedBuffer.getChannelData(srcChannel).set(originalBufferChannelData, delayOffset);
+            } catch (e) {
+                console.error(e);
+                console.error("A sound was not added to the project.")
+            }
+
         }
 
         return delayedBuffer;

@@ -49,6 +49,7 @@ Wick.View.Clip = class extends Wick.View {
         this.group.applyMatrix = false;
 
         this._bounds = new paper.Rectangle();
+        //this._radius = null;
     }
 
     get bounds () {
@@ -57,6 +58,96 @@ Wick.View.Clip = class extends Wick.View {
 
     get absoluteBounds () {
         return this.group.bounds;
+    }
+
+    // get radius () {
+    //     if (this._radius) {
+    //         return this._radius;
+    //     }
+
+    //     let center = this.absoluteBounds.center;
+    //     let convert = (point) => point.getDistance(center, true);
+    //     let compare = (a, b) => Math.max(a,b);
+    //     let initial = 0;
+
+    //     this._radius = Math.sqrt(this.reducePointsFromGroup(this.group, initial, convert, compare));
+
+    //     return this._radius;
+    // }
+
+    // get convexHull () {
+    //     let group = this.group;
+    //     let initial = [];
+    //     let convert = (point) => [[point.x, point.y]];
+    //     let compare = (list1, list2) => list1.concat(list2);
+
+    //     let points = this.reducePointsFromGroup(group, initial, convert, compare);
+
+    //     // Infinity gets us the convex hull
+    //     let ch = hull(points, Infinity);
+
+    //     let removedDuplicates = [];
+    //     let epsilon = 0.01;
+    //     for (let i = 0; i < ch.length; i++) {
+    //         if (removedDuplicates.length > 0) {
+    //             if ((Math.abs(ch[i][0] - removedDuplicates[removedDuplicates.length - 1][0]) > epsilon ||
+    //                 Math.abs(ch[i][1] - removedDuplicates[removedDuplicates.length - 1][1]) > epsilon) && 
+    //                 (Math.abs(ch[i][0] - removedDuplicates[0][0]) > epsilon ||
+    //                 Math.abs(ch[i][1] - removedDuplicates[0][1]) > epsilon)) {
+    //                 removedDuplicates.push(ch[i]);
+    //             }
+    //         }
+    //         else {
+    //             removedDuplicates.push(ch[i]);
+    //         }
+    //     }
+
+    //     return removedDuplicates;
+    // }
+
+    get points () {
+        let group = this.group;
+        let initial = [];
+        let convert = (point) => [[point.x, point.y]];
+        let compare = (list1, list2) => list1.concat(list2);
+
+        return this.reducePointsFromGroup(group, initial, convert, compare);
+    }
+
+    // group: the paper group of objects
+    // initial: the initial value, should be of return type
+    // convert: point -> return type
+    // compare: (return type, return type) -> return type
+    reducePointsFromGroup (group, initial, convert, compare) {
+        let val = initial;
+        for (let i = 0; i < group.children.length; i++) {
+            let child = group.children[i];
+            if (child.className === 'Layer') {
+                let ch = child.children;
+                for (let j = 0; j < ch.length; j++) {
+                    let item = ch[j];
+                    if (item.className === 'Path') {
+                        let matrix = item.globalMatrix;
+                        for (let s = 0; s < item.segments.length; s++) {
+                            val = compare(val, convert(matrix.transform(item.segments[s].point)));
+                        }
+                    }
+                    else if (item.className === 'CompoundPath') {
+                        for (let p = 0; p < item.children.length; p++) {
+                            let path = item.children[p];
+                            let matrix = item.globalMatrix;
+                            for (let s = 0; s < path.segments.length; s++) {
+                                val = compare(val, convert(matrix.transform(path.segments[s].point)));
+                            }
+                        }
+                    }
+                    else if (item.className === 'Group') {
+                        val = compare(val, this.reducePointsFromGroup(item));
+                    }
+                }
+            }
+        }
+        return val;
     }
 
     render () {
@@ -80,6 +171,7 @@ Wick.View.Clip = class extends Wick.View {
         // Update transformations
         this.group.matrix.set(new paper.Matrix());
         this._bounds = this.group.bounds.clone();
+        //this._radius = null;
 
         this.group.pivot = new this.paper.Point(0,0);
         this.group.position.x = this.model.transformation.x;

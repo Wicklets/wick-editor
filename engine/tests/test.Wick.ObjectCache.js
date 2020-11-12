@@ -4,6 +4,8 @@ describe('Wick.ObjectCache', function() {
 
         var project = new Wick.Project();
 
+        Wick.ObjectCache.removeUnusedObjects(project);
+
         var objectCacheSize = Wick.ObjectCache.getAllObjects().length;
 
         project.play();

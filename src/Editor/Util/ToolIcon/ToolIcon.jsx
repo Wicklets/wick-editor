@@ -163,6 +163,21 @@ import mascotMarkDark from 'resources/logo-icons/mascot-mark-dark.svg';
 import mascotMark from 'resources/logo-icons/mascot-mark.svg';
 import mascot from 'resources/logo-icons/mascot.svg';
 
+// Code Editor
+import iconClear from 'resources/tool-icons/clear.svg';
+import iconCodeObject from 'resources/code-icons/object.svg';
+import iconCodeEvent from 'resources/code-icons/event.svg';
+import iconCodeInput from 'resources/code-icons/input.svg';
+import iconCodeProject from 'resources/code-icons/project.svg';
+import iconCodeRandom from 'resources/code-icons/random.svg';
+import iconCodeSound from 'resources/code-icons/sound.svg';
+import iconCodeTimeline from 'resources/code-icons/timeline.svg';
+import iconCodeConsole from 'resources/code-icons/console.svg';
+import iconCodeBack from 'resources/code-icons/back.svg';
+
+// Support Us
+import iconRedHeart from 'resources/support-us-icons/red-heart.svg';
+
 var classNames = require('classnames');
 
 class ToolIcon extends Component {
@@ -293,6 +308,17 @@ class ToolIcon extends Component {
       "edit-timeline": iconEditTimeline,
       "outliner-lock": iconLockOutliner,
       "outliner-hide": iconHideOutliner,
+      "clear": iconClear,
+      "codeObject": iconCodeObject,
+      "codeEvent": iconCodeEvent,
+      "codeRandom": iconCodeRandom,
+      "codeInput": iconCodeInput,
+      "codeProject": iconCodeProject,
+      "codeSound": iconCodeSound,
+      "codeTimeline": iconCodeTimeline,
+      "codeConsole": iconCodeConsole,
+      "codeBack": iconCodeBack,
+      "redheart": iconRedHeart,
     }
   }
 
@@ -312,12 +338,6 @@ class ToolIcon extends Component {
           alt={this.props.name+" icon"}
           src={this.getSource()}>
         </img>
-        // <object
-        //   type="image/svg+xml"
-        //   className={classNames("img-tool-icon", this.props.className)}
-        //   alt={this.props.name+" icon"}
-        //   data={this.getSource()}>
-        // </object>
       );
     } else {
       return (

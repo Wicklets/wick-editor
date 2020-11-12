@@ -38,6 +38,7 @@ Wick.Project = class extends Wick.Base {
         this._height = args.height || 480;
         this._framerate = args.framerate || 12;
         this._backgroundColor = args.backgroundColor || new Wick.Color('#ffffff');
+        this._hitTestOptions = this.getDefaultHitTestOptions();
 
         this.pan = { x: 0, y: 0 };
         this._zoom = 1.0;
@@ -119,6 +120,16 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
+     * Prepares the project to be used in an editor.
+     */
+    prepareProjectForEditor () {
+        this.project.resetCache();
+        this.project.recenter();
+        this.project.view.prerender();
+        this.project.view.render();
+    }
+
+    /**
      * Used to initialize the state of elements within the project. Should only be called after
      * deserialization of project and all objects within the project.
      */
@@ -127,6 +138,20 @@ Wick.Project = class extends Wick.Base {
         this.activeFrame && this.activeFrame.clips.forEach(clip => {
             clip.applySingleFramePosition();
         });
+    }
+
+    /**
+     * Resets the cache and removes all unlinked items from the project.
+     */
+    resetCache () {
+      Wick.ObjectCache.removeUnusedObjects(this);
+    }
+
+    /**
+     * TODO: Remove all elements created by this project.
+     */
+    destroy () {
+        this.guiElement.removeAllEventListeners();
     }
 
     _deserialize (data) {
@@ -143,6 +168,8 @@ Wick.Project = class extends Wick.Base {
         this._hideCursor = false;
         this._muted = false;
         this._renderBlackBars = true;
+
+        this._hitTestOptions = this.getDefaultHitTestOptions();
 
         // reset rotation, but not pan/zoom.
         // not resetting pan/zoom is convenient when preview playing.
@@ -168,6 +195,10 @@ Wick.Project = class extends Wick.Base {
         data.metadata = Wick.WickFile.generateMetaData();
 
         return data;
+    }
+
+    getDefaultHitTestOptions() {
+        return {mode: 'RECTANGLE', offset: true, overlap: true, intersections: false};
     }
 
     get classname() {
@@ -247,6 +278,27 @@ Wick.Project = class extends Wick.Base {
 
     set backgroundColor(backgroundColor) {
         this._backgroundColor = backgroundColor;
+    }
+
+    get hitTestOptions() {
+        return this._hitTestOptions;
+    }
+
+    set hitTestOptions(options) {
+        if (options) {
+            if (options.mode === 'CIRCLE' || options.mode === 'RECTANGLE' || options.mode === 'CONVEX') {
+                this._hitTestOptions.mode = options.mode;
+            }
+            if (typeof options.offset === 'boolean') {
+                this._hitTestOptions.offset = options.offset;
+            }
+            if (typeof options.overlap === 'boolean') {
+                this._hitTestOptions.overlap = options.overlap;
+            }
+            if (typeof options.intersections === 'boolean') {
+                this._hitTestOptions.intersections = options.intersections;
+            }
+        }
     }
 
     /**
@@ -1153,20 +1205,26 @@ Wick.Project = class extends Wick.Base {
 
     /**
      * Sets the project focus to the timeline of the selected clip.
+     * @returns {boolean} True if selected clip is focused, false otherwise.
      */
     focusTimelineOfSelectedClip() {
         if (this.selection.getSelectedObject() instanceof Wick.Clip) {
             this.focus = this.selection.getSelectedObject();
+            return true;
         }
+        return false;
     }
 
     /**
      * Sets the project focus to the parent timeline of the currently focused clip.
+     * @returns {boolean} True if parent clip is focused, false otherwise.
      */
     focusTimelineOfParentClip() {
         if (!this.focus.isRoot) {
             this.focus = this.focus.parentClip;
+            return true;
         }
+        return false;
     }
 
     /**
@@ -1348,11 +1406,12 @@ Wick.Project = class extends Wick.Base {
     }
 
     set error (error) {
-        // Don't replace an existing error with a new error
-        // (The error can only be cleared, by setting it to null)
-        if(this._error && error) {
+        if (this._error && error) {
             return;
+        } else if (error && !this._error) {
+            console.error(error);
         }
+
         this._error = error;
     }
 
@@ -1505,6 +1564,7 @@ Wick.Project = class extends Wick.Base {
 
         // Load the state of the project before it was played
         this.history.loadSnapshot('state-before-play');
+        // Wick.ObjectCache.removeUnusedObjects(this);
 
         if (this.error) {
             // An error occured.
@@ -1522,6 +1582,8 @@ Wick.Project = class extends Wick.Base {
         } else {
             this.focus.timeline.playheadPosition = currentPlayhead;
         }
+
+        this.resetCache();
 
         delete window._scriptOnErrorCallback;
     }
@@ -1634,6 +1696,14 @@ Wick.Project = class extends Wick.Base {
         }
 
         this._activeTool = newTool;
+    }
+
+    /**
+     * Returns an object associated with this project, by uuid.
+     * @param {string} uuid 
+     */
+    getObjectByUUID(uuid) {
+        return Wick.ObjectCache.getObjectByUUID(uuid);
     }
 
     /**

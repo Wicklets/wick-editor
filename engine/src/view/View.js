@@ -85,11 +85,11 @@ Wick.View = class {
     /**
      *
      */
-    fireEvent (eventName, e) {
+    fireEvent (eventName, e, actionName) {
         var eventFns = this._eventHandlers[eventName];
         if(!eventFns) return;
         eventFns.forEach(fn => {
-            fn(e);
+            fn(e, actionName);
         });
     }
 }

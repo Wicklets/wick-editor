@@ -483,7 +483,7 @@ body.hasHover .action-button-inspector:hover {
   transition-duration: $action-button-transition-duration;
 
   background-color: $editor-popout-secondary;
-  color: #C4C4C4;//$editor-popout-secondary-text;
+  color: white;//$editor-popout-secondary-text;
   font-size: 16px;
 }
 
@@ -555,4 +555,40 @@ body.hasHover .action-button-flame:hover {
 .action-button-flame.active-button {
   background-color: $flame-dark;
   color: $flame-text;
+}
+
+// support us button
+.action-button-support {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: transparent;
+  border: 2px solid $patreon-orange;
+  color: #e0e0e0;
+
+  padding: 2px 6px 2px 6px;
+  font-size: 16px;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+}
+
+.action-button-support img{
+  width: 18px;
+  height: auto;
+  order: 1;
+}
+
+.action-button-support span{
+  font-family: 'Nunito Sans';
+  padding-left: 5px;
+  order: 2;
+}
+
+.action-button-support:hover {
+  color: white;
 }

@@ -112,6 +112,6 @@ Wick.Tools.Text = class extends Wick.Tool {
             this.editingText.remove();
         }
         this.editingText = null;
-        this.fireEvent('canvasModified');
+        this.fireEvent({eventName: 'canvasModified', actionName: 'text'});
     }
 }

@@ -375,7 +375,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
             // Clear croquis canvas
             this.croquis.clearLayer();
-            this.fireEvent('canvasModified');
+            this.fireEvent({eventName: 'canvasModified', actionName: 'brush'});
         }, Wick.Tools.Brush.CROQUIS_WAIT_AMT_MS);
     }
 

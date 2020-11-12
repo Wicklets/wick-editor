@@ -18,7 +18,6 @@
  */
 
 import { Component } from 'react';
-import * as urlParse from 'url-parse/dist/url-parse';
 import queryString from 'query-string';
 import VideoExport from './export/VideoExport';
 import GIFExport from './export/GIFExport';
@@ -1327,9 +1326,8 @@ class EditorCore extends Component {
 
     this.projectDidChange({ actionName: "Setup New Project" });
     this.hideWaitOverlay();
-    this.project.recenter();
-    this.project.view.prerender();
-    this.project.view.render();
+
+    this.project.prepareProjectForEditor();
   }
 
   openNewProjectConfirmation = () => {

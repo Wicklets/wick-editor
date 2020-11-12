@@ -100,6 +100,6 @@ Wick.Tools.Rectangle = class extends Wick.Tool {
         this.addPathToProject(this.path);
         this.path = null;
 
-        this.fireEvent('canvasModified');
+        this.fireEvent({eventName: 'canvasModified', actionName: 'rectangle'});
     }
 }

@@ -1221,6 +1221,35 @@ describe('Wick.Clip', function() {
                 expect(project.activeFrame.clips[3]).to.equal(original.__clone3);
             });
 
+            it ('clone.remove() should remove clones from the .clones array', function () {
+                var project = new Wick.Project();
+
+                var original = new Wick.Clip({identifier: 'original'});
+                project.activeFrame.addClip(original);
+
+                original.addScript('default', 'this.__clone1 = this.clone();');
+
+                var error = project.tick();
+                expect(error).to.equal(null);
+
+                // Were the clones successful?
+                expect(original.__clone1 instanceof Wick.Clip).to.equal(true);
+                expect(original.__clone1.identifier).to.equal(null);
+                expect(original.__clone1.uuid).to.not.equal(undefined);
+                expect(original.__clone1.uuid).to.not.equal(original.uuid);
+
+                // Are the clones accessible through the 'clones' API?
+                expect(original.clones[0]).to.equal(original.__clone1);
+
+                // Check length of clones array.
+                expect(original.clones.length).to.equal(1);
+
+                original.__clone1.remove();
+
+                // Check length of clones array.
+                expect(original.clones.length).to.equal(0);
+            });
+
             it ('errors from clones should use the original clips uuid', function () {
                 var project = new Wick.Project();
 

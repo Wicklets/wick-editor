@@ -75,7 +75,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
         this.deleteZoomBox();
 
-        this.fireEvent('canvasViewTransformed');
+        this.fireEvent({eventName: 'canvasViewTransformed'});
     }
 
     createZoomBox (e) {

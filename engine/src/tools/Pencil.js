@@ -93,6 +93,6 @@ Wick.Tools.Pencil = class extends Wick.Tool {
         this.path.remove();
         this.addPathToProject(this.path);
         this.path = null;
-        this.fireEvent('canvasModified');
+        this.fireEvent({eventName: 'canvasModified', actionName: 'pencil'});
     }
 }

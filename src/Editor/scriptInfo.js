@@ -1,14 +1,80 @@
 
 class ScriptInfoInterface extends Object {
-    get scriptsByType () {
+
+    /**
+     * Returns an array of objects that represent all possible scripts that can be added.
+     * @returns {object[]}
+     */
+    get scriptData() {
+        let scriptData = [];
+
+        for (let scriptType of Object.keys(this.scriptsByType)) {
+            for (let scriptName of this.scriptsByType[scriptType]) {
+                scriptData.push({
+                    name: scriptName,
+                    type: scriptType,
+                    description: this.scriptDescriptions[scriptName],
+                });
+            }
+        }
+
+        return scriptData;
+    }
+
+    get scriptsByType() {
         return {
             'Mouse': ['mouseenter', 'mouseleave', 'mousehover', 'mousepressed', 'mousedown', 'mousereleased', 'mousedrag', 'mouseclick'],
             'Keyboard': ['keypressed', 'keyreleased', 'keydown'],
-            'Timeline': ['load', 'update', 'unload', 'default'],
+            'Timeline': ['default', 'load', 'update', 'unload'],
         }
     }
 
-    get scriptTypeColors () {
+    /**
+     * Sorting function for determining what order a script should be displayed in.
+     * @param {object} scriptA - script object
+     * @param {object} scriptB - script object
+     * @returns {number} negative if script A comes before b, positive if b comes before a, 0 if they are ordered the same.
+     */
+    sortScripts = (scriptA, scriptB) => {
+        let typeA = this.getScriptType(scriptA.name);
+        let typeB = this.getScriptType(scriptB.name);
+
+        if (!typeA || !typeB) return 0;
+
+        let indA = this.scriptsByType[typeA].indexOf(scriptA);
+        let indB = this.scriptsByType[typeB].indexOf(scriptB);
+
+        // will be added to the index of the script for sorting purposes.
+        const spacer = {
+            'Mouse': 100,
+            'Keyboard': 200,
+            'Timeline': 0
+        }
+
+        indA += spacer[typeA];
+        indB += spacer[typeB];
+
+        return indA - indB;
+    }
+
+    /**
+     * Returns the type of the script.
+     * @param {string} name - name of the script, all lower case.
+     * @returns {string | null} script type. One of Mouse, Keyboard, or Timeline. Null if not a valid script.
+     */
+    getScriptType = (name) => {
+        let scriptsByType = this.scriptsByType;
+
+        for (let scriptType of Object.keys(scriptsByType)) {
+            if (scriptsByType[scriptType].indexOf(name) !== -1) {
+                return scriptType
+            }
+        }
+
+        return null;
+    }
+
+    get scriptTypeColors() {
         return {
             'Timeline': 'blue',
             'Mouse': 'green',
@@ -16,39 +82,39 @@ class ScriptInfoInterface extends Object {
         }
     }
 
-    get scriptDescriptions () {
+    get scriptDescriptions() {
         return {
-            'default' : 'Once, before all other scripts',
-            'mouseclick' : 'Once, when the mouse goes down then up over an object',
-            'mousedown' : 'Every tick, when the mouse is down on the object',
-            'mousedrag' : 'Every tick, when the mouse moves while down',
-            'mouseenter' : 'Once, when the mouse enters the object',
-            'mousehover' : 'Every tick, when the mouse is over the object',
-            'mouseleave' : 'Once, when the mouse leaves the object',
-            'mousepressed' : 'Once, when the mouse presses down on the object',
-            'mousereleased' : 'Once, when the mouse is released over the object',
-            'keypressed' : 'Once, when any key is pushed down',
-            'keyreleased' : 'Once, when any key is released',
-            'keydown' : 'Every tick, when any key is down',
-            'load' : 'Once, when the frame is entered',
-            'unload' : 'Once, when the frame is exited',
-            'update' : 'Every tick, while the project is playing',
+            'default': 'Once, before all other scripts',
+            'mouseclick': 'Once, when the mouse goes down then up over an object',
+            'mousedown': 'Every tick, when the mouse is down on the object',
+            'mousedrag': 'Every tick, when the mouse moves while down',
+            'mouseenter': 'Once, when the mouse enters the object',
+            'mousehover': 'Every tick, when the mouse is over the object',
+            'mouseleave': 'Once, when the mouse leaves the object',
+            'mousepressed': 'Once, when the mouse presses down on the object',
+            'mousereleased': 'Once, when the mouse is released over the object',
+            'keypressed': 'Once, when any key is pushed down',
+            'keyreleased': 'Once, when any key is released',
+            'keydown': 'Every tick, when any key is down',
+            'load': 'Once, when the frame is entered',
+            'unload': 'Once, when the frame is exited',
+            'update': 'Every tick, while the project is playing',
         }
     }
 
-    get referenceItems () {
+    get referenceItems() {
         return {
-            'Timeline' : this.timelineReference,
-            'Object' : this.objectReference,
-            'Input' : this.inputReference,
-            'Project' : this.projectReference,
-            'Random' : this.randomReference,
-            'Sound' : this.soundReference,
-            'Event' : this.eventReference,
+            'Timeline': this.timelineReference,
+            'Object': this.objectReference,
+            'Input': this.inputReference,
+            'Project': this.projectReference,
+            'Random': this.randomReference,
+            'Sound': this.soundReference,
+            'Event': this.eventReference,
         }
     }
 
-    get timelineReference () {
+    get timelineReference() {
         return (
             [
                 {
@@ -65,13 +131,13 @@ class ScriptInfoInterface extends Object {
                     name: 'gotoAndPlay',
                     snippet: 'gotoAndPlay(1)',
                     description: 'Moves the playhead to a frame on the timeline that this object belongs to, and plays that timeline.',
-                    params: [{name: 'frame', type: '{string|Number}'}],
+                    params: [{ name: 'frame', type: '{string|Number}' }],
                 },
                 {
                     name: 'gotoAndStop',
                     snippet: 'gotoAndStop(1)',
                     description: 'Moves the playhead to a frame on the timeline that this object belongs to, and stops that timeline.',
-                    params: [{name: 'frame', type: '{string|Number}'}],
+                    params: [{ name: 'frame', type: '{string|Number}' }],
                 },
                 {
                     name: 'gotoNextFrame',
@@ -87,7 +153,7 @@ class ScriptInfoInterface extends Object {
         );
     }
 
-    get objectReference () {
+    get objectReference() {
         return (
             [
                 {
@@ -131,6 +197,16 @@ class ScriptInfoInterface extends Object {
                     description: 'The opacity of the object. 0 is completely transparent, 1 is completely opaque.',
                 },
                 {
+                    name: 'currentFrameName',
+                    snippet: 'this.currentFrameName',
+                    description: 'The name of the current frame. Returns empty string if the current frame does not have a name.'
+                },
+                {
+                    name: 'currentFrameNumber',
+                    snippet: 'this.currentFrameNumber',
+                    description: 'The number of the current frame being displayed.'
+                },
+                {
                     name: 'parent',
                     snippet: 'parent',
                     description: 'Returns the object that owns the calling object.',
@@ -156,27 +232,40 @@ class ScriptInfoInterface extends Object {
                     description: 'Changes the content of a text object.',
                 },
                 {
+                    name: 'hits',
+                    snippet: 'this.hits(that)',
+                    description: 'Determines if the hitboxes of two objects overlap, returns information on their collision.',
+                    param: [{name: 'that', type: 'object'}],
+                    returns: [{type: 'object', description: 'Returns {offsetX, offsetY, overlapX, overlapY, intersections}'}],
+                },
+                {
+                    name: 'if (hits)',
+                    snippet: 'if (this.hits(that)) {\n //Do Something!\n}',
+                    description: 'A conditional that can be used to check if two objects collide.',
+                    param: [{name: 'that', type: 'object'}],
+                },
+                /*{
                     name: 'hitTest',
                     snippet: 'this.hitTest(that)',
                     description: 'Determines if the hitboxes of two objects overlap.',
-                    param: [{name: 'that', type: '{string}'}],
-                    returns: [{type: 'bool', description: 'Returns true if the given object intersects this object.'}],
+                    param: [{ name: 'that', type: '{string}' }],
+                    returns: [{ type: 'bool', description: 'Returns true if the given object intersects this object.' }],
                     deprecated: true,
                 },
                 {
                     name: 'if (hitTest)',
                     snippet: 'if (this.hitTest(that)) {\n // Add your code here! \n}\n',
                     description: 'Runs some custom code when the two objects tested are hitting each other.',
-                    param: [{name: 'that', type: '{string}'}],
-                    returns: [{type: 'bool', description: 'Returns true if the given object intersects this object.'}],
+                    param: [{ name: 'that', type: '{string}' }],
+                    returns: [{ type: 'bool', description: 'Returns true if the given object intersects this object.' }],
                     deprecated: true,
-                },
+                },*/
 
             ]
         );
     }
 
-    get soundReference () {
+    get soundReference() {
         return (
             [
                 {
@@ -193,7 +282,7 @@ class ScriptInfoInterface extends Object {
         )
     }
 
-    get projectReference () {
+    get projectReference() {
         return (
             [
                 {
@@ -211,11 +300,22 @@ class ScriptInfoInterface extends Object {
                     snippet: 'project.framerate',
                     description: 'The framerate of the project.',
                 },
+                {
+                    name: 'project.hitTestOptions',
+                    snippet: 'project.hitTestOptions',
+                    description: 'The current hit test options.',
+                },
+                {
+                    name: 'hitTestOptions',
+                    snippet: 'hitTestOptions({mode: "CIRCLE", offset: true, overlap: true, intersections: true})',
+                    description: 'Sets global settings for hit testing, project.hitTestOptions.',
+                    param: [{name: 'that', type: 'object'}],
+                },
             ]
         )
     }
 
-    get randomReference () {
+    get randomReference() {
         return (
             [
                 {
@@ -238,7 +338,7 @@ class ScriptInfoInterface extends Object {
     }
 
 
-    get inputReference () {
+    get inputReference() {
         return (
             [
                 {
@@ -280,15 +380,15 @@ class ScriptInfoInterface extends Object {
                     name: 'isKeyDown',
                     snippet: 'isKeyDown("a")',
                     description: 'Returns true if the given key is currently down.',
-                    param: [{name: 'key', type: '{string}'}],
-                    returns: [{type: 'bool', description: 'True if passed key is down.'}],
+                    param: [{ name: 'key', type: '{string}' }],
+                    returns: [{ type: 'bool', description: 'True if passed key is down.' }],
                 },
                 {
                     name: 'isKeyJustPressed',
                     snippet: 'isKeyJustPressed("a")',
                     description: 'Returns true if the given key was pressed within the last tick.',
-                    param: [{name: 'key', type: '{string}'}],
-                    returns: [{type: 'bool', description: 'True if passed key was pressed in the last frame.'}],
+                    param: [{ name: 'key', type: '{string}' }],
+                    returns: [{ type: 'bool', description: 'True if passed key was pressed in the last frame.' }],
                 },
                 {
                     name: 'if (key)',
@@ -309,11 +409,11 @@ class ScriptInfoInterface extends Object {
         );
     }
 
-    get eventReference () {
+    get eventReference() {
         let events = []
         let descriptions = this.scriptDescriptions;
 
-        Object.keys(descriptions).forEach( (key) => {
+        Object.keys(descriptions).forEach((key) => {
             if (key !== 'default') {
                 events.push({
                     name: key,

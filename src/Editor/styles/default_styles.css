@@ -1,0 +1,83 @@
+/* Defines how theme colors can be used around editor */
+
+/* Events */
+.we-event.Mouse {
+    background-color: var(--wick-event-mouse);
+}
+
+.we-event.Mouse.selected {
+    background-color: var(--wick-event-mouse-selected);
+}
+
+.we-event.Keyboard {
+    background-color: var(--wick-event-keyboard);
+}
+
+.we-event.Keyboard.selected {
+    background-color: var(--wick-event-keyboard-selected);
+}
+
+.we-event.Timeline {
+    background-color: var(--wick-event-timeline);
+}
+
+.we-event.Timeline.selected {
+    background-color: var(--wick-event-timeline-selected);
+}
+
+/* Code Reference */
+.we-code.Timeline {
+    background-color: var(--wick-red);
+}
+
+.we-code.Timeline:hover {
+    background-color: var(--wick-red-light);
+}
+
+.we-code.Object {
+    background-color: var(--wick-green);
+}
+
+.we-code.Object:hover {
+    background-color: var(--wick-green-light);
+}
+
+.we-code.Input {
+    background-color: var(--wick-yellow);
+}
+
+.we-code.Input {
+    background-color: var(--wick-yellow-light);
+}
+
+.we-code.Project {
+    background-color: var(--wick-light-blue);
+}
+
+.we-code.Project:hover {
+    background-color: var(--wick-light-blue-light);
+}
+
+.we-code.Random {
+    background-color: var(--wick-purple);
+}
+
+.we-code.Random:hover {
+    background-color: var(--wick-purple-light);
+}
+
+.we-code.Sound {
+    background-color: var(--wick-teal);
+}
+
+.we-code.Sound:hover {
+    background-color: var(--wick-teal-light);
+}
+
+.we-code.Event {
+    background-color: var(--wick-pink);
+}
+
+.we-code.Event:hover {
+    background-color: var(--wick-pink-light);
+}

@@ -101,7 +101,7 @@ Wick.Tools.Eraser = class extends Wick.Tool {
                 this.path.remove();
                 this.paper.project.activeLayer.erase(tracedPath,{});
                 this.path = null;
-                this.fireEvent('canvasModified');
+                this.fireEvent({eventName: 'canvasModified', actionName:'eraser'});
             },
             resolution: potraceResolution * this.paper.view.zoom,
         });

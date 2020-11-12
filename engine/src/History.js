@@ -44,9 +44,35 @@ Wick.History = class {
      * Creates a new history object
      */
     constructor () {
+        this.reset();
+        this.lastHistoryPush = Date.now(); 
+    }
+
+    /**
+     * Resets history in the editor. This is non-reversible.
+     */
+    reset () {
         this._undoStack = [];
         this._redoStack = [];
         this._snapshots = {};
+    }
+
+    /**
+     * Returns all objects that are currently referenced by the history.
+     * @returns {Set} uuids of all objects currently referenced in the history.
+     */
+    getObjectUUIDs () {
+        let objects = new Set();
+
+        for (let state of this._undoStack) {
+            objects = new Set([...objects, ...state.objects]);
+        }
+
+        for (let state of this._redoStack) {
+            objects = new Set([...objects, ...state.objects]);
+        }
+
+        return objects;
     }
 
     /**
@@ -56,13 +82,21 @@ Wick.History = class {
      */
     pushState (filter, actionName) {
         this._redoStack = [];
+        let now = Date.now();
 
+        let state = this._generateState(filter);
+        let objects = new Set(state.map(obj => obj.uuid));
         let stateObject = {
             state: this._generateState(filter), 
+            objects: objects,
             actionName: actionName || "Unknown Action",
+            timeSinceLastPush: now - this.lastHistoryPush,
         }
 
+        this.lastHistoryPush = now;
+
         this._undoStack.push(stateObject);
+        this._undoStack = this._undoStack.slice(-64); // get the last 64 items in the undo stack
     }
 
     /**

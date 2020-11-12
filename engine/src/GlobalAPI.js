@@ -34,6 +34,7 @@ GlobalAPI = class {
             'playSound','stopAllSounds',
             'onEvent',
             'hideCursor','showCursor',
+            'hitTestOptions',
         ];
     }
 
@@ -109,6 +110,10 @@ GlobalAPI = class {
         this.scriptOwner.parentClip.gotoPrevFrame();
     }
 
+    hitTestOptions (options) {
+        this.scriptOwner.project.hitTestOptions = options;
+    }
+
     /**
      * Returns an object representing the project with properties such as width, height, framerate, background color, and name.
      * @returns {object} Project object.
@@ -122,6 +127,7 @@ GlobalAPI = class {
             project.framerate = this.scriptOwner.project.framerate;
             project.backgroundColor = this.scriptOwner.project.backgroundColor;
             project.name = this.scriptOwner.project.name;
+            project.hitTestOptions = this.scriptOwner.project.hitTestOptions;
         }
         return project;
     }
