@@ -278,12 +278,12 @@ Wick.Base = class {
         return this._uuid;
     }
 
+    /**
+     * Changes an object's uuid. This function should not be used consistently, as it creates an entire copy of the object
+     * in the object cache. Avoid using this if possile.
+     */
     set uuid(uuid) {
-        // let oldUUID = this._uuid;
-        // Please try to avoid using this unless you absolutely have to ;_;
         this._uuid = uuid;
-
-        // Wick.ObjectCache.removeObjectByUUID(oldUUID);
         Wick.ObjectCache.addObject(this);
     }
 
