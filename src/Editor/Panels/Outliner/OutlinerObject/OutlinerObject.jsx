@@ -186,6 +186,7 @@ export const OutlinerObject = ({clearSelection, selectObjects,
     {"highlighted": highlighted === data},
     hoverLocation === 'hover-middle' && isOverCurrent && hoverLocation)}>
     <button
+    aria-label="select outliner object"
     ref={drag}
     className="outliner-object-selector"
     onClick={(e) => {

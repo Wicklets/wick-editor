@@ -25,17 +25,18 @@ import '../_inspectorrow.scss';
 
 class InspectorSelector extends Component {
   render() {
+    let idLabel = this.props.tooltip.replace(/\s+/g, '-').toLowerCase();
     return(
       <div className="inspector-row">
         {/* Identifier */} 
-        <label htmlFor={this.props.tooltip + " input"} className="inspector-row-identifier">
+        <label htmlFor={idLabel + "-input"} className="inspector-row-identifier">
           {this.props.tooltip}
         </label>
 
         {/* Input */}
         <div className="inspector-large-input-container">
           <InspectorInput 
-            inputProps={{id: this.props.tooltip + " input"}}
+            inputProps={{id: idLabel+ "-input"}}
             input={
               {
                 type: "select",

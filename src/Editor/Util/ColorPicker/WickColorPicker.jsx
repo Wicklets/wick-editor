@@ -155,7 +155,7 @@ class WickColorPicker extends Component {
                         <div style={styles.activeColor} />
                     </div>
                 </div>
-                <SketchFields {...this.props} />
+                <SketchFields {...this.props} aria-label="color options"/>
                 {this.renderSwatchContainer(colors)}
                 {this.renderSwatchContainer(lastColors)}
             </div>

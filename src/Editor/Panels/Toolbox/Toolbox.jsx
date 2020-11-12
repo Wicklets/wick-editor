@@ -321,7 +321,7 @@ class Toolbox extends Component {
   render() {
     this.toolButtonProps.className = classNames("toolbox-item", {mobile: this.props.renderSize === "small"});
     return (
-      <div className="tool-box-container">
+      <div className="tool-box-container" aria-label="Toolbox">
         {this.props.renderSize === 'large' ? this.renderLargeToolbox() : 
         this.props.renderSize === 'medium' ? this.renderMediumToolbox() : 
                                              this.renderSmallToolbox()}

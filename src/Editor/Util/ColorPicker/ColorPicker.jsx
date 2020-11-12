@@ -48,6 +48,7 @@ export default function ColorPicker (props) {
   return (
       <button
         className={"btn-color-picker"}
+        aria-label="color picker button"
         id={itemID}
         onClick={toggle}
         style={props.stroke ? {borderColor: color} : {backgroundColor: color}}

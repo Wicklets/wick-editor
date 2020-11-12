@@ -99,7 +99,7 @@ class Timeline extends Component {
     const { connectDropTarget, isOver } = this.props;
 
     return connectDropTarget (
-      <div id="animation-timeline-container">
+      <div id="animation-timeline-container" aria-label="Timeline">
         { isOver && <div className="drag-drop-overlay" /> }
         <div id="animation-timeline" ref={this.canvasContainer} />
       </div>

@@ -26,17 +26,19 @@ import '../_inspectorrow.scss';
 
 class InspectorDualNumericInput extends Component {
   render() {
+    let idLabel1 = this.props.tooltip1.replace(/\s+/g, '-').toLowerCase();
+    let idLabel2 = this.props.tooltip2.replace(/\s+/g, '-').toLowerCase();
     return(
       <div className="inspector-row">
         {/* Identifier1 */} 
-        <label htmlFor={this.props.tooltip1 + " input"} className="inspector-row-identifier">
+        <label htmlFor={idLabel1 + "-input"} className="inspector-row-identifier">
           {this.props.tooltip1}
         </label>
 
         {/* Input1 */}
         <div className="inspector-small-input-container">
           <InspectorInput 
-            inputProps={{id: this.props.tooltip1 + " input"}}
+            inputProps={{id: idLabel1 + "-input"}}
             input={
               {type: "numeric",
               value: this.props.val1,
@@ -45,14 +47,14 @@ class InspectorDualNumericInput extends Component {
         </div>
 
         {/* Identifier2 */}
-        <label htmlFor={this.props.tooltip2 + " input"} className="inspector-row-identifier">
+        <label htmlFor={idLabel2 + "-input"} className="inspector-row-identifier">
           {this.props.tooltip2}
         </label>
         
         {/* Input2 */}
         <div className="inspector-small-input-container">
           <InspectorInput 
-            inputProps={{id: this.props.tooltip2 + " input"}}
+            inputProps={{id: idLabel2 + "-input"}}
             input={
               {type: "numeric",
               value: this.props.val2,

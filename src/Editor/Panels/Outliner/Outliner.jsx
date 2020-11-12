@@ -243,7 +243,7 @@ class Outliner extends Component {
       }
 
       return (
-      <div className={classNames("docked-pane outliner", this.props.className)}>
+      <div className={classNames("docked-pane outliner", this.props.className)} aria-label="Outliner">
           <div className="outliner-title-container">
             <OutlinerTitle/>
           </div>

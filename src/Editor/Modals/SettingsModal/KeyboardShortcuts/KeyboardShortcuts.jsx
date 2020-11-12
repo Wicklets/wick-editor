@@ -70,7 +70,7 @@ class KeyboardShortcuts extends Component {
 
     // Adds plus signs to keys that are not the last key...
     return (
-      <button aria-labelledby={labelledby} className="keyboard-shortcut-key">
+      <button aria-labelledby={labelledby+" shortcut key"} className="keyboard-shortcut-key">
         {sequenceItems.map((key,i) => {
           return (
             <span key={"keyboard-commands-" + key + i} className="keyboard-shortcuts-key-icon-container">
