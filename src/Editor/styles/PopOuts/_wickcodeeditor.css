@@ -332,6 +332,7 @@
 }
 
 .error-marker {
+    position: absolute;
     background-color: var(--wick-error);
     padding-right: 4px;
 }

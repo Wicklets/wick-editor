@@ -80,6 +80,7 @@ class Editor extends EditorCore {
       showCanvasActions: false,
       showBrushModes: false,
       showCodeErrors: false,
+      codeError: null,
       popoutOutlinerSize: 250,
       outlinerPoppedOut: false,
       inspectorSize: 250,
@@ -114,6 +115,7 @@ class Editor extends EditorCore {
 
     // Catch all errors that happen in the editor.
     window.onerror = function(error, url, line) {
+
       console.error(error);
       console.log("Error Details:", {
         error,
@@ -122,6 +124,7 @@ class Editor extends EditorCore {
       })
       return true;
     }
+
 
     // Set up error.
     this.error = null;
@@ -275,7 +278,15 @@ class Editor extends EditorCore {
       this.project.view.canvas.focus();
       this.project.play({
         onError: (error) => {
-          this.stopPreviewPlaying([error])
+          if (error) {
+            console.error(new Error(`${error.message} on line ${error.lineNumber} in script "${error.name}".`));
+            this.setState({
+              codeError: error,
+            });
+          }
+
+    
+          this.stopPreviewPlaying(error)
         },
         onAfterTick: () => {
           //this.project.view.render();
@@ -379,6 +390,7 @@ class Editor extends EditorCore {
 
     // re-render project to avoid incorrect pan
     this.project.view.render();
+    this.recenterCanvas();
   }
 
   getDefaultCodeEditorProperties = () => {
@@ -390,8 +402,8 @@ class Editor extends EditorCore {
         height: height,
         x: window.innerWidth/2 - width/2,
         y: window.innerHeight/2 - height/2,
-        minWidth: 500,
-        minHeight: 300,
+        minWidth: 400,
+        minHeight: 250,
         consoleHeight: 100,
         consoleOpen: true,
         fontSize: 16,
@@ -471,6 +483,8 @@ class Editor extends EditorCore {
    * @param  {React.Component} component  React component of the outliner.
    */
   onStopPopoutOutlinerResize = ({domElement, component}) => {
+    if (!domElement) return
+
     this.setState({
       popoutOutlinerSize: this.getSizeHorizontal(domElement)
     });
@@ -482,6 +496,7 @@ class Editor extends EditorCore {
    * @param  {React.Component} component  React component of the inspector.
    */
   onStopInspectorResize = ({domElement, component}) => {
+    if (!domElement) return
     this.setState({
       inspectorSize: this.getSizeHorizontal(domElement)
     });
@@ -493,6 +508,7 @@ class Editor extends EditorCore {
    * @param  {React.Component} component  React component of the asset library
    */
   onStopAssetLibraryResize = ({domElement, component}) => {
+    if (!domElement) return
     this.setState({
       assetLibrarySize: this.getSizeVertical(domElement)
     });
@@ -504,6 +520,7 @@ class Editor extends EditorCore {
    * @param  {React.Component} component  React component of the timeline.
    */
   onStopTimelineResize = ({domElement, component}) => {
+    if (!domElement) return
     var size = this.getSizeVertical(domElement);
 
     this.setState({
@@ -894,6 +911,12 @@ class Editor extends EditorCore {
     }
   }
 
+  setConsoleLogs = (logs) => {
+    this.setState({
+      consoleLogs: logs,
+    })
+  }
+
   render = () => {
     // Create some references to the project and editor to make debugging in the console easier:
     window.project = this.project;
@@ -1165,14 +1188,14 @@ class Editor extends EditorCore {
               selectionIsScriptable={this.selectionIsScriptable}
               script={this.getSelectedObjectScript()}
               scriptToEdit={this.state.scriptToEdit}
-              error={this.project.error}
+              error={this.state.codeError}
               onScriptUpdate={this.onScriptUpdate}
               editScript={this.editScript}
               toggleCodeEditor={this.toggleCodeEditor}
               requestAutosave={this.requestAutosave}
               clearCodeEditorError={this.clearCodeEditorError}
               consoleLogs={this.state.consoleLogs}
-              setConsoleLogs={(logs) => {this.setState({consoleLogs: logs})}}
+              setConsoleLogs={this.setConsoleLogs}
             />}
         </div>
       </EditorWrapper>

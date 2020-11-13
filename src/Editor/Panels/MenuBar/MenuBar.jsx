@@ -25,10 +25,6 @@ import MenuBarSupportButton from './MenuBarSupportButton/MenuBarSupportButton';
 
 class MenuBar extends Component {
 
-  constructor(props) {
-    super();
-  }
-
   renderDesktop = () => {
     return(
       <div className="docked-pane menu-bar" aria-label="Menu Bar">

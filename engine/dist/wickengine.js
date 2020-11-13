@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.11.12.13.13.53";
+var WICK_ENGINE_BUILD_VERSION = "2020.11.13.16.19.16";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -51376,8 +51376,7 @@ Wick.Project = class extends Wick.Base {
   set error(error) {
     if (this._error && error) {
       return;
-    } else if (error && !this._error) {
-      console.error(error);
+    } else if (error && !this._error) {// console.error(error);
     }
 
     this._error = error;

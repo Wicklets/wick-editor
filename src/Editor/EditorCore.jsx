@@ -1593,16 +1593,24 @@ class EditorCore extends Component {
 
   /**
    * Stops the project if it is currently preview playing and displays any errors in the code window.
+   * @param {object} error - any errors called while playing
    */
-  stopPreviewPlaying = () => {
+  stopPreviewPlaying = (error) => {
+
     this.setState({
       previewPlaying: false,
       codeEditorOpen: this.project.error === undefined ? this.state.codeEditorOpen : true,
       showCodeErrors: this.project.error === undefined ? false : true,
     });
 
-    if(this.project.error) {
-        this.editScript(this.project.error.name);
+    if(error) {
+      let obj = window.Wick.ObjectCache.getObjectByUUID(error.uuid);
+
+      if (obj) {
+        this.selectObject(obj)
+      }
+
+      this.editScript(error.name);
     }
 
     this.projectDidChange({ actionName: "Stop Preview Playing" });

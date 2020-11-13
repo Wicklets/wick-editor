@@ -1409,7 +1409,7 @@ Wick.Project = class extends Wick.Base {
         if (this._error && error) {
             return;
         } else if (error && !this._error) {
-            console.error(error);
+            // console.error(error);
         }
 
         this._error = error;

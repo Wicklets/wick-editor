@@ -432,13 +432,13 @@ class ExportOptions extends Component {
   }
 
   renderDesktop = () => {
-    // An object of export types to functions that render those export types.
-    const exportTypes = {
-      "Animation": this.renderAnimatedInfo,
-      "Interactive": this.renderInteractiveInfo,
-      "Images": this.renderImageInfo,
-      "Audio": this.renderAudioInfo,
-    }
+    window.allowedExportTypes = window.allowedExportTypes.sort((a, b) => {
+      let order = ["Animation", "Interactive", "Audio", "Images"];
+
+      return order.indexOf[a] - order.indexOf[b]; 
+    });
+
+    let allowedExportTypes = window.allowedExportTypes.concat([]);
 
     return (
       <WickModal
@@ -457,11 +457,12 @@ class ExportOptions extends Component {
               aria-label="project name" />
           </div>
           <TabbedInterface
-            tabNames={window.allowedExportTypes}
+            tabNames={allowedExportTypes}
             onTabSelect={this.setSubTab}>
-              {
-                window.allowedExportTypes.map(type => exportTypes[type]())
-              }
+              { allowedExportTypes.indexOf('Animation') > -1 && this.renderAnimatedInfo()}
+              { allowedExportTypes.indexOf('Interactive') > -1 && this.renderInteractiveInfo()}
+              { allowedExportTypes.indexOf('Audio') > -1 && this.renderAudioInfo()}
+              { allowedExportTypes.indexOf('Images') > -1 && this.renderImageInfo()}
           </TabbedInterface>
         </div>
       </WickModal>
