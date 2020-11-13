@@ -32,8 +32,6 @@ import whiteHeart from '../../../resources/support-us-icons/white-heart.svg';
 
 import './_supportus.scss';
 
-let classNames=require("classnames");
-
 class SupportUs extends Component {
   constructor () {
     super();

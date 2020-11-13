@@ -69,7 +69,6 @@ export default function WickCodeEditor(props) {
   const [addScriptTab, setAddScriptTab] = useState('Mouse');
   const [consoleType, setConsoleType] = useState('console');
   const [aceEditor, setAceEditor] = useState(null);
-  const [logs, setLogs] = useState([]);
 
   const editorThemeSelectRef = useRef();
 
