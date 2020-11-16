@@ -134,7 +134,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
             }, false);
 
             // Scroll events
-            this.createCanvasEvent('mousewheel', this._onMouseWheel.bind(this));
+            $(this._canvas).on('mousewheel', this._onMouseWheel.bind(this));
 
             // Touch events
             this.createCanvasEvent('touchstart', e => {

@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.11.13.16.19.16";
+var WICK_ENGINE_BUILD_VERSION = "2020.11.16.11.37.34";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -66333,7 +66333,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         }
       }, false); // Scroll events
 
-      this.createCanvasEvent('mousewheel', this._onMouseWheel.bind(this)); // Touch events
+      $(this._canvas).on('mousewheel', this._onMouseWheel.bind(this)); // Touch events
 
       this.createCanvasEvent('touchstart', e => {
         e.buttons = 0;

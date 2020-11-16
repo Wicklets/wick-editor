@@ -429,7 +429,7 @@ function CodeReference(props) {
                 id={"code-reference-button-" + option.name}
                 action={() => { props.addCodeToTab(option.snippet) }}
                 tooltip={option.description}
-                tooltipPlace="top"
+                tooltipPlace="right"
                 color='reference'
                 text={option.name} />
             </div>
