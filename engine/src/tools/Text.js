@@ -102,6 +102,10 @@ Wick.Tools.Text = class extends Wick.Tool {
 
     }
 
+    reset () {
+        this.finishEditingText();
+    }
+
     /**
      * Stop editing the current text and apply changes.
      */

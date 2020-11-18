@@ -96,9 +96,11 @@ Wick.Project = class extends Wick.Base {
             text: new Wick.Tools.Text(),
             zoom: new Wick.Tools.Zoom(),
         };
+
         for (var toolName in this._tools) {
             this._tools[toolName].project = this;
         }
+
         this.activeTool = 'cursor';
 
         this._toolSettings = new Wick.ToolSettings();
@@ -1649,6 +1651,17 @@ Wick.Project = class extends Wick.Base {
      */
     zoomOut() {
         this.zoom *= 0.8;
+    }
+
+    /**
+     * Resets all tools in the project.
+     */
+    resetTools () {
+
+        for (let toolName of Object.keys(this.tools)) {
+            let tool = this.tools[toolName];
+            tool.reset();
+        }
     }
 
     /**

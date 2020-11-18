@@ -162,6 +162,13 @@ Wick.Tool = class {
     }
 
     /**
+     * Should reset the state of the tool.
+     */
+    reset () {
+
+    }
+
+    /**
      * Activates this tool in paper.js.
      */
     activate () {

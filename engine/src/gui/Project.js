@@ -121,7 +121,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
 
             this.createCanvasEvent('mousedown', e => {
                 if(e.touches) return;
-                this._onMouseDown(e);
+                this._timeline_onMouseDown(e);
             }, false);
 
             // Auto-close popup menu if there is a click off-canvas
@@ -146,7 +146,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
                 e.movementX = e.touches[0].movementX;
                 e.movementY = e.touches[0].movementY;
                 this._onMouseMove(e);
-                this._onMouseDown(e);
+                this._timeline_onMouseDown(e);
             }, false);
 
             this.createDocumentEvent('touchmove', e => {
@@ -423,7 +423,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         this.draw();
     }
 
-    _onMouseDown (e) {
+    _timeline_onMouseDown (e) {
         this.closePopupMenu();
         this.canvasClicked = true;
         this._clickXY = {x: e.clientX, y: e.clientY};

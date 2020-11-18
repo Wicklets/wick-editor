@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.11.16.11.37.34";
+var WICK_ENGINE_BUILD_VERSION = "2020.11.18.15.32.59";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -51617,6 +51617,17 @@ Wick.Project = class extends Wick.Base {
     this.zoom *= 0.8;
   }
   /**
+   * Resets all tools in the project.
+   */
+
+
+  resetTools() {
+    for (let toolName of Object.keys(this.tools)) {
+      let tool = this.tools[toolName];
+      tool.reset();
+    }
+  }
+  /**
    * All tools belonging to the project.
    * @type {Array<Wick.Tool>}
    */
@@ -53074,6 +53085,7 @@ Wick.Timeline = class extends Wick.Base {
     // Automatically clear selection when any playhead in the project moves
     if (this.project && this._playheadPosition !== playheadPosition && this.parentClip.isFocus) {
       this.project.selection.clear('Canvas');
+      this.project.resetTools();
     }
 
     this._playheadPosition = playheadPosition;
@@ -58543,6 +58555,12 @@ Wick.Tool = class {
 
   onKeyUp(e) {}
   /**
+   * Should reset the state of the tool.
+   */
+
+
+  reset() {}
+  /**
    * Activates this tool in paper.js.
    */
 
@@ -60725,6 +60743,10 @@ Wick.Tools.Text = class extends Wick.Tool {
   onMouseDrag(e) {}
 
   onMouseUp(e) {}
+
+  reset() {
+    this.finishEditingText();
+  }
   /**
    * Stop editing the current text and apply changes.
    */
@@ -66321,7 +66343,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
       this.createCanvasEvent('mousedown', e => {
         if (e.touches) return;
 
-        this._onMouseDown(e);
+        this._timeline_onMouseDown(e);
       }, false); // Auto-close popup menu if there is a click off-canvas
 
       this.createDocumentEvent('mousedown', e => {
@@ -66346,7 +66368,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
 
         this._onMouseMove(e);
 
-        this._onMouseDown(e);
+        this._timeline_onMouseDown(e);
       }, false);
       this.createDocumentEvent('touchmove', e => {
         e.buttons = 1;
@@ -66635,7 +66657,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     this.draw();
   }
 
-  _onMouseDown(e) {
+  _timeline_onMouseDown(e) {
     this.closePopupMenu();
     this.canvasClicked = true;
     this._clickXY = {
