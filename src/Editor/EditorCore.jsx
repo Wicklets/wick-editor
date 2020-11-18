@@ -818,7 +818,7 @@ class EditorCore extends Component {
       this.project.createSVGInstanceFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), dropPoint.x, dropPoint.y, svg => {
         this.projectDidChange({ actionName: "Create SVG Instance From Asset"});
       });
-    }else {
+    } else {
       console.error('object is not an ImageAsset or a ClipAsset')
     }
   }
