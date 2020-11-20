@@ -34,6 +34,8 @@ Wick.GUIElement.Button = class extends Wick.GUIElement {
         this.tooltip = new Wick.GUIElement.Tooltip(this.model, this._tooltip);
 
         this.cursor = 'pointer';
+
+        this.lastPressed = 0;
     }
 
     draw() {
@@ -41,6 +43,14 @@ Wick.GUIElement.Button = class extends Wick.GUIElement {
     }
 
     onMouseDown(e) {
-        this._clickFn(e);
+        let now = Date.now();
+        let timeSince = now - this.lastPressed;
+
+        // Require 100 ms between clicks.
+        // This helps ensure that double events are not counted immediately.
+        if (timeSince > 150) {
+            this._clickFn(e);
+            this.lastPressed = now;
+        }
     }
 }

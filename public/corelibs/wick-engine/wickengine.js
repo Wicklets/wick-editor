@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.11.20.13.10.52";
+var WICK_ENGINE_BUILD_VERSION = "2020.11.20.15.55.32";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -64271,6 +64271,7 @@ Wick.GUIElement.Button = class extends Wick.GUIElement {
     this._tooltip = args.tooltip;
     this.tooltip = new Wick.GUIElement.Tooltip(this.model, this._tooltip);
     this.cursor = 'pointer';
+    this.lastPressed = 0;
   }
 
   draw() {
@@ -64278,7 +64279,15 @@ Wick.GUIElement.Button = class extends Wick.GUIElement {
   }
 
   onMouseDown(e) {
-    this._clickFn(e);
+    let now = Date.now();
+    let timeSince = now - this.lastPressed; // Require 100 ms between clicks.
+    // This helps ensure that double events are not counted immediately.
+
+    if (timeSince > 150) {
+      this._clickFn(e);
+
+      this.lastPressed = now;
+    }
   }
 
 };
