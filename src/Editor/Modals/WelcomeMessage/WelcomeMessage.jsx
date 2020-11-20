@@ -27,7 +27,7 @@ import './_welcomemessage.scss';
 // import nightImage from 'resources/interface-images/blue_night.svg';
 import nightImageShort from 'resources/interface-images/blue_night_short.svg';
 
-import coolField from 'resources/splash-screens/cool_field2.png'
+import coolField from 'resources/splash-screens/cool_field3.png'
 
 var classNames = require('classnames');
 
