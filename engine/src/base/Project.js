@@ -1657,7 +1657,6 @@ Wick.Project = class extends Wick.Base {
      * Resets all tools in the project.
      */
     resetTools () {
-
         for (let toolName of Object.keys(this.tools)) {
             let tool = this.tools[toolName];
             tool.reset();
