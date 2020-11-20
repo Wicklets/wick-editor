@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.11.18.15.32.59";
+var WICK_ENGINE_BUILD_VERSION = "2020.11.20.13.10.52";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -59050,7 +59050,14 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
   _potraceCroquisCanvas(point) {
     this.errorOccured = false;
-    var strokeBounds = this.strokeBounds.clone(); // Give croquis just a little bit to get the canvas ready...
+    var strokeBounds = this.strokeBounds.clone(); // Attempting to draw with a transparent fill color. Throw an error.
+
+    if (this.getSetting('fillColor').a === 0) {
+      this.handleBrushError('transparentColor');
+      this.project.errorOccured("Fill Color is Transparent!");
+      return;
+    } // Give croquis just a little bit to get the canvas ready...
+
 
     this._croquisStartTimeout = setTimeout(() => {
       // Retrieve Croquis canvas
