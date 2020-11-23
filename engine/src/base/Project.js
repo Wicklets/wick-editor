@@ -950,9 +950,8 @@ Wick.Project = class extends Wick.Base {
 
         // Select the newly added frames
         this.selection.clear();
-        newFrames.forEach(frame => {
-            this.selection.select(frame);
-        });
+
+        this.selection.selectMultipleObjects(newFrames);
     }
 
     /**
@@ -1079,18 +1078,22 @@ Wick.Project = class extends Wick.Base {
      * Selects all objects that are visible on the canvas (excluding locked layers and onion skinned objects)
      */
     selectAll() {
+        let objectsToAdd = [];
+
         this.selection.clear();
         this.activeFrames.filter(frame => {
             return !frame.parentLayer.locked &&
                 !frame.parentLayer.hidden;
         }).forEach(frame => {
             frame.paths.forEach(path => {
-                this.selection.select(path);
+                objectsToAdd.push(path);
             });
             frame.clips.forEach(clip => {
-                this.selection.select(clip);
+                objectsToAdd.push(clip);
             });
         });
+
+        this.selection.selectMultipleObjects(objectsToAdd);
     }
 
     /**
@@ -1200,9 +1203,7 @@ Wick.Project = class extends Wick.Base {
             leftovers = leftovers.concat(clip.breakApart());
         });
 
-        leftovers.forEach(object => {
-            this.selection.select(object);
-        });
+        this.selection.selectMultipleObjects(leftovers);
     }
 
     /**

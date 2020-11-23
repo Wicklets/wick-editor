@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.11.20.15.55.32";
+var WICK_ENGINE_BUILD_VERSION = "2020.11.23.16.14.18";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -45908,6 +45908,7 @@ Wick.Clipboard = class {
 
     var layerIndicesMoved = project.activeLayer.index - this._copyLayerIndex;
     project.selection.clear();
+    var objectsToSelect = [];
     this.clipboardData.map(data => {
       return Wick.Base.import(data, project).copy();
     }).forEach(object => {
@@ -45932,10 +45933,16 @@ Wick.Clipboard = class {
 
         object.x += Wick.Clipboard.PASTE_OFFSET;
         object.y += Wick.Clipboard.PASTE_OFFSET;
-      }
+      } // Wait to select objects.
 
-      project.selection.select(object);
-    });
+
+      objectsToSelect.push(object);
+    }); // Select newly added objects.
+
+    if (objectsToSelect.length > 0) {
+      project.selection.selectMultipleObjects(objectsToSelect);
+    }
+
     return true;
   }
 
@@ -50900,9 +50907,7 @@ Wick.Project = class extends Wick.Base {
 
 
     this.selection.clear();
-    newFrames.forEach(frame => {
-      this.selection.select(frame);
-    });
+    this.selection.selectMultipleObjects(newFrames);
   }
   /**
    * A tween can be created if frames are selected or if there is a frame under the playhead on the active layer.
@@ -51043,17 +51048,19 @@ Wick.Project = class extends Wick.Base {
 
 
   selectAll() {
+    let objectsToAdd = [];
     this.selection.clear();
     this.activeFrames.filter(frame => {
       return !frame.parentLayer.locked && !frame.parentLayer.hidden;
     }).forEach(frame => {
       frame.paths.forEach(path => {
-        this.selection.select(path);
+        objectsToAdd.push(path);
       });
       frame.clips.forEach(clip => {
-        this.selection.select(clip);
+        objectsToAdd.push(clip);
       });
     });
+    this.selection.selectMultipleObjects(objectsToAdd);
   }
   /**
    * Adds an image path to the active frame using a given asset as its image src.
@@ -51166,9 +51173,7 @@ Wick.Project = class extends Wick.Base {
     clips.forEach(clip => {
       leftovers = leftovers.concat(clip.breakApart());
     });
-    leftovers.forEach(object => {
-      this.selection.select(object);
-    });
+    this.selection.selectMultipleObjects(leftovers);
   }
   /**
    * Sets the project focus to the timeline of the selected clip.
@@ -52006,10 +52011,6 @@ Wick.Project = class extends Wick.Base {
  * Class representing a Wick Selection.
  */
 Wick.Selection = class extends Wick.Base {
-  static get SELECTABLE_OBJECT_TYPES() {
-    return ['Path', 'Clip', 'Frame', 'Tween', 'Layer', 'Asset'];
-  }
-
   static get LOCATION_NAMES() {
     return ['Canvas', 'Timeline', 'AssetLibrary'];
   }
@@ -52029,6 +52030,8 @@ Wick.Selection = class extends Wick.Base {
     };
     this._originalWidth = 0;
     this._originalHeight = 0;
+    this.SELECTABLE_OBJECT_TYPES = ['Path', 'Clip', 'Frame', 'Tween', 'Layer', 'Asset'];
+    this.SELECTABLE_OBJECT_TYPES_SET = new Set(this.SELECTABLE_OBJECT_TYPES);
   }
 
   _serialize(args) {
@@ -52071,16 +52074,25 @@ Wick.Selection = class extends Wick.Base {
     return ["strokeWidth", "fillColor", "strokeColor", "name", "filename", "fontSize", "fontFamily", "fontWeight", "fontStyle", "src", "frameLength", "x", "y", "originX", "originY", "width", "height", "rotation", "opacity", "sound", "soundVolume", "soundStart", "identifier", "easingType", "fullRotations", "scaleX", "scaleY", "animationType", "singleFrameNumber", "isSynced"];
   }
   /**
-   * Add a wick object to the selection.
+   * Returns true if an object is selectable.
+   * @param {object} object object to check if selectable
+   * @returns {boolean} true if selectable, false otherwise.
+   */
+
+
+  isSelectable(object) {
+    return this.SELECTABLE_OBJECT_TYPES_SET.has(object.classname);
+  }
+  /**
+   * Add a wick object to the selection. If selecting multiple objects, you should use
+   * selection.selectMultipleObjects.
    * @param {Wick.Base} object - The object to select.
    */
 
 
   select(object) {
-    // Do not allow selection of objects not defined to be selectable
-    if (!Wick.Selection.SELECTABLE_OBJECT_TYPES.find(type => {
-      return object instanceof Wick[type];
-    })) {
+    // Only allow specific objects to be selectable.
+    if (!this.isSelectable(object)) {
       console.warn("Tried to select a " + object.classname + " object. This type is not selectable");
       return;
     } // Don't do anything if the object is already selected
@@ -52115,6 +52127,34 @@ Wick.Selection = class extends Wick.Base {
     this.view.dirty = true;
   }
   /**
+   * Select multiple objects. Must be selectable objects. Significantly faster than selecting multiple elements
+   * with a select() independently.
+   * @param {object[]} objects 
+   */
+
+
+  selectMultipleObjects(objects) {
+    let UUIDsToAdd = [];
+    objects.forEach(obj => {
+      if (this.isSelectable(obj) && !this.isObjectSelected(obj)) {
+        // Clear the selection if any of the selected objects are not in the same place as the objects
+        // being selected.
+        if (this.location !== this._locationOf(obj)) {
+          this.clear();
+        }
+
+        UUIDsToAdd.push(obj.uuid);
+      }
+    });
+    UUIDsToAdd.forEach(uuid => {
+      this._selectedObjectsUUIDs.push(uuid);
+    });
+
+    this._resetPositioningValues();
+
+    this.view.dirty = true;
+  }
+  /**
    * Remove a wick object from the selection.
    * @param {Wick.Base} object - The object to deselect.
    */
@@ -52131,6 +52171,22 @@ Wick.Selection = class extends Wick.Base {
     this.view.dirty = true;
   }
   /**
+   * Remove multiple objects from the selection. Does nothing if an object is not selected.
+   * @param {object[]} objects objects to remove from the selection.
+   */
+
+
+  deselectMultipleObjects(objects) {
+    objects = objects.filter(obj => obj);
+    let uuids = objects.map(obj => obj.uuid);
+    uuids = new Set(uuids);
+    this._selectedObjectsUUIDs = this._selectedObjectsUUIDs.filter(uuid => !uuids.has(uuid));
+
+    this._resetPositioningValues();
+
+    this.view.dirty = true;
+  }
+  /**
    * Remove all objects from the selection with an optional filter.
    * @param {string} filter - A location or a type (see SELECTABLE_OBJECT_TYPES and LOCATION_NAMES)
    */
@@ -52138,17 +52194,13 @@ Wick.Selection = class extends Wick.Base {
 
   clear(filter) {
     if (filter === undefined) {
-      this.project.selection.getSelectedObjects().forEach(object => {
-        if (object !== null) {
-          this.deselect(object);
-        } //else object is no longer in cache, this happens sometimes when loading up an autosave project
-
-      });
       this._selectedObjectsUUIDs = [];
+
+      this._resetPositioningValues();
+
+      this.view.dirty = true;
     } else {
-      this.project.selection.getSelectedObjects(filter).forEach(object => {
-        this.deselect(object);
-      });
+      this.deselectMultipleObjects(this.project.selection.getSelectedObjects(filter));
     }
   }
   /**
@@ -59338,11 +59390,12 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         this._selection.clear();
       }
 
-      this.selectionBox.items.filter(item => {
+      let selectables = this.selectionBox.items.filter(item => {
         return item.data.wickUUID;
-      }).forEach(item => {
-        this._selectItem(item);
-      }); // Only modify the canvas if you actually selected something.
+      });
+
+      this._selectItems(selectables); // Only modify the canvas if you actually selected something.
+
 
       if (this.selectionBox.items.length > 0) {
         this.fireEvent({
@@ -59511,6 +59564,20 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     var object = this._wickObjectFromPaperItem(item);
 
     this._selection.select(object);
+  }
+  /**
+   * Select multiple items simultaneously.
+   * @param {object[]} items paper items 
+   */
+
+
+  _selectItems(items) {
+    let objects = [];
+    items.forEach(item => {
+      objects.push(this._wickObjectFromPaperItem(item));
+    });
+
+    this._selection.selectMultipleObjects(objects);
   }
 
   _deselectItem(item) {
