@@ -89,7 +89,7 @@ const canvasTarget = {
         props.importProjectAsWickFile(file);
       } else {
         // Assets (images, sounds, etc)
-        props.createAssets(draggedItem.files, []);
+        props.createAssets(draggedItem.files, [], {create: true, location: dropLocation});
       }
     } else {
       // Dropped an asset from the asset library
