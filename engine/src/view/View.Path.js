@@ -77,6 +77,7 @@ Wick.View.Path = class extends Wick.View {
             this.importRaster(json);
         }
 
+
         // Import JSON data into paper.js
         this._item = this.paper.importJSON(json);
         this._item.remove();

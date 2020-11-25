@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.11.25.14.46.54";
+var WICK_ENGINE_BUILD_VERSION = "2020.11.25.16.47.47";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -48931,10 +48931,15 @@ Wick.Base = class {
   }
   /**
    * @param {object} data - Serialized data to use to create a new object.
+   * @param {Wick.Project} project - Optional - Project to attach to the object.
    */
 
 
-  static fromData(data) {
+  static fromData(data, project) {
+    if (!project) {
+      console.log("No Project");
+    }
+
     if (!data.classname) {
       console.warn('Wick.Base.fromData(): data was missing, did you mean to deserialize something else?');
     }
@@ -48944,7 +48949,8 @@ Wick.Base = class {
     }
 
     var object = new Wick[data.classname]({
-      uuid: data.uuid
+      uuid: data.uuid,
+      project: project
     });
     object.deserialize(data);
 
@@ -49036,7 +49042,7 @@ Wick.Base = class {
   copy(temporary) {
     var data = this.serialize();
     data.uuid = uuidv4();
-    var copy = Wick.Base.fromData(data);
+    var copy = Wick.Base.fromData(data, this.project);
 
     if (temporary) {
       copy._temporary = true;
@@ -49090,13 +49096,7 @@ Wick.Base = class {
   static import(exportData, project) {
     if (!exportData) console.error('Wick.Base.import(): exportData is required');
     if (!exportData.object) console.error('Wick.Base.import(): exportData is missing data');
-    if (!exportData.children) console.error('Wick.Base.import(): exportData is missing data');
-    var object = Wick.Base.fromData(exportData.object); // Import children as well
-
-    exportData.children.forEach(childData => {
-      // Only need to call deserialize here, we just want the object to get added to ObjectCache
-      var child = Wick.Base.fromData(childData);
-    }); // Also import linked assets
+    if (!exportData.children) console.error('Wick.Base.import(): exportData is missing data'); // Import assets first to ensure any item that utilizes an asset can load properly.
 
     exportData.assets.forEach(assetData => {
       // Don't import assets if they exist in the project already
@@ -49105,8 +49105,14 @@ Wick.Base = class {
         return;
       }
 
-      var asset = Wick.Base.fromData(assetData);
+      var asset = Wick.Base.fromData(assetData, project);
       project.addAsset(asset);
+    });
+    var object = Wick.Base.fromData(exportData.object, project); // Import children as well
+
+    exportData.children.forEach(childData => {
+      // Only need to call deserialize here, we just want the object to get added to ObjectCache
+      var child = Wick.Base.fromData(childData, project);
     });
     return object;
   }
