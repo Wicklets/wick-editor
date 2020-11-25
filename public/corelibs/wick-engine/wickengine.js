@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.11.23.19.43.2";
+var WICK_ENGINE_BUILD_VERSION = "2020.11.25.14.46.54";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -48920,7 +48920,8 @@ Wick.Base = class {
     this._classname = this.classname;
     this._children = [];
     this._childrenData = null;
-    this._parent = null;
+    this._parent = null; // If this is a project, use this object, otherwise use the passed in poject if provided.
+
     this._project = this.classname === 'Project' ? this : args.project ? args.project : null;
     this.needsAutosave = true;
     this._cachedSerializeData = null;
@@ -51122,6 +51123,7 @@ Wick.Project = class extends Wick.Base {
 
     if (args.type === 'Button') {
       clip = new Wick[args.type]({
+        project: this,
         identifier: args.identifier,
         transformation: new Wick.Transformation({
           x: this.selection.x + this.selection.width / 2,
@@ -51131,6 +51133,7 @@ Wick.Project = class extends Wick.Base {
       });
     } else {
       clip = new Wick[args.type]({
+        project: this.project,
         identifier: args.identifier,
         transformation: new Wick.Transformation({
           x: this.selection.x + this.selection.width / 2,
@@ -53854,6 +53857,8 @@ Wick.Path = class extends Wick.Base {
         asString: false
       });
     }
+
+    this._needReimport = true;
   }
   /**
    * Create a path containing an image from an ImageAsset.
@@ -53870,7 +53875,8 @@ Wick.Path = class extends Wick.Base {
       var raster = new paper.Raster(img);
       raster.remove();
       var path = new Wick.Path({
-        json: Wick.View.Path.exportJSON(raster)
+        json: Wick.View.Path.exportJSON(raster),
+        project: asset.project
       });
       callback(path);
     };
@@ -53885,7 +53891,8 @@ Wick.Path = class extends Wick.Base {
     var raster = new paper.Raster(asset.src);
     raster.remove();
     var path = new Wick.Path({
-      json: Wick.View.Path.exportJSON(raster)
+      json: Wick.View.Path.exportJSON(raster),
+      project: asset.project
     });
     return path;
   }
@@ -53961,6 +53968,7 @@ Wick.Path = class extends Wick.Base {
 
   set json(json) {
     this._json = json;
+    this._needReimport = true;
     this.view.render();
   }
   /**
@@ -53992,7 +54000,7 @@ Wick.Path = class extends Wick.Base {
 
   set x(x) {
     this.view.item.position.x = x;
-    this.json = this.view.exportJSON();
+    this.updateJSON();
   }
   /**
    * The position of the path.
@@ -54006,7 +54014,7 @@ Wick.Path = class extends Wick.Base {
 
   set y(y) {
     this.view.item.position.y = y;
-    this.json = this.view.exportJSON();
+    this.updateJSON();
   }
   /**
    * The fill color of the path.
@@ -54020,7 +54028,7 @@ Wick.Path = class extends Wick.Base {
 
   set fillColor(fillColor) {
     this.view.item.fillColor = fillColor;
-    this.json = this.view.exportJSON();
+    this.updateJSON();
   }
   /**
    * The stroke color of the path.
@@ -54034,7 +54042,7 @@ Wick.Path = class extends Wick.Base {
 
   set strokeColor(strokeColor) {
     this.view.item.strokeColor = strokeColor;
-    this.json = this.view.exportJSON();
+    this.updateJSON();
   }
   /**
    * The stroke width of the path.
@@ -54048,7 +54056,7 @@ Wick.Path = class extends Wick.Base {
 
   set strokeWidth(strokeWidth) {
     this.view.item.strokeWidth = strokeWidth;
-    this.json = this.view.exportJSON();
+    this.updateJSON();
   }
   /**
    * The opacity of the path.
@@ -54066,7 +54074,7 @@ Wick.Path = class extends Wick.Base {
 
   set opacity(opacity) {
     this.view.item.opacity = opacity;
-    this.json = this.view.exportJSON();
+    this.updateJSON();
   }
   /**
    * The font family of the path.
@@ -54082,7 +54090,7 @@ Wick.Path = class extends Wick.Base {
     this.view.item.fontFamily = fontFamily;
     this.fontWeight = 400;
     this.fontStyle = 'normal';
-    this.json = this.view.exportJSON();
+    this.updateJSON();
   }
   /**
    * The font size of the path.
@@ -54097,7 +54105,7 @@ Wick.Path = class extends Wick.Base {
   set fontSize(fontSize) {
     this.view.item.fontSize = fontSize;
     this.view.item.leading = fontSize * 1.2;
-    this.json = this.view.exportJSON();
+    this.updateJSON();
   }
   /**
    * The font weight of the path.
@@ -54155,6 +54163,14 @@ Wick.Path = class extends Wick.Base {
 
   set textContent(textContent) {
     this.view.item.content = textContent;
+  }
+  /**
+   * Update the JSON of the path based on the path on the view.
+   */
+
+
+  updateJSON() {
+    this.json = this.view.exportJSON();
   }
   /**
    * API function to change the textContent of dynamic text paths.
@@ -63751,6 +63767,7 @@ Wick.View.Frame = class extends Wick.View {
         var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
         var pathJSON = Wick.View.Path.exportJSON(child);
         var wickPath = new Wick.Path({
+          project: this.model.project,
           json: pathJSON
         });
         this.model.addPath(wickPath);
@@ -63839,7 +63856,23 @@ Wick.View.Path = class extends Wick.View {
       return;
     }
 
-    this.importJSON(this.model.json);
+    if (this.model._needReimport) {
+      this.importJSON(this.model.json);
+      this.model._needReimport = false;
+    } // Apply onion skin style if Needed
+    // (This is done here in the Path code because we actually change the style of the path
+    // if the current onion skin mode is set to "outlines" or "tint")
+
+
+    if (this.model.parentFrame && this.model.parentFrame.onionSkinned) {
+      this.applyOnionSkinStyles();
+    } else {
+      if (this.item.data.originalStyle) {
+        this.item.strokeColor = this.item.data.originalStyle.strokeColor;
+        this.item.fillColor = this.item.data.originalStyle.fillColor;
+        this.item.strokeWidth = this.item.data.originalStyle.strokeWidth;
+      }
+    }
   }
   /**
    * Import paper.js path data into this Wick Path, replacing the current path data.
@@ -63848,40 +63881,10 @@ Wick.View.Path = class extends Wick.View {
 
 
   importJSON(json) {
-    if (this.model.project && this.model.project.playing) return; // Don't try to render rasters if there's no project attached - too dangerous!
-    // (asset image sources may not be able to be retrieved)
+    if (this.model.project && this.model.project.playing) return; // Imports rasters if this json is a raster item.
 
-    if (json[0] === 'Raster' && !json[1].source.startsWith('data') && !this.model.project) {
-      return;
-    } // Backwards compatibility check for old raster formats:
-
-
-    if (json[0] === 'Raster' && this.model.project) {
-      if (json[1].source.startsWith('data')) {
-        // Bug: Raw dataURL was saved, need find asset with that data
-        this.model.project.getAssets('Image').forEach(imageAsset => {
-          if (imageAsset.src === json[1].source) {
-            json[1].source = 'asset:' + imageAsset.uuid;
-          }
-        });
-      } else if (json[1].source.startsWith('asset:')) {// Current format, no fix needed
-      } else if (json[1].source === 'asset') {
-        // Old format: Asset UUID is stored in 'data'
-        json[1].source = 'asset:' + (json[1].asset || json[1].data.asset);
-      } else {
-        console.error('WARNING: raster source format not recognized:');
-        console.log(json);
-        return;
-      }
-    } // Get image source from assets
-
-
-    var cachedImg = null;
-
-    if (json[0] === 'Raster' && json[1].source.startsWith('asset:')) {
-      var assetUUID = json[1].source.split(':')[1];
-      var imageAsset = this.model.project.getAssetByUUID(assetUUID);
-      json[1].source = imageAsset.src;
+    if (json[0] === 'Raster') {
+      this.importRaster(json);
     } // Import JSON data into paper.js
 
 
@@ -63901,47 +63904,6 @@ Wick.View.Path = class extends Wick.View {
     if (this._item instanceof paper.TextItem) {
       // https://github.com/paperjs/paper.js/issues/937
       this._item.fontWeight = this.model.fontWeight + ' ' + this.model.fontStyle;
-    } // Apply onion skin style
-    // (This is done here in the Path code because we actually change the style of the path
-    // if the current onion skin mode is set to "outlines" or "tint")
-
-
-    var onionSkinStyle = this.model.project && this.model.project.toolSettings.getSetting('onionSkinStyle');
-
-    if (this.model.parentFrame && this.model.parentFrame.onionSkinned) {
-      this.item.data.originalStyle = this.item.data.originalStyle || {
-        strokeColor: this.item.strokeColor,
-        fillColor: this.item.fillColor,
-        strokeWidth: this.item.strokeWidth
-      };
-      var frame = this.model.parentFrame;
-      var playheadPosition = this.model.project.focus.timeline.playheadPosition;
-      var onionTintColor = new Wick.Color("#ffffff");
-
-      if (frame.midpoint < playheadPosition) {
-        onionTintColor = this.model.project.toolSettings.getSetting('backwardOnionSkinTint').rgba;
-      } else if (frame.midpoint > playheadPosition) {
-        onionTintColor = this.model.project.toolSettings.getSetting('forwardOnionSkinTint').rgba;
-      }
-
-      if (onionSkinStyle === 'standard') {// We don't have to do anything!
-      } else if (onionSkinStyle === 'outlines') {
-        this.item.fillColor = 'rgba(0,0,0,0)'; // Make the fills transparent.
-
-        this.item.strokeWidth = this.model.project.toolSettings.getSetting('onionSkinOutlineWidth');
-        this.item.strokeColor = onionTintColor;
-      } else if (onionSkinStyle === 'tint') {
-        if (this.item.fillColor) this.item.fillColor = Wick.Color.average(new Wick.Color(this.item.fillColor.toCSS()), new Wick.Color(onionTintColor)).rgba;
-        if (this.item.strokeColor) this.item.strokeColor = Wick.Color.average(new Wick.Color(this.item.strokeColor.toCSS()), new Wick.Color(onionTintColor)).rgba;
-      }
-    } else {
-      if (this.item.data.originalStyle) {
-        this.item.strokeColor = this.item.data.originalStyle.strokeColor;
-        this.item.fillColor = this.item.data.originalStyle.fillColor;
-        this.item.strokeWidth = this.item.data.originalStyle.strokeWidth;
-      }
-
-      delete this.item.data.originalStyle;
     }
   }
   /**
@@ -63968,6 +63930,77 @@ Wick.View.Path = class extends Wick.View {
     return item.exportJSON({
       asString: false
     });
+  }
+  /**
+   * Imports raster image from Wick Object cache.
+   * @param {*} json 
+   */
+
+
+  importRaster(json) {
+    // Don't import if there is no project attached.
+    if (!this.model.project) {
+      console.warn("Project not attached to raster path. Image will not be rendered");
+      return;
+    } // Backwards compatibility check for old raster formats:
+
+
+    let JSONsrc = json[1].source;
+
+    if (JSONsrc.startsWith('data')) {
+      // Bug: Raw dataURL was saved, need find asset with that data
+      this.model.project.getAssets('Image').forEach(imageAsset => {
+        if (imageAsset.src === json[1].source) {
+          json[1].source = 'asset:' + imageAsset.uuid;
+        }
+      });
+    } else if (JSONsrc.startsWith('asset:')) {// Current format, no fix needed
+    } else if (JSONsrc === 'asset') {
+      // Old format: Asset UUID is stored in 'data'
+      JSONsrc = 'asset:' + (json[1].asset || json[1].data.asset);
+    } else {
+      console.error('WARNING: raster source format not recognized:');
+      console.log(json);
+      return;
+    } // Get image source from assets
+
+
+    var cachedImg = null;
+
+    if (json[1].source.startsWith('asset:')) {
+      var assetUUID = json[1].source.split(':')[1];
+      var imageAsset = this.model.project.getAssetByUUID(assetUUID);
+      json[1].source = imageAsset.src;
+    }
+  }
+
+  applyOnionSkinStyles() {
+    var onionSkinStyle = this.model.project && this.model.project.toolSettings.getSetting('onionSkinStyle');
+    this.item.data.originalStyle = this.item.data.originalStyle || {
+      strokeColor: this.item.strokeColor,
+      fillColor: this.item.fillColor,
+      strokeWidth: this.item.strokeWidth
+    };
+    var frame = this.model.parentFrame;
+    var playheadPosition = this.model.project.focus.timeline.playheadPosition;
+    var onionTintColor = new Wick.Color("#ffffff");
+
+    if (frame.midpoint < playheadPosition) {
+      onionTintColor = this.model.project.toolSettings.getSetting('backwardOnionSkinTint').rgba;
+    } else if (frame.midpoint > playheadPosition) {
+      onionTintColor = this.model.project.toolSettings.getSetting('forwardOnionSkinTint').rgba;
+    }
+
+    if (onionSkinStyle === 'standard') {// We don't have to do anything!
+    } else if (onionSkinStyle === 'outlines') {
+      this.item.fillColor = 'rgba(0,0,0,0)'; // Make the fills transparent.
+
+      this.item.strokeWidth = this.model.project.toolSettings.getSetting('onionSkinOutlineWidth');
+      this.item.strokeColor = onionTintColor;
+    } else if (onionSkinStyle === 'tint') {
+      if (this.item.fillColor) this.item.fillColor = Wick.Color.average(new Wick.Color(this.item.fillColor.toCSS()), new Wick.Color(onionTintColor)).rgba;
+      if (this.item.strokeColor) this.item.strokeColor = Wick.Color.average(new Wick.Color(this.item.strokeColor.toCSS()), new Wick.Color(onionTintColor)).rgba;
+    }
   }
 
 };

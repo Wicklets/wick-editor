@@ -52,6 +52,8 @@ Wick.Base = class {
         this._children = [];
         this._childrenData = null;
         this._parent = null;
+
+        // If this is a project, use this object, otherwise use the passed in poject if provided.
         this._project = this.classname === 'Project' ? this : args.project ? args.project : null;
 
         this.needsAutosave = true;

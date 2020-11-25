@@ -45,7 +45,24 @@ Wick.View.Path = class extends Wick.View {
             console.warn('Path ' + this.model.uuid + ' is missing path JSON.');
             return;
         }
-        this.importJSON(this.model.json);
+
+        if (this.model._needReimport) {
+            this.importJSON(this.model.json);
+            this.model._needReimport = false;
+        }
+
+        // Apply onion skin style if Needed
+        // (This is done here in the Path code because we actually change the style of the path
+        // if the current onion skin mode is set to "outlines" or "tint")
+        if(this.model.parentFrame && this.model.parentFrame.onionSkinned) {
+            this.applyOnionSkinStyles();
+        } else {
+            if(this.item.data.originalStyle) {
+                this.item.strokeColor = this.item.data.originalStyle.strokeColor;
+                this.item.fillColor = this.item.data.originalStyle.fillColor;
+                this.item.strokeWidth = this.item.data.originalStyle.strokeWidth;
+            }
+        }
     }
 
     /**
@@ -55,39 +72,9 @@ Wick.View.Path = class extends Wick.View {
     importJSON (json) {
         if(this.model.project && this.model.project.playing) return;
 
-        // Don't try to render rasters if there's no project attached - too dangerous!
-        // (asset image sources may not be able to be retrieved)
-        if(json[0] === 'Raster' && !json[1].source.startsWith('data') && !this.model.project) {
-            return;
-        }
-
-        // Backwards compatibility check for old raster formats:
-        if(json[0] === 'Raster' && this.model.project) {
-            if(json[1].source.startsWith('data')) {
-                // Bug: Raw dataURL was saved, need find asset with that data
-                this.model.project.getAssets('Image').forEach(imageAsset => {
-                    if(imageAsset.src === json[1].source) {
-                        json[1].source = 'asset:' + imageAsset.uuid;
-                    }
-                })
-            } else if (json[1].source.startsWith('asset:')) {
-                // Current format, no fix needed
-            } else if (json[1].source === 'asset') {
-                // Old format: Asset UUID is stored in 'data'
-                json[1].source = 'asset:' + (json[1].asset || json[1].data.asset);
-            } else {
-                console.error('WARNING: raster source format not recognized:');
-                console.log(json);
-                return;
-            }
-        }
-
-        // Get image source from assets
-        var cachedImg = null;
-        if(json[0] === 'Raster' && json[1].source.startsWith('asset:')) {
-            var assetUUID = json[1].source.split(':')[1];
-            var imageAsset = this.model.project.getAssetByUUID(assetUUID);
-            json[1].source = imageAsset.src;
+        // Imports rasters if this json is a raster item.
+        if (json[0] === 'Raster') {
+            this.importRaster(json);
         }
 
         // Import JSON data into paper.js
@@ -106,46 +93,6 @@ Wick.View.Path = class extends Wick.View {
         if(this._item instanceof paper.TextItem) {
             // https://github.com/paperjs/paper.js/issues/937
             this._item.fontWeight = this.model.fontWeight + ' ' + this.model.fontStyle;
-        }
-
-        // Apply onion skin style
-        // (This is done here in the Path code because we actually change the style of the path
-        // if the current onion skin mode is set to "outlines" or "tint")
-        var onionSkinStyle = this.model.project && this.model.project.toolSettings.getSetting('onionSkinStyle');
-        if(this.model.parentFrame && this.model.parentFrame.onionSkinned) {
-            this.item.data.originalStyle = this.item.data.originalStyle || {
-                strokeColor: this.item.strokeColor,
-                fillColor: this.item.fillColor,
-                strokeWidth: this.item.strokeWidth,
-            };
-
-            var frame = this.model.parentFrame;
-            var playheadPosition = this.model.project.focus.timeline.playheadPosition;
-
-            var onionTintColor = new Wick.Color("#ffffff");
-            if(frame.midpoint < playheadPosition) {
-                onionTintColor = this.model.project.toolSettings.getSetting('backwardOnionSkinTint').rgba;
-            } else if(frame.midpoint > playheadPosition) {
-                onionTintColor = this.model.project.toolSettings.getSetting('forwardOnionSkinTint').rgba;
-            }
-
-            if(onionSkinStyle === 'standard') {
-                // We don't have to do anything!
-            } else if (onionSkinStyle === 'outlines') {
-                this.item.fillColor = 'rgba(0,0,0,0)'; // Make the fills transparent.
-                this.item.strokeWidth = this.model.project.toolSettings.getSetting('onionSkinOutlineWidth');
-                this.item.strokeColor = onionTintColor;
-            } else if (onionSkinStyle === 'tint') {
-                if(this.item.fillColor) this.item.fillColor = Wick.Color.average(new Wick.Color(this.item.fillColor.toCSS()), new Wick.Color(onionTintColor)).rgba;
-                if(this.item.strokeColor) this.item.strokeColor = Wick.Color.average(new Wick.Color(this.item.strokeColor.toCSS()), new Wick.Color(onionTintColor)).rgba;
-            }
-        } else {
-            if(this.item.data.originalStyle) {
-                this.item.strokeColor = this.item.data.originalStyle.strokeColor;
-                this.item.fillColor = this.item.data.originalStyle.fillColor;
-                this.item.strokeWidth = this.item.data.originalStyle.strokeWidth;
-            }
-            delete this.item.data.originalStyle;
         }
     }
 
@@ -167,5 +114,76 @@ Wick.View.Path = class extends Wick.View {
             item.strokeWidth = item.data.originalStyle.strokeWidth;
         }
         return item.exportJSON({asString:false});
+    }
+
+    /**
+     * Imports raster image from Wick Object cache.
+     * @param {*} json 
+     */
+    importRaster (json) {
+        // Don't import if there is no project attached.
+        if (!this.model.project) {
+            console.warn("Project not attached to raster path. Image will not be rendered")
+            return;
+        }
+
+        // Backwards compatibility check for old raster formats:
+        let JSONsrc = json[1].source;
+
+        if(JSONsrc.startsWith('data')) {
+            // Bug: Raw dataURL was saved, need find asset with that data
+            this.model.project.getAssets('Image').forEach(imageAsset => {
+                if(imageAsset.src === json[1].source) {
+                    json[1].source = 'asset:' + imageAsset.uuid;
+                }
+            })
+        } else if (JSONsrc.startsWith('asset:')) {
+            // Current format, no fix needed
+        } else if (JSONsrc === 'asset') {
+            // Old format: Asset UUID is stored in 'data'
+            JSONsrc = 'asset:' + (json[1].asset || json[1].data.asset);
+        } else {
+            console.error('WARNING: raster source format not recognized:');
+            console.log(json);
+            return;
+        }
+
+        // Get image source from assets
+        var cachedImg = null;
+        if(json[1].source.startsWith('asset:')) {
+            var assetUUID = json[1].source.split(':')[1];
+            var imageAsset = this.model.project.getAssetByUUID(assetUUID);
+            json[1].source = imageAsset.src;
+        }
+    }
+
+    applyOnionSkinStyles () {
+        var onionSkinStyle = this.model.project && this.model.project.toolSettings.getSetting('onionSkinStyle');
+        this.item.data.originalStyle = this.item.data.originalStyle || {
+            strokeColor: this.item.strokeColor,
+            fillColor: this.item.fillColor,
+            strokeWidth: this.item.strokeWidth,
+        };
+
+        var frame = this.model.parentFrame;
+        var playheadPosition = this.model.project.focus.timeline.playheadPosition;
+
+        var onionTintColor = new Wick.Color("#ffffff");
+        if(frame.midpoint < playheadPosition) {
+            onionTintColor = this.model.project.toolSettings.getSetting('backwardOnionSkinTint').rgba;
+        } else if(frame.midpoint > playheadPosition) {
+            onionTintColor = this.model.project.toolSettings.getSetting('forwardOnionSkinTint').rgba;
+        }
+
+        if(onionSkinStyle === 'standard') {
+            // We don't have to do anything!
+        } else if (onionSkinStyle === 'outlines') {
+            this.item.fillColor = 'rgba(0,0,0,0)'; // Make the fills transparent.
+            this.item.strokeWidth = this.model.project.toolSettings.getSetting('onionSkinOutlineWidth');
+            this.item.strokeColor = onionTintColor;
+        } else if (onionSkinStyle === 'tint') {
+            if(this.item.fillColor) this.item.fillColor = Wick.Color.average(new Wick.Color(this.item.fillColor.toCSS()), new Wick.Color(onionTintColor)).rgba;
+            if(this.item.strokeColor) this.item.strokeColor = Wick.Color.average(new Wick.Color(this.item.strokeColor.toCSS()), new Wick.Color(onionTintColor)).rgba;
+        }
     }
 }

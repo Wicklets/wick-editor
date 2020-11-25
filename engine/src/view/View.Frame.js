@@ -109,6 +109,7 @@ Wick.View.Frame = class extends Wick.View {
                 var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
                 var pathJSON = Wick.View.Path.exportJSON(child);
                 var wickPath = new Wick.Path({
+                    project: this.model.project,
                     json: pathJSON
                 });
                 this.model.addPath(wickPath);

@@ -1164,6 +1164,7 @@ Wick.Project = class extends Wick.Base {
 
         if (args.type === 'Button') {
             clip = new Wick[args.type]({
+                project: this,
                 identifier: args.identifier,
                 transformation: new Wick.Transformation({
                     x: this.selection.x + this.selection.width / 2,
@@ -1173,6 +1174,7 @@ Wick.Project = class extends Wick.Base {
             });
         } else {
             clip = new Wick[args.type]({
+                project: this.project,
                 identifier: args.identifier,
                 transformation: new Wick.Transformation({
                     x: this.selection.x + this.selection.width / 2,
