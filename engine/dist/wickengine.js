@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.11.25.14.46.54";
+var WICK_ENGINE_BUILD_VERSION = "2020.11.27.17.15.55";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -48941,7 +48941,8 @@ Wick.Base = class {
 
     if (!Wick[data.classname]) {
       console.warn('Tried to deserialize an object with no Wick class: ' + data.classname);
-    }
+    } // console.log(project);
+
 
     var object = new Wick[data.classname]({
       uuid: data.uuid
@@ -49033,19 +49034,14 @@ Wick.Base = class {
    */
 
 
-  copy(temporary) {
+  copy() {
     var data = this.serialize();
     data.uuid = uuidv4();
     var copy = Wick.Base.fromData(data);
-
-    if (temporary) {
-      copy._temporary = true;
-    }
-
     copy._childrenData = null; // Copy children
 
     this.getChildren().forEach(child => {
-      copy.addChild(child.copy(temporary));
+      copy.addChild(child.copy());
     });
     return copy;
   }
@@ -49263,14 +49259,11 @@ Wick.Base = class {
     }
 
     if (classname instanceof Array) {
+      let classNames = new Set(classname);
       var children = [];
 
       if (this._children !== undefined) {
-        this._children.forEach(child => {
-          if (classname.indexOf(child.classname) !== -1) {
-            children.push(child);
-          }
-        });
+        children = this._children.filter(child => classNames.has(child.classname));
       }
 
       return children;
@@ -49279,13 +49272,7 @@ Wick.Base = class {
       return Array.from(this._children);
     } else {
       // Retrieve children by classname
-      var children = [];
-
-      this._children.forEach(child => {
-        if (child.classname === classname) {
-          children.push(child);
-        }
-      });
+      var children = this._children.filter(child => child.classname === classname);
 
       return children || [];
     }
@@ -49296,10 +49283,10 @@ Wick.Base = class {
    */
 
 
-  getChildrenRecursive() {
+  getChildrenRecursive(level, original) {
     var children = this.getChildren();
     this.getChildren().forEach(child => {
-      children = children.concat(child.getChildrenRecursive());
+      children = children.concat(child.getChildrenRecursive(level + 1, original));
     });
     return children;
   }
@@ -49449,8 +49436,6 @@ Wick.Base = class {
 
 
   removeChild(child) {
-    var classname = child.classname;
-
     if (!this._children) {
       return;
     }
@@ -55912,7 +55897,7 @@ Wick.Tickable = class extends Wick.Base {
     this.project.scheduleScript(this.uuid, name, parameters);
   }
   /**
-   * Run the script with the corresponding event name.
+   * Run the script with the corresponding event name. Will not run the script if the object is marked as removed.
    * @param {string} name - The name of the event. See Wick.Tickable.possibleScripts
    * @param {Object} parameters - An object containing key,value pairs of parameters to send to the script.
    * @returns {object} object containing error info if an error happened. Returns null if there was no error (script ran successfully)
@@ -55920,6 +55905,10 @@ Wick.Tickable = class extends Wick.Base {
 
 
   runScript(name, parameters) {
+    if (this.removed) {
+      return;
+    }
+
     if (!Wick.Tickable.possibleScripts.indexOf(name) === -1) {
       console.error(name + ' is not a valid script!');
     } // Don't run scripts if this object is the focus
@@ -55956,7 +55945,7 @@ Wick.Tickable = class extends Wick.Base {
 
       var error = this._runFunction(fn, name, parameters);
 
-      if (error) {
+      if (error && this.project) {
         this.project.error = error;
         return;
       }
@@ -56160,6 +56149,7 @@ Wick.Tickable = class extends Wick.Base {
       fn.bind(thisScope)();
     } catch (e) {
       // Catch runtime errors
+      console.error(e);
       error = this._generateErrorInfo(e, name);
     } // These are currently hacked in here for performance reasons...
 
@@ -57057,6 +57047,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     this._playedOnce = false;
     this._isSynced = false;
+    this._removed = false;
     this._transformation = args.transformation || new Wick.Transformation();
     this.cursor = 'default';
     this._isClone = false;
@@ -57144,6 +57135,18 @@ Wick.Clip = class extends Wick.Tickable {
     } else {
       this.timeline.playheadPosition = 1;
     }
+  }
+  /**
+   * Signals if an object is removed.
+   */
+
+
+  get removed() {
+    return this._removed;
+  }
+
+  set removed(bool) {
+    this._removed = bool;
   }
   /**
    * Determines whether or not the clip is the currently focused clip in the project.
@@ -57405,6 +57408,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     this.sourceClip && this.sourceClip.removeClone(this.uuid);
     this.parent.removeClip(this);
+    this.removed = true;
   }
   /**
    * Remove this clip and add all of its paths and clips to its parent frame.
@@ -63856,7 +63860,7 @@ Wick.View.Path = class extends Wick.View {
       return;
     }
 
-    if (this.model._needReimport) {
+    if (!this._item || this.model._needReimport) {
       this.importJSON(this.model.json);
       this.model._needReimport = false;
     } // Apply onion skin style if Needed
@@ -63881,8 +63885,8 @@ Wick.View.Path = class extends Wick.View {
 
 
   importJSON(json) {
-    if (this.model.project && this.model.project.playing) return; // Imports rasters if this json is a raster item.
-
+    // if(this.model.project && this.model.project.playing) return;
+    // Imports rasters if this json is a raster item.
     if (json[0] === 'Raster') {
       this.importRaster(json);
     } // Import JSON data into paper.js

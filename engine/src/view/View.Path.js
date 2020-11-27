@@ -34,6 +34,7 @@ Wick.View.Path = class extends Wick.View {
         if(!this._item) {
             this.render();
         }
+
         return this._item;
     }
 
@@ -46,7 +47,7 @@ Wick.View.Path = class extends Wick.View {
             return;
         }
 
-        if (this.model._needReimport) {
+        if (!this._item || this.model._needReimport) {
             this.importJSON(this.model.json);
             this.model._needReimport = false;
         }
@@ -70,7 +71,7 @@ Wick.View.Path = class extends Wick.View {
      * @param {object} json - Data for the path created with paper.js exportJSON({asString:false})
      */
     importJSON (json) {
-        if(this.model.project && this.model.project.playing) return;
+        // if(this.model.project && this.model.project.playing) return;
 
         // Imports rasters if this json is a raster item.
         if (json[0] === 'Raster') {

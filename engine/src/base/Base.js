@@ -74,6 +74,8 @@ Wick.Base = class {
             console.warn('Tried to deserialize an object with no Wick class: ' + data.classname);
         }
 
+        // console.log(project);
+
         var object = new Wick[data.classname]({ uuid: data.uuid });
         object.deserialize(data);
 
@@ -154,21 +156,16 @@ Wick.Base = class {
      * Returns a copy of a Wick Base object.
      * @return {Wick.Base} The object resulting from the copy
      */
-    copy(temporary) {
+    copy() {
         var data = this.serialize();
         data.uuid = uuidv4();
         var copy = Wick.Base.fromData(data);
-
-        if (temporary) {
-            copy._temporary = true;
-        }
 
         copy._childrenData = null;
 
         // Copy children
         this.getChildren().forEach(child => {
-
-            copy.addChild(child.copy(temporary));
+            copy.addChild(child.copy());
         });
 
         return copy;
@@ -383,27 +380,20 @@ Wick.Base = class {
         }
 
         if (classname instanceof Array) {
+            let classNames = new Set(classname);
             var children = [];
 
             if (this._children !== undefined) {
-                this._children.forEach(child => {
-                    if (classname.indexOf(child.classname) !== -1) {
-                        children.push(child)
-                    }
-                })
+                children = this._children.filter(child => classNames.has(child.classname));
             }
+
             return children;
         } else if (classname === undefined) {
             // Retrieve all children if no classname was given
             return Array.from(this._children);
         } else {
             // Retrieve children by classname
-            var children = [];
-            this._children.forEach(child => {
-                if (child.classname === classname) {
-                    children.push(child);
-                }
-            });
+            var children = this._children.filter(child => child.classname === classname);
             return children || [];
         }
     }
@@ -412,11 +402,13 @@ Wick.Base = class {
      * Get an array of all children of this object, and the children of those children, recursively.
      * @type {Wick.Base[]}
      */
-    getChildrenRecursive() {
+    getChildrenRecursive(level, original) {
         var children = this.getChildren();
+
         this.getChildren().forEach(child => {
-            children = children.concat(child.getChildrenRecursive());
+            children = children.concat(child.getChildrenRecursive(level + 1, original));
         });
+
         return children;
     }
 
@@ -497,8 +489,6 @@ Wick.Base = class {
         child._parent = this;
         child._setProject(this.project);
 
-
-
         this._children.push(child);
     }
 
@@ -550,8 +540,6 @@ Wick.Base = class {
      * @param {Wick.Base} child - the child to remove.
      */
     removeChild(child) {
-        var classname = child.classname;
-
         if (!this._children) {
             return;
         }
