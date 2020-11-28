@@ -42,7 +42,6 @@ Wick.ImageAsset = class extends Wick.FileAsset {
      */
     constructor (args) {
         super(args);
-
         this.gifAssetUUID = null;
     }
 

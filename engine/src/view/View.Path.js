@@ -47,10 +47,7 @@ Wick.View.Path = class extends Wick.View {
             return;
         }
 
-        if (!this._item || this.model._needReimport) {
-            this.importJSON(this.model.json);
-            this.model._needReimport = false;
-        }
+        this.importJSON(this.model.json);
 
         // Apply onion skin style if Needed
         // (This is done here in the Path code because we actually change the style of the path
@@ -67,15 +64,21 @@ Wick.View.Path = class extends Wick.View {
     }
 
     /**
-     * Import paper.js path data into this Wick Path, replacing the current path data.
+     * Import paper.js path data into this Wick Path, replacing the current path data if necessary.
+     * Uses cached data otherwise.
      * @param {object} json - Data for the path created with paper.js exportJSON({asString:false})
      */
     importJSON (json) {
         // if(this.model.project && this.model.project.playing) return;
 
+        // Don't import the information if we don't need to...
+        if (this._item && !this.model._needReimport) {
+            return;
+        }
+
         // Imports rasters if this json is a raster item.
         if (json[0] === 'Raster') {
-            this.importRaster(json);
+            if (!this.importRaster(json)) return false;
         }
 
         // Import JSON data into paper.js
@@ -95,6 +98,8 @@ Wick.View.Path = class extends Wick.View {
             // https://github.com/paperjs/paper.js/issues/937
             this._item.fontWeight = this.model.fontWeight + ' ' + this.model.fontStyle;
         }
+
+        this.model._needReimport = false;
     }
 
     /**
@@ -120,12 +125,13 @@ Wick.View.Path = class extends Wick.View {
     /**
      * Imports raster image from Wick Object cache.
      * @param {*} json 
+     * @returns {boolean} True if successful import, false otherwise.
      */
     importRaster (json) {
         // Don't import if there is no project attached.
         if (!this.model.project) {
-            console.warn("Project not attached to raster path. Image will not be rendered")
-            return;
+            // console.warn("Project not attached to raster path. Image will not be rendered")
+            return false;
         }
 
         // Backwards compatibility check for old raster formats:
@@ -156,6 +162,8 @@ Wick.View.Path = class extends Wick.View {
             var imageAsset = this.model.project.getAssetByUUID(assetUUID);
             json[1].source = imageAsset.src;
         }
+
+        return true;
     }
 
     applyOnionSkinStyles () {

@@ -53,7 +53,7 @@ Wick.Base = class {
         this._childrenData = null;
         this._parent = null;
 
-        // If this is a project, use this object, otherwise use the passed in poject if provided.
+        // If this is a project, use this object, otherwise use the passed in project if provided.
         this._project = this.classname === 'Project' ? this : args.project ? args.project : null;
 
         this.needsAutosave = true;
@@ -66,7 +66,7 @@ Wick.Base = class {
     /**
      * @param {object} data - Serialized data to use to create a new object.
      */
-    static fromData(data) {
+    static fromData(data, project) {
         if (!data.classname) {
             console.warn('Wick.Base.fromData(): data was missing, did you mean to deserialize something else?');
         }
@@ -74,9 +74,7 @@ Wick.Base = class {
             console.warn('Tried to deserialize an object with no Wick class: ' + data.classname);
         }
 
-        // console.log(project);
-
-        var object = new Wick[data.classname]({ uuid: data.uuid });
+        var object = new Wick[data.classname]({ uuid: data.uuid, project: project });
         object.deserialize(data);
 
         if (data.classname === 'Project') {
@@ -214,15 +212,8 @@ Wick.Base = class {
         if (!exportData.object) console.error('Wick.Base.import(): exportData is missing data');
         if (!exportData.children) console.error('Wick.Base.import(): exportData is missing data');
 
-        var object = Wick.Base.fromData(exportData.object);
 
-        // Import children as well
-        exportData.children.forEach(childData => {
-            // Only need to call deserialize here, we just want the object to get added to ObjectCache
-            var child = Wick.Base.fromData(childData);
-        });
-
-        // Also import linked assets
+        // Import assets first in case the objects need them!
         exportData.assets.forEach(assetData => {
             // Don't import assets if they exist in the project already
             // (Assets only get reimported when objects are pasted between projects)
@@ -230,8 +221,16 @@ Wick.Base = class {
                 return;
             }
 
-            var asset = Wick.Base.fromData(assetData);
+            var asset = Wick.Base.fromData(assetData, project);
             project.addAsset(asset);
+        });
+
+        var object = Wick.Base.fromData(exportData.object, project);
+
+        // Import children as well
+        exportData.children.forEach(childData => {
+            // Only need to call deserialize here, we just want the object to get added to ObjectCache
+            var child = Wick.Base.fromData(childData, project);
         });
 
         return object;

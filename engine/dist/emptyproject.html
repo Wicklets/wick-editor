@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.11.27.17.15.55";
+var WICK_ENGINE_BUILD_VERSION = "2020.11.28.11.30.11";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -48935,7 +48935,7 @@ Wick.Base = class {
     this._classname = this.classname;
     this._children = [];
     this._childrenData = null;
-    this._parent = null; // If this is a project, use this object, otherwise use the passed in poject if provided.
+    this._parent = null; // If this is a project, use this object, otherwise use the passed in project if provided.
 
     this._project = this.classname === 'Project' ? this : args.project ? args.project : null;
     this.needsAutosave = true;
@@ -48949,18 +48949,18 @@ Wick.Base = class {
    */
 
 
-  static fromData(data) {
+  static fromData(data, project) {
     if (!data.classname) {
       console.warn('Wick.Base.fromData(): data was missing, did you mean to deserialize something else?');
     }
 
     if (!Wick[data.classname]) {
       console.warn('Tried to deserialize an object with no Wick class: ' + data.classname);
-    } // console.log(project);
-
+    }
 
     var object = new Wick[data.classname]({
-      uuid: data.uuid
+      uuid: data.uuid,
+      project: project
     });
     object.deserialize(data);
 
@@ -49101,13 +49101,7 @@ Wick.Base = class {
   static import(exportData, project) {
     if (!exportData) console.error('Wick.Base.import(): exportData is required');
     if (!exportData.object) console.error('Wick.Base.import(): exportData is missing data');
-    if (!exportData.children) console.error('Wick.Base.import(): exportData is missing data');
-    var object = Wick.Base.fromData(exportData.object); // Import children as well
-
-    exportData.children.forEach(childData => {
-      // Only need to call deserialize here, we just want the object to get added to ObjectCache
-      var child = Wick.Base.fromData(childData);
-    }); // Also import linked assets
+    if (!exportData.children) console.error('Wick.Base.import(): exportData is missing data'); // Import assets first in case the objects need them!
 
     exportData.assets.forEach(assetData => {
       // Don't import assets if they exist in the project already
@@ -49116,8 +49110,14 @@ Wick.Base = class {
         return;
       }
 
-      var asset = Wick.Base.fromData(assetData);
+      var asset = Wick.Base.fromData(assetData, project);
       project.addAsset(asset);
+    });
+    var object = Wick.Base.fromData(exportData.object, project); // Import children as well
+
+    exportData.children.forEach(childData => {
+      // Only need to call deserialize here, we just want the object to get added to ObjectCache
+      var child = Wick.Base.fromData(childData, project);
     });
     return object;
   }
@@ -54515,7 +54515,6 @@ Wick.FileAsset = class extends Wick.Asset {
 
 
   load(callback) {
-    console.log("calling back");
     callback();
   }
   /**
@@ -54630,7 +54629,6 @@ Wick.FontAsset = class extends Wick.FileAsset {
       callback();
     }).catch(error => {
       console.error('FontAsset.load(): An error occured while loading a font:');
-      console.log(font);
       console.error(error);
       callback(); // Make the callback so that the page doesn't freeze.
     });
@@ -63875,13 +63873,9 @@ Wick.View.Path = class extends Wick.View {
       return;
     }
 
-    if (!this._item || this.model._needReimport) {
-      this.importJSON(this.model.json);
-      this.model._needReimport = false;
-    } // Apply onion skin style if Needed
+    this.importJSON(this.model.json); // Apply onion skin style if Needed
     // (This is done here in the Path code because we actually change the style of the path
     // if the current onion skin mode is set to "outlines" or "tint")
-
 
     if (this.model.parentFrame && this.model.parentFrame.onionSkinned) {
       this.applyOnionSkinStyles();
@@ -63894,16 +63888,22 @@ Wick.View.Path = class extends Wick.View {
     }
   }
   /**
-   * Import paper.js path data into this Wick Path, replacing the current path data.
+   * Import paper.js path data into this Wick Path, replacing the current path data if necessary.
+   * Uses cached data otherwise.
    * @param {object} json - Data for the path created with paper.js exportJSON({asString:false})
    */
 
 
   importJSON(json) {
     // if(this.model.project && this.model.project.playing) return;
-    // Imports rasters if this json is a raster item.
+    // Don't import the information if we don't need to...
+    if (this._item && !this.model._needReimport) {
+      return;
+    } // Imports rasters if this json is a raster item.
+
+
     if (json[0] === 'Raster') {
-      this.importRaster(json);
+      if (!this.importRaster(json)) return false;
     } // Import JSON data into paper.js
 
 
@@ -63924,6 +63924,8 @@ Wick.View.Path = class extends Wick.View {
       // https://github.com/paperjs/paper.js/issues/937
       this._item.fontWeight = this.model.fontWeight + ' ' + this.model.fontStyle;
     }
+
+    this.model._needReimport = false;
   }
   /**
    * Export this path as paper.js Path json data.
@@ -63953,14 +63955,15 @@ Wick.View.Path = class extends Wick.View {
   /**
    * Imports raster image from Wick Object cache.
    * @param {*} json 
+   * @returns {boolean} True if successful import, false otherwise.
    */
 
 
   importRaster(json) {
     // Don't import if there is no project attached.
     if (!this.model.project) {
-      console.warn("Project not attached to raster path. Image will not be rendered");
-      return;
+      // console.warn("Project not attached to raster path. Image will not be rendered")
+      return false;
     } // Backwards compatibility check for old raster formats:
 
 
@@ -63991,6 +63994,8 @@ Wick.View.Path = class extends Wick.View {
       var imageAsset = this.model.project.getAssetByUUID(assetUUID);
       json[1].source = imageAsset.src;
     }
+
+    return true;
   }
 
   applyOnionSkinStyles() {
