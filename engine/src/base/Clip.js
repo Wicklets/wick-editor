@@ -959,6 +959,38 @@ Wick.Clip = class extends Wick.Tickable {
         return this.absoluteBounds.intersects(other.absoluteBounds);
     }
 
+    get globalRectangleBound() {
+        let b = this.absoluteBounds;
+        let m = this.parentClip.view.group.globalMatrix; //local to global
+        
+        let ps = [b.left, b.top, b.right, b.top, b.right, b.bottom, b.left, b.bottom];
+
+        let newps = [];
+
+        m.transform(ps, newps, 4);
+
+        let minX = newps[0], maxX = newps[0], minY = newps[1], maxY = newps[1];
+        for (let i = 2; i < newps.length; i+=2) {
+            let x = newps[i];
+            let y = newps[i + 1];
+            if (x < minX) {
+                minX = x;
+            }
+            else if (x > maxX) {
+                maxX = x;
+            }
+
+            if (y < minY) {
+                minY = y;
+            }
+            else if (y > maxY) {
+                maxY = y;
+            }
+        }
+
+        return {x: minX, y: minY, width: maxX - minX, height: maxY - minY, uuid: this.uuid};
+    }
+
     /**
      * The bounding box of the clip.
      * @type {object}

@@ -119,6 +119,20 @@ Wick.Project = class extends Wick.Base {
 
         this.history.project = this;
         this.history.pushState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
+
+        //console.log(this);
+        //let q = new Quadtree({width: 500, height: 500});
+        //console.log(q);
+        
+    }
+
+    quadtreeHit (clip) {
+        let q = new Quadtree({width: this.width, height: this.height});
+        let activeClips = this.root.getChildrenRecursive().filter(item => {return item instanceof Wick.Clip && item.onScreen && item != clip});
+        activeClips.forEach(c => {  q.push(c.globalRectangleBound); });
+        let b = clip.globalRectangleBound;
+        let colliding = q.colliding(b);
+        return colliding.map(item => this.getObjectByUUID(item.uuid));
     }
 
     /**

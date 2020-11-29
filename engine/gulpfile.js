@@ -41,6 +41,7 @@ gulp.task("default", function() {
       'lib/localforage.min.js',
       'lib/platform.js',
       'lib/potrace.js',
+      'lib/quadtree.min.js',
       'lib/reserved-words.js',
       'lib/roundRect.js',
       'lib/timestamp.js',
