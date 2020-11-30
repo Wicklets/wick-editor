@@ -545,8 +545,6 @@ Wick.Project = class extends Wick.Base {
                 subclip.applySingleFramePosition();
             });
         }
-
-
     }
 
     /**
@@ -1493,14 +1491,22 @@ Wick.Project = class extends Wick.Base {
             args.onBeforeTick();
 
             this.tools.interact.determineMouseTargets();
+            // console.time('tick');
             var error = this.tick();
+            // console.timeEnd('tick');
+
+            // console.time('update');
             this.view.paper.view.update();
+            // console.timeEnd('update');
+
             if(error) {
                 this.stop();
                 return;
             }
 
+            // console.time('afterTick');
             args.onAfterTick();
+            // console.timeEnd('afterTick');
         }, 1000 / this.framerate);
     }
 

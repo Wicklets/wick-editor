@@ -136,7 +136,7 @@ Wick.Tools.Interact = class extends Wick.Tool {
         } else {
             if (targets) {
                 clip = targets[0];
-                this.setCursor(clip.cursor)
+                clip && this.setCursor(clip.cursor)
             }
         }
 

@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.11.30.12.28.51";
+var WICK_ENGINE_BUILD_VERSION = "2020.11.30.16.41.4";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -51449,16 +51449,20 @@ Wick.Project = class extends Wick.Base {
 
     this._tickIntervalID = setInterval(() => {
       args.onBeforeTick();
-      this.tools.interact.determineMouseTargets();
-      var error = this.tick();
-      this.view.paper.view.update();
+      this.tools.interact.determineMouseTargets(); // console.time('tick');
+
+      var error = this.tick(); // console.timeEnd('tick');
+      // console.time('update');
+
+      this.view.paper.view.update(); // console.timeEnd('update');
 
       if (error) {
         this.stop();
         return;
-      }
+      } // console.time('afterTick');
 
-      args.onAfterTick();
+
+      args.onAfterTick(); // console.timeEnd('afterTick');
     }, 1000 / this.framerate);
   }
   /**
@@ -60153,7 +60157,7 @@ Wick.Tools.Interact = class extends Wick.Tool {
     } else {
       if (targets) {
         clip = targets[0];
-        this.setCursor(clip.cursor);
+        clip && this.setCursor(clip.cursor);
       }
     }
 
@@ -61856,18 +61860,20 @@ class SelectionWidget {
       this.item.addChildren(this._buildItemOutlines());
     }
 
-    this.item.addChild(this._buildRotationHotspot('topLeft'));
-    this.item.addChild(this._buildRotationHotspot('topRight'));
-    this.item.addChild(this._buildRotationHotspot('bottomLeft'));
-    this.item.addChild(this._buildRotationHotspot('bottomRight'));
-    this.item.addChild(this._buildScalingHandle('topLeft'));
-    this.item.addChild(this._buildScalingHandle('topRight'));
-    this.item.addChild(this._buildScalingHandle('bottomLeft'));
-    this.item.addChild(this._buildScalingHandle('bottomRight'));
-    this.item.addChild(this._buildScalingHandle('topCenter'));
-    this.item.addChild(this._buildScalingHandle('bottomCenter'));
-    this.item.addChild(this._buildScalingHandle('leftCenter'));
-    this.item.addChild(this._buildScalingHandle('rightCenter'));
+    let guiElements = [];
+    guiElements.push(this._buildRotationHotspot('topLeft'));
+    guiElements.push(this._buildRotationHotspot('topRight'));
+    guiElements.push(this._buildRotationHotspot('bottomLeft'));
+    guiElements.push(this._buildRotationHotspot('bottomRight'));
+    guiElements.push(this._buildScalingHandle('topLeft'));
+    guiElements.push(this._buildScalingHandle('topRight'));
+    guiElements.push(this._buildScalingHandle('bottomLeft'));
+    guiElements.push(this._buildScalingHandle('bottomRight'));
+    guiElements.push(this._buildScalingHandle('topCenter'));
+    guiElements.push(this._buildScalingHandle('bottomCenter'));
+    guiElements.push(this._buildScalingHandle('leftCenter'));
+    guiElements.push(this._buildScalingHandle('rightCenter'));
+    this.item.addChildren(guiElements);
     this._pivotPointHandle = this._buildPivotPointHandle();
     this.layer.addChild(this._pivotPointHandle);
     this.item.rotate(this.boxRotation, this._center);
@@ -63471,9 +63477,7 @@ Wick.View.Clip = class extends Wick.View {
     this.group.data.wickUUID = this.model.uuid; // Add frame views from timeline
 
     this.group.removeChildren();
-    this.model.timeline.view.frameLayers.forEach(layer => {
-      this.group.addChild(layer);
-    }); // Update transformations
+    this.group.addChildren(this.model.timeline.view.frameLayers); // Update transformations
 
     this.group.matrix.set(new paper.Matrix());
     this._bounds = this.group.bounds.clone(); //this._radius = null;
@@ -63742,15 +63746,16 @@ Wick.View.Frame = class extends Wick.View {
       });
     }
 
-    this.model.drawable.forEach(object => {
+    let children = this.model.drawable.map(object => {
       object.view.render();
 
       if (object.view.model instanceof Wick.Path) {
-        this.objectsLayer.addChild(object.view.item);
+        return object.view.item;
       } else {
-        this.objectsLayer.addChild(object.view.group);
+        return object.view.group;
       }
     });
+    this.objectsLayer.addChildren(children);
   }
 
   _applyDrawableChanges() {

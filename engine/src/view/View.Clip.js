@@ -164,13 +164,12 @@ Wick.View.Clip = class extends Wick.View {
 
         // Add frame views from timeline
         this.group.removeChildren();
-        this.model.timeline.view.frameLayers.forEach(layer => {
-            this.group.addChild(layer);
-        });
+        this.group.addChildren(this.model.timeline.view.frameLayers);
 
         // Update transformations
         this.group.matrix.set(new paper.Matrix());
         this._bounds = this.group.bounds.clone();
+
         //this._radius = null;
 
         this.group.pivot = new this.paper.Point(0,0);
