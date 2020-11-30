@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.11.30.12.0.18";
+var WICK_ENGINE_BUILD_VERSION = "2020.11.30.12.28.51";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -53078,7 +53078,6 @@ Wick.Timeline = class extends Wick.Base {
     this._playheadPosition = 1;
     this._activeLayerIndex = 0;
     this._playing = true;
-    this._forceNextFrame = null;
     this._fillGapsMethod = "auto_extend";
   }
 
@@ -53096,7 +53095,6 @@ Wick.Timeline = class extends Wick.Base {
     this._playheadPosition = data.playheadPosition;
     this._activeLayerIndex = data.activeLayerIndex;
     this._playing = true;
-    this._forceNextFrame = null;
   }
 
   get classname() {
@@ -53139,6 +53137,15 @@ Wick.Timeline = class extends Wick.Base {
       frame.applyTweenTransforms();
       frame.updateClipTimelinesForAnimationType();
     });
+  }
+  /**
+   * Forces timeline to move to the next frame.
+   * @param {number} frame 
+   */
+
+
+  forceFrame(frame) {
+    this.playheadPosition = frame;
   }
   /**
    * The index of the active layer. Determines which frame to draw onto.
@@ -53401,10 +53408,7 @@ Wick.Timeline = class extends Wick.Base {
 
 
   advance() {
-    if (this._forceNextFrame) {
-      this.playheadPosition = this._forceNextFrame;
-      this._forceNextFrame = null;
-    } else if (this._playing) {
+    if (this._playing) {
       this.playheadPosition++;
 
       if (this.playheadPosition > this.length) {
@@ -53490,10 +53494,10 @@ Wick.Timeline = class extends Wick.Base {
       });
 
       if (namedFrame) {
-        this._forceNextFrame = namedFrame.start;
+        this.forceFrame(namedFrame.start);
       }
     } else if (typeof frame === 'number') {
-      this._forceNextFrame = frame;
+      this.forceFrame(frame);
     } else {
       throw new Error('gotoFrame: Invalid argument: ' + frame);
     }
@@ -55991,7 +55995,7 @@ Wick.Tickable = class extends Wick.Base {
   }
 
   _onActivated() {
-    this.scheduleScript('default');
+    this.runScript('default');
     this.scheduleScript('load');
   }
 

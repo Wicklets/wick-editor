@@ -31,7 +31,6 @@ Wick.Timeline = class extends Wick.Base {
         this._activeLayerIndex = 0;
 
         this._playing = true;
-        this._forceNextFrame = null;
 
         this._fillGapsMethod = "auto_extend";
     }
@@ -52,7 +51,6 @@ Wick.Timeline = class extends Wick.Base {
         this._activeLayerIndex = data.activeLayerIndex;
 
         this._playing = true;
-        this._forceNextFrame = null;
     }
 
     get classname() {
@@ -92,6 +90,14 @@ Wick.Timeline = class extends Wick.Base {
             frame.applyTweenTransforms();
             frame.updateClipTimelinesForAnimationType();
         });
+    }
+
+    /**
+     * Forces timeline to move to the next frame.
+     * @param {number} frame 
+     */
+    forceFrame(frame) {
+        this.playheadPosition = frame;
     }
 
     /**
@@ -336,10 +342,7 @@ Wick.Timeline = class extends Wick.Base {
      * Advances the timeline one frame forwards. Loops back to beginning if the end is reached.
      */
     advance() {
-        if (this._forceNextFrame) {
-            this.playheadPosition = this._forceNextFrame;
-            this._forceNextFrame = null;
-        } else if (this._playing) {
+        if (this._playing) {
             this.playheadPosition++;
             if (this.playheadPosition > this.length) {
                 this.playheadPosition = 1;
@@ -415,10 +418,10 @@ Wick.Timeline = class extends Wick.Base {
             });
 
             if (namedFrame) {
-                this._forceNextFrame = namedFrame.start;
+                this.forceFrame(namedFrame.start);
             }
         } else if (typeof frame === 'number') {
-            this._forceNextFrame = frame;
+            this.forceFrame(frame);
         } else {
             throw new Error('gotoFrame: Invalid argument: ' + frame);
         }

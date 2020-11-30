@@ -408,7 +408,7 @@ Wick.Tickable = class extends Wick.Base {
     }
 
     _onActivated () {
-        this.scheduleScript('default');
+        this.runScript('default');
         this.scheduleScript('load');
     }
 
