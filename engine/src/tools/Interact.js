@@ -109,7 +109,7 @@ Wick.Tools.Interact = class extends Wick.Tool {
             curves: true,
             segments: true,
         });
-
+   
         // Check for clips under the mouse.
         if(hitResult) {
             var uuid = hitResult.item.data.wickUUID;
@@ -134,13 +134,9 @@ Wick.Tools.Interact = class extends Wick.Tool {
         if(this.project.hideCursor) {
             this.setCursor('none');
         } else {
-            var clip = targets.find(target => {
-                return target instanceof Wick.Button;
-            });
-            if(clip) {
+            if (targets) {
+                clip = targets[0];
                 this.setCursor(clip.cursor)
-            } else {
-                this.setCursor('default');
             }
         }
 

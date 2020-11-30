@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.11.30.10.38.43";
+var WICK_ENGINE_BUILD_VERSION = "2020.11.30.11.43.7";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -58348,8 +58348,6 @@ Wick.Clip = class extends Wick.Tickable {
     super._onDeactivated();
 
     this._tickChildren();
-
-    this.resetTimelinePosition();
   }
 
   _tickChildren() {
@@ -60147,14 +60145,9 @@ Wick.Tools.Interact = class extends Wick.Tool {
     if (this.project.hideCursor) {
       this.setCursor('none');
     } else {
-      var clip = targets.find(target => {
-        return target instanceof Wick.Button;
-      });
-
-      if (clip) {
+      if (targets) {
+        clip = targets[0];
         this.setCursor(clip.cursor);
-      } else {
-        this.setCursor('default');
       }
     }
 

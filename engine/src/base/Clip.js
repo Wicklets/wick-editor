@@ -1289,7 +1289,6 @@ Wick.Clip = class extends Wick.Tickable {
     _onDeactivated() {
         super._onDeactivated();
         this._tickChildren();
-        this.resetTimelinePosition();
     }
 
     _tickChildren() {
