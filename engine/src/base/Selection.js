@@ -38,7 +38,7 @@ Wick.Selection = class extends Wick.Base {
         this._originalWidth = 0;
         this._originalHeight = 0;
 
-        this.SELECTABLE_OBJECT_TYPES = ['Path', 'Clip', 'Frame', 'Tween', 'Layer', 'Asset'];
+        this.SELECTABLE_OBJECT_TYPES = ['Path', 'Clip', 'Frame', 'Tween', 'Layer', 'Asset', 'Button'];
         this.SELECTABLE_OBJECT_TYPES_SET = new Set(this.SELECTABLE_OBJECT_TYPES);
     }
 

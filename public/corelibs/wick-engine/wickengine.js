@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.11.28.11.30.11";
+var WICK_ENGINE_BUILD_VERSION = "2020.11.30.10.38.43";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -52003,7 +52003,7 @@ Wick.Selection = class extends Wick.Base {
     };
     this._originalWidth = 0;
     this._originalHeight = 0;
-    this.SELECTABLE_OBJECT_TYPES = ['Path', 'Clip', 'Frame', 'Tween', 'Layer', 'Asset'];
+    this.SELECTABLE_OBJECT_TYPES = ['Path', 'Clip', 'Frame', 'Tween', 'Layer', 'Asset', 'Button'];
     this.SELECTABLE_OBJECT_TYPES_SET = new Set(this.SELECTABLE_OBJECT_TYPES);
   }
 
@@ -57230,12 +57230,7 @@ Wick.Clip = class extends Wick.Tickable {
       this._animationType = 'loop';
     } else {
       this._animationType = animationType;
-
-      if (animationType === 'single') {
-        this.applySingleFramePosition();
-      } else {
-        this.timeline.playheadPosition = 1; // Reset timeline position if we are not on single frame.
-      }
+      this.resetTimelinePosition();
     }
   }
   /**
@@ -57348,6 +57343,18 @@ Wick.Clip = class extends Wick.Tickable {
     return this.namedChildren.filter(child => {
       return child.onScreen;
     });
+  }
+  /**
+   * Resets the clip's timeline position.
+   */
+
+
+  resetTimelinePosition() {
+    if (this.animationType === 'single') {
+      this.applySingleFramePosition();
+    } else {
+      this.timeline.playheadPosition = 1; // Reset timeline position if we are not on single frame.
+    }
   }
   /**
    * Updates the frame's single frame positions if necessary. Only works if the clip's animationType is 'single'.
@@ -58341,6 +58348,8 @@ Wick.Clip = class extends Wick.Tickable {
     super._onDeactivated();
 
     this._tickChildren();
+
+    this.resetTimelinePosition();
   }
 
   _tickChildren() {
