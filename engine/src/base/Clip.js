@@ -404,6 +404,9 @@ Wick.Clip = class extends Wick.Tickable {
         // (This is caused by calling remove() multiple times on one object inside a script.)
         if (!this.parent) return;
 
+        // Force unload to run now, before object is removed;
+        this.runScript('unload'); 
+
         // Remove from the clones array.
         this.sourceClip && this.sourceClip.removeClone(this.uuid);
         this.parent.removeClip(this);
