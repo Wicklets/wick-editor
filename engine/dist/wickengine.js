@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.11.30.16.41.4";
+var WICK_ENGINE_BUILD_VERSION = "2020.12.2.15.20.33";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -60932,8 +60932,9 @@ Wick.Tools.Zoom = class extends Wick.Tool {
   onMouseUp(e) {
     if (this.zoomBox && this.zoomBoxIsValidSize()) {
       var bounds = this.zoomBox.bounds;
+      var viewBounds = this.paper.view.bounds;
       this.paper.view.center = bounds.center;
-      this.paper.view.zoom = this.paper.view.bounds.height / bounds.height;
+      this.paper.view.scale(Math.min(viewBounds.height / bounds.height, viewBounds.width / bounds.width));
     } else {
       var zoomAmount = e.modifiers.alt ? this.ZOOM_OUT_AMOUNT : this.ZOOM_IN_AMOUNT;
       this.paper.view.scale(zoomAmount, e.point);
