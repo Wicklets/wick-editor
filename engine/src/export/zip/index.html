@@ -27,6 +27,7 @@
                         .then(blob => {
                             // Hide preloader
                             document.getElementById('preloader').style.display = 'none';
+                            document.getElementById('preloader').remove();
                             // Run project
                             Wick.WickFile.fromWickFile(blob, project => {
                                 project.inject(document.getElementById('wick-canvas-container'));
