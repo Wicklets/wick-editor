@@ -316,7 +316,7 @@ export default function WickCodeEditor(props) {
                     width="100%"
                     height="100%"
                     name="wick-ace-editor"
-                    focus={props.focus}
+                    focus={true}
                     editorProps={{ $blockScrolling: true }}
                     onChange={scriptOnChange}
                     onLoad={(editor) => setAceEditor(editor)}
