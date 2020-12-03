@@ -451,19 +451,13 @@ Wick.Clip = class extends Wick.Tickable {
             object.y -= this.transformation.y;
         });
 
-        // Add clips
-        objects.filter(object => {
-            return object instanceof Wick.Clip;
-        }).forEach(clip => {
-            this.activeFrame.addClip(clip);
-        });
-
-        // Add paths
-        objects.filter(object => {
-            return object instanceof Wick.Path;
-        }).forEach(path => {
-            this.activeFrame.addPath(path);
-        });
+        objects.forEach(obj => {
+            if (obj instanceof Wick.Clip) {
+                this.activeFrame.addClip(obj);
+            } else if (obj instanceof Wick.Path) {
+                this.activeFrame.addPath(obj);
+            }
+        }); 
     }
 
     /**
