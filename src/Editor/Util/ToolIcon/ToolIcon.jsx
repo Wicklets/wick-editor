@@ -326,10 +326,6 @@ const icons = {
 var classNames = require('classnames');
 
 class ToolIcon extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   getSource() {
     if (this.props.name in icons) {
       return icons[this.props.name];
