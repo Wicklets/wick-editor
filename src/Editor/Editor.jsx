@@ -1153,7 +1153,7 @@ class Editor extends EditorCore {
                   {window.enableAssetLibrary && 
                   <ReflexElement
                     minSize={100}
-                    size={500}
+                    size={300}
                     onResize={this.resizeProps.onResize}
                     onStopResize={this.resizeProps.onStopAssetLibraryResize}>
                     <DockedPanel showOverlay={this.state.previewPlaying}>

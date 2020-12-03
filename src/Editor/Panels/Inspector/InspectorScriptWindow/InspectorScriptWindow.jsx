@@ -45,7 +45,7 @@ class InspectorScriptWindow extends Component {
            <div className="inspector-script-window-row-container">
              <ActionButton
               color="inspector"
-              text="add script"
+              text="+ add script"
               action={() => this.props.editScript("add")}
               />
            </div>
