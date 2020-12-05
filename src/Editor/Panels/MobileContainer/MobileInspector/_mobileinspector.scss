@@ -1,0 +1,122 @@
+/*
+ * Copyright 2020 WICKLETS LLC
+ *
+ * This file is part of Wick Editor.
+ *
+ * Wick Editor is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Editor is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+@import 'Editor/_wickbrand.scss';
+
+$inspector-padding: 10px;
+$inspector-title-height: 36px;
+$inspector-selection-icon-size: 40px;
+$inspector-row-height: 26px;
+$inspector-row-max-height: 70px;
+$inspector-button-height: 40px;
+$inspector-button-min-width: 40px;
+$inspector-image-preview-size: 100px;
+$inspector-break-size: calc(#{$editor-outline-padding} * .5);
+
+$inspector-transition-duration: 0.2s;
+
+.mobile-inspector {
+  background-color: $mobile-panel-background;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  box-sizing: border-box;
+  border-right: $editor-outline-padding solid $editor-primary-outline;
+  font-family: 'Nunito Sans';
+  overflow: hidden;
+  margin: 0;
+}
+
+.inspector-body {
+  height: calc(100% - #{$inspector-title-height});
+  width: 100%;
+  overflow: scroll;
+}
+
+.inspector-body:hover {
+  overflow-y: auto;
+}
+
+.input-divider {
+  color: #FFFFFF; //$editor-primary-outline;
+  font-weight: bold;
+  font-size: 20px;
+  font-family: 'Nunito Sans';
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-inspector-item {
+  padding-left: $inspector-padding;
+  padding-right: $inspector-padding;
+  padding-bottom: calc(#{$inspector-padding} / 2);
+  border-bottom: $inspector-break-size solid $editor-primary-outline;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 10px;
+}
+
+.select-inspector {
+  height: 20px;
+}
+
+.inspector-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 4px;
+}
+
+.mobile-inspector-item.mobile-inspector-name {
+  position: absolute;
+  width: 50%;
+  top: 50px;
+  right: 0;
+  border: none;
+  height: $inspector-row-height;
+  padding-top: calc(#{$inspector-padding} / 2);
+}
+
+.mobile-inspector-item.mobile-inspector-item-style {
+  display: flex;
+  flex-direction: row;
+}
+
+.mobile-inspector-col-left {
+  width: 40%;
+}
+
+.mobile-inspector-col-right {
+  width: 60%;
+}
+
+#mobile-inspector-selection-stroke-color {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+}
+
+#mobile-inspector-selection-fill-color {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+}

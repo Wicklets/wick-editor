@@ -178,6 +178,17 @@ $github-pink: #EC6CB9;
 $github-button: white;
 $github-text: black;
 
+// mobile container colors
+$mobile-panel-background: #191919;
+$timeline-red: #FA8A87;
+$inspector-teal: #4FF7DE;
+$code-pink: #FA73FA;
+$asset-green: #BAFA98;
+
+$inspector-tab-background: #262626;
+$inspector-tab-background-selected: #303030;
+$inspector-tab-underline: #484747;
+
 // Set editor styles.
 a:link {
   color: $editor-green-highlight;

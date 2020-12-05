@@ -64,11 +64,19 @@ $action-button-transition-duration: .2s;
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: center;
   max-height: 100%;
+}
+
+.action-button-text-icon.mobile-asset-library-icon {
+  height: 20px;
+  width: auto;
+  margin-right: 8px;
 }
 
 .action-button-text-icon {
   height: 24px;
+  margin-right: 5px;
 }
 
 .action-button-text {

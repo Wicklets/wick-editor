@@ -1,0 +1,92 @@
+/*
+ * Copyright 2020 WICKLETS LLC
+ *
+ * This file is part of Wick Editor.
+ *
+ * Wick Editor is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Editor is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+ @import 'Editor/_wickbrand.scss';
+ 
+$header-height: 42px;
+
+.mobile-tabbed-interface {
+    background-color: transparent !important;
+    // background: none !important;
+    width: 100%;
+    height: 100%;
+}
+
+.mobile-tabbed-interface-main-tab-container {
+    background-color: transparent !important;
+    // background: none !important;
+    min-height: $header-height; 
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+}
+
+.mobile-tabbed-interface-main-tab {
+    background-color: $mobile-panel-background;
+    min-height: 34px;
+    border-radius: 5px 5px 0 0;
+    height: 100%;
+    width: 22%;
+    // margin-right: 10px; 
+    border: none;
+    cursor: pointer;
+}
+
+.mobile-tabbed-interface-main-tab.selected {
+    min-height: $header-height;
+    transition: .4s;
+    border-top: 4px solid $wick-green; 
+}
+
+.mobile-tabbed-interface-main-tab.selected.mobile-timeline-tab {
+    border-top: 4px solid $timeline-red; 
+}
+
+.mobile-tabbed-interface-main-tab.selected.mobile-inspector-tab {
+    border-top: 4px solid $inspector-teal; 
+}
+
+.mobile-tabbed-interface-main-tab.selected.mobile-code-tab {
+    border-top: 4px solid $code-pink; 
+}
+
+.mobile-tabbed-interface-main-tab.selected.mobile-asset-tab {
+    border-top: 4px solid $asset-green; 
+}
+
+.mobile-tabbed-interface-icon {
+    margin: auto;
+}
+
+// .mobile-timeline-icon {
+//     width: 14px;
+//     height: auto;
+// }
+
+.mobile-tabbed-interface-main-tab:first-child {
+    margin-left: 0px;
+}
+
+.mobile-tabbed-interface-body {
+    background-color: $mobile-panel-background;
+    width: 100%;
+    height: calc(100% - #{$header-height});
+}
