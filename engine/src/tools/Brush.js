@@ -321,6 +321,13 @@ Wick.Tools.Brush = class extends Wick.Tool {
         this.errorOccured = false;
         var strokeBounds = this.strokeBounds.clone();
 
+        // Attempting to draw with a transparent fill color. Throw an error.
+        if (this.getSetting('fillColor').a === 0) {
+            this.handleBrushError('transparentColor');
+            this.project.errorOccured("Fill Color is Transparent!");
+            return;
+        }
+
         // Give croquis just a little bit to get the canvas ready...
         this._croquisStartTimeout = setTimeout(() => {
             // Retrieve Croquis canvas
@@ -348,6 +355,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
             // Run potrace and add the resulting path to the project
             var svg = potrace.fromImage(croppedCanvas).toSVG(1/this.POTRACE_RESOLUTION/this.paper.view.zoom);
             var potracePath = this.paper.project.importSVG(svg);
+
             potracePath.fillColor = this.getSetting('fillColor').rgba;
             potracePath.position.x += this.paper.view.bounds.x;
             potracePath.position.y += this.paper.view.bounds.y;
@@ -375,7 +383,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
             // Clear croquis canvas
             this.croquis.clearLayer();
-            this.fireEvent('canvasModified');
+            this.fireEvent({eventName: 'canvasModified', actionName: 'brush'});
         }, Wick.Tools.Brush.CROQUIS_WAIT_AMT_MS);
     }
 

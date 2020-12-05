@@ -21,10 +21,6 @@
  * Class representing a Wick Selection.
  */
 Wick.Selection = class extends Wick.Base {
-    static get SELECTABLE_OBJECT_TYPES() {
-        return ['Path', 'Clip', 'Frame', 'Tween', 'Layer', 'Asset'];
-    }
-
     static get LOCATION_NAMES() {
         return ['Canvas', 'Timeline', 'AssetLibrary'];
     }
@@ -41,6 +37,9 @@ Wick.Selection = class extends Wick.Base {
         this._pivotPoint = { x: 0, y: 0 };
         this._originalWidth = 0;
         this._originalHeight = 0;
+
+        this.SELECTABLE_OBJECT_TYPES = ['Path', 'Clip', 'Frame', 'Tween', 'Layer', 'Asset', 'Button'];
+        this.SELECTABLE_OBJECT_TYPES_SET = new Set(this.SELECTABLE_OBJECT_TYPES);
     }
 
     _serialize(args) {
@@ -112,14 +111,23 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
-     * Add a wick object to the selection.
+     * Returns true if an object is selectable.
+     * @param {object} object object to check if selectable
+     * @returns {boolean} true if selectable, false otherwise.
+     */
+    isSelectable (object) {
+        return this.SELECTABLE_OBJECT_TYPES_SET.has(object.classname);
+    }
+
+    /**
+     * Add a wick object to the selection. If selecting multiple objects, you should use
+     * selection.selectMultipleObjects.
      * @param {Wick.Base} object - The object to select.
      */
     select(object) {
-        // Do not allow selection of objects not defined to be selectable
-        if (!Wick.Selection.SELECTABLE_OBJECT_TYPES.find(type => {
-                return object instanceof Wick[type];
-            })) {
+
+        // Only allow specific objects to be selectable.
+        if (!this.isSelectable(object)) {
             console.warn("Tried to select a " + object.classname + " object. This type is not selectable");
             return;
         }
@@ -155,6 +163,35 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
+     * Select multiple objects. Must be selectable objects. Significantly faster than selecting multiple elements
+     * with a select() independently.
+     * @param {object[]} objects 
+     */
+    selectMultipleObjects (objects) {
+        let UUIDsToAdd = [];
+
+        objects.forEach(obj => {
+            if (this.isSelectable(obj) && !this.isObjectSelected(obj)) {
+
+                // Clear the selection if any of the selected objects are not in the same place as the objects
+                // being selected.
+                if (this.location !== this._locationOf(obj)) {
+                    this.clear();
+                }
+
+                UUIDsToAdd.push(obj.uuid);
+            }
+        });
+
+        UUIDsToAdd.forEach(uuid => {
+            this._selectedObjectsUUIDs.push(uuid);
+        });
+
+        this._resetPositioningValues();
+        this.view.dirty = true;
+    }
+
+    /**
      * Remove a wick object from the selection.
      * @param {Wick.Base} object - The object to deselect.
      */
@@ -170,21 +207,31 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
+     * Remove multiple objects from the selection. Does nothing if an object is not selected.
+     * @param {object[]} objects objects to remove from the selection.
+     */
+    deselectMultipleObjects (objects) {
+        objects = objects.filter(obj => obj);
+        let uuids = objects.map(obj => obj.uuid);
+        uuids = new Set(uuids);
+
+        this._selectedObjectsUUIDs = this._selectedObjectsUUIDs.filter(uuid => !uuids.has(uuid));
+
+        this._resetPositioningValues();
+        this.view.dirty = true;
+    }
+
+    /**
      * Remove all objects from the selection with an optional filter.
      * @param {string} filter - A location or a type (see SELECTABLE_OBJECT_TYPES and LOCATION_NAMES)
      */
     clear(filter) {
         if (filter === undefined) {
-            this.project.selection.getSelectedObjects().forEach(object => {
-                if (object !== null) {
-                    this.deselect(object);
-                } //else object is no longer in cache, this happens sometimes when loading up an autosave project
-            });
             this._selectedObjectsUUIDs = [];
+            this._resetPositioningValues();
+            this.view.dirty = true;
         } else {
-            this.project.selection.getSelectedObjects(filter).forEach(object => {
-                this.deselect(object);
-            });
+            this.deselectMultipleObjects(this.project.selection.getSelectedObjects(filter));
         }
     }
 

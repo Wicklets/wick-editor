@@ -121,7 +121,6 @@ Wick.FileAsset = class extends Wick.Asset {
      * Loads data about the file into the asset.
      */
     load(callback) {
-        console.log("calling back");
         callback();
     }
 

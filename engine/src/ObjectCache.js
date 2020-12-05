@@ -50,6 +50,10 @@ WickObjectCache = class {
      * @param {Wick.Base} object - the object to remove from the cache
      */
     removeObject (object) {
+        if (object.classname === 'Project') {
+            object.destroy();
+            return; // TODO, remove this.
+        }
         delete this._objects[object.uuid];
     }
 
@@ -103,8 +107,8 @@ WickObjectCache = class {
 
     /**
      * Remove all objects that are in the project, but are no longer linked to the root object.
-     * This is basically a garbage collection function.
-     * Only call this when you're ready to finish editing the project because old objects need to be retained somewhere for undo/redo.
+     * This is basically a garbage collection function. This function attempts to keep objects
+     * that are referenced in undo/redo.
      * @param {Wick.Project} project - the project to use to determine which objects have no references
      */
     removeUnusedObjects (project) {
@@ -114,11 +118,26 @@ WickObjectCache = class {
 
         let uuidSet = new Set(uuids);
 
+        let historyIDs = project.history.getObjectUUIDs();
+
+        uuidSet = new Set([...historyIDs, ...uuidSet]);
+
         this.getAllObjects().forEach(object => {
             if(!uuidSet.has(object.uuid)) {
                 this.removeObject(object);
             }
         });
+    }
+
+    /**
+     * Removes all objects with the temporary flag set to true.
+     */
+    removeTemporaryObjects () {
+        this.getAllObjects().forEach(obj => {
+            if (obj.temporary) {
+                this.removeObject(obj);
+            }
+        })
     }
 
     /**

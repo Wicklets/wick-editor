@@ -75,8 +75,8 @@ $action-button-transition-duration: .2s;
 }
 
 .action-button-text-icon {
-  height: 24px;
-  margin-right: 5px;
+  height: 18px;
+  margin-right: 8px;
 }
 
 .action-button-text {
@@ -178,6 +178,29 @@ body.hasHover .action-button-dark-red:hover {
   color: $wick-red-text;
 }
 
+// Active Green
+.action-button-active-green {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: $wick-green-dark;
+  color: black;
+}
+
+body.hasHover .action-button-active-green:hover {
+  background-color: $wick-green;
+}
+
+.action-button-active-green:active {
+  background-color: $wick-green-dark;
+}
+
+.action-button-active-green.active-button {
+  background-color: $wick-green-dark;
+}
+
+// Green
+
 .action-button-green {
   -webkit-transition-duration: $action-button-transition-duration; /* Safari */
   transition-duration: $action-button-transition-duration;
@@ -200,6 +223,7 @@ body.hasHover .action-button-green:hover {
   background-color: $wick-green-dark;
   color: $wick-green-text;
 }
+
 
 .action-button-yellow {
   -webkit-transition-duration: $action-button-transition-duration; /* Safari */

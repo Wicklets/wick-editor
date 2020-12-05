@@ -57,6 +57,6 @@ Wick.Tools.Pan = class extends Wick.Tool {
     }
 
     onMouseUp (e) {
-        this.fireEvent('canvasViewTransformed');
+        this.fireEvent({eventName: 'canvasViewTransformed'});
     }
 }

@@ -71,14 +71,16 @@ Wick.View.Frame = class extends Wick.View {
             });
         }
 
-        this.model.drawable.forEach(object => {
+        let children = this.model.drawable.map(object => {
             object.view.render();
             if (object.view.model instanceof Wick.Path) {
-                this.objectsLayer.addChild(object.view.item);
+                return object.view.item;
             } else {
-                this.objectsLayer.addChild(object.view.group);
+                return object.view.group;
             }
         });
+
+        this.objectsLayer.addChildren(children);
     }
 
     _applyDrawableChanges() {
@@ -109,6 +111,7 @@ Wick.View.Frame = class extends Wick.View {
                 var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
                 var pathJSON = Wick.View.Path.exportJSON(child);
                 var wickPath = new Wick.Path({
+                    project: this.model.project,
                     json: pathJSON
                 });
                 this.model.addPath(wickPath);

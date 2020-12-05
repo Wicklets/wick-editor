@@ -162,6 +162,13 @@ Wick.Tool = class {
     }
 
     /**
+     * Should reset the state of the tool.
+     */
+    reset () {
+
+    }
+
+    /**
      * Activates this tool in paper.js.
      */
     activate () {
@@ -189,14 +196,15 @@ Wick.Tool = class {
      * Call the functions attached to a given event.
      * @param {string} eventName - the name of the event to fire
      * @param {object} e - (optional) an object to attach some data to, if needed
+     * @param {string} actionName - Name of the action committed.
      */
-    fireEvent (eventName, e) {
+    fireEvent ({eventName, e, actionName}) {
         if(!e) e = {};
         if(!e.layers) {
             e.layers = [this.paper.project.activeLayer];
         }
         var fn = this._eventCallbacks[eventName];
-        fn && fn(e);
+        fn && fn(e, actionName);
     }
 
     /**

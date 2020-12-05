@@ -102,6 +102,10 @@ Wick.Tools.Text = class extends Wick.Tool {
 
     }
 
+    reset () {
+        this.finishEditingText();
+    }
+
     /**
      * Stop editing the current text and apply changes.
      */
@@ -112,6 +116,6 @@ Wick.Tools.Text = class extends Wick.Tool {
             this.editingText.remove();
         }
         this.editingText = null;
-        this.fireEvent('canvasModified');
+        this.fireEvent({eventName: 'canvasModified', actionName: 'text'});
     }
 }

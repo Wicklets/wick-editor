@@ -34,20 +34,24 @@
   transition: .4s;
   font-size: 18px;
   font-family: 'Nunito Sans';
-  float: center;
-  margin: 0 auto;
   color: $editor-menubar-project-text;
   cursor: pointer;
+  margin: 0 auto;
 }
+
+.menu-bar-info-container {
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
 .menu-bar-project-name-mobile {
   transition: .4s;
   font-size: 18px;
   font-family: 'Nunito Sans';
   color: $editor-menubar-project-text;
-  position: absolute;
-  width: calc(100% - 100px);
-  left: 50px;
   text-align: center;
+  margin: 0 auto;
 }
 
 // .menu-bar-project-name:hover {
@@ -60,9 +64,7 @@
   font-size: 16px; //14px;
   font-family: 'Nunito Sans';
   float: right;
-  position:absolute;
-  right: 0;
-  height: calc(100% - 2 * #{$editor-outline-padding});
+  height: 100%;
 }
 
 .project-settings-preview {

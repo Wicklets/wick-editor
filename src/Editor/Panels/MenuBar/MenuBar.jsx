@@ -25,26 +25,24 @@ import MenuBarSupportButton from './MenuBarSupportButton/MenuBarSupportButton';
 
 class MenuBar extends Component {
 
-  constructor(props) {
-    super();
-  }
-
   renderDesktop = () => {
     return(
       <div className="docked-pane menu-bar" aria-label="Menu Bar">
-        <MenuBarIconButton
-          id="tool-information-button"
-          tooltip="Editor Information"
-          action={() => this.props.openModal('EditorInfo')}
-          icon="mascotmark"
-          />
+        <div className="menu-bar-info-container">
+          <MenuBarIconButton
+            id="tool-information-button"
+            tooltip="Editor Information"
+            action={() => this.props.openModal('EditorInfo')}
+            icon="mascotmark"
+            />
 
-        <MenuBarSupportButton
-          icon="redheart"
-          text="support us"
-          id="support-us-button"
-          action={() => this.props.openModal('SupportUs')}
-          />
+          <MenuBarSupportButton
+            icon="redheart"
+            text="support us"
+            id="support-us-button"
+            action={() => this.props.openModal('SupportUs')}
+            />
+          </div>
 
         <div className="menu-bar-project-name" role="button" onClick={() => this.props.openModal("SimpleProjectSettings")}>
           {this.props.projectName}
@@ -77,6 +75,7 @@ class MenuBar extends Component {
             icon="gear"
             action={() => this.props.openModal('SettingsModal')}
             tooltip="Editor Settings"
+            tooltipPlace="left"
             id="editor-settings-button" />
         </div>
       </div>

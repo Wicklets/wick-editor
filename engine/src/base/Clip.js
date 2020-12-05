@@ -51,6 +51,7 @@ Wick.Clip = class extends Wick.Tickable {
         this._singleFrameNumber = 1; // Default to 1, this value is only used if the animation type is single
         this._playedOnce = false;
         this._isSynced = false;
+        this._removed = false;
 
         this._transformation = args.transformation || new Wick.Transformation();
 
@@ -145,6 +146,17 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     /**
+     * Signals if an object is removed.
+     */
+    get removed () {
+        return this._removed;
+    }
+
+    set removed (bool) {
+        this._removed = bool; 
+    }
+
+    /**
      * Determines whether or not the clip is the currently focused clip in the project.
      * @type {boolean}
      */
@@ -166,6 +178,16 @@ Wick.Clip = class extends Wick.Tickable {
      */
     get sourceClipUUID() {
         return this._sourceClipUUID;
+    }
+
+    /**
+     * Returns the source clip of this clip if this clip is a clone. Null otherwise.
+     * 
+     */
+    get sourceClip () {
+        if (!this.sourceClipUUID) return null;
+
+        return this.project.getObjectByUUID(this.sourceClipUUID);
     }
 
     /**
@@ -211,11 +233,7 @@ Wick.Clip = class extends Wick.Tickable {
         } else {
             this._animationType = animationType;
 
-            if (animationType === 'single') {
-                this.applySingleFramePosition();
-            } else {
-                this.timeline.playheadPosition = 1; // Reset timeline position if we are not on single frame.
-            }
+            this.resetTimelinePosition();
         }
     }
 
@@ -327,10 +345,21 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     /**
+     * Resets the clip's timeline position.
+     */
+    resetTimelinePosition () {
+        if (this.animationType === 'single') {
+            this.applySingleFramePosition();
+        } else {
+            this.timeline.playheadPosition = 1; // Reset timeline position if we are not on single frame.
+        }
+    }
+
+    /**
      * Updates the frame's single frame positions if necessary. Only works if the clip's animationType is 'single'.
      */
     applySingleFramePosition () {
-        if (this.animationType === 'single') {
+        if (this.animationType === 'single') { 
             // Ensure that the single frame we've chosen is reflected no matter what.
             this.timeline.playheadPosition = this.singleFrameNumber;
         }
@@ -359,6 +388,15 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     /**
+     * Remove a clone from the clones array by uuid.
+     * @param {string} uuid 
+     */
+    removeClone (uuid) {
+        if (this.isClone) return;
+        this._clones = this.clones.filter(obj => obj.uuid !== uuid);
+    }
+
+    /**
      * Remove this clip from its parent frame.
      */
     remove() {
@@ -366,7 +404,13 @@ Wick.Clip = class extends Wick.Tickable {
         // (This is caused by calling remove() multiple times on one object inside a script.)
         if (!this.parent) return;
 
+        // Force unload to run now, before object is removed;
+        this.runScript('unload'); 
+
+        // Remove from the clones array.
+        this.sourceClip && this.sourceClip.removeClone(this.uuid);
         this.parent.removeClip(this);
+        this.removed = true;
     }
 
     /**
@@ -407,19 +451,13 @@ Wick.Clip = class extends Wick.Tickable {
             object.y -= this.transformation.y;
         });
 
-        // Add clips
-        objects.filter(object => {
-            return object instanceof Wick.Clip;
-        }).forEach(clip => {
-            this.activeFrame.addClip(clip);
-        });
-
-        // Add paths
-        objects.filter(object => {
-            return object instanceof Wick.Path;
-        }).forEach(path => {
-            this.activeFrame.addPath(path);
-        });
+        objects.forEach(obj => {
+            if (obj instanceof Wick.Clip) {
+                this.activeFrame.addClip(obj);
+            } else if (obj instanceof Wick.Path) {
+                this.activeFrame.addPath(obj);
+            }
+        }); 
     }
 
     /**

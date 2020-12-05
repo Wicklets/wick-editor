@@ -148,6 +148,17 @@ $info-left-margin: 12px;
   margin-left: auto;
 }
 
+.advanced-resolution-table td {
+  border-left: 0px;
+  padding-left: 4px;
+  color: white; 
+}
+
+#advanced-resolution-dropdown {
+  width: 100px;
+  margin-right: 8px;
+}
+
 .export-modal-resolution-inputs {
   display: flex;
   flex-direction: row;

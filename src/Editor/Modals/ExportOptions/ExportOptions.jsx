@@ -181,47 +181,68 @@ class ExportOptions extends Component {
           <div className="export-modal-advanced-options-content">
 
           {/* label is this because overwriting default library react-select */}
-          <label htmlFor="resolution" className="export-modal-advanced-option-title">
-            Resolution
-          </label>
 
-          <div className="export-modal-resolution-inputs">
-            <div className="export-modal-resolution-dropdown-container">
-              <WickInput
-                id="resolution"
-                inputProps={{id: "resolution"}}
-                type="select"
-                value={this.state.exportResolution}
-                options={options}
-                onChange={(val) => {this.updateExportResolutionType(val)}} />
-            </div>
 
-            <div className="export-modal-resolution-inputs-container">
-              <div className="export-modal-resolution-input-container">
-                <label htmlFor="export width" className="export-modal-resolution-label">
-                  W (px)
-                </label>
+          <table>
+            <tbody className="advanced-resolution-table">
+              <tr>
+                <td>
+                  <label htmlFor="advanced-resolution-dropdown" className="export-modal-advanced-option-title">
+                    Export Resolution
+                  </label>
+                </td>
+                <td>
+
+                </td>
+                <td>
+
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                </td>
+                <td>
+                  <label htmlFor="export-width" className="export-modal-resolution-label">
+                    Width (px)
+                  </label>
+                </td>
+                <td>
+                  <label htmlFor="export-height" className="export-modal-resolution-label">
+                    Height (px)
+                  </label>
+                </td>
+              </tr>
+
+              <tr>
+                <td>
                 <WickInput
-                id="export width"
-                type="numeric"
-                value={this.state.exportWidth}
-                onChange={(val) => {this.updateExportSize(val, this.state.exportHeight)}}
-                />
-              </div>
-              <span><div className="export-modal-x-symbol">x</div></span>
-              <div className="export-modal-resolution-input-container">
-                <label htmlFor="export height" className="export-modal-resolution-label">
-                  H (px)
-                </label>
+                  id="advanced-resolution-dropdown"
+                  inputProps={{id: "resolution"}}
+                  type="select"
+                  value={this.state.exportResolution}
+                  options={options}
+                  onChange={(val) => {this.updateExportResolutionType(val)}} />
+                </td>
+                <td>
+                  <WickInput
+                  id="export-width"
+                  type="numeric"
+                  value={this.state.exportWidth}
+                  onChange={(val) => {this.updateExportSize(val, this.state.exportHeight)}}
+                  />
+                </td>
+                <td>
                 <WickInput
-                id="export height"
-                type="numeric"
-                value={this.state.exportHeight}
-                onChange={(val) => {this.updateExportSize(this.state.exportWidth, val)}}
-                />
-              </div>
-            </div>
-          </div>
+                  id="export-height"
+                  type="numeric"
+                  value={this.state.exportHeight}
+                  onChange={(val) => {this.updateExportSize(this.state.exportWidth, val)}}
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         }
       </div>
@@ -432,13 +453,13 @@ class ExportOptions extends Component {
   }
 
   renderDesktop = () => {
-    // An object of export types to functions that render those export types.
-    const exportTypes = {
-      "Animation": this.renderAnimatedInfo,
-      "Interactive": this.renderInteractiveInfo,
-      "Images": this.renderImageInfo,
-      "Audio": this.renderAudioInfo,
-    }
+    window.allowedExportTypes = window.allowedExportTypes.sort((a, b) => {
+      let order = ["Animation", "Interactive", "Audio", "Images"];
+
+      return order.indexOf[a] - order.indexOf[b]; 
+    });
+
+    let allowedExportTypes = window.allowedExportTypes.concat([]);
 
     return (
       <WickModal
@@ -457,11 +478,12 @@ class ExportOptions extends Component {
               aria-label="project name" />
           </div>
           <TabbedInterface
-            tabNames={window.allowedExportTypes}
+            tabNames={allowedExportTypes}
             onTabSelect={this.setSubTab}>
-              {
-                window.allowedExportTypes.map(type => exportTypes[type]())
-              }
+              { allowedExportTypes.indexOf('Animation') > -1 && this.renderAnimatedInfo()}
+              { allowedExportTypes.indexOf('Interactive') > -1 && this.renderInteractiveInfo()}
+              { allowedExportTypes.indexOf('Audio') > -1 && this.renderAudioInfo()}
+              { allowedExportTypes.indexOf('Images') > -1 && this.renderImageInfo()}
           </TabbedInterface>
         </div>
       </WickModal>

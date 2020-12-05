@@ -319,12 +319,16 @@ Wick.Tickable = class extends Wick.Base {
     }
 
     /**
-     * Run the script with the corresponding event name.
+     * Run the script with the corresponding event name. Will not run the script if the object is marked as removed.
      * @param {string} name - The name of the event. See Wick.Tickable.possibleScripts
      * @param {Object} parameters - An object containing key,value pairs of parameters to send to the script.
      * @returns {object} object containing error info if an error happened. Returns null if there was no error (script ran successfully)
      */
     runScript (name, parameters) {
+        if (this.removed) {
+            return;
+        }
+
         if(!Wick.Tickable.possibleScripts.indexOf(name) === -1) {
             console.error(name + ' is not a valid script!');
         }
@@ -352,9 +356,11 @@ Wick.Tickable = class extends Wick.Base {
             if(!(fn instanceof Function)) {
                 return fn; // error
             }
+
             this._cachedScripts[name] = fn;
             var error = this._runFunction(fn, name, parameters);
-            if(error) {
+
+            if (error && this.project) {
                 this.project.error = error;
                 return;
             }
@@ -402,7 +408,7 @@ Wick.Tickable = class extends Wick.Base {
     }
 
     _onActivated () {
-        this.scheduleScript('default');
+        this.runScript('default');
         this.scheduleScript('load');
     }
 
@@ -555,6 +561,7 @@ Wick.Tickable = class extends Wick.Base {
               fn.bind(thisScope)();
           } catch (e) {
               // Catch runtime errors
+              console.error(e);
               error = this._generateErrorInfo(e, name);
           }
 

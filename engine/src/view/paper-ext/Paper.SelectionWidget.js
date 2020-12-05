@@ -321,19 +321,23 @@ class SelectionWidget {
             this.item.addChildren(this._buildItemOutlines());
         }
 
-        this.item.addChild(this._buildRotationHotspot('topLeft'));
-        this.item.addChild(this._buildRotationHotspot('topRight'));
-        this.item.addChild(this._buildRotationHotspot('bottomLeft'));
-        this.item.addChild(this._buildRotationHotspot('bottomRight'));
+        let guiElements = [];
 
-        this.item.addChild(this._buildScalingHandle('topLeft'));
-        this.item.addChild(this._buildScalingHandle('topRight'));
-        this.item.addChild(this._buildScalingHandle('bottomLeft'));
-        this.item.addChild(this._buildScalingHandle('bottomRight'));
-        this.item.addChild(this._buildScalingHandle('topCenter'));
-        this.item.addChild(this._buildScalingHandle('bottomCenter'));
-        this.item.addChild(this._buildScalingHandle('leftCenter'));
-        this.item.addChild(this._buildScalingHandle('rightCenter'));
+        guiElements.push(this._buildRotationHotspot('topLeft'));
+        guiElements.push(this._buildRotationHotspot('topRight'));
+        guiElements.push(this._buildRotationHotspot('bottomLeft'));
+        guiElements.push(this._buildRotationHotspot('bottomRight'));
+
+        guiElements.push(this._buildScalingHandle('topLeft'));
+        guiElements.push(this._buildScalingHandle('topRight'));
+        guiElements.push(this._buildScalingHandle('bottomLeft'));
+        guiElements.push(this._buildScalingHandle('bottomRight'));
+        guiElements.push(this._buildScalingHandle('topCenter'));
+        guiElements.push(this._buildScalingHandle('bottomCenter'));
+        guiElements.push(this._buildScalingHandle('leftCenter'));
+        guiElements.push(this._buildScalingHandle('rightCenter'));
+
+        this.item.addChildren(guiElements);
 
         this._pivotPointHandle = this._buildPivotPointHandle();
         this.layer.addChild(this._pivotPointHandle);

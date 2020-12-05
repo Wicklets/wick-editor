@@ -90,7 +90,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             // Shift click: Deselect that item
             if(e.modifiers.shift) {
                 this._deselectItem(this.hitResult.item);
-                this.fireEvent('canvasModified');
+                this.fireEvent({eventName: 'canvasModified', actionName: 'cursorDeselect'});
             }
         } else if (this.hitResult.item && this.hitResult.type === 'fill') {
             if(!e.modifiers.shift) {
@@ -99,13 +99,13 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             }
             // Clicked an item: select that item
             this._selectItem(this.hitResult.item);
-            this.fireEvent('canvasModified');
+            this.fireEvent({eventName: 'canvasModified', actionName: 'cursorSelect'});
         } else {
             // Nothing was clicked, so clear the selection and start a new selection box
             // (don't clear the selection if shift is held, though)
             if(this._selection.numObjects > 0 && !e.modifiers.shift) {
                 this._clearSelection();
-                this.fireEvent('canvasModified');
+                this.fireEvent({eventName: 'canvasModified', actionName: 'cursorClearSelect'});
             }
 
             this.selectionBox.start(e.point);
@@ -116,15 +116,17 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         var selectedObject = this._selection.getSelectedObject();
         if(selectedObject && selectedObject instanceof Wick.Clip) {
             // Double clicked a Clip, set the focus to that Clip.
-            this.project.focusTimelineOfSelectedClip();
-            this.fireEvent('canvasModified');
+            if (this.project.focusTimelineOfSelectedClip() ) {
+                this.fireEvent({eventName: 'canvasModified', actionName: 'cursorFocusTimelineSelected'});
+            }
         } else if (selectedObject && (selectedObject instanceof Wick.Path) && (selectedObject.view.item instanceof paper.PointText)) {
             // Double clicked text, switch to text tool and edit the text item.
             // TODO
         } else if (!selectedObject) {
             // Double clicked the canvas, leave the current focus.
-            this.project.focusTimelineOfParentClip();
-            this.fireEvent('canvasModified');
+            if (this.project.focusTimelineOfParentClip()) {
+                this.fireEvent({eventName: 'canvasModified', actionName: 'cursorFocusTimelineParent'});
+            }
         }
     }
 
@@ -165,15 +167,15 @@ Wick.Tools.Cursor = class extends Wick.Tool {
                 this._selection.clear();
             }
 
-            this.selectionBox.items.filter(item => {
+            let selectables = this.selectionBox.items.filter(item => {
                 return item.data.wickUUID;
-            }).forEach(item => {
-                this._selectItem(item);
-            });
+            })
+
+            this._selectItems(selectables);
 
             // Only modify the canvas if you actually selected something.
             if (this.selectionBox.items.length > 0) {
-                this.fireEvent('canvasModified');
+                this.fireEvent({eventName: 'canvasModified', actionName: 'cursorSelectMultiple'});
             }
 
         } else if (this._selection.numObjects > 0) {
@@ -181,7 +183,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
                 this.__isDragging = false;
                 this.project.tryToAutoCreateTween();
                 this._widget.finishTransformation();
-                this.fireEvent('canvasModified');
+                this.fireEvent({eventName: 'canvasModified', actionName: 'cursorDrag'});
             }
         }
     }
@@ -335,6 +337,21 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     _selectItem (item) {
         var object = this._wickObjectFromPaperItem(item);
         this._selection.select(object);
+    }
+
+
+    /**
+     * Select multiple items simultaneously.
+     * @param {object[]} items paper items 
+     */
+    _selectItems (items) {
+        let objects = [];
+
+        items.forEach(item => {
+            objects.push(this._wickObjectFromPaperItem(item));
+        });
+
+        this._selection.selectMultipleObjects(objects);
     }
 
     _deselectItem (item) {

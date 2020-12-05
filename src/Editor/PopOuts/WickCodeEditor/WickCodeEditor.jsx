@@ -17,13 +17,13 @@
  * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import WickInput from 'Editor/Util/WickInput/WickInput';
 import { Rnd } from 'react-rnd';
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import AddScriptPanel from './AddScriptPanel/AddScriptPanel';
-import { Console, Hook, Unhook } from 'console-feed'
+import { Console } from 'console-feed'
 
 // Import Ace Editor and themes.
 import AceEditor from 'react-ace';
@@ -69,16 +69,8 @@ export default function WickCodeEditor(props) {
   const [addScriptTab, setAddScriptTab] = useState('Mouse');
   const [consoleType, setConsoleType] = useState('console');
   const [aceEditor, setAceEditor] = useState(null);
-  const [logs, setLogs] = useState([]);
 
   const editorThemeSelectRef = useRef();
-
-  // Run once, connect the console to the console object.
-  useEffect(() => {
-    Hook(window.console, log => props.setConsoleLogs([...props.consoleLogs, log]), false)
-    return () => Unhook(window.console)
-  }, [])
-
 
   /**
    * To be called when the code editor popout is repositioned.
@@ -163,6 +155,8 @@ export default function WickCodeEditor(props) {
       return [];
     }
 
+
+
     let marker = {};
     marker.startRow = error.lineNumber - 1;
     marker.endRow = error.lineNumber - 1;
@@ -170,6 +164,7 @@ export default function WickCodeEditor(props) {
     marker.endCol = 1000; // Set length to an arbitrary amount that should encompass the whole line.
     marker.className = 'error-marker';
     marker.type = 'background';
+
     return [marker];
   }
 
@@ -321,7 +316,7 @@ export default function WickCodeEditor(props) {
                     width="100%"
                     height="100%"
                     name="wick-ace-editor"
-                    focus={props.focus}
+                    focus={true}
                     editorProps={{ $blockScrolling: true }}
                     onChange={scriptOnChange}
                     onLoad={(editor) => setAceEditor(editor)}
@@ -341,7 +336,7 @@ export default function WickCodeEditor(props) {
               <div className="wick-code-editor-console">
 
                 <div className="we-code-console-bar">
-                  <div className="we-code-console-title">{consoleType === 'options' ? 'Editor Options' : 'Console'}</div>
+                  <div className="we-code-console-title">{consoleType === 'options' ? 'Text Editor Options' : 'Console'}</div>
                   <div className="we-code-console-options-container">
                     {
                       consoleType === 'options' &&
@@ -434,7 +429,7 @@ function CodeReference(props) {
                 id={"code-reference-button-" + option.name}
                 action={() => { props.addCodeToTab(option.snippet) }}
                 tooltip={option.description}
-                tooltipPlace="top"
+                tooltipPlace="right"
                 color='reference'
                 text={option.name} />
             </div>

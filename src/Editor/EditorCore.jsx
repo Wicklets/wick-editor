@@ -909,8 +909,11 @@ class EditorCore extends Component {
    * Creates and imports Wick Assets from the acceptedFiles list, and displays an alert message for rejected files.
    * @param {File[]} acceptedFiles - Files uploaded by user with supported MIME types to import into the project
    * @param {File[]} rejectedFiles - Files uploaded by user with unsupported MIME types.
+   * @param {object} options - optional flags. Can include "create", which if true will create an instance of the object on the canvas.
    */
-  createAssets = (acceptedFiles, rejectedFiles) => {
+  createAssets = (acceptedFiles, rejectedFiles, options) => {
+    if (!options) options = {};
+
     let toastID = this.toast('Importing files...', 'info');
 
     // Error message for failed uploads
@@ -919,6 +922,10 @@ class EditorCore extends Component {
       this.updateToast(toastID, {
         type: 'error',
         text: 'Could not import files: ' + fileNamesRejected});
+    }
+
+    let createCallback = (asset) => {
+      if (options.create) this.createImageFromAsset(asset.uuid, options.location.x || 0, options.location.y || 0);
     }
 
     // Add all successfully uploaded assets
@@ -931,14 +938,14 @@ class EditorCore extends Component {
                 console.log('GIFImport onProgress: ' + percent);
             },
             onFinish: (gifAsset) => {
-                console.log('GIFImport onFinish:')
-                console.log(gifAsset)
                 this.project.addAsset(gifAsset);
                 this.projectDidChange({ actionName: "Add Asset" });
+                if (options.create) this.createImageFromAsset(gifAsset.uuid, options.location.x || 0, options.location.y || 0);
             }});
       } else {
         var file = acceptedFiles[i];
-        this.importFileAsAsset(file);
+
+        this.importFileAsAsset(file, createCallback);
       }
     }
   }
@@ -1326,9 +1333,8 @@ class EditorCore extends Component {
 
     this.projectDidChange({ actionName: "Setup New Project" });
     this.hideWaitOverlay();
-    this.project.recenter();
-    this.project.view.prerender();
-    this.project.view.render();
+
+    this.project.prepareProjectForEditor();
   }
 
   openNewProjectConfirmation = () => {
@@ -1594,16 +1600,24 @@ class EditorCore extends Component {
 
   /**
    * Stops the project if it is currently preview playing and displays any errors in the code window.
+   * @param {object} error - any errors called while playing
    */
-  stopPreviewPlaying = () => {
+  stopPreviewPlaying = (error) => {
+
     this.setState({
       previewPlaying: false,
       codeEditorOpen: this.project.error === undefined ? this.state.codeEditorOpen : true,
       showCodeErrors: this.project.error === undefined ? false : true,
     });
 
-    if(this.project.error) {
-        this.editScript(this.project.error.name);
+    if(error) {
+      let obj = window.Wick.ObjectCache.getObjectByUUID(error.uuid);
+
+      if (obj) {
+        this.selectObject(obj)
+      }
+
+      this.editScript(error.name);
     }
 
     this.projectDidChange({ actionName: "Stop Preview Playing" });

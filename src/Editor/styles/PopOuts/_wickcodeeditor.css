@@ -62,20 +62,17 @@
     align-items: baseline;
     overflow-x: scroll;
     overflow-y: scroll;
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
 }
 
 .wick-code-editor-reference {
+    width: var(--reference-width);
     min-width: var(--reference-width);
     background-color: var(--wick-secondary);
-    margin-left: 4px;
-    margin-right: 4px;
 }
 
 .wick-code-editor-content {
     display: flex;
-    flex: 1;
+    width: calc(100% - var(--reference-width));
     flex-direction: column;
 }
 
@@ -89,8 +86,6 @@
     height: 100%;
     max-width: 100%;
     overflow-x: scroll;
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
 }
 
 .wick-code-editor-console {
@@ -116,7 +111,7 @@
 
 .add-script-container {
     display: flex;
-    flex: 1 1;
+    height: 100%;
     background-color: var(--wick-secondary);
     flex-direction: column;
   }
@@ -134,9 +129,10 @@
     background-color: var(--wick-primary);
     color: white;
     border-radius: var(--border-radius-secondary);
-    max-width: 175px;
-    min-height: 150px;
     margin: 6px;
+    max-width: 150px;
+    min-height: 150px;
+    padding: 6px;
 
     transition: .3s all;
 }
@@ -289,8 +285,6 @@
 
 .we-code-reference-body {
     overflow-y: scroll;
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
 }
 
 .code-editor-option-input {
@@ -338,6 +332,7 @@
 }
 
 .error-marker {
+    position: absolute;
     background-color: var(--wick-error);
     padding-right: 4px;
 }

@@ -51,8 +51,8 @@ class Canvas extends Component {
     project.view.canvasContainer = this.canvasContainer.current;
     project.view.resize();
 
-    project.view.on('canvasModified', (e) => {
-      this.props.projectDidChange({ actionName: "Canvas Modified" });
+    project.view.on('canvasModified', (e, actionName) => {
+      this.props.projectDidChange({ actionName: `Canvas Modified ${actionName}` });
     });
 
     project.view.on('eyedropperPickedColor', (e) => {
@@ -89,7 +89,7 @@ const canvasTarget = {
         props.importProjectAsWickFile(file);
       } else {
         // Assets (images, sounds, etc)
-        props.createAssets(draggedItem.files, []);
+        props.createAssets(draggedItem.files, [], {create: true, location: dropLocation});
       }
     } else {
       // Dropped an asset from the asset library

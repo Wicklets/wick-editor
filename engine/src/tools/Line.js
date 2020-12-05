@@ -72,6 +72,6 @@ Wick.Tools.Line = class extends Wick.Tool {
     onMouseUp (e) {
         this.path.remove();
         this.addPathToProject(this.path);
-        this.fireEvent('canvasModified');
+        this.fireEvent({eventName: 'canvasModified', actionName: 'line'});
     }
 }

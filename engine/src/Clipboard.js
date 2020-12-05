@@ -152,6 +152,8 @@ Wick.Clipboard = class {
 
         project.selection.clear();
 
+        var objectsToSelect = [];
+
         this.clipboardData.map(data => {
             return Wick.Base.import(data, project).copy();
         }).forEach(object => {
@@ -178,8 +180,14 @@ Wick.Clipboard = class {
                 object.y += Wick.Clipboard.PASTE_OFFSET;
             }
 
-            project.selection.select(object);
+            // Wait to select objects.
+            objectsToSelect.push(object);
         });
+
+        // Select newly added objects.
+        if (objectsToSelect.length > 0) {
+            project.selection.selectMultipleObjects(objectsToSelect);
+        }
 
         return true;
     }

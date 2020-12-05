@@ -96,9 +96,11 @@ Wick.Project = class extends Wick.Base {
             text: new Wick.Tools.Text(),
             zoom: new Wick.Tools.Zoom(),
         };
+
         for (var toolName in this._tools) {
             this._tools[toolName].project = this;
         }
+
         this.activeTool = 'cursor';
 
         this._toolSettings = new Wick.ToolSettings();
@@ -120,6 +122,16 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
+     * Prepares the project to be used in an editor.
+     */
+    prepareProjectForEditor () {
+        this.project.resetCache();
+        this.project.recenter();
+        this.project.view.prerender();
+        this.project.view.render();
+    }
+
+    /**
      * Used to initialize the state of elements within the project. Should only be called after
      * deserialization of project and all objects within the project.
      */
@@ -128,6 +140,20 @@ Wick.Project = class extends Wick.Base {
         this.activeFrame && this.activeFrame.clips.forEach(clip => {
             clip.applySingleFramePosition();
         });
+    }
+
+    /**
+     * Resets the cache and removes all unlinked items from the project.
+     */
+    resetCache () {
+      Wick.ObjectCache.removeUnusedObjects(this);
+    }
+
+    /**
+     * TODO: Remove all elements created by this project.
+     */
+    destroy () {
+        this.guiElement.removeAllEventListeners();
     }
 
     _deserialize (data) {
@@ -519,8 +545,6 @@ Wick.Project = class extends Wick.Base {
                 subclip.applySingleFramePosition();
             });
         }
-
-
     }
 
     /**
@@ -924,9 +948,8 @@ Wick.Project = class extends Wick.Base {
 
         // Select the newly added frames
         this.selection.clear();
-        newFrames.forEach(frame => {
-            this.selection.select(frame);
-        });
+
+        this.selection.selectMultipleObjects(newFrames);
     }
 
     /**
@@ -1053,18 +1076,22 @@ Wick.Project = class extends Wick.Base {
      * Selects all objects that are visible on the canvas (excluding locked layers and onion skinned objects)
      */
     selectAll() {
+        let objectsToAdd = [];
+
         this.selection.clear();
         this.activeFrames.filter(frame => {
             return !frame.parentLayer.locked &&
                 !frame.parentLayer.hidden;
         }).forEach(frame => {
             frame.paths.forEach(path => {
-                this.selection.select(path);
+                objectsToAdd.push(path);
             });
             frame.clips.forEach(clip => {
-                this.selection.select(clip);
+                objectsToAdd.push(clip);
             });
         });
+
+        this.selection.selectMultipleObjects(objectsToAdd);
     }
 
     /**
@@ -1135,6 +1162,7 @@ Wick.Project = class extends Wick.Base {
 
         if (args.type === 'Button') {
             clip = new Wick[args.type]({
+                project: this,
                 identifier: args.identifier,
                 transformation: new Wick.Transformation({
                     x: this.selection.x + this.selection.width / 2,
@@ -1144,6 +1172,7 @@ Wick.Project = class extends Wick.Base {
             });
         } else {
             clip = new Wick[args.type]({
+                project: this.project,
                 identifier: args.identifier,
                 transformation: new Wick.Transformation({
                     x: this.selection.x + this.selection.width / 2,
@@ -1174,27 +1203,31 @@ Wick.Project = class extends Wick.Base {
             leftovers = leftovers.concat(clip.breakApart());
         });
 
-        leftovers.forEach(object => {
-            this.selection.select(object);
-        });
+        this.selection.selectMultipleObjects(leftovers);
     }
 
     /**
      * Sets the project focus to the timeline of the selected clip.
+     * @returns {boolean} True if selected clip is focused, false otherwise.
      */
     focusTimelineOfSelectedClip() {
         if (this.selection.getSelectedObject() instanceof Wick.Clip) {
             this.focus = this.selection.getSelectedObject();
+            return true;
         }
+        return false;
     }
 
     /**
      * Sets the project focus to the parent timeline of the currently focused clip.
+     * @returns {boolean} True if parent clip is focused, false otherwise.
      */
     focusTimelineOfParentClip() {
         if (!this.focus.isRoot) {
             this.focus = this.focus.parentClip;
+            return true;
         }
+        return false;
     }
 
     /**
@@ -1379,7 +1412,7 @@ Wick.Project = class extends Wick.Base {
         if (this._error && error) {
             return;
         } else if (error && !this._error) {
-            console.error(error);
+            // console.error(error);
         }
 
         this._error = error;
@@ -1458,14 +1491,22 @@ Wick.Project = class extends Wick.Base {
             args.onBeforeTick();
 
             this.tools.interact.determineMouseTargets();
+            // console.time('tick');
             var error = this.tick();
+            // console.timeEnd('tick');
+
+            // console.time('update');
             this.view.paper.view.update();
+            // console.timeEnd('update');
+
             if(error) {
                 this.stop();
                 return;
             }
 
+            // console.time('afterTick');
             args.onAfterTick();
+            // console.timeEnd('afterTick');
         }, 1000 / this.framerate);
     }
 
@@ -1534,7 +1575,7 @@ Wick.Project = class extends Wick.Base {
 
         // Load the state of the project before it was played
         this.history.loadSnapshot('state-before-play');
-        Wick.ObjectCache.removeUnusedObjects(this);
+        // Wick.ObjectCache.removeUnusedObjects(this);
 
         if (this.error) {
             // An error occured.
@@ -1552,6 +1593,8 @@ Wick.Project = class extends Wick.Base {
         } else {
             this.focus.timeline.playheadPosition = currentPlayhead;
         }
+
+        this.resetCache();
 
         delete window._scriptOnErrorCallback;
     }
@@ -1620,6 +1663,16 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
+     * Resets all tools in the project.
+     */
+    resetTools () {
+        for (let toolName of Object.keys(this.tools)) {
+            let tool = this.tools[toolName];
+            tool.reset();
+        }
+    }
+
+    /**
      * All tools belonging to the project.
      * @type {Array<Wick.Tool>}
      */
@@ -1664,6 +1717,14 @@ Wick.Project = class extends Wick.Base {
         }
 
         this._activeTool = newTool;
+    }
+
+    /**
+     * Returns an object associated with this project, by uuid.
+     * @param {string} uuid 
+     */
+    getObjectByUUID(uuid) {
+        return Wick.ObjectCache.getObjectByUUID(uuid);
     }
 
     /**

@@ -78,6 +78,12 @@ class WickInput extends Component {
         place={this.props.tooltipPlace === undefined ? 'bottom' : this.props.tooltipPlace}
         effect='solid'
         aria-haspopup='true'
+        // overridePosition={({ left, top }, _e, _t, node) => {
+        //   return {
+        //     top,
+        //     left: typeof node === 'string' ? left : Math.max(left, 0),
+        //   };
+        // }}
         className="wick-tooltip">
         <span>{this.props.tooltip}</span>
       </ReactTooltip>
@@ -246,7 +252,7 @@ class WickInput extends Component {
     return (
       <div className="wick-checkbox-container">
         {this.props.label && 
-          <label for={this.props.label} className="wick-checkbox-label">
+          <label htmlFor={this.props.label} className="wick-checkbox-label">
             {this.props.label}
           </label>
         }
