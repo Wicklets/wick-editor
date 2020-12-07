@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.12.7.12.30.42";
+var WICK_ENGINE_BUILD_VERSION = "2020.12.7.12.48.28";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -60418,11 +60418,12 @@ Wick.Tools.PathCursor = class extends Wick.Tool {
     this.hoverPreview = new this.paper.Item({
       insert: false
     });
+    this.detailedEditing = null;
     this.currentCursorIcon = '';
   }
 
   get doubleClickEnabled() {
-    return false;
+    return true;
   }
 
   get cursor() {
@@ -60431,7 +60432,9 @@ Wick.Tools.PathCursor = class extends Wick.Tool {
 
   onActivate(e) {}
 
-  onDeactivate(e) {}
+  onDeactivate(e) {
+    this._leaveDetailedEditing();
+  }
 
   onMouseMove(e) {
     super.onMouseMove(e); // Remove the hover preview, a new one will be generated if needed
@@ -60468,13 +60471,76 @@ Wick.Tools.PathCursor = class extends Wick.Tool {
     if (!e.modifiers) e.modifiers = {};
     this.hitResult = this._updateHitResult(e);
 
+    if (this.detailedEditing !== null && !(this.hitResult.item || this.hitResult.type && this.hitResult.type.startsWith('handle'))) {
+      // Clicked neither on the currently edited path nor on a handle.
+      this._leaveDetailedEditing();
+    }
+
     if (this.hitResult.item && this.hitResult.type === 'curve') {
       // Clicked a curve, start dragging it
       this.draggingCurve = this.hitResult.location.curve;
-    } else if (this.hitResult.item && this.hitResult.type === 'segment') {}
+    } else if (this.hitResult.item && this.hitResult.type === 'segment') {
+      if (e.modifiers.alt || e.modifiers.command || e.modifiers.control || e.modifiers.option || e.modifiers.shift) {
+        this.hitResult.segment.remove();
+      }
+    }
   }
 
-  onDoubleClick(e) {}
+  onDoubleClick(e) {
+    this.hitResult = this._updateHitResult(e);
+
+    if (this.detailedEditing == null) {
+      // If detailed editing is off, turn it on for this path.
+      this.detailedEditing = this.hitResult.item;
+      this.detailedEditing.setFullySelected(true);
+    } else if (!this.hitResult.item) {
+      // If detailed editing is on for some path, but the user
+      // double clicked somewhere else, turn it off.
+      this._leaveDetailedEditing();
+    } else if (this.hitResult.item && this.hitResult.type === 'curve') {
+      var location = this.hitResult.location;
+      var path = this.hitResult.item;
+      var addedPoint = path.insert(location.index + 1, e.point);
+
+      if (!e.modifiers.shift) {
+        addedPoint.smooth();
+        var handleInMag = Math.sqrt(addedPoint.handleIn.x * addedPoint.handleIn.x + addedPoint.handleIn.y + addedPoint.handleIn.y);
+        var handleOutMag = Math.sqrt(addedPoint.handleOut.x * addedPoint.handleOut.x + addedPoint.handleOut.y + addedPoint.handleOut.y);
+
+        if (handleInMag > handleOutMag) {
+          var avgMag = handleOutMag;
+          addedPoint.handleIn.x = -addedPoint.handleOut.x * 1.5;
+          addedPoint.handleIn.y = -addedPoint.handleOut.y * 1.5;
+          addedPoint.handleOut.x *= 1.5;
+          addedPoint.handleOut.y *= 1.5;
+        } else {
+          var avgMag = handleInMag;
+          addedPoint.handleOut.x = -addedPoint.handleIn.x * 1.5;
+          addedPoint.handleOut.y = -addedPoint.handleIn.y * 1.5;
+          addedPoint.handleIn.x *= 1.5;
+          addedPoint.handleIn.y *= 1.5;
+        }
+      }
+
+      if (this.detailedEditing !== null) {
+        path.setFullySelected(true);
+      }
+    } else if (this.hitResult.item && this.hitResult.type === 'segment') {
+      var hix = this.hitResult.segment.handleIn.x;
+      var hiy = this.hitResult.segment.handleIn.y;
+      var hox = this.hitResult.segment.handleOut.x;
+      var hoy = this.hitResult.segment.handleOut.y;
+
+      if (hix === 0 && hiy === 0 && hix === 0 && hiy === 0) {
+        this.hitResult.segment.smooth();
+      } else {
+        this.hitResult.segment.handleIn.x = 0;
+        this.hitResult.segment.handleIn.y = 0;
+        this.hitResult.segment.handleOut.x = 0;
+        this.hitResult.segment.handleOut.y = 0;
+      }
+    }
+  }
 
   onMouseDrag(e) {
     if (!e.modifiers) e.modifiers = {};
@@ -60508,6 +60574,27 @@ Wick.Tools.PathCursor = class extends Wick.Tool {
       this.hoverPreview.segments[0].handleOut = this.draggingCurve.handle1;
       this.hoverPreview.segments[1].handleIn = this.draggingCurve.handle2;
     }
+
+    if (this.hitResult.type.startsWith('handle')) {
+      var otherHandle;
+      var handle;
+
+      if (this.hitResult.type === 'handle-in') {
+        handle = this.hitResult.segment.handleIn;
+        otherHandle = this.hitResult.segment.handleOut;
+      } else if (this.hitResult.type === 'handle-out') {
+        handle = this.hitResult.segment.handleOut;
+        otherHandle = this.hitResult.segment.handleIn;
+      }
+
+      handle.x += e.delta.x;
+      handle.y += e.delta.y;
+
+      if (!e.modifiers.shift) {
+        otherHandle.x -= e.delta.x;
+        otherHandle.y -= e.delta.y;
+      }
+    }
   }
 
   onMouseUp(e) {
@@ -60519,18 +60606,40 @@ Wick.Tools.PathCursor = class extends Wick.Tool {
     }
   }
 
+  onKeyDown(e) {
+    if (this.detailedEditing !== null && e.key == "<") {
+      var wick = Wick.ObjectCache.getObjectByUUID(this._getWickUUID(this.detailedEditing));
+      var path = wick._view._item;
+      path.closed = !path.closed;
+      this.fireEvent('canvasModified');
+    }
+  }
+
   _updateHitResult(e) {
     var newHitResult = this.paper.project.hitTest(e.point, {
       fill: true,
       stroke: true,
       curves: true,
       segments: true,
+      handles: this.detailedEditing !== null,
       tolerance: this.SELECTION_TOLERANCE,
       match: result => {
         return result.item !== this.hoverPreview && !result.item.data.isBorder;
       }
     });
     if (!newHitResult) newHitResult = new this.paper.HitResult();
+
+    if (this.detailedEditing !== null) {
+      if (this._getWickUUID(newHitResult.item) !== this._getWickUUID(this.detailedEditing)) {
+        // Hits an item, but not the one currently in detail edit - handle as a click with no hit.
+        return new this.paper.HitResult();
+      }
+
+      if (newHitResult.item && newHitResult.type.startsWith('handle')) {
+        // If this a click on a handle, do not apply hit type prediction below.
+        return newHitResult;
+      }
+    }
 
     if (newHitResult.item && !newHitResult.item.data.isSelectionBoxGUI) {
       // You can't select children of compound paths, you can only select the whole thing.
@@ -60573,6 +60682,27 @@ Wick.Tools.PathCursor = class extends Wick.Tool {
 
   _setCursor(cursor) {
     this.currentCursorIcon = cursor;
+  }
+
+  _leaveDetailedEditing() {
+    if (this.detailedEditing !== null) {
+      this.paper.project.deselectAll();
+      this.paper.project.activeLayer.children.forEach(function (child) {
+        if (child.wick && !child.wick.isSymbol) {
+          child.fullySelected = false;
+        }
+      });
+      this.detailedEditing = null;
+      this.fireEvent('canvasModified');
+    }
+  }
+
+  _getWickUUID(item) {
+    if (item) {
+      return item.data.wickUUID;
+    } else {
+      return undefined;
+    }
   }
 
 };
