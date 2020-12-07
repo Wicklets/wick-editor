@@ -29,12 +29,12 @@ class MobileInspectorDualNumericInput extends Component {
     let idLabel1 = this.props.tooltip1.replace(/\s+/g, '-').toLowerCase();
     let idLabel2 = this.props.tooltip2.replace(/\s+/g, '-').toLowerCase();
 
-    let render1Identifier = (this.props.icon1) ? [<img src={this.props.icon1} alt={this.props.iconAlt1} className="mobile-inspector-row-icon"></img>]
-                                              : [<label htmlFor={idLabel1 + "-input"} className="mobile-inspector-row-identifier">
+    let render1Identifier = (this.props.icon1) ? <img src={this.props.icon1} alt={this.props.iconAlt1} className="mobile-inspector-row-icon"></img>
+                                              : <label htmlFor={idLabel1 + "-input-mobile"} className="mobile-inspector-row-identifier">
                                                   {this.props.tooltip1}
-                                                </label>]
-    let render2Identifier = (this.props.icon2) ? [<img src={this.props.icon2} alt={this.props.iconAlt2} className="mobile-inspector-row-icon"></img>]
-    : [<label htmlFor={idLabel2 + "-input"} className="mobile-inspector-row-identifier">
+                                                </label>
+    let render2Identifier = (this.props.icon2) ? <img src={this.props.icon2} alt={this.props.iconAlt2} className="mobile-inspector-row-icon"></img>
+    : [<label htmlFor={idLabel2 + "-input-mobile"} className="mobile-inspector-row-identifier">
         {this.props.tooltip2}
       </label>]
 
@@ -46,7 +46,7 @@ class MobileInspectorDualNumericInput extends Component {
         {/* Input1 */}
         <div className="mobile-inspector-small-input-container">
           <MobileInspectorInput 
-            inputProps={{id: idLabel1 + "-input"}}
+            inputProps={{id: idLabel1 + "-input-mobile"}}
             input={
               {type: "numeric",
               value: this.props.val1,
@@ -60,7 +60,7 @@ class MobileInspectorDualNumericInput extends Component {
         {/* Input2 */}
         <div className="mobile-inspector-small-input-container">
           <MobileInspectorInput 
-            inputProps={{id: idLabel2 + "-input"}}
+            inputProps={{id: idLabel2 + "-input-mobile"}}
             input={
               {type: "numeric",
               value: this.props.val2,

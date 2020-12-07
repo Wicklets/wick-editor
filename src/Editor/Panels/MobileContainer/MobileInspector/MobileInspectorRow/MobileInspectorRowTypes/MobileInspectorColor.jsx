@@ -29,14 +29,14 @@ class MobileInspectorColor extends Component {
     return(
       <div className="mobile-inspector-row">
       {/* Identifier */} 
-      <label htmlFor={idLabel + "-input"} className="mobile-inspector-row-identifier mobile-inspector-row-identifier-color">
+      <label htmlFor={idLabel + "-input-mobile"} className="mobile-inspector-row-identifier mobile-inspector-row-identifier-color">
         {this.props.tooltip}
       </label>
 
       {/* Input */}
       <div className="mobile-inspector-small-input-container">
         <MobileInspectorInput 
-          inputProps={{id: idLabel + "-input"}}
+          inputProps={{id: idLabel + "-input-mobile"}}
           input={
             {
               type: "color",

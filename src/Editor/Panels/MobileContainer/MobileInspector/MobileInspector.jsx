@@ -17,7 +17,7 @@
  * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { Component, Fragment} from 'react';
+import React, { Component, Fragment } from 'react';
 import './_mobileinspector.scss';
 import '../../Inspector/_inspectorselector.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -56,33 +56,8 @@ import opacityIcon from 'resources/mobile-inspector-icons/opacity-icon.svg';
 import fillOpacityIcon from 'resources/mobile-inspector-icons/fillopacity-icon.svg';
 
 class MobileInspector extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props);
-
-    // /**
-    //  * Which render function should be used for each selection type?
-    //  */
-    // this.inspectorContentRenderFunctions = {
-    //   "frame": this.renderFrame,
-    //   "layer": this.renderLayer,
-    //   "multiframe": this.renderMultiFrame,
-    //   "tween": this.renderTween,
-    //   "multitween": this.renderMultiTween,
-    //   "clip": this.renderClip,
-    //   "button": this.renderButton,
-    //   "path": this.renderPath,
-    //   "text": this.renderText,
-    //   "image": this.renderImage,
-    //   "multipath": this.renderMultiPath,
-    //   "multiclip": this.renderMultiClip,
-    //   "multitimeline": this.renderMultiTimeline,
-    //   "multicanvas": this.renderMultiCanvas,
-    //   "imageasset": this.renderAsset,
-    //   "soundasset": this.renderAsset,
-    //   "multiassetmixed": this.renderAsset,
-    //   "multisoundasset": this.renderAsset,
-    //   "multiimageasset": this.renderAsset,
-    // }
 
     /**
      * Which actions should be shown for which selection types.
@@ -120,37 +95,40 @@ class MobileInspector extends Component {
       "unknown": "",
     }
 
-    /**
-     * What tabs should be displayed for each selection type?
-    */
-    this.tabsOptions = [{label: "transform", icon: transformIcon, iconActive: transformIconActive, iconAlt: "transform icon"},
-                 {label: "style", icon: styleIcon, iconActive: styleIconActive, iconAlt: "style icon"},
-                 {label: "font", icon: fontIcon, iconActive: fontIconActive, iconAlt: "font icon"},
-                 {label: "frameSettings", icon: settingsIcon, iconActive: settingsIconActive, iconAlt: "setting icon"},
-                 {label: "tweenSettings", icon: settingsIcon, iconActive: settingsIconActive, iconAlt: "setting icon"},
-                 {label: "animationSettings", icon: settingsIcon, iconActive: settingsIconActive, iconAlt: "setting icon"},
-                 {label: "assetSettings", icon: settingsIcon, iconActive: settingsIconActive, iconAlt: "setting icon"}]
+    this.tabsOptions = {
+      transform : { icon: transformIcon, iconActive: transformIconActive, iconAlt: "transform icon" },
+      style: { icon: styleIcon, iconActive: styleIconActive, iconAlt: "style icon" },
+      font:  { icon: fontIcon, iconActive: fontIconActive, iconAlt: "font icon" },
+      frameSettings: { icon: settingsIcon, iconActive: settingsIconActive, iconAlt: "setting icon" },
+      tweenSettings: { icon: settingsIcon, iconActive: settingsIconActive, iconAlt: "setting icon" },
+      animationSettings: { icon: settingsIcon, iconActive: settingsIconActive, iconAlt: "setting icon" },
+      assetSettings: { icon: settingsIcon, iconActive: settingsIconActive, iconAlt: "setting icon" }
+    }
+    
     this.inspectorTabs = {
-      "frame": [3],
+      "frame": ['frameSettings', 'identifier'],
+      "layer": ['identifier'],
       "multiframe": [], // just name
-      "tween": [4],
-      "multitween": [4],
-      "clip": [0, 5],
-      "button": [0],
-      "path": [0, 1],
-      "text": [0, 1, 2],
-      "image": [0],
-      "multipath": (this.getSelectionAttribute('fontFamily') && typeof this.getSelectionAttribute('fontFamily')!= 'undefined') ? [0, 1, 2] : [0, 1],
-      "multiclip": [],
+      "tween": ['tweenSettings'],
+      "multitween": ['tweenSettings'],
+      "clip": ['transform', 'animationSettings', 'identifier'],
+      "button": ['transform', 'identifier'],
+      "path": ['transform', 'style'],
+      "text": ['transform', 'style', 'font', 'identifier'],
+      "image": ['transform'],
+      "multipath": (this.getSelectionAttribute('fontFamily') && 
+      typeof this.getSelectionAttribute('fontFamily') !== 'undefined') ? ['transform', 'style', 'font'] : ['transform', 'style'],
+      "multiclip": ['transform'],
       "multitimeline": [],
-      "multicanvas": [0],
-      "imageasset": [6],
-      "soundasset": [6],
-      "multiassetmixed": [6],
-      "multisoundasset": [6],
-      "multiimageasset": [6],
+      "multicanvas": ['transform'],
+      "imageasset": ['assetSettings', 'name'],
+      "soundasset": ['assetSettings', 'name'],
+      "multiassetmixed": ['assetSettings'],
+      "multisoundasset": ['assetSettings'],
+      "multiimageasset": ['assetSettings'],
       "unknown": [],
     }
+
   }
 
   /**
@@ -205,30 +183,30 @@ class MobileInspector extends Component {
     return (
       <div className="mobile-inspector-item mobile-inspector-item-style">
         <div className="mobile-inspector-col-left">
-        <MobileInspectorColor
-          tooltip="Stroke"
-          val={this.getSelectionAttribute('strokeColor').toCSS()}
-          onChange={(col) => this.setSelectionAttribute('strokeColor', col)}
-          id={"mobile-inspector-selection-stroke-color"}
-          stroke={true}
-          divider={false}
-          colorPickerType={this.props.colorPickerType}
-          changeColorPickerType={this.props.changeColorPickerType}
-          updateLastColors={this.props.updateLastColors}
-          lastColorsUsed={this.props.lastColorsUsed}
-        />
+          <MobileInspectorColor
+            tooltip="Stroke"
+            val={this.getSelectionAttribute('strokeColor').toCSS()}
+            onChange={(col) => this.setSelectionAttribute('strokeColor', col)}
+            id={"mobile-inspector-selection-stroke-color"}
+            stroke={true}
+            divider={false}
+            colorPickerType={this.props.colorPickerType}
+            changeColorPickerType={this.props.changeColorPickerType}
+            updateLastColors={this.props.updateLastColors}
+            lastColorsUsed={this.props.lastColorsUsed}
+          />
 
-        <MobileInspectorColor
-          tooltip="Fill"
-          val={this.getSelectionAttribute('fillColor').toCSS()}
-          onChange={(col) => this.setSelectionAttribute('fillColor', col)}
-          id={"mobile-inspector-selection-fill-color"}
-          divider={false}
-          colorPickerType={this.props.colorPickerType}
-          changeColorPickerType={this.props.changeColorPickerType}
-          updateLastColors={this.props.updateLastColors}
-          lastColorsUsed={this.props.lastColorsUsed}
-        />
+          <MobileInspectorColor
+            tooltip="Fill"
+            val={this.getSelectionAttribute('fillColor').toCSS()}
+            onChange={(col) => this.setSelectionAttribute('fillColor', col)}
+            id={"mobile-inspector-selection-fill-color"}
+            divider={false}
+            colorPickerType={this.props.colorPickerType}
+            changeColorPickerType={this.props.changeColorPickerType}
+            updateLastColors={this.props.updateLastColors}
+            lastColorsUsed={this.props.lastColorsUsed}
+          />
         </div>
 
         <div className="mobile-inspector-col-right">
@@ -249,7 +227,7 @@ class MobileInspector extends Component {
             val={this.getSelectionAttribute('fillColorOpacity')}
             onChange={(val) => this.setSelectionAttribute('fillColorOpacity', val)}
             divider={false}
-            inputProps={{min: 0, max: 1, step: 0.01}}
+            inputProps={{ min: 0, max: 1, step: 0.01 }}
           />
         </div>
       </div>
@@ -297,10 +275,10 @@ class MobileInspector extends Component {
           this.props.fontInfoInterface.getFontFile({
             font: font,
             callback: blob => {
-                var file = new File([blob], font+'.ttf', {type:'font/ttf'});
-                this.props.importFileAsAsset(file, () => {
-                  this.setSelectionAttribute('fontFamily', font)
-                });
+              var file = new File([blob], font + '.ttf', { type: 'font/ttf' });
+              this.props.importFileAsAsset(file, () => {
+                this.setSelectionAttribute('fontFamily', font)
+              });
             },
             error: error => {
               console.error(error)
@@ -308,12 +286,12 @@ class MobileInspector extends Component {
           });
 
         }}>
-        </MobileInspectorSelector>
+      </MobileInspectorSelector>
     )
   }
 
   renderFontStyle = () => {
-    let options = [{value: 'normal', label: 'normal'}, {value: 'italic', label: 'italic'}]
+    let options = [{ value: 'normal', label: 'normal' }, { value: 'italic', label: 'italic' }]
     return (
       <MobileInspectorSelector
         tooltip="Style"
@@ -329,15 +307,15 @@ class MobileInspector extends Component {
 
   renderFontWeight = () => {
     let fontWeights = [
-      {label: 'thin', value: 100},
-      {label: 'extra light', value: 200},
-      {label: 'light', value: 300},
-      {label: 'normal', value: 400},
-      {label: 'medium', value: 500},
-      {label: 'semi bold', value: 600},
-      {label: 'bold', value: 700},
-      {label: 'extra bold', value: 800},
-      {label: 'black', value: 900},
+      { label: 'thin', value: 100 },
+      { label: 'extra light', value: 200 },
+      { label: 'light', value: 300 },
+      { label: 'normal', value: 400 },
+      { label: 'medium', value: 500 },
+      { label: 'semi bold', value: 600 },
+      { label: 'bold', value: 700 },
+      { label: 'extra bold', value: 800 },
+      { label: 'black', value: 900 },
     ];
 
     let weight = Math.min(Math.max(this.getSelectionAttribute('fontWeight'), 100), 900);
@@ -359,7 +337,7 @@ class MobileInspector extends Component {
   /**
    * Renders an inspector row allowing viewing and editing of the selection font size.
    */
-  renderFontSize = () =>  {
+  renderFontSize = () => {
     return (
       <MobileInspectorNumericInput
         tooltip="Font Size"
@@ -377,10 +355,10 @@ class MobileInspector extends Component {
         <MobileInspectorTextInput
           tooltip="Name"
           val={this.getSelectionAttribute('name')}
-          onChange={(val) => {this.setSelectionAttribute('name', val);}}
+          onChange={(val) => { this.setSelectionAttribute('name', val); }}
           placeholder="no_name"
-          id="inspector-name" 
-          divider={false}/>
+          id="inspector-name"
+          divider={false} />
       </div>
     );
   }
@@ -394,7 +372,7 @@ class MobileInspector extends Component {
         <MobileInspectorTextInput
           tooltip="Name"
           val={this.getSelectionAttribute('identifier')}
-          onChange={(val) => {this.setSelectionAttribute('identifier', val);}}
+          onChange={(val) => { this.setSelectionAttribute('identifier', val); }}
           placeholder="no_name"
           id="mobile-inspector-identifier"
           divider={false} />
@@ -412,7 +390,7 @@ class MobileInspector extends Component {
           tooltip="File"
           val={this.getSelectionAttribute('filename')}
           readOnly={true}
-          id="inspector-file-name"/>
+          id="inspector-file-name" />
       </div>
     );
   }
@@ -422,7 +400,7 @@ class MobileInspector extends Component {
    */
   renderAssetPreview = () => {
     let selectionType = this.props.getSelectionType();
-    if(selectionType === 'imageasset') {
+    if (selectionType === 'imageasset') {
       return (
         <InspectorImagePreview
           src={this.getSelectionAttribute('src')}
@@ -554,8 +532,8 @@ class MobileInspector extends Component {
         val={this.getSelectionAttribute('opacity')}
         onChange={(val) => this.setSelectionAttribute('opacity', val)}
         divider={false}
-        inputProps={{min: 0, max: 1, step: 0.01}}
-        id="inspector-opacity"/>
+        inputProps={{ min: 0, max: 1, step: 0.01 }}
+        id="inspector-opacity" />
     )
   }
 
@@ -607,7 +585,7 @@ class MobileInspector extends Component {
         options={options}
         value={value}
         isSearchable={true}
-        onChange={(val) => {this.setSelectionAttribute('sound', val.value)}} />
+        onChange={(val) => { this.setSelectionAttribute('sound', val.value) }} />
     );
   }
 
@@ -616,7 +594,7 @@ class MobileInspector extends Component {
       <MobileInspectorNumericInput
         tooltip="Volume"
         val={this.getSelectionAttribute('soundVolume')}
-        onChange={(val) => {this.setSelectionAttribute('soundVolume', val)}}
+        onChange={(val) => { this.setSelectionAttribute('soundVolume', val) }}
         id="inspector-sound-volume" />
     )
   }
@@ -627,7 +605,7 @@ class MobileInspector extends Component {
         tooltip="Start (ms)"
         type="numeric"
         val={this.getSelectionAttribute('soundStart')}
-        onChange={(val) => {this.setSelectionAttribute('soundStart', val)}} />
+        onChange={(val) => { this.setSelectionAttribute('soundStart', val) }} />
     )
   }
 
@@ -650,19 +628,19 @@ class MobileInspector extends Component {
           options={this.props.getClipAnimationTypes()}
           value={this.getSelectionAttribute('animationType')}
           isSearchable={true}
-          onChange={(val) => {this.setSelectionAttribute('animationType', val.value)}} />
-          {
-            this.getSelectionAttribute('singleFrameNumber') &&
-            <MobileInspectorNumericInput
+          onChange={(val) => { this.setSelectionAttribute('animationType', val.value) }} />
+        {
+          this.getSelectionAttribute('singleFrameNumber') &&
+          <MobileInspectorNumericInput
             tooltip="Frame"
             val={this.getSelectionAttribute('singleFrameNumber')}
             onChange={(val) => this.setSelectionAttribute('singleFrameNumber', val)} />
-          }
+        }
         {this.getSelectionAttribute('animationType') !== "single" &&
-        <MobileInspectorCheckbox
-          tooltip="Synced" 
-          checked={this.getSelectionAttribute('isSynced')}
-          onChange={(val) => this.setSelectionAttribute('isSynced', !this.getSelectionAttribute('isSynced'))}/>}
+          <MobileInspectorCheckbox
+            tooltip="Synced"
+            checked={this.getSelectionAttribute('isSynced')}
+            onChange={(val) => this.setSelectionAttribute('isSynced', !this.getSelectionAttribute('isSynced'))} />}
       </div>
     )
   }
@@ -671,7 +649,7 @@ class MobileInspector extends Component {
     let options = window.Wick.Tween.VALID_EASING_TYPES;
     let optionLabels = [];
     options.forEach((option) => {
-      optionLabels.push({label: option, value: option});
+      optionLabels.push({ label: option, value: option });
     })
     return (
       <div className="mobile-inspector-item">
@@ -681,7 +659,7 @@ class MobileInspector extends Component {
           options={optionLabels}
           value={this.getSelectionAttribute('easingType')}
           isSearchable={true}
-          onChange={(val) => {this.setSelectionAttribute('easingType', val.value)}} />
+          onChange={(val) => { this.setSelectionAttribute('easingType', val.value) }} />
       </div>
     );
   }
@@ -705,24 +683,24 @@ class MobileInspector extends Component {
    */
   renderFrame = () => {
     return (
-        <div className="inspector-content">
-          {/* {this.renderIdentifier()} */}
-          {this.renderFrameLength()}
-          {this.renderSoundContent()}
-        </div>
+      <div className="inspector-content">
+        {/* {this.renderIdentifier()} */}
+        {this.renderFrameLength()}
+        {this.renderSoundContent()}
+      </div>
     );
   }
 
   /**
    * Renders the inspector view for all properties of a tween selection.
    */
-  renderTween = () =>  {
+  renderTween = () => {
     return (
       <div className="inspector-content">
         {this.renderTweenEasingType()}
         {this.renderTweenFullRotations()}
       </div>
-     );
+    );
   }
 
   renderFontContent = () => {
@@ -816,50 +794,51 @@ class MobileInspector extends Component {
     let selectionType = this.props.getSelectionType();
 
     Object.keys(this.actionRules).forEach(action => {
-        let actionList = this.actionRules[action];
-        if (actionList.indexOf(selectionType) > -1) actions.push(action);
+      let actionList = this.actionRules[action];
+      if (actionList.indexOf(selectionType) > -1) actions.push(action);
     });
 
-    return(
+    return (
       <div className="inspector-content">
         {actions.map((action, i) => {
-            return this.renderActionButton(this.props.editorActions[action], i);
-          })}
+          return this.renderActionButton(this.props.editorActions[action], i);
+        })}
       </div>
     )
   }
 
   render() {
     let selectionType = this.props.getSelectionType();
-    let tabs = [];
     if (!Object.keys(this.inspectorTabs).includes(selectionType)) selectionType = "unknown";
-    for (let i=0; i<this.inspectorTabs[selectionType].length; i++){
-      tabs.push(this.tabsOptions[this.inspectorTabs[selectionType][i]]);
-    }
 
-    return(
+
+    let tabNames = this.inspectorTabs[selectionType];
+    let tabs = tabNames.filter(ele => ele !== 'name' && ele !== 'identifier').map(name => this.tabsOptions[name]);
+
+    return (
       <div className="mobile-inspector" aria-label="Inspector Panel">
-        {/* <div className="inspector-title-container"> */}
-          {selectionType === "unknown" && <Fragment><p style={{color: "white"}}>Unknown Selection</p></Fragment>}
-          {tabs.length > 0 && typeof this.getSelectionAttribute('identifier') != "undefined" && this.renderIdentifier()}
-          {tabs.length > 0 && typeof this.getSelectionAttribute('name') !="undefined" && this.renderName()}
-          {tabs.length > 0 && <MobileInspectorTabbedInterface tabs={tabs} className="mobile-inspector-tabbed-interface">
-            {(tabs.find(o => o.label === 'transform')) && <Fragment>{this.renderSelectionTransformProperties()}</Fragment>}
-            {(tabs.find(o => o.label === 'style')) && <Fragment>{this.renderSelectionColor()}</Fragment>}
-            {(tabs.find(o => o.label === 'font')) && <Fragment>{this.renderFontContent()}</Fragment>}
-            {(tabs.find(o => o.label === 'frameSettings')) && <Fragment>{this.renderFrame()}</Fragment>}
-            {(tabs.find(o => o.label === 'tweenSettings')) && <Fragment>{this.renderTween()}</Fragment>}
-            {(tabs.find(o => o.label === 'animationSettings')) && <Fragment>{this.renderAnimationSetting()}</Fragment>}
-            {(tabs.find(o => o.label === 'assetSettings')) && <Fragment>{this.renderAsset()}</Fragment>}
+        {selectionType === "unknown" && <Fragment><p style={{ color: "white" }}>Unknown Selection</p></Fragment>}
+        {tabNames.includes('identifier') && this.renderIdentifier()}
+        {tabNames.includes('name') && this.renderName()}
+        {tabs.length > 0 &&
+
+          <MobileInspectorTabbedInterface tabs={tabs} className="mobile-inspector-tabbed-interface">
+            {tabNames.includes('transform') && <Fragment>{this.renderSelectionTransformProperties()}</Fragment>}
+            {tabNames.includes('style') && <Fragment>{this.renderSelectionColor()}</Fragment>}
+            {tabNames.includes('font') && <Fragment>{this.renderFontContent()}</Fragment>}
+            {tabNames.includes('frameSettings') && <Fragment>{this.renderFrame()}</Fragment>}
+            {tabNames.includes('tweenSettings') && <Fragment>{this.renderTween()}</Fragment>}
+            {tabNames.includes('animationSettings') && <Fragment>{this.renderAnimationSetting()}</Fragment>}
+            {tabNames.includes('assetSettings') && <Fragment>{this.renderAsset()}</Fragment>}
           </MobileInspectorTabbedInterface>}
       </div>
     )
   }
 
-   /**
-   * Renders an edit script window if a script exists for the selected object.
-   * this is in MobileContainer on mobile
-   */
+  /**
+  * Renders an edit script window if a script exists for the selected object.
+  * this is in MobileContainer on mobile
+  */
   // renderScripts = () => {
   //   return (
   //     <div className="mobile-inspector-item">

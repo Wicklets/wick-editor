@@ -28,10 +28,10 @@ class MobileInspectorNumericInput extends Component {
   render() {
     let idLabel = this.props.tooltip.replace(/\s+/g, '-').toLowerCase();
 
-    let renderIdentifier = (this.props.icon) ? [<img src={this.props.icon} alt={this.props.iconAlt} className="mobile-inspector-row-icon"></img>]
-                                              : [<label htmlFor={idLabel + "-input"} className="mobile-inspector-row-identifier">
+    let renderIdentifier = (this.props.icon) ? <img src={this.props.icon} alt={this.props.iconAlt} className="mobile-inspector-row-icon"></img>
+                                              : <label htmlFor={idLabel + "-input-mobile"} className="mobile-inspector-row-identifier">
                                                   {this.props.tooltip}
-                                                </label>]
+                                                </label>
     return(
       <div className="mobile-inspector-row">
         {/* Identifier */} 
@@ -40,7 +40,7 @@ class MobileInspectorNumericInput extends Component {
         {/* Input */}
         <div className="mobile-inspector-small-input-container">
           <MobileInspectorInput 
-            inputProps={{id: idLabel + "-input"}}
+            inputProps={{id: idLabel + "-input-mobile"}}
             input={
               {type: "numeric",
               value: this.props.val,
