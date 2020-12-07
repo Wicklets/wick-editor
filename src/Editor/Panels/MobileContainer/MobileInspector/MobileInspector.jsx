@@ -22,18 +22,14 @@ import './_mobileinspector.scss';
 import '../../Inspector/_inspectorselector.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import InspectorTitle from '../../Inspector/InspectorTitle/InspectorTitle';
-
 import MobileInspectorNumericSlider from './MobileInspectorRow/MobileInspectorRowTypes/MobileInspectorNumericSlider';
 import MobileInspectorTextInput from './MobileInspectorRow/MobileInspectorRowTypes/MobileInspectorTextInput';
 import MobileInspectorNumericInput from './MobileInspectorRow/MobileInspectorRowTypes/MobileInspectorNumericInput';
 import MobileInspectorDualNumericInput from './MobileInspectorRow/MobileInspectorRowTypes/MobileInspectorDualNumericInput';
 import MobileInspectorSelector from './MobileInspectorRow/MobileInspectorRowTypes/MobileInspectorSelector';
-//import MobileInspectorColorNumericInput from './MobileInspectorRow/MobileInspectorRowTypes/MobileInspectorColorNumericInput';
 import InspectorActionButton from '../../Inspector/InspectorActionButton/InspectorActionButton';
 import InspectorImagePreview from '../../Inspector/InspectorPreview/InspectorPreviewTypes/InspectorImagePreview';
 import InspectorSoundPreview from '../../Inspector/InspectorPreview/InspectorPreviewTypes/InspectorSoundPreview';
-//import InspectorScriptWindow from '../../Inspector/InspectorScriptWindow/InspectorScriptWindow';
 import MobileInspectorCheckbox from './MobileInspectorRow/MobileInspectorRowTypes/MobileInspectorCheckbox';
 import MobileInspectorColor from './MobileInspectorRow/MobileInspectorRowTypes/MobileInspectorColor';
 
@@ -845,9 +841,9 @@ class MobileInspector extends Component {
       <div className="mobile-inspector" aria-label="Inspector Panel">
         {/* <div className="inspector-title-container"> */}
           {selectionType === "unknown" && <Fragment><p style={{color: "white"}}>Unknown Selection</p></Fragment>}
-          {tabs.length != 0 && typeof this.getSelectionAttribute('identifier') != "undefined" && this.renderIdentifier()}
-          {tabs.length != 0 && typeof this.getSelectionAttribute('name') !="undefined" && this.renderName()}
-          {tabs.length != 0 && <MobileInspectorTabbedInterface tabs={tabs} className="mobile-inspector-tabbed-interface">
+          {tabs.length > 0 && typeof this.getSelectionAttribute('identifier') != "undefined" && this.renderIdentifier()}
+          {tabs.length > 0 && typeof this.getSelectionAttribute('name') !="undefined" && this.renderName()}
+          {tabs.length > 0 && <MobileInspectorTabbedInterface tabs={tabs} className="mobile-inspector-tabbed-interface">
             {(tabs.find(o => o.label === 'transform')) && <Fragment>{this.renderSelectionTransformProperties()}</Fragment>}
             {(tabs.find(o => o.label === 'style')) && <Fragment>{this.renderSelectionColor()}</Fragment>}
             {(tabs.find(o => o.label === 'font')) && <Fragment>{this.renderFontContent()}</Fragment>}

@@ -46,7 +46,6 @@ $inspector-transition-duration: 0.2s;
 .inspector-body {
   height: calc(100% - #{$inspector-title-height});
   width: 100%;
-  overflow: scroll;
 }
 
 .inspector-body:hover {

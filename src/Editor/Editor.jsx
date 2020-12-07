@@ -199,7 +199,7 @@ class Editor extends EditorCore {
     this.builtinPreviews = {};
   }
 
-  componentWillMount = () => {
+  UNSAFE_componentWillMount = () => {
     ReactGA.initialize('UA-88233944-1');
     ReactGA.pageview(window.location.pathname + window.location.search);
 
@@ -1097,7 +1097,7 @@ class Editor extends EditorCore {
                           deleteScript={this.deleteScript}
                           editScript={this.editScript}
                           fontInfoInterface={this.fontInfoInterface}
-                          project={this.project}
+                          
                           importFileAsAsset={this.importFileAsAsset}
                           colorPickerType={this.state.colorPickerType}
                           changeColorPickerType={this.changeColorPickerType}
@@ -1105,7 +1105,6 @@ class Editor extends EditorCore {
                           lastColorsUsed={this.state.lastColorsUsed}
                           getClipAnimationTypes={this.getClipAnimationTypes}
                           
-                          projectData={this.state.project}
                           assets={this.project.getAssets()}
                           openModal={this.openModal}
                           openImportAssetFileDialog={this.openImportAssetFileDialog}
