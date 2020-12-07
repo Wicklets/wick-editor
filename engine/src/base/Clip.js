@@ -48,7 +48,7 @@ Wick.Clip = class extends Wick.Tickable {
         this.timeline.addLayer(new Wick.Layer());
         this.timeline.activeLayer.addFrame(new Wick.Frame());
         this._animationType = 'loop'; // Can be one of loop, oneFrame, single
-        this._singleFrameNumber = 1; // Default to 1, this value is only used if the animation type is single
+        this._singleFrameNumber = 1;
         this._playedOnce = false;
         this._isSynced = false;
         this._removed = false;
@@ -141,7 +141,7 @@ Wick.Clip = class extends Wick.Tickable {
         if (bool) {
             this.applySyncPosition();
         } else {
-            this.timeline.playheadPosition = 1; 
+            this.timeline.playheadPosition = this._singleFrameNumber; 
         }
     }
 
@@ -242,11 +242,7 @@ Wick.Clip = class extends Wick.Tickable {
      * @type {number}
      */
     get singleFrameNumber () {
-        if (this.animationType !== 'single') {
-            return null;
-        } else {
-            return this._singleFrameNumber;
-        }
+        return this._singleFrameNumber;
     }
 
     set singleFrameNumber (frame) {
@@ -266,15 +262,17 @@ Wick.Clip = class extends Wick.Tickable {
      * @type {number}
      */
     get syncFrame () {
-        let timelineOffset = this.parentClip.timeline.playheadPosition - this.parentFrame.start;
+        let timelineOffset = this.parentClip.timeline.playheadPosition -
+            (this.parentFrame.start + this._singleFrameNumber);
 
         // Show the last frame if we're past it on a playOnce Clip.
-        if (this.animationType === 'playOnce' && (timelineOffset >= this.timeline.length)) {
+        if (this.animationType === 'playOnce' &&
+            (timelineOffset >= this.timeline.length)) {
             return this.timeline.length;
         }
 
         // Otherwise, show the correct frame.
-        return (timelineOffset % this.timeline.length) + 1;
+        return (timelineOffset % this.timeline.length) + this._singleFrameNumber;
     }
 
     /**
@@ -348,21 +346,14 @@ Wick.Clip = class extends Wick.Tickable {
      * Resets the clip's timeline position.
      */
     resetTimelinePosition () {
-        if (this.animationType === 'single') {
-            this.applySingleFramePosition();
-        } else {
-            this.timeline.playheadPosition = 1; // Reset timeline position if we are not on single frame.
-        }
+        this.applySingleFramePosition();
     }
 
     /**
      * Updates the frame's single frame positions if necessary. Only works if the clip's animationType is 'single'.
      */
     applySingleFramePosition () {
-        if (this.animationType === 'single') { 
-            // Ensure that the single frame we've chosen is reflected no matter what.
-            this.timeline.playheadPosition = this.singleFrameNumber;
-        }
+        this.timeline.playheadPosition = this.singleFrameNumber;
     }
 
     /**
@@ -370,7 +361,7 @@ Wick.Clip = class extends Wick.Tickable {
      */
     applySyncPosition () {
         if (this.isSynced) {
-            this.timeline.playheadPosition = this.syncFrame;
+            this.timeline.playheadPosition = this.syncFrame + this._singleFrameNumber;
         }
     }
 
@@ -1258,7 +1249,7 @@ Wick.Clip = class extends Wick.Tickable {
 
         if (this.animationType === 'playOnce') {
             this.playedOnce = false;
-            this.timeline.playheadPosition = 1;
+            this.timeline.playheadPosition = this._singleFrameNumber;
         }
 
     }
