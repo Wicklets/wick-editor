@@ -1093,7 +1093,7 @@ Wick.Project = class extends Wick.Base {
 
         this.selection.selectMultipleObjects(objectsToAdd);
     }
-
+    
     /**
      * Adds an image path to the active frame using a given asset as its image src.
      * @param {Wick.Asset} asset - the asset to use for the image src
@@ -1102,6 +1102,9 @@ Wick.Project = class extends Wick.Base {
      * @param {function} callback - the function to call after the path is created.
      */
     createImagePathFromAsset(asset, x, y, callback) {
+		let playheadPosition = this.focus.timeline.playheadPosition;
+		if (!this.activeFrame)
+			this.activeLayer.insertBlankFrame(playheadPosition);
         asset.createInstance(path => {
             this.activeFrame.addPath(path);
             path.x = x;
@@ -1118,6 +1121,9 @@ Wick.Project = class extends Wick.Base {
      * @param {function} callback - the function to call after the path is created.
      */
     createClipInstanceFromAsset(asset, x, y, callback) {
+		let playheadPosition = this.focus.timeline.playheadPosition;
+		if (!this.activeFrame)
+			this.activeLayer.insertBlankFrame(playheadPosition);
         asset.createInstance(clip => {
             this.activeFrame.addPath(clip);
             clip.x = x;
@@ -1134,6 +1140,9 @@ Wick.Project = class extends Wick.Base {
      * @param {function} callback - the function to call after the path is created.
      */
     createSVGInstanceFromAsset(asset, x, y, callback) {
+		let playheadPosition = this.focus.timeline.playheadPosition;
+		if (!this.activeFrame)
+			this.activeLayer.insertBlankFrame(playheadPosition);
         asset.createInstance(svg => {
             this.addObject(svg);
             svg.x = x;

@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.12.3.11.52.5";
+var WICK_ENGINE_BUILD_VERSION = "2020.12.7.12.30.42";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -51043,6 +51043,8 @@ Wick.Project = class extends Wick.Base {
 
 
   createImagePathFromAsset(asset, x, y, callback) {
+    let playheadPosition = this.focus.timeline.playheadPosition;
+    if (!this.activeFrame) this.activeLayer.insertBlankFrame(playheadPosition);
     asset.createInstance(path => {
       this.activeFrame.addPath(path);
       path.x = x;
@@ -51060,6 +51062,8 @@ Wick.Project = class extends Wick.Base {
 
 
   createClipInstanceFromAsset(asset, x, y, callback) {
+    let playheadPosition = this.focus.timeline.playheadPosition;
+    if (!this.activeFrame) this.activeLayer.insertBlankFrame(playheadPosition);
     asset.createInstance(clip => {
       this.activeFrame.addPath(clip);
       clip.x = x;
@@ -51077,6 +51081,8 @@ Wick.Project = class extends Wick.Base {
 
 
   createSVGInstanceFromAsset(asset, x, y, callback) {
+    let playheadPosition = this.focus.timeline.playheadPosition;
+    if (!this.activeFrame) this.activeLayer.insertBlankFrame(playheadPosition);
     asset.createInstance(svg => {
       this.addObject(svg);
       svg.x = x;
