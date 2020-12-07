@@ -30,21 +30,68 @@ Wick.Path = class extends Wick.Base {
         if (!args) args = {};
         super(args);
 
-        this._fontStyle = 'normal';
-        this._fontWeight = 400;
+        // Used for GUI elements
         this._isPlaceholder = args.isPlaceholder;
-        this._originalStyle = null;
 
-        if(args.path) {
-            this.json = args.path.exportJSON({asString:false});
-        } else if(args.json) {
-            this.json = args.json;
-        } else {
-            this.json = new paper.Path({ insert: false }).exportJSON({ asString: false });
-        }
+        // Position
+        this._transformation = new Wick.Transformation();
+
+        // Visual Properties
+        this._fillColor = args.fillColor || new paper.Color();
+        this._strokeColor = args.strokeColor || new paper.Color();
+        this._strokeWidth = args.strokeWidth || 1;
+        this._opacity = args.opacity || 1;
+
+        // Text Properties | Optional
+        this._fontFamily = args.fontFamily || 'sans-serif';
+        this._fontSize = args.fontSize || 12;
+        this._fontStyle = args.fontStyle || 'normal';
+        this._fontWeight = args.fontWeight || 400;
+        this._leading == this._fontWeight * 1.2;
+        this._textContent = args.textContent || "";
+
+        // Original Path Information
+        this._json = this.getOriginalJSON(args);
 
         this._needReimport = true;
     }
+
+    /**
+     * Gets original json of the path. Takes path properties and stores them
+     * into the Path Object itself, if necessary.
+     * @param {object} args object containing information for path creation 
+     */
+    getOriginalJSON(args) {
+        if(args.path) {
+            return args.path.exportJSON({asString:false});
+        } else if(args.json) {
+            return args.json;
+        } else {
+            return new paper.Path({ insert: false }).exportJSON({ asString: false });
+        }
+    }
+
+    /**
+     * Sets the path data (i.e. transformation, style) using the data from a paper path.
+     * @param {paper.Path} path path to pull data from
+     */
+    setDataFromPath (path) {     
+        // TODO: How to get original positioning data???   
+        console.log(path);
+        if (path.position) {
+            this.x = path.position.x;
+            this.y = path.position.y;
+        }
+
+        this.scaleX = path.scaleX || 1;
+        this.scaleY = path.scaleY || 1;
+        this.rotation = path.rotation || 0;
+        this.opacity = path.opacity || 1;
+
+        this.fillColor = path.fillColor;
+        this.strokeColor = path.strokeColor;
+        this.strokeWidth = path.strokeWidth;
+    } 
 
     /**
      * Create a path containing an image from an ImageAsset.
@@ -158,6 +205,7 @@ Wick.Path = class extends Wick.Base {
      */
     get bounds() {
         var paperBounds = this.view.item.bounds;
+
         return {
             top: paperBounds.top,
             bottom: paperBounds.bottom,
@@ -169,15 +217,27 @@ Wick.Path = class extends Wick.Base {
     }
 
     /**
+     * The transformation information of the path.
+     * @type {Wick.Transformation}
+     */
+    get transformation () {
+        return this._transformation;
+    }
+
+    set transformation (transformation) {
+        this._transformation = transformation;
+    }
+
+    /**
      * The position of the path.
      * @type {number}
      */
     get x() {
-        return this.view.item.position.x;
+        return this._transformation.x;
     }
 
     set x(x) {
-        this.view.item.position.x = x;
+        this._transformation.x = x;
         this.updateJSON();
     }
 
@@ -186,24 +246,58 @@ Wick.Path = class extends Wick.Base {
      * @type {number}
      */
     get y() {
-        return this.view.item.position.y;
+        return this._transformation.y;
     }
 
     set y(y) {
-        this.view.item.position.y = y;
+        this.transformation.y = y;
         this.updateJSON();
     }
+
+    /**
+     * Horizontal scale of the path.
+     */
+    get scaleX () {
+        return this.transformation.scaleX;
+    }
+
+    set scaleX (scaleX) {
+        this.transformation.scaleX = scaleX;
+    }
+
+    /**
+     * Vertical scale of the path.
+     */
+    get scaleY () {
+        return this.transformation.scaleY;
+    }
+
+    set scaleY (scaleY) {
+        this.transformation.scaleX = scaleY;
+    }
+
+    /**
+     * Rotation of the path.
+     */
+    get rotation () {
+        return this.transformation.rotation;
+    }
+
+    set rotation (rotation) {
+        this.transformation.rotation = rotation;
+    }
+
 
     /**
      * The fill color of the path.
      * @type {paper.Color}
      */
     get fillColor() {
-        return this.view.item.fillColor || new paper.Color();
+        return this._fillColor;
     }
 
     set fillColor(fillColor) {
-        this.view.item.fillColor = fillColor;
+        this._fillColor = fillColor;
         this.updateJSON();
     }
 
@@ -212,11 +306,11 @@ Wick.Path = class extends Wick.Base {
      * @type {paper.Color}
      */
     get strokeColor() {
-        return this.view.item.strokeColor || new paper.Color();
+        return this._strokeColor;
     }
 
     set strokeColor(strokeColor) {
-        this.view.item.strokeColor = strokeColor;
+        this._strokeColor = strokeColor;
         this.updateJSON();
     }
 
@@ -225,11 +319,11 @@ Wick.Path = class extends Wick.Base {
      * @type {number}
      */
     get strokeWidth() {
-        return this.view.item.strokeWidth;
+        return this._strokeWidth;
     }
 
     set strokeWidth(strokeWidth) {
-        this.view.item.strokeWidth = strokeWidth;
+        this._strokeWidth = strokeWidth;
         this.updateJSON();
     }
 
@@ -238,14 +332,11 @@ Wick.Path = class extends Wick.Base {
      * @type {number}
      */
     get opacity() {
-        if (this.view.item.opacity === undefined || this.view.item.opacity === null) {
-            return 1.0;
-        }
-        return this.view.item.opacity;
+        return this._opacity;
     }
 
     set opacity(opacity) {
-        this.view.item.opacity = opacity;
+        this._opacity = opacity;
         this.updateJSON();
     }
 
@@ -254,11 +345,11 @@ Wick.Path = class extends Wick.Base {
      * @type {string}
      */
     get fontFamily() {
-        return this.view.item.fontFamily
+        return this._fontFamily;
     }
 
     set fontFamily(fontFamily) {
-        this.view.item.fontFamily = fontFamily;
+        this._fontFamily = fontFamily;
         this.fontWeight = 400;
         this.fontStyle = 'normal';
         this.updateJSON();
@@ -269,12 +360,12 @@ Wick.Path = class extends Wick.Base {
      * @type {number}
      */
     get fontSize() {
-        return this.view.item.fontSize;
+        return this._fontSize;
     }
 
     set fontSize(fontSize) {
-        this.view.item.fontSize = fontSize;
-        this.view.item.leading = fontSize * 1.2;
+        this._fontSize = fontSize;
+        this._leading = fontSize * 1.2;
         this.updateJSON();
     }
 
@@ -307,27 +398,15 @@ Wick.Path = class extends Wick.Base {
     }
 
     /**
-     * The original style of the path (used to recover the path's style if it was changed by a custom onion skin style)
-     * @type {object}
-     */
-    get originalStyle () {
-        return this._originalStyle;
-    }
-
-    set originalStyle (originalStyle) {
-        this._originalStyle = originalStyle;
-    }
-
-    /**
      * The content of the text.
      * @type {string}
      */
     get textContent() {
-        return this.view.item.content;
+        return this._textContent;
     }
 
     set textContent(textContent) {
-        this.view.item.content = textContent;
+        this._textContent = textContent;
     }
 
     /**
@@ -352,6 +431,45 @@ Wick.Path = class extends Wick.Base {
         return this.pathType === 'text' &&
             this.identifier !== null;
     }
+
+    /**
+     * Applies transformation properties to a paper path.
+     * @param {Paper.path} path paper path to alter.
+     */
+    applyTransformationProperties (path) {
+        console.log("Applying properties", this.transformation);
+        path.position.x = this.transformation.x;
+        path.position.y = this.transformation.y;
+        path.scale(this.transformation.scaleX, this.transformation.scaleY);
+        path.rotation = this.transformation.rotation;
+        path.opacity = this.transformation.opacity;
+    }
+
+    /**
+     * Applies visual style properties to a path.
+     * @param {Paper.path} path paper path to alter.
+     */
+    applyStyleProperties (path) {
+        path.fillColor = this.fillColor;
+        path.strokeColor = this.strokeColor;
+        path.strokeWidth = this.strokeWidth;
+        if (path instanceof paper.TextItem) {
+            this.applyTextStyleProperties(path);
+        }
+    }
+
+    /**
+     * Applies visual style properties to a path.
+     * @param {Paper.path} path paper path to alter.
+     */
+    applyTextStyleProperties (path) {
+        path.fontFamily = this.fontFamily;
+        path.fontSize = this.fontSize;
+        path.fontWeight = this.fontWeight + ' ' + this.fontStyle;
+        path.leading = this.leading;
+        path.content = this.textContent;
+    }
+
 
     /**
      * The image asset that this path uses, if this path is a Raster path.

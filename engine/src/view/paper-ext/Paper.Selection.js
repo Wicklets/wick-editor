@@ -31,6 +31,8 @@ paper.Selection = class {
      * @param {number} originY - the origin point of all transforms. Defaults to the center of selected items.
      */
     constructor (args) {
+        console.log("Created Selection");
+
         if(!args) args = {};
 
         this._lockScalingToAspectRatio = false;

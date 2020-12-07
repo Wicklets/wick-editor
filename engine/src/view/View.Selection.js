@@ -29,7 +29,20 @@ Wick.View.Selection = class extends Wick.View {
         this._widget = new paper.SelectionWidget({
             layer: this.layer,
         });
+
         this.paper.project.selectionWidget = this._widget;
+    }
+
+    /**
+     * Connects controller functions for the selection to the selection
+     * widget. 
+     * @param {object} args should include functions for onTranslate, onRotate, and onScale 
+     */
+    connectSelectionController (args) {
+        console.log("Connecting Controller");
+        this._widget.onTranslate = args.onTranslate;
+        this._widget.onScale = args.onScale;
+        this._widget.onRotate = args.onRotate;
     }
 
     /**

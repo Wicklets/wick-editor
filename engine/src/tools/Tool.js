@@ -288,19 +288,27 @@ Wick.Tool = class {
             return;
         }
 
-        if(frame && frame !== this.project.activeFrame) {
-            /* If the path must be added to a frame other than the active frame,
-             * convert the paper.js path into a Wick path and add it to the given frame. */
+        if (frame) {
             var wickPath = new Wick.Path({
                 json: path.exportJSON({asString:false}),
             });
             frame.addPath(wickPath);
-        } else {
-            /* Otherwise, directly add the paper.js path to the paper.js project.
-               This is signifigantly faster than creating the Wick path, as this
-               method does not require a re-render of the canvas. */
-            this.paper.project.activeLayer.addChild(path);
         }
+
+        // if(frame && frame !== this.project.activeFrame) {
+        //     /* If the path must be added to a frame other than the active frame,
+        //      * convert the paper.js path into a Wick path and add it to the given frame. */
+        //     var wickPath = new Wick.Path({
+        //         json: path.exportJSON({asString:false}),
+        //     });
+        //     frame.addPath(wickPath);
+        // } else {
+        //     frame.addPath(new path)
+        //     /* Otherwise, directly add the paper.js path to the paper.js project.
+        //        This is signifigantly faster than creating the Wick path, as this
+        //        method does not require a re-render of the canvas. */
+        //     this.paper.project.activeLayer.addChild(path);
+        // }
     }
 }
 

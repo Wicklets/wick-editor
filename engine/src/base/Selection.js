@@ -40,6 +40,13 @@ Wick.Selection = class extends Wick.Base {
 
         this.SELECTABLE_OBJECT_TYPES = ['Path', 'Clip', 'Frame', 'Tween', 'Layer', 'Asset', 'Button'];
         this.SELECTABLE_OBJECT_TYPES_SET = new Set(this.SELECTABLE_OBJECT_TYPES);
+
+        // Transformation functionality
+        // Passing to view for use in GUI
+        this.view.connectSelectionController({
+            onTranslate: (delta) => this.onTranslate(delta),
+            onScale: (scale) => this.onScale(scale),
+        })
     }
 
     _serialize(args) {
@@ -445,6 +452,31 @@ Wick.Selection = class extends Wick.Base {
             console.error("Cannot set singleFrameNumber of multiple objects...");
         }
 
+    }
+
+    /**
+     * Performs a translation of the selected items on the canvas by the provided delta.
+     * @param {object} delta object containing x and y values representing translation of selection on x and y axis. 
+     */
+    onTranslate (delta) {
+        let objects = this.getSelectedObjects('Canvas');
+        objects.forEach(obj => {
+            obj.x += delta.x;
+            obj.y += delta.y;
+        });
+    }
+
+    /**
+     * Performs a scale transformation on the selected canvas items by the provided delta.
+     * @param {object} scale object containing x and y values representing translation of selection on x and y axis. 
+     */
+    onScale (scale) {
+        let objects = this.getSelectedObjects('Canvas');
+
+        objects.forEach(obj => {
+            obj.scaleX *= scale.x;
+            obj.scaleY *= scale.y;
+        });
     }
 
     /**

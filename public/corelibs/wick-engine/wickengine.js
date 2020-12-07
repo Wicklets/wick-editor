@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.12.3.11.52.5";
+var WICK_ENGINE_BUILD_VERSION = "2020.12.4.18.4.49";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -52008,7 +52008,13 @@ Wick.Selection = class extends Wick.Base {
     this._originalWidth = 0;
     this._originalHeight = 0;
     this.SELECTABLE_OBJECT_TYPES = ['Path', 'Clip', 'Frame', 'Tween', 'Layer', 'Asset', 'Button'];
-    this.SELECTABLE_OBJECT_TYPES_SET = new Set(this.SELECTABLE_OBJECT_TYPES);
+    this.SELECTABLE_OBJECT_TYPES_SET = new Set(this.SELECTABLE_OBJECT_TYPES); // Transformation functionality
+    // Passing to view for use in GUI
+
+    this.view.connectSelectionController({
+      onTranslate: delta => this.onTranslate(delta),
+      onScale: scale => this.onScale(scale)
+    });
   }
 
   _serialize(args) {
@@ -52404,6 +52410,32 @@ Wick.Selection = class extends Wick.Base {
     } else {
       console.error("Cannot set singleFrameNumber of multiple objects...");
     }
+  }
+  /**
+   * Performs a translation of the selected items on the canvas by the provided delta.
+   * @param {object} delta object containing x and y values representing translation of selection on x and y axis. 
+   */
+
+
+  onTranslate(delta) {
+    let objects = this.getSelectedObjects('Canvas');
+    objects.forEach(obj => {
+      obj.x += delta.x;
+      obj.y += delta.y;
+    });
+  }
+  /**
+   * Performs a scale transformation on the selected canvas items by the provided delta.
+   * @param {object} scale object containing x and y values representing translation of selection on x and y axis. 
+   */
+
+
+  onScale(scale) {
+    let objects = this.getSelectedObjects('Canvas');
+    objects.forEach(obj => {
+      obj.scaleX *= scale.x;
+      obj.scaleY *= scale.y;
+    });
   }
   /**
    * The position of the selection.
@@ -53831,27 +53863,71 @@ Wick.Path = class extends Wick.Base {
    */
   constructor(args) {
     if (!args) args = {};
-    super(args);
-    this._fontStyle = 'normal';
-    this._fontWeight = 400;
-    this._isPlaceholder = args.isPlaceholder;
-    this._originalStyle = null;
+    super(args); // Used for GUI elements
 
+    this._isPlaceholder = args.isPlaceholder; // Position
+
+    this._transformation = new Wick.Transformation(); // Visual Properties
+
+    this._fillColor = args.fillColor || new paper.Color();
+    this._strokeColor = args.strokeColor || new paper.Color();
+    this._strokeWidth = args.strokeWidth || 1;
+    this._opacity = args.opacity || 1; // Text Properties | Optional
+
+    this._fontFamily = args.fontFamily || 'sans-serif';
+    this._fontSize = args.fontSize || 12;
+    this._fontStyle = args.fontStyle || 'normal';
+    this._fontWeight = args.fontWeight || 400;
+    this._leading == this._fontWeight * 1.2;
+    this._textContent = args.textContent || ""; // Original Path Information
+
+    this._json = this.getOriginalJSON(args);
+    this._needReimport = true;
+  }
+  /**
+   * Gets original json of the path. Takes path properties and stores them
+   * into the Path Object itself, if necessary.
+   * @param {object} args object containing information for path creation 
+   */
+
+
+  getOriginalJSON(args) {
     if (args.path) {
-      this.json = args.path.exportJSON({
+      return args.path.exportJSON({
         asString: false
       });
     } else if (args.json) {
-      this.json = args.json;
+      return args.json;
     } else {
-      this.json = new paper.Path({
+      return new paper.Path({
         insert: false
       }).exportJSON({
         asString: false
       });
     }
+  }
+  /**
+   * Sets the path data (i.e. transformation, style) using the data from a paper path.
+   * @param {paper.Path} path path to pull data from
+   */
 
-    this._needReimport = true;
+
+  setDataFromPath(path) {
+    // TODO: How to get original positioning data???   
+    console.log(path);
+
+    if (path.position) {
+      this.x = path.position.x;
+      this.y = path.position.y;
+    }
+
+    this.scaleX = path.scaleX || 1;
+    this.scaleY = path.scaleY || 1;
+    this.rotation = path.rotation || 0;
+    this.opacity = path.opacity || 1;
+    this.fillColor = path.fillColor;
+    this.strokeColor = path.strokeColor;
+    this.strokeWidth = path.strokeWidth;
   }
   /**
    * Create a path containing an image from an ImageAsset.
@@ -53982,17 +54058,30 @@ Wick.Path = class extends Wick.Base {
     };
   }
   /**
+   * The transformation information of the path.
+   * @type {Wick.Transformation}
+   */
+
+
+  get transformation() {
+    return this._transformation;
+  }
+
+  set transformation(transformation) {
+    this._transformation = transformation;
+  }
+  /**
    * The position of the path.
    * @type {number}
    */
 
 
   get x() {
-    return this.view.item.position.x;
+    return this._transformation.x;
   }
 
   set x(x) {
-    this.view.item.position.x = x;
+    this._transformation.x = x;
     this.updateJSON();
   }
   /**
@@ -54002,12 +54091,48 @@ Wick.Path = class extends Wick.Base {
 
 
   get y() {
-    return this.view.item.position.y;
+    return this._transformation.y;
   }
 
   set y(y) {
-    this.view.item.position.y = y;
+    this.transformation.y = y;
     this.updateJSON();
+  }
+  /**
+   * Horizontal scale of the path.
+   */
+
+
+  get scaleX() {
+    return this.transformation.scaleX;
+  }
+
+  set scaleX(scaleX) {
+    this.transformation.scaleX = scaleX;
+  }
+  /**
+   * Vertical scale of the path.
+   */
+
+
+  get scaleY() {
+    return this.transformation.scaleY;
+  }
+
+  set scaleY(scaleY) {
+    this.transformation.scaleX = scaleY;
+  }
+  /**
+   * Rotation of the path.
+   */
+
+
+  get rotation() {
+    return this.transformation.rotation;
+  }
+
+  set rotation(rotation) {
+    this.transformation.rotation = rotation;
   }
   /**
    * The fill color of the path.
@@ -54016,11 +54141,11 @@ Wick.Path = class extends Wick.Base {
 
 
   get fillColor() {
-    return this.view.item.fillColor || new paper.Color();
+    return this._fillColor;
   }
 
   set fillColor(fillColor) {
-    this.view.item.fillColor = fillColor;
+    this._fillColor = fillColor;
     this.updateJSON();
   }
   /**
@@ -54030,11 +54155,11 @@ Wick.Path = class extends Wick.Base {
 
 
   get strokeColor() {
-    return this.view.item.strokeColor || new paper.Color();
+    return this._strokeColor;
   }
 
   set strokeColor(strokeColor) {
-    this.view.item.strokeColor = strokeColor;
+    this._strokeColor = strokeColor;
     this.updateJSON();
   }
   /**
@@ -54044,11 +54169,11 @@ Wick.Path = class extends Wick.Base {
 
 
   get strokeWidth() {
-    return this.view.item.strokeWidth;
+    return this._strokeWidth;
   }
 
   set strokeWidth(strokeWidth) {
-    this.view.item.strokeWidth = strokeWidth;
+    this._strokeWidth = strokeWidth;
     this.updateJSON();
   }
   /**
@@ -54058,15 +54183,11 @@ Wick.Path = class extends Wick.Base {
 
 
   get opacity() {
-    if (this.view.item.opacity === undefined || this.view.item.opacity === null) {
-      return 1.0;
-    }
-
-    return this.view.item.opacity;
+    return this._opacity;
   }
 
   set opacity(opacity) {
-    this.view.item.opacity = opacity;
+    this._opacity = opacity;
     this.updateJSON();
   }
   /**
@@ -54076,11 +54197,11 @@ Wick.Path = class extends Wick.Base {
 
 
   get fontFamily() {
-    return this.view.item.fontFamily;
+    return this._fontFamily;
   }
 
   set fontFamily(fontFamily) {
-    this.view.item.fontFamily = fontFamily;
+    this._fontFamily = fontFamily;
     this.fontWeight = 400;
     this.fontStyle = 'normal';
     this.updateJSON();
@@ -54092,12 +54213,12 @@ Wick.Path = class extends Wick.Base {
 
 
   get fontSize() {
-    return this.view.item.fontSize;
+    return this._fontSize;
   }
 
   set fontSize(fontSize) {
-    this.view.item.fontSize = fontSize;
-    this.view.item.leading = fontSize * 1.2;
+    this._fontSize = fontSize;
+    this._leading = fontSize * 1.2;
     this.updateJSON();
   }
   /**
@@ -54132,30 +54253,17 @@ Wick.Path = class extends Wick.Base {
     this._fontStyle = fontStyle;
   }
   /**
-   * The original style of the path (used to recover the path's style if it was changed by a custom onion skin style)
-   * @type {object}
-   */
-
-
-  get originalStyle() {
-    return this._originalStyle;
-  }
-
-  set originalStyle(originalStyle) {
-    this._originalStyle = originalStyle;
-  }
-  /**
    * The content of the text.
    * @type {string}
    */
 
 
   get textContent() {
-    return this.view.item.content;
+    return this._textContent;
   }
 
   set textContent(textContent) {
-    this.view.item.content = textContent;
+    this._textContent = textContent;
   }
   /**
    * Update the JSON of the path based on the path on the view.
@@ -54181,6 +54289,48 @@ Wick.Path = class extends Wick.Base {
 
   get isDynamicText() {
     return this.pathType === 'text' && this.identifier !== null;
+  }
+  /**
+   * Applies transformation properties to a paper path.
+   * @param {Paper.path} path paper path to alter.
+   */
+
+
+  applyTransformationProperties(path) {
+    console.log("Applying properties", this.transformation);
+    path.position.x = this.transformation.x;
+    path.position.y = this.transformation.y;
+    path.scale(this.transformation.scaleX, this.transformation.scaleY);
+    path.rotation = this.transformation.rotation;
+    path.opacity = this.transformation.opacity;
+  }
+  /**
+   * Applies visual style properties to a path.
+   * @param {Paper.path} path paper path to alter.
+   */
+
+
+  applyStyleProperties(path) {
+    path.fillColor = this.fillColor;
+    path.strokeColor = this.strokeColor;
+    path.strokeWidth = this.strokeWidth;
+
+    if (path instanceof paper.TextItem) {
+      this.applyTextStyleProperties(path);
+    }
+  }
+  /**
+   * Applies visual style properties to a path.
+   * @param {Paper.path} path paper path to alter.
+   */
+
+
+  applyTextStyleProperties(path) {
+    path.fontFamily = this.fontFamily;
+    path.fontSize = this.fontSize;
+    path.fontWeight = this.fontWeight + ' ' + this.fontStyle;
+    path.leading = this.leading;
+    path.content = this.textContent;
   }
   /**
    * The image asset that this path uses, if this path is a Raster path.
@@ -58776,21 +58926,28 @@ Wick.Tool = class {
       return;
     }
 
-    if (frame && frame !== this.project.activeFrame) {
-      /* If the path must be added to a frame other than the active frame,
-       * convert the paper.js path into a Wick path and add it to the given frame. */
+    if (frame) {
       var wickPath = new Wick.Path({
         json: path.exportJSON({
           asString: false
         })
       });
       frame.addPath(wickPath);
-    } else {
-      /* Otherwise, directly add the paper.js path to the paper.js project.
-         This is signifigantly faster than creating the Wick path, as this
-         method does not require a re-render of the canvas. */
-      this.paper.project.activeLayer.addChild(path);
-    }
+    } // if(frame && frame !== this.project.activeFrame) {
+    //     /* If the path must be added to a frame other than the active frame,
+    //      * convert the paper.js path into a Wick path and add it to the given frame. */
+    //     var wickPath = new Wick.Path({
+    //         json: path.exportJSON({asString:false}),
+    //     });
+    //     frame.addPath(wickPath);
+    // } else {
+    //     frame.addPath(new path)
+    //     /* Otherwise, directly add the paper.js path to the paper.js project.
+    //        This is signifigantly faster than creating the Wick path, as this
+    //        method does not require a re-render of the canvas. */
+    //     this.paper.project.activeLayer.addChild(path);
+    // }
+
   }
 
 };
@@ -61524,6 +61681,14 @@ paper.PaperScope.inject({
  * You should have received a copy of the GNU General Public License
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+/**
+ * Selection Widget
+ * 
+ * Provides view and controller for selections on a paper canvas. Provides a
+ * box for selected items, Ghost views when transforming, and callbacks for transformations
+ * applied to selected objects.
+ */
 class SelectionWidget {
   /**
    * Creates a SelectionWidget
@@ -61815,35 +61980,30 @@ class SelectionWidget {
     this._currentTransformation = null;
   }
   /**
-   *
+   * Called when the selection should be translated.
    */
 
 
   translateSelection(delta) {
-    this._itemsInSelection.forEach(item => {
-      item.position = item.position.add(delta);
-    });
-
+    this.onTranslate && this.onTranslate(delta);
     this.pivot = this.pivot.add(delta);
   }
   /**
-   *
+   * Called when the selection should be scaled.
    */
 
 
   scaleSelection(scale) {
-    this._itemsInSelection.forEach(item => {
-      item.rotate(-this.boxRotation, this.pivot);
-      item.scale(scale, this.pivot);
-      item.rotate(this.boxRotation, this.pivot);
-    });
+    this.onScale && this.onScale(scale);
   }
   /**
-   *
+   * Called when the selection should be rotated.
    */
 
 
   rotateSelection(angle) {
+    this.onRotate && this.onRotate(angle);
+
     this._itemsInSelection.forEach(item => {
       item.rotate(angle, this.pivot);
     });
@@ -63139,6 +63299,19 @@ Wick.View.Selection = class extends Wick.View {
     this.paper.project.selectionWidget = this._widget;
   }
   /**
+   * Connects controller functions for the selection to the selection
+   * widget. 
+   * @param {object} args should include functions for onTranslate, onRotate, and onScale 
+   */
+
+
+  connectSelectionController(args) {
+    console.log("Connecting Controller");
+    this._widget.onTranslate = args.onTranslate;
+    this._widget.onScale = args.onScale;
+    this._widget.onRotate = args.onRotate;
+  }
+  /**
    * The selection widget
    */
 
@@ -63754,67 +63927,45 @@ Wick.View.Frame = class extends Wick.View {
     this.objectsLayer.addChildren(children);
   }
 
-  _applyDrawableChanges() {
-    this.model.drawable.filter(path => {
-      return path instanceof Wick.Path && path.isDynamicText;
-    }).forEach(path => {
-      path.view.item.bringToFront();
-    }); // Clear all WickPaths from the frame
-    // Reorder clips
-
-    var drawables = this.model.drawable.concat([]);
-    drawables.forEach(drawable => {
-      // should realkly be remove child
-      this.model.removeClip(drawable);
-    });
-    this.objectsLayer.children.filter(child => {
-      return child.data.wickType !== 'gui';
-    }).forEach(child => {
-      if (child instanceof paper.Group || child instanceof Wick.Clip) {
-        this.model.addClip(drawables.find(g => {
-          return g.uuid === child.data.wickUUID;
-        }));
-      } else {
-        var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
-        var pathJSON = Wick.View.Path.exportJSON(child);
-        var wickPath = new Wick.Path({
-          project: this.model.project,
-          json: pathJSON
-        });
-        this.model.addPath(wickPath);
-        wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
-        wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
-        wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;
-        child.name = wickPath.uuid;
-      }
-    }); // Update clip transforms
-
-    this.objectsLayer.children.filter(child => {
-      return child.data.wickType !== 'gui';
-    }).forEach(child => {
-      if (child instanceof paper.Group || child instanceof Wick.Clip) {
-        var wickClip = Wick.ObjectCache.getObjectByUUID(child.data.wickUUID);
-        wickClip.transformation = new Wick.Transformation({
-          x: child.position.x,
-          y: child.position.y,
-          scaleX: child.scaling.x,
-          scaleY: child.scaling.y,
-          rotation: child.rotation,
-          opacity: child.opacity
-        });
-      }
-    });
-    /*
-    var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
-    var pathJSON = Wick.View.Path.exportJSON(child);
-    var wickPath = new Wick.Path({json:pathJSON});
-     this.model.addPath(wickPath);
-    wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
-    wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
-    wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;
-    wickPath.isPlaceholder = originalWickPath ? originalWickPath.isPlaceholder : false;
-    child.name = wickPath.uuid;
-    */
+  _applyDrawableChanges() {// console.log(this.objectsLayer);
+    // this.model.drawable.filter(path => {
+    //     return path instanceof Wick.Path && path.isDynamicText;
+    // }).forEach(path => {
+    //     path.view.item.bringToFront();
+    // }); // Clear all WickPaths from the frame
+    // // Reorder clips
+    // var drawables = this.model.drawable.concat([]);
+    // drawables.forEach(drawable => {
+    //     // should realkly be remove child
+    //     this.model.removeClip(drawable);
+    // });
+    // this.objectsLayer.children.filter(child => {
+    //     return child.data.wickType !== 'gui';
+    // }).forEach(child => {
+    //     if (child instanceof paper.Group || child instanceof Wick.Clip) {
+    //         this.model.addClip(drawables.find(g => {
+    //             return g.uuid === child.data.wickUUID;
+    //         }));
+    //     } else {
+    //         var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
+    //         this.model.addPath(originalWickPath);
+    //     }
+    // }); // Update clip transforms
+    // this.objectsLayer.children.filter(child => {
+    //     return child.data.wickType !== 'gui';
+    // }).forEach(child => {
+    //     if (child instanceof paper.Group || child instanceof Wick.Clip) {
+    //         var wickClip = Wick.ObjectCache.getObjectByUUID(child.data.wickUUID);
+    //         wickClip.transformation = new Wick.Transformation({
+    //             x: child.position.x,
+    //             y: child.position.y,
+    //             scaleX: child.scaling.x,
+    //             scaleY: child.scaling.y,
+    //             rotation: child.rotation,
+    //             opacity: child.opacity
+    //         });
+    //     }
+    // });
   }
 
 };
@@ -63867,19 +64018,32 @@ Wick.View.Path = class extends Wick.View {
       return;
     }
 
-    this.importJSON(this.model.json); // Apply onion skin style if Needed
+    this.importJSON(this.model.json);
+    this.updateTransform(); // Apply onion skin style if Needed
     // (This is done here in the Path code because we actually change the style of the path
     // if the current onion skin mode is set to "outlines" or "tint")
 
     if (this.model.parentFrame && this.model.parentFrame.onionSkinned) {
       this.applyOnionSkinStyles();
     } else {
-      if (this.item.data.originalStyle) {
-        this.item.strokeColor = this.item.data.originalStyle.strokeColor;
-        this.item.fillColor = this.item.data.originalStyle.fillColor;
-        this.item.strokeWidth = this.item.data.originalStyle.strokeWidth;
-      }
+      this.updateStyle();
     }
+  }
+  /**
+   * Updates the transform of this path in line with the information in the model.
+   */
+
+
+  updateTransform() {
+    this.model.applyTransformationProperties(this._item);
+  }
+  /**
+   * Applies the original style of the transformation properties to the view path.
+   */
+
+
+  updateStyle() {
+    this.model.applyStyleProperties(this._item);
   }
   /**
    * Import paper.js path data into this Wick Path, replacing the current path data if necessary.
@@ -63936,12 +64100,7 @@ Wick.View.Path = class extends Wick.View {
 
   static exportJSON(item) {
     // Recover original style (if needed - only neccesary if style was overritten by custom onion skin style)
-    if (item.data.originalStyle) {
-      item.strokeColor = item.data.originalStyle.strokeColor;
-      item.fillColor = item.data.originalStyle.fillColor;
-      item.strokeWidth = item.data.originalStyle.strokeWidth;
-    }
-
+    this.model && this.model.updateStyle(this._item);
     return item.exportJSON({
       asString: false
     });
@@ -63994,11 +64153,6 @@ Wick.View.Path = class extends Wick.View {
 
   applyOnionSkinStyles() {
     var onionSkinStyle = this.model.project && this.model.project.toolSettings.getSetting('onionSkinStyle');
-    this.item.data.originalStyle = this.item.data.originalStyle || {
-      strokeColor: this.item.strokeColor,
-      fillColor: this.item.fillColor,
-      strokeWidth: this.item.strokeWidth
-    };
     var frame = this.model.parentFrame;
     var playheadPosition = this.model.project.focus.timeline.playheadPosition;
     var onionTintColor = new Wick.Color("#ffffff");

@@ -17,6 +17,13 @@
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+ /**
+  * Selection Widget
+  * 
+  * Provides view and controller for selections on a paper canvas. Provides a
+  * box for selected items, Ghost views when transforming, and callbacks for transformations
+  * applied to selected objects.
+  */
 class SelectionWidget {
     /**
      * Creates a SelectionWidget
@@ -285,30 +292,28 @@ class SelectionWidget {
     }
 
     /**
-     *
+     * Called when the selection should be translated.
      */
     translateSelection (delta) {
-        this._itemsInSelection.forEach(item => {
-            item.position = item.position.add(delta);
-        });
+        this.onTranslate && this.onTranslate(delta);
+
         this.pivot = this.pivot.add(delta);
     }
 
     /**
-     *
+     * Called when the selection should be scaled.
      */
     scaleSelection (scale) {
-        this._itemsInSelection.forEach(item => {
-            item.rotate(-this.boxRotation, this.pivot);
-            item.scale(scale, this.pivot);
-            item.rotate(this.boxRotation, this.pivot);
-        });
+        console.log("Scaling");
+        this.onScale && this.onScale(scale);
     }
 
     /**
-     *
+     * Called when the selection should be rotated.
      */
     rotateSelection (angle) {
+        this.onRotate && this.onRotate(angle);
+
         this._itemsInSelection.forEach(item => {
             item.rotate(angle, this.pivot);
         });

@@ -48,6 +48,7 @@ Wick.View.Path = class extends Wick.View {
         }
 
         this.importJSON(this.model.json);
+        this.updateTransform();
 
         // Apply onion skin style if Needed
         // (This is done here in the Path code because we actually change the style of the path
@@ -55,12 +56,22 @@ Wick.View.Path = class extends Wick.View {
         if(this.model.parentFrame && this.model.parentFrame.onionSkinned) {
             this.applyOnionSkinStyles();
         } else {
-            if(this.item.data.originalStyle) {
-                this.item.strokeColor = this.item.data.originalStyle.strokeColor;
-                this.item.fillColor = this.item.data.originalStyle.fillColor;
-                this.item.strokeWidth = this.item.data.originalStyle.strokeWidth;
-            }
+            this.updateStyle();
         }
+    }
+
+    /**
+     * Updates the transform of this path in line with the information in the model.
+     */
+    updateTransform () {
+        this.model.applyTransformationProperties(this._item);
+    }
+
+    /**
+     * Applies the original style of the transformation properties to the view path.
+     */
+    updateStyle () {
+        this.model.applyStyleProperties(this._item);
     }
 
     /**
@@ -114,11 +125,8 @@ Wick.View.Path = class extends Wick.View {
      */
     static exportJSON (item) {
         // Recover original style (if needed - only neccesary if style was overritten by custom onion skin style)
-        if(item.data.originalStyle) {
-            item.strokeColor = item.data.originalStyle.strokeColor;
-            item.fillColor = item.data.originalStyle.fillColor;
-            item.strokeWidth = item.data.originalStyle.strokeWidth;
-        }
+        this.model && this.model.updateStyle(this._item);
+
         return item.exportJSON({asString:false});
     }
 
@@ -168,11 +176,6 @@ Wick.View.Path = class extends Wick.View {
 
     applyOnionSkinStyles () {
         var onionSkinStyle = this.model.project && this.model.project.toolSettings.getSetting('onionSkinStyle');
-        this.item.data.originalStyle = this.item.data.originalStyle || {
-            strokeColor: this.item.strokeColor,
-            fillColor: this.item.fillColor,
-            strokeWidth: this.item.strokeWidth,
-        };
 
         var frame = this.model.parentFrame;
         var playheadPosition = this.model.project.focus.timeline.playheadPosition;
