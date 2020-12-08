@@ -1545,7 +1545,7 @@ describe('Wick.Clip', function() {
         it('should have the correct singleFrame number', function () {
             let clip = new Wick.Clip();
             expect(clip.animationType).to.equal('loop');
-            expect(clip.singleFrameNumber).to.equal(null);
+            expect(clip.singleFrameNumber).to.equal(1);
 
             clip.animationType = 'single';
             expect(clip.animationType).to.equal('single');
@@ -1716,13 +1716,147 @@ describe('Wick.Clip', function() {
             clip.animationType = 'single';
             clip.singleFrameNumber = 3;
 
-
-
             let totalTicks = 0;
 
             project.play({
                 onAfterTick: () => {
                     expect(clip.timeline.playheadPosition).to.equal(3);
+
+                    totalTicks += 1;
+
+                    if (totalTicks === 7) {
+                        project.stop();
+                        done();
+                    }
+                }
+            });
+        });
+
+        it ('should animate correctly as a looped clip when with different starting frame', function (done) {
+            let project = new Wick.Project();
+
+            let clip = new Wick.Clip();
+            let frame2 = new Wick.Frame({start:2});
+            let frame3 = new Wick.Frame({start:3});
+
+            clip.timeline.addFrame(frame2);
+            clip.timeline.addFrame(frame3);
+
+            clip.animationType = 'loop';
+            clip.singleFrameNumber = 2
+
+            project.activeFrame.addClip(clip);
+            project.framerate = 60; // speed up test time.
+
+            let totalTicks = 0;
+
+            project.play({
+                onAfterTick: () => {
+                    expect(clip.timeline.playheadPosition).to.equal(((totalTicks + 1) % 3) + 1);
+                    totalTicks += 1;
+
+                    if (totalTicks === 7) {
+                        project.stop();
+                        done();
+                    }
+                }
+            });
+        });
+
+        it ('should animate correctly as a playOnce clip with a different starting frame', function (done) {
+            let project = new Wick.Project();
+
+            let clip = new Wick.Clip();
+            let frame2 = new Wick.Frame({start:2});
+            let frame3 = new Wick.Frame({start:3});
+
+            clip.timeline.addFrame(frame2);
+            clip.timeline.addFrame(frame3);
+
+            clip.animationType = 'playOnce';
+            clip.singleFrameNumber = 2;
+
+            project.activeFrame.addClip(clip);
+            project.framerate = 60; // speed up test time.
+
+            let totalTicks = 1;
+
+            project.play({
+                onAfterTick: () => {
+                    if (totalTicks <= 2) {
+                        expect(clip.timeline.playheadPosition).to.equal(totalTicks + 1);
+                    } else {
+                        expect(clip.timeline.playheadPosition).to.equal(3);
+                    }
+
+                    totalTicks += 1;
+
+                    if (totalTicks === 7) {
+                        project.stop();
+                        done();
+                    }
+                }
+            });
+        });
+
+        it ('should animate correctly as a synced loop clip with a different starting frame', function (done) {
+            let project = new Wick.Project();
+
+            let clip = new Wick.Clip();
+            let frame2 = new Wick.Frame({start:2});
+            let frame3 = new Wick.Frame({start:3});
+
+            clip.timeline.addFrame(frame2);
+            clip.timeline.addFrame(frame3);
+
+            clip.animationType = 'playOnce';
+            clip.singleFrameNumber = 2;
+
+            project.activeFrame.addClip(clip);
+            project.framerate = 60; // speed up test time.
+
+            clip.isSynced = true;
+
+            let totalTicks = 1;
+
+            project.play({
+                onAfterTick: () => {
+
+                    expect(clip.timeline.playheadPosition).to.equal(2);
+
+                    totalTicks += 1;
+
+                    if (totalTicks === 7) {
+                        project.stop();
+                        done();
+                    }
+                }
+            });
+        });
+        it ('should animate correctly as a synced playOnce clip with a different starting frame', function (done) {
+            let project = new Wick.Project();
+
+            let clip = new Wick.Clip();
+            let frame2 = new Wick.Frame({start:2});
+            let frame3 = new Wick.Frame({start:3});
+
+            clip.timeline.addFrame(frame2);
+            clip.timeline.addFrame(frame3);
+
+            clip.animationType = 'loop';
+            clip.singleFrameNumber = 2;
+
+            project.activeFrame.addClip(clip);
+            project.framerate = 60; // speed up test time.
+
+            clip.isSynced = true;
+
+            let totalTicks = 1;
+
+            project.play({
+                onAfterTick: () => {
+
+                    expect(clip.timeline.playheadPosition).to.equal(2);
 
                     totalTicks += 1;
 
