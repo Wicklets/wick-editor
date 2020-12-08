@@ -43,6 +43,8 @@ import fontIcon from 'resources/mobile-inspector-icons/font-icon.svg';
 import fontIconActive from 'resources/mobile-inspector-icons/font-icon-active.svg';
 import settingsIcon from 'resources/mobile-inspector-icons/settings-icon.svg';
 import settingsIconActive from 'resources/mobile-inspector-icons/settings-icon-active.svg';
+import actionIcon from 'resources/mobile-inspector-icons/settings-icon.svg';
+import actionIconActive from 'resources/mobile-inspector-icons/settings-icon-active.svg';
 
 import xIcon from 'resources/mobile-inspector-icons/x-icon.svg';
 import yIcon from 'resources/mobile-inspector-icons/y-icon.svg';
@@ -102,7 +104,8 @@ class MobileInspector extends Component {
       frameSettings: { label: 'frameSettings', icon: settingsIcon, iconActive: settingsIconActive, iconAlt: "setting icon" },
       tweenSettings: { label: 'tweenSsettings', icon: settingsIcon, iconActive: settingsIconActive, iconAlt: "setting icon" },
       animationSettings: { label: 'animationSettings', icon: settingsIcon, iconActive: settingsIconActive, iconAlt: "setting icon" },
-      assetSettings: { label: 'assetSettings', icon: settingsIcon, iconActive: settingsIconActive, iconAlt: "setting icon" }
+      assetSettings: { label: 'assetSettings', icon: settingsIcon, iconActive: settingsIconActive, iconAlt: "setting icon" }, 
+      actions: {label: 'actions', icon: actionIcon, iconActive: actionIconActive, iconAlt: "action icon"}
     }
     
     this.inspectorTabs = {
@@ -769,18 +772,23 @@ class MobileInspector extends Component {
     );
   }
 
-  /**
-   * Renders all actions for the current selection.
-   * @returns {Component} JSX component containing all the actions for the current selection.
-   */
-  renderActions = () => {
+  getAllActions = () => {
     let actions = [];
     let selectionType = this.props.getSelectionType();
 
     Object.keys(this.actionRules).forEach(action => {
       let actionList = this.actionRules[action];
-      if (actionList.indexOf(selectionType) > -1) actions.push(action);
+      if (actionList.includes(selectionType)) actions.push(action);
     });
+    return actions;
+  }
+
+  /**
+   * Renders all actions for the current selection.
+   * @returns {Component} JSX component containing all the actions for the current selection.
+   */
+  renderActions = () => {
+    let actions = this.getAllActions();
 
     return (
       <div className="inspector-content">
@@ -795,18 +803,15 @@ class MobileInspector extends Component {
     let selectionType = this.props.getSelectionType();
     if (!Object.keys(this.inspectorTabs).includes(selectionType)) selectionType = "unknown";
 
-    let tabNames = this.inspectorTabs[selectionType];
+    let tabNames = this.inspectorTabs[selectionType].concat([]);
     let tabs = tabNames.filter(ele => ele !== 'name' && ele !== 'identifier').map(name => this.tabsOptions[name]);
 
-    let actionNames = [];
+    let actions = this.getAllActions();
 
-    for (let actionName of Object.keys(this.actionRules)) {
-      if (this.actionRules[actionName].includes(selectionType)) {
-        actionNames.push(actionName);
-      }
+    if (actions.length > 0) {
+      tabNames.push('actions');
+      tabs.push(this.tabsOptions.actions);
     }
-
-    // console.log(actionNames);
 
     return (
       <div className="mobile-inspector" aria-label="Inspector Panel">
@@ -814,7 +819,6 @@ class MobileInspector extends Component {
         {tabNames.includes('identifier') && this.renderIdentifier()}
         {tabNames.includes('name') && this.renderName()}
         {tabs.length > 0 &&
-
           <MobileInspectorTabbedInterface 
             tabs={tabs}>
             {tabNames.includes('transform') && <Fragment>{this.renderSelectionTransformProperties()}</Fragment>}
@@ -824,6 +828,7 @@ class MobileInspector extends Component {
             {tabNames.includes('tweenSettings') && <Fragment>{this.renderTween()}</Fragment>}
             {tabNames.includes('animationSettings') && <Fragment>{this.renderAnimationSetting()}</Fragment>}
             {tabNames.includes('assetSettings') && <Fragment>{this.renderAsset()}</Fragment>}
+            {tabNames.includes('actions') && <Fragment>{this.renderActions()}</Fragment>}
           </MobileInspectorTabbedInterface>}
       </div>
     )
