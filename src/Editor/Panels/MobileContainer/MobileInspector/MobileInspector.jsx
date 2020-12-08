@@ -815,7 +815,7 @@ class MobileInspector extends Component {
 
     return (
       <div className="mobile-inspector" aria-label="Inspector Panel">
-        {selectionType === "unknown" && <Fragment><p style={{ color: "white" }}>Unknown Selection</p></Fragment>}
+        {selectionType === "unknown" && <div className='mobile-inspector-unknown-selection'>Unknown Selection</div>}
         {tabNames.includes('identifier') && this.renderIdentifier()}
         {tabNames.includes('name') && this.renderName()}
         {tabs.length > 0 &&
