@@ -224,6 +224,8 @@ class WickInput extends Component {
         options={this.props.options}
         className={classNames("wick-input-select", this.props.className)}
         classNamePrefix={'wick-input-select'}
+        menuPortalTarget={document.body}
+        menuPosition={'fixed'}
         styles={{
         option: (provided, state) => {
           let style = {
