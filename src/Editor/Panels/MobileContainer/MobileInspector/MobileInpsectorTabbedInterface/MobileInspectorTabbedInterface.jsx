@@ -17,80 +17,51 @@
  * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { Component } from 'react';
+import React, { useState } from 'react';
+import { select } from 'underscore';
 
 import './_mobileinspectortabbedinterface.scss';
 
 var classNames = require('classnames'); 
 
-class MobileInspectorTabbedInterface extends Component {
-    /**
-     * @param {} props Expects several props.
-     * - tabs {Object[]} Contains all tab information for the interface
-     * 
-     * tab {Object}
-     * - name {String} String name of the tab. Will be displayed in the tab interface.
-     * - body {JSX Object} Object to render
-     * - icon
-     * - iconActive
-     * - iconAlt
-     */
-
-    // example prop:
-    // <MobileTabbedInterface tabs={[{label: "transform", icon: transformIcon, iconActive: transformIconActive, iconAlt: "transform icon"}]} >
-    constructor (props) {
-        super(props);
-
-        this.state = {
-          selectedTab: this.props.tabs[0].label,
-        }
-    }
-
-    // Selects the tab of the given name.
-    selectTab = (label) => {
-        this.setState({
-            selectedTab: label,
-        });
-
-        if (this.props.onTabSelect) {
-            this.props.onTabSelect(label);
-        }
-    }
+export default function MobileInspectorTabbedInterface (props) {
+    const [selectedTab, setSelectedTab] = useState(props.tabs[0].label);
 
     /**
      * Renders the selectable tab bar.
      */
-    renderTabs = () => {
+    function renderTabs () {
         return (
             <div role="tablist" className="mobile-inspector-tabbed-interface-main-tab-container">
-                {this.props.tabs.map( (tab, i) => 
+                {props.tabs.map( (tab, i) => 
                     <button
-                    key={`tab-${tab.label}-${i}`}
-                    className={classNames("mobile-inspector-tabbed-interface-main-tab", 
-                                          "mobile-inspector-"+tab.label+"-tab", 
-                                          this.props.tabClassName, 
-                                          {"selected": (this.state.selectedTab === tab.label)})}
-                    onClick={() => {this.selectTab(tab.label)}}>
+                        key={`tab-${tab.label}-${i}`}
+                        className={classNames("mobile-inspector-tabbed-interface-main-tab", 
+                                                "mobile-inspector-"+tab.label+"-tab", 
+                                                props.tabClassName, 
+                                                {"selected": tab.label === selectedTab})}
+                        onClick={() => {setSelectedTab(tab.label)}}>
+
                         <img className={classNames("mobile-inspector-tabbed-interface-icon",
-                                        "mobile-inspector-"+tab.label+"-tab-icon")}
-                             src={this.state.selectedTab === tab.label ? tab.iconActive : tab.icon} alt={tab.alt}></img>
+                                                    "mobile-inspector-"+tab.label+"-tab-icon")}
+                             src={selectedTab === tab.label ? tab.iconActive : tab.icon} 
+                             alt={tab.alt}/>
+
                     </button> 
                 )}
             </div>
         );
     }
 
-    render() {
-        let children = this.props.children.filter(obj => obj);
-        return (
-            <div className={classNames("mobile-inspector-tabbed-interface", this.props.className)}>
-                {this.renderTabs()}
-                <div className={classNames("mobile-inspector-tabbed-interface-body", this.props.bodyClassName)}>
-                    {children[this.props.tabs.map((tab) => tab.label).indexOf(this.state.selectedTab)]}
-                </div>
+
+    let children = props.children.filter(obj => obj);
+    return (
+        <div className={classNames("mobile-inspector-tabbed-interface", props.className)}>
+            {renderTabs()}
+            <div className={classNames("mobile-inspector-tabbed-interface-body", props.bodyClassName)}>
+                {children[props.tabs.map((tab) => tab.label).indexOf(selectedTab)]}
             </div>
-        ); 
-    }
+        </div>
+    )
 }
 
-export default MobileInspectorTabbedInterface

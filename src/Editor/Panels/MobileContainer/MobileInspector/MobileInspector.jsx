@@ -96,13 +96,13 @@ class MobileInspector extends Component {
     }
 
     this.tabsOptions = {
-      transform : { icon: transformIcon, iconActive: transformIconActive, iconAlt: "transform icon" },
-      style: { icon: styleIcon, iconActive: styleIconActive, iconAlt: "style icon" },
-      font:  { icon: fontIcon, iconActive: fontIconActive, iconAlt: "font icon" },
-      frameSettings: { icon: settingsIcon, iconActive: settingsIconActive, iconAlt: "setting icon" },
-      tweenSettings: { icon: settingsIcon, iconActive: settingsIconActive, iconAlt: "setting icon" },
-      animationSettings: { icon: settingsIcon, iconActive: settingsIconActive, iconAlt: "setting icon" },
-      assetSettings: { icon: settingsIcon, iconActive: settingsIconActive, iconAlt: "setting icon" }
+      transform : { label: 'transform', icon: transformIcon, iconActive: transformIconActive, iconAlt: "transform icon" },
+      style: { label: 'style', icon: styleIcon, iconActive: styleIconActive, iconAlt: "style icon" },
+      font:  { label: 'font', icon: fontIcon, iconActive: fontIconActive, iconAlt: "font icon" },
+      frameSettings: { label: 'frameSettings', icon: settingsIcon, iconActive: settingsIconActive, iconAlt: "setting icon" },
+      tweenSettings: { label: 'tweenSsettings', icon: settingsIcon, iconActive: settingsIconActive, iconAlt: "setting icon" },
+      animationSettings: { label: 'animationSettings', icon: settingsIcon, iconActive: settingsIconActive, iconAlt: "setting icon" },
+      assetSettings: { label: 'assetSettings', icon: settingsIcon, iconActive: settingsIconActive, iconAlt: "setting icon" }
     }
     
     this.inspectorTabs = {
@@ -451,22 +451,6 @@ class MobileInspector extends Component {
   }
 
   /**
-   * Renders an inspector row allowing viewing and editing of the selection's origin x y position.
-   */
-  // renderOrigin = () => {
-  //   return (
-  //     <MobileInspectorDualNumericInput
-  //       tooltip1="X"
-  //       tooltip2="Y"
-  //       val1={this.getSelectionAttribute('x')}
-  //       val2={this.getSelectionAttribute('y')}
-  //       onChange1={(val) => this.setSelectionAttribute('x', val)}
-  //       onChange2={(val) => this.setSelectionAttribute('y', val)}
-  //       id="inspector-position" />
-  //   )
-  // }
-
-  /**
    * Renders an inspector row allowing viewing and editing of the selection's width and height.
    */
   renderSize = () => {
@@ -811,9 +795,18 @@ class MobileInspector extends Component {
     let selectionType = this.props.getSelectionType();
     if (!Object.keys(this.inspectorTabs).includes(selectionType)) selectionType = "unknown";
 
-
     let tabNames = this.inspectorTabs[selectionType];
     let tabs = tabNames.filter(ele => ele !== 'name' && ele !== 'identifier').map(name => this.tabsOptions[name]);
+
+    let actionNames = [];
+
+    for (let actionName of Object.keys(this.actionRules)) {
+      if (this.actionRules[actionName].includes(selectionType)) {
+        actionNames.push(actionName);
+      }
+    }
+
+    // console.log(actionNames);
 
     return (
       <div className="mobile-inspector" aria-label="Inspector Panel">
@@ -822,7 +815,8 @@ class MobileInspector extends Component {
         {tabNames.includes('name') && this.renderName()}
         {tabs.length > 0 &&
 
-          <MobileInspectorTabbedInterface tabs={tabs} className="mobile-inspector-tabbed-interface">
+          <MobileInspectorTabbedInterface 
+            tabs={tabs}>
             {tabNames.includes('transform') && <Fragment>{this.renderSelectionTransformProperties()}</Fragment>}
             {tabNames.includes('style') && <Fragment>{this.renderSelectionColor()}</Fragment>}
             {tabNames.includes('font') && <Fragment>{this.renderFontContent()}</Fragment>}
@@ -834,23 +828,6 @@ class MobileInspector extends Component {
       </div>
     )
   }
-
-  /**
-  * Renders an edit script window if a script exists for the selected object.
-  * this is in MobileContainer on mobile
-  */
-  // renderScripts = () => {
-  //   return (
-  //     <div className="mobile-inspector-item">
-  //       <InspectorScriptWindow
-  //         script={this.props.script}
-  //         deleteScript={this.props.deleteScript}
-  //         editScript={this.props.editScript}
-  //         scriptInfoInterface={this.props.scriptInfoInterface}
-  //       />
-  //     </div>
-  //   );
-  // }
 }
 
 export default MobileInspector
