@@ -43,8 +43,8 @@ import fontIcon from 'resources/mobile-inspector-icons/font-icon.svg';
 import fontIconActive from 'resources/mobile-inspector-icons/font-icon-active.svg';
 import settingsIcon from 'resources/mobile-inspector-icons/settings-icon.svg';
 import settingsIconActive from 'resources/mobile-inspector-icons/settings-icon-active.svg';
-import actionIcon from 'resources/mobile-inspector-icons/settings-icon.svg';
-import actionIconActive from 'resources/mobile-inspector-icons/settings-icon-active.svg';
+import actionIcon from 'resources/mobile-inspector-icons/action-icon.svg';
+import actionIconActive from 'resources/mobile-inspector-icons/action-icon-active.svg';
 
 import xIcon from 'resources/mobile-inspector-icons/x-icon.svg';
 import yIcon from 'resources/mobile-inspector-icons/y-icon.svg';
