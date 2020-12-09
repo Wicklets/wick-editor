@@ -815,9 +815,14 @@ class MobileInspector extends Component {
 
     return (
       <div className="mobile-inspector" aria-label="Inspector Panel">
+        <div className="mobile-inspector-title">
+          <span className="mobile-inspector-title-prefix">Inspect:</span> 
+          {this.inspectorTitles[selectionType]}
+
+          {tabNames.includes('identifier') ? this.renderIdentifier() : tabNames.includes('name') ? this.renderName() : undefined}
+        </div>
         {selectionType === "unknown" && <div className='mobile-inspector-unknown-selection'>Unknown Selection</div>}
-        {tabNames.includes('identifier') && this.renderIdentifier()}
-        {tabNames.includes('name') && this.renderName()}
+        
         {tabs.length > 0 &&
           <MobileInspectorTabbedInterface 
             tabs={tabs}>

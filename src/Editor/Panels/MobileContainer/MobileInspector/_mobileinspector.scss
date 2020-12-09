@@ -86,13 +86,11 @@ $inspector-transition-duration: 0.2s;
 }
 
 .mobile-inspector-item.mobile-inspector-name {
-  position: absolute;
   width: 50%;
-  top: 50px;
-  right: 0;
   border: none;
-  height: $inspector-row-height;
-  padding-top: calc(#{$inspector-padding} / 2);
+  padding: 0px;
+  margin-left: auto;
+  height: 80%;
 }
 
 .mobile-inspector-item.mobile-inspector-item-style {
@@ -127,4 +125,18 @@ $inspector-transition-duration: 0.2s;
   height: 100%;
   text-align: center;
   padding-top: 12px;
+}
+
+.mobile-inspector-title {
+  font-size: 20px;
+  color: white;
+  padding-left: 8px;
+  display: flex;
+  align-items: center;
+  margin-right: auto;
+}
+
+.mobile-inspector-title-prefix {
+  color: #666666;
+  margin-right: 8px;
 }
