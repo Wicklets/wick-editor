@@ -17,6 +17,11 @@
     flex-direction: row;
 }
 
+.wick-code-editor-body-small {
+    width: 100%;
+    height: 100%;
+}
+
 .wick-code-editor-drag-handle {
     position: relative;
     width: 100%;
@@ -31,6 +36,10 @@
     padding-left: var(--reference-width);
     border-top-right-radius: var(--border-radius-primary);
     border-top-left-radius: var(--border-radius-primary);
+}
+
+.wick-code-editor-drag-handle.small { 
+    padding-left: 0px;
 }
 
 .wick-code-editor-icon {
@@ -302,6 +311,11 @@
     color: white;
     display: flex;
     flex-direction: row;
+}
+
+.we-code-editor-title.small {
+    font-size: 20px;
+    font-weight: normal;
 }
 
 .we-code-editor-title-selected {

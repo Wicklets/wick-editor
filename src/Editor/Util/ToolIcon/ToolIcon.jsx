@@ -78,6 +78,8 @@ import iconUpload from 'resources/asset-library-icons/upload.svg';
 import iconSubtract from 'resources/tool-icons/subtract.svg';
 import iconIntersect from 'resources/tool-icons/intersect.svg';
 import iconUnite from 'resources/tool-icons/unite.svg';
+import iconAddDark from 'resources/asset-library-icons/add-icon-dark.svg';
+import iconUploadDark from 'resources/asset-library-icons/upload-icon-dark.svg';
 
 // Assets
 import iconImage from 'resources/tool-icons/image.svg';
@@ -321,6 +323,8 @@ const icons = {
   "codeConsole": iconCodeConsole,
   "codeBack": iconCodeBack,
   "redheart": iconRedHeart,
+  "add-dark": iconAddDark,
+  "upload-dark": iconUploadDark
 }
 
 var classNames = require('classnames');

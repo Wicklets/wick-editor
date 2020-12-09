@@ -87,8 +87,8 @@ class SupportUs extends Component {
   }
 
   render() {
-    const contentDisplay = [<Fragment>
-      <div class={(this.props.isMobile)?"support-modal-col":"support-modal-col left-col"}>
+    const contentDisplay = [<Fragment key="support-us-fragment-1">
+      <div key="support-us-patreon-cont" class={(this.props.isMobile)?"support-modal-col":"support-modal-col left-col"}>
         <div class="support-modal-col-title">
           <img src={patreonLogoWhite} alt="white patreon logo" class="support-modal-col-title-img"></img>
           <p class="support-modal-col-title-text">Patreon</p>
@@ -102,7 +102,7 @@ class SupportUs extends Component {
         </button>
       </div>
   
-      <div class={(this.props.isMobile)?"support-modal-col":"support-modal-col right-col"}>
+      <div key="support-us-github-cont" class={(this.props.isMobile)?"support-modal-col":"support-modal-col right-col"}>
         <div class="support-modal-col-title">
           <img src={githubLogoWhite} alt="white github log" class="support-modal-col-title-img"></img>
           <p class="support-modal-col-title-text">GitHub Sponsors</p>
@@ -118,7 +118,7 @@ class SupportUs extends Component {
     </Fragment>];
 
     const footerDisplay = [
-      <Fragment>
+      <Fragment key="support-us-fragment-2">
       <p id="support-modal-follow-text">Follow us and share your work with <p id="support-modal-hashtag">#MadeWithWickEditor</p>!</p>
   
       <div id="support-modal-social-icons">

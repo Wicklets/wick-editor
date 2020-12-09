@@ -1,0 +1,108 @@
+/*
+ * Copyright 2020 WICKLETS LLC
+ *
+ * This file is part of Wick Editor.
+ *
+ * Wick Editor is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Editor is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+@import 'Editor/_wickbrand.scss';
+@import '../_mobileinspector.scss';
+
+$inspector-element-padding: 1.5%;
+$row-identifier-width: 28%;
+$row-identifier-max-width: 60%;
+$small-input-width: 38%;
+$small-input-min: 30px;
+$medium-input-width: calc(100% - #{$row-identifier-width} - #{$small-input-width});
+$large-input-width: calc(100% - #{$row-identifier-width});
+
+.mobile-inspector-row {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  min-height: $inspector-row-height;
+  max-height: $inspector-row-max-height;
+  margin-bottom: 10px;
+  align-items: center;
+}
+.mobile-inspector-row:last-child {
+  margin-bottom: 0px;
+}
+
+.mobile-inspector-row-identifier {
+  display: flex;
+  flex-direction: column;
+  min-width: $row-identifier-width;
+  max-width: $row-identifier-max-width;
+  height: 100%;
+  color: $editor-primary-property-text;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: bold;
+  overflow: hidden;
+  text-align: right;
+  padding-right: $inspector-element-padding;
+  padding-left: $inspector-element-padding;
+  margin-top: 3px;
+  margin-bottom: 0;
+}
+
+.mobile-inspector-row-identifier.mobile-inspector-row-identifier-color{
+  min-width: 40%;
+  margin-right: 10px;
+}
+
+.inspector-row-identifier:first-child {
+  padding-left: 0;
+}
+.mobile-inspector-row-icon {
+  margin-right: 5px;
+  width: 20px;
+  height: auto;
+}
+.mobile-inspector-small-input-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: #{$small-input-width};
+  min-width: $small-input-min;
+  height: 90%;
+  //padding-right: $inspector-element-padding;
+  padding-left: $inspector-element-padding;
+  margin-right: 5%;
+}
+.mobile-inspector-small-input-container:last-child {
+  padding-right: 0;
+}
+
+.mobile-inspector-medium-input-container {
+  width: $medium-input-width;
+  padding-right: 0;
+  padding-left: $inspector-element-padding;
+
+}
+
+.mobile-inspector-large-input-container {
+  width: $large-input-width;
+  padding-right: 0;
+  padding-left: $inspector-element-padding;
+
+}
+
+.inspector-input-element {
+  display: inline-block;
+  height: 100%;
+  width: 100%;
+}
