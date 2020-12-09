@@ -340,6 +340,7 @@ class Editor extends EditorCore {
       this.recenterCanvas(); // Recenter the canvas after reload;
       setTimeout(() => {
         preloader.style.display = 'none';
+        preloader.remove();
       }, 500);
       this.project.view.render()
     }, 2000); // Wait two seconds to allow editor to set up... TODO: Should connect this to load events.
