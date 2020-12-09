@@ -18,7 +18,6 @@
  */
 
 import React, { useState } from 'react';
-import { select } from 'underscore';
 
 import './_mobileinspectortabbedinterface.scss';
 
