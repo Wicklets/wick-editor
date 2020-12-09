@@ -102,8 +102,6 @@ class Editor extends EditorCore {
       customHotKeys: {},
       colorPickerType: "swatches",
       lastColorsUsed: ["#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"],
-      renderMediumWidth: 1200,
-      renderSmallWidth: 800,
       exporting: false,
       useCustomOnionSkinningColors: false,
       customOnionSkinningColors: {
@@ -903,9 +901,9 @@ class Editor extends EditorCore {
    * @returns {String} "large", "medium" or "small" depending on the width of the window.
    */
   getRenderSize = () => {
-    if (window.innerWidth > this.state.renderMediumWidth) {
+    if (window.innerWidth > 1200) {
       return "large";
-    } else if (window.innerWidth > this.state.renderSmallWidth) {
+    } else if (window.innerWidth > 800) {
       return "medium";
     } else {
       return "small";
