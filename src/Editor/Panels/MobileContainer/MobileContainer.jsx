@@ -143,7 +143,10 @@ class MobileContainer extends Component {
                                         ]}>
                 {this.renderTimeline(this.props)}
                 {this.renderInpector(this.props)}
-                {(this.props.selectionIsScriptable()) ? this.renderCode(this.props) : <p style={{color: "white"}}>No Scriptable Object Selected</p>}
+                {(this.props.selectionIsScriptable()) ? this.renderCode(this.props) : <div className='mobile-inspector-unknown-selection'>
+                    <div>No Scriptable</div>
+                    <div>Object Selected</div>
+                    </div>}
                 {this.renderAsset(this.props)}
 
             </MobileTabbedInterface>
