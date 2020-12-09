@@ -7,6 +7,13 @@
     border-radius: var(--border-radius-primary);
 }
 
+.we-code-editor-small {
+    --handle-height: 40px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
 .wick-code-editor-body {
     display: flex;
     background-color: var(--wick-secondary);
@@ -18,8 +25,8 @@
 }
 
 .wick-code-editor-body-small {
-    width: 100%;
-    height: 100%;
+    flex: 1;
+    overflow-y: hidden;
 }
 
 .wick-code-editor-drag-handle {
@@ -71,6 +78,7 @@
 
 .wick-code-editor-tabs {
     height: var(--handle-height);
+    width: 100%;
     background-color: var(--wick-secondary);
     display: flex;
     flex-direction: row;
@@ -330,6 +338,7 @@
 .we-code-editor-title.small {
     font-size: 20px;
     font-weight: normal;
+    padding-left: 4px;
 }
 
 .we-code-editor-title-selected {

@@ -306,7 +306,7 @@ export default function WickCodeEditor(props) {
   if (props.renderSize === 'small') {
     return (
       <Rnd
-        id="wick-code-editor-resizeable"
+        id="wick-code-editor-resizeable-small"
         bounds="window"
         dragHandleClassName="wick-code-editor-drag-handle"
         width={window.innerWidth}
@@ -314,23 +314,24 @@ export default function WickCodeEditor(props) {
         onDragStop={onDragHandler}
         default={props.codeEditorWindowProperties}
       >
-        <div className="wick-code-editor-drag-handle small">
-          <div className="we-code-editor-title small">
-            Code Editor | <div className="we-code-editor-title-selected">{`editing ${props.selectionType}`}</div>
+        <div className="we-code-editor-small">
+          <div className="wick-code-editor-drag-handle small">
+            <div className="we-code-editor-title small">
+              Code Editor | <div className="we-code-editor-title-selected">{`editing ${props.selectionType}`}</div>
+            </div>
+            <ActionButton
+              className="we-code-close-button"
+              color="tool"
+              icon="cancel-white"
+              action={props.toggleCodeEditor} />
           </div>
-          <ActionButton
-            className="we-code-close-button"
-            color="tool"
-            icon="cancel-white"
-            action={props.toggleCodeEditor} />
+
+          <div className="wick-code-editor-body-small">
+            {renderCodeTabs()}
+            {renderCodeEditor()}
+          </div>
+
         </div>
-
-        <div className="wick-code-editor-body-small">
-          {renderCodeTabs()}
-          {renderCodeEditor()}
-        </div>
-
-
       </Rnd>
     )
   } else {
