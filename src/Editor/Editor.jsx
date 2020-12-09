@@ -1245,6 +1245,7 @@ class Editor extends EditorCore {
               clearCodeEditorError={this.clearCodeEditorError}
               consoleLogs={this.state.consoleLogs}
               setConsoleLogs={this.setConsoleLogs}
+              renderSize={renderSize}
             />}
         </div>
       </EditorWrapper>
