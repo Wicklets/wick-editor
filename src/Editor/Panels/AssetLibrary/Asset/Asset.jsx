@@ -65,6 +65,18 @@ class Asset extends Component {
     }
   }
 
+  renderAddButton = () => {
+    if (this.props.asset.classname === 'SoundAsset') {
+      return <span className="asset-button add">
+          <ActionButton classsName="add" color="green" text="Add to Frame" action={() => this.props.addSoundToActiveFrame(this.props.asset)}/>
+        </span>
+    } else {
+      return  <span className="asset-button add">
+        <ActionButton classsName="add" color="green" text="Add to Canvas" action={this.addToCanvas}/>
+      </span>
+    }
+  }
+
   addToCanvas = () => {
     let draggedItem = this.props.asset;
     if(draggedItem.files && draggedItem.files.length > 0) {
@@ -90,12 +102,10 @@ class Asset extends Component {
     let icon = this.getIcon(this.props.asset.classname);
 
     return connectDragSource (
-      <div 
-      className={classNames("asset-item", {"asset-selected": this.props.isSelected})}>
+      <div className={classNames("asset-item", {"asset-selected": this.props.isSelected})}>
       <button 
         className="select"
-        onClick={this.props.onClick}
-        >
+        onClick={this.props.onClick}>
         <div className="asset-name-text">
           <span><ToolIcon className="asset-icon" name={icon}/></span>
           <span>{this.props.asset.name}</span>
@@ -103,18 +113,17 @@ class Asset extends Component {
       </button>
       {this.props.isSelected &&
       <div className="asset-buttons-container">
-        {this.props.asset.classname === "SoundAsset" &&
-        <span className="asset-button add"><ActionButton classsName="add" color="green" text="Add to Frame" action={() => this.props.addSoundToActiveFrame(this.props.asset)}/></span>
-        }
-        {this.props.asset.classname !== "SoundAsset" &&
-        <span className="asset-button add"><ActionButton classsName="add" color="green" text="Add to Canvas" action={this.addToCanvas}/></span>
-        }
-        <span className="asset-button delete"><ActionButton classsName="delete" color="red" icon="delete-black" 
-        action={() => {
-          this.props.clearSelection();
-          this.props.selectObjects([this.props.asset]);
-          this.props.deleteSelectedObjects();
-        }}/></span>
+        {this.renderAddButton()}
+        <span className="asset-button delete">
+          <ActionButton 
+            classsName="delete" 
+            color="red" 
+            icon="delete-black" 
+            action={() => {
+              this.props.clearSelection();
+              this.props.selectObjects([this.props.asset]);
+              this.props.deleteSelectedObjects();}}/>
+        </span>
       </div>}
       </div>
     )

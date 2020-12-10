@@ -38,7 +38,8 @@ Wick.Selection = class extends Wick.Base {
         this._originalWidth = 0;
         this._originalHeight = 0;
 
-        this.SELECTABLE_OBJECT_TYPES = ['Path', 'Clip', 'Frame', 'Tween', 'Layer', 'Asset', 'Button'];
+        this.SELECTABLE_OBJECT_TYPES = ['Path', 'Clip', 'Frame', 'Tween', 'Layer', 'Asset', 'Button', 
+        'ClipAsset', 'FileAsset', 'FontAsset', 'GIFAsset', 'ImageAsset', 'SoundAsset', 'SVGAsset'];
         this.SELECTABLE_OBJECT_TYPES_SET = new Set(this.SELECTABLE_OBJECT_TYPES);
     }
 
@@ -172,7 +173,6 @@ Wick.Selection = class extends Wick.Base {
 
         objects.forEach(obj => {
             if (this.isSelectable(obj) && !this.isObjectSelected(obj)) {
-
                 // Clear the selection if any of the selected objects are not in the same place as the objects
                 // being selected.
                 if (this.location !== this._locationOf(obj)) {

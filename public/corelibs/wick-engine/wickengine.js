@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.12.9.15.37.14";
+var WICK_ENGINE_BUILD_VERSION = "2020.12.10.10.31.3";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -52013,7 +52013,7 @@ Wick.Selection = class extends Wick.Base {
     };
     this._originalWidth = 0;
     this._originalHeight = 0;
-    this.SELECTABLE_OBJECT_TYPES = ['Path', 'Clip', 'Frame', 'Tween', 'Layer', 'Asset', 'Button'];
+    this.SELECTABLE_OBJECT_TYPES = ['Path', 'Clip', 'Frame', 'Tween', 'Layer', 'Asset', 'Button', 'ClipAsset', 'FileAsset', 'FontAsset', 'GIFAsset', 'ImageAsset', 'SoundAsset', 'SVGAsset'];
     this.SELECTABLE_OBJECT_TYPES_SET = new Set(this.SELECTABLE_OBJECT_TYPES);
   }
 

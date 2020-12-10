@@ -170,8 +170,8 @@ class ActionMapInterface extends Object {
         color: 'active-blue'
       },
       addAssetToCanvas: {
-        icon: 'convertToClip',
-        tooltip: 'Add asset to canvas',
+        icon: 'add',
+        tooltip: 'Add To Canvas',
         action: this.editor.createInstanceOfSelectedAsset,
         id: 'action-create-instance-of-selected-asset',
         color: 'active-blue'

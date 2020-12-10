@@ -386,9 +386,7 @@ class EditorCore extends Component {
    * @param {object[]} objects - The objects to add to the selection.
    */
   selectObjects = (objects) => {
-    objects.forEach(object => {
-      this.project.selection.select(object);
-    });
+    this.project.selection.selectMultipleObjects(objects);
     this.projectDidChange({ actionName: "Select Multiple Objects" });
   }
 
