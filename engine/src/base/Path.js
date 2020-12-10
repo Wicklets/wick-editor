@@ -43,7 +43,7 @@ Wick.Path = class extends Wick.Base {
             this.json = new paper.Path({ insert: false }).exportJSON({ asString: false });
         }
 
-        this._needReimport = true;
+        this.needReimport = true;
     }
 
     /**
@@ -148,7 +148,7 @@ Wick.Path = class extends Wick.Base {
 
     set json(json) {
         this._json = json;
-        this._needReimport = true;
+        this.needReimport = true;
         this.view.render();
     }
 
@@ -292,6 +292,7 @@ Wick.Path = class extends Wick.Base {
             return;
         }
         this._fontWeight = fontWeight
+        this.updateJSON();
     }
 
     /**
@@ -304,6 +305,7 @@ Wick.Path = class extends Wick.Base {
 
     set fontStyle(fontStyle) {
         this._fontStyle = fontStyle;
+        this.updateJSON();
     }
 
     /**

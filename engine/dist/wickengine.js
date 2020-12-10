@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.12.10.10.31.3";
+var WICK_ENGINE_BUILD_VERSION = "2020.12.10.12.54.22";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -53857,7 +53857,7 @@ Wick.Path = class extends Wick.Base {
       });
     }
 
-    this._needReimport = true;
+    this.needReimport = true;
   }
   /**
    * Create a path containing an image from an ImageAsset.
@@ -53967,7 +53967,7 @@ Wick.Path = class extends Wick.Base {
 
   set json(json) {
     this._json = json;
-    this._needReimport = true;
+    this.needReimport = true;
     this.view.render();
   }
   /**
@@ -54123,6 +54123,7 @@ Wick.Path = class extends Wick.Base {
     }
 
     this._fontWeight = fontWeight;
+    this.updateJSON();
   }
   /**
    * The font style of the path ('italic' or 'oblique').
@@ -54136,6 +54137,7 @@ Wick.Path = class extends Wick.Base {
 
   set fontStyle(fontStyle) {
     this._fontStyle = fontStyle;
+    this.updateJSON();
   }
   /**
    * The original style of the path (used to recover the path's style if it was changed by a custom onion skin style)
@@ -64027,7 +64029,7 @@ Wick.View.Path = class extends Wick.View {
   importJSON(json) {
     // if(this.model.project && this.model.project.playing) return;
     // Don't import the information if we don't need to...
-    if (this._item && !this.model._needReimport) {
+    if (this._item && !this.model.needReimport) {
       return;
     } // Imports rasters if this json is a raster item.
 
@@ -64047,15 +64049,10 @@ Wick.View.Path = class extends Wick.View {
     } else {
       this._item.data.wickUUID = this.model.uuid;
       this._item.data.wickType = 'path';
-    } // Extra text options
-
-
-    if (this._item instanceof paper.TextItem) {
-      // https://github.com/paperjs/paper.js/issues/937
-      this._item.fontWeight = this.model.fontWeight + ' ' + this.model.fontStyle;
     }
 
-    this.model._needReimport = false;
+    this._item.fontWeight = `${this.model.fontWeight} ${this.model.fontStyle}`;
+    this.model.needReimport = false;
   }
   /**
    * Export this path as paper.js Path json data.

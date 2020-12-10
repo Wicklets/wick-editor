@@ -72,7 +72,7 @@ Wick.View.Path = class extends Wick.View {
         // if(this.model.project && this.model.project.playing) return;
 
         // Don't import the information if we don't need to...
-        if (this._item && !this.model._needReimport) {
+        if (this._item && !this.model.needReimport) {
             return;
         }
 
@@ -93,13 +93,9 @@ Wick.View.Path = class extends Wick.View {
             this._item.data.wickType = 'path';
         }
 
-        // Extra text options
-        if(this._item instanceof paper.TextItem) {
-            // https://github.com/paperjs/paper.js/issues/937
-            this._item.fontWeight = this.model.fontWeight + ' ' + this.model.fontStyle;
-        }
+        this._item.fontWeight = `${this.model.fontWeight} ${this.model.fontStyle}`;
 
-        this.model._needReimport = false;
+        this.model.needReimport = false;
     }
 
     /**

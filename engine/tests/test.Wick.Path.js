@@ -211,7 +211,7 @@ describe('Wick.Path', function() {
     });
 
     describe('#fontFamily,fontSize,fontWeight', function() {
-        it('should return correct fontFamily/fontSize/fontWeight', function () {
+        it('should return correct fontFamily/fontSize/fontWeight', function () {            
             var path = TestUtils.paperToWickPath(new paper.PointText({
                 fillColor: '#000000',
                 fontFamily: 'Helvetica',
