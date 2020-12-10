@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.12.10.15.40.45";
+var WICK_ENGINE_BUILD_VERSION = "2020.12.10.18.51.6";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -55960,7 +55960,6 @@ Wick.Tickable = class extends Wick.Base {
       var error = this._runFunction(fn, name, parameters);
 
       if (error && this.project) {
-        console.log("Project has error");
         this.project.error = error;
         return;
       }

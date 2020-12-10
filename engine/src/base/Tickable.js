@@ -350,6 +350,7 @@ Wick.Tickable = class extends Wick.Base {
             return;
         }
 
+
         // Run function inside tab
         if(this.scriptIsContentful(name)) {
             var script = this.getScript(name);
@@ -362,7 +363,6 @@ Wick.Tickable = class extends Wick.Base {
             var error = this._runFunction(fn, name, parameters);
 
             if (error && this.project) {
-                console.log("Project has error");
                 this.project.error = error;
                 return;
             }

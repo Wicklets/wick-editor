@@ -349,7 +349,7 @@
 /* Theme Overrides */
 .ace-monokai > .ace_gutter {
     background: #292929 !important;
-    color: #FFFFFF !important;
+    color: #FFFFFF ! important;
   }
   
 .ace-monokai > .ace_scroller {

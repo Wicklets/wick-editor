@@ -206,7 +206,7 @@ describe('Wick.Tickable', function() {
             expect(error.uuid).to.equal(clip.uuid);
 
             project.error = null;
-            
+
             var error = project.tick();
             expect(error).to.not.equal(null);
             expect(error.lineNumber).to.equal(4);
@@ -216,9 +216,8 @@ describe('Wick.Tickable', function() {
 
         it('should run correct mouse scripts for different mouse states', function() {
             var project = new Wick.Project();
-
             var clip = new Wick.Clip();
-            project.addObject(clip);
+
 
             clip.addScript('mouseenter', 'this.__mouseenter = true;');
             clip.addScript('mousepressed', 'this.__mousepressed = true;');
@@ -240,7 +239,6 @@ describe('Wick.Tickable', function() {
                 clip.__mouseclick = false;
             }
 
-            var project = new Wick.Project();
             project.activeFrame.addClip(clip);
 
             resetMouseStateFlags();
