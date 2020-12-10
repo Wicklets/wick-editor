@@ -344,7 +344,8 @@ Wick.Tickable = class extends Wick.Base {
             if(eventFnError) return;
             eventFnError = this._runFunction(eventFn, name, parameters);
         });
-        if(eventFnError) {
+
+        if (eventFnError) {
             this.project.error = eventFnError;
             return;
         }
@@ -361,6 +362,7 @@ Wick.Tickable = class extends Wick.Base {
             var error = this._runFunction(fn, name, parameters);
 
             if (error && this.project) {
+                console.log("Project has error");
                 this.project.error = error;
                 return;
             }
@@ -408,7 +410,7 @@ Wick.Tickable = class extends Wick.Base {
     }
 
     _onActivated () {
-        this.runScript('default');
+        this.runScript('default'); // Run the script immediately.
         this.scheduleScript('load');
     }
 

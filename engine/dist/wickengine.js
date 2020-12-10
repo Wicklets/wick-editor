@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.12.10.14.43.55";
+var WICK_ENGINE_BUILD_VERSION = "2020.12.10.15.40.45";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -51401,7 +51401,6 @@ Wick.Project = class extends Wick.Base {
 
 
   runScheduledScripts() {
-    this._error = null;
     Wick.Tickable.possibleScripts.forEach(scriptOrderName => {
       this._scriptSchedule.forEach(scheduledScript => {
         var {
@@ -51450,6 +51449,7 @@ Wick.Project = class extends Wick.Base {
       this.stop();
     }
 
+    this.error = null;
     this.history.saveSnapshot('state-before-play');
     this.selection.clear(); // Start tick loop
 
@@ -55960,6 +55960,7 @@ Wick.Tickable = class extends Wick.Base {
       var error = this._runFunction(fn, name, parameters);
 
       if (error && this.project) {
+        console.log("Project has error");
         this.project.error = error;
         return;
       }
@@ -56007,7 +56008,8 @@ Wick.Tickable = class extends Wick.Base {
   }
 
   _onActivated() {
-    this.runScript('default');
+    this.runScript('default'); // Run the script immediately.
+
     this.scheduleScript('load');
   }
 

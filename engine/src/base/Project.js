@@ -1445,7 +1445,6 @@ Wick.Project = class extends Wick.Base {
      * Run scripts in schedule, in order based on Tickable.possibleScripts.
      */
     runScheduledScripts () {
-        this._error = null;
         Wick.Tickable.possibleScripts.forEach(scriptOrderName => {
             this._scriptSchedule.forEach(scheduledScript => {
                 var {uuid, name, parameters} = scheduledScript;
@@ -1490,6 +1489,8 @@ Wick.Project = class extends Wick.Base {
         if (this._tickIntervalID) {
             this.stop();
         }
+
+        this.error = null;
 
         this.history.saveSnapshot('state-before-play');
 
@@ -1551,7 +1552,7 @@ Wick.Project = class extends Wick.Base {
 
         this.view.render();
 
-        if(this._error) {
+        if (this._error) {
             return this._error;
         } else {
             return null;
