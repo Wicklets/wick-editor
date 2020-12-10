@@ -179,6 +179,8 @@ describe('Wick.Tickable', function() {
 
             clip.addScript('load', '');
             clip.addScript('update', 'fn()\nfn()\nfn(');
+            
+            project.error = null;
 
             var error = project.tick();
             expect(error).to.not.equal(null);
@@ -203,6 +205,8 @@ describe('Wick.Tickable', function() {
             expect(error.message).to.equal('thisWillCauseAnError is not defined');
             expect(error.uuid).to.equal(clip.uuid);
 
+            project.error = null;
+            
             var error = project.tick();
             expect(error).to.not.equal(null);
             expect(error.lineNumber).to.equal(4);
