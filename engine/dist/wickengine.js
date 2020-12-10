@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.12.10.14.40.45";
+var WICK_ENGINE_BUILD_VERSION = "2020.12.10.14.43.55";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -60562,7 +60562,7 @@ Wick.Tools.PathCursor = class extends Wick.Tool {
       this.hoverPreview.segments[1].handleIn = this.draggingCurve.handle2;
     }
 
-    if (this.hitResult.type.startsWith('handle')) {
+    if (this.hitResult.type && this.hitResult.type.startsWith('handle')) {
       var otherHandle;
       var handle;
 

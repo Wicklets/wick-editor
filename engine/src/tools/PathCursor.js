@@ -218,7 +218,7 @@ Wick.Tools.PathCursor = class extends Wick.Tool {
             this.hoverPreview.segments[1].handleIn = this.draggingCurve.handle2;
         }
 
-        if (this.hitResult.type.startsWith('handle')) {
+        if (this.hitResult.type && this.hitResult.type.startsWith('handle')) {
             var otherHandle;
             var handle;
             if(this.hitResult.type === 'handle-in') {
