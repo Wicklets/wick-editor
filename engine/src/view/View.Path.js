@@ -137,7 +137,7 @@ Wick.View.Path = class extends Wick.View {
             // Bug: Raw dataURL was saved, need find asset with that data
             this.model.project.getAssets('Image').forEach(imageAsset => {
                 if(imageAsset.src === json[1].source) {
-                    json[1].source = 'asset:' + imageAsset.uuid;
+                    JSONsrc = 'asset:' + imageAsset.uuid;
                 }
             })
         } else if (JSONsrc.startsWith('asset:')) {
@@ -146,19 +146,16 @@ Wick.View.Path = class extends Wick.View {
             // Old format: Asset UUID is stored in 'data'
             JSONsrc = 'asset:' + (json[1].asset || json[1].data.asset);
         } else {
-            console.error('WARNING: raster source format not recognized:');
-            console.log(json);
-            return;
+            console.error('WARNING: raster source format not recognized:');            return;
         }
 
         // Get image source from assets
-        var cachedImg = null;
-        if(json[1].source.startsWith('asset:')) {
-            var assetUUID = json[1].source.split(':')[1];
+        if(JSONsrc.startsWith('asset:')) {
+            var assetUUID = JSONsrc.split(':')[1];
             var imageAsset = this.model.project.getAssetByUUID(assetUUID);
             json[1].source = imageAsset.src;
         }
-
+        
         return true;
     }
 

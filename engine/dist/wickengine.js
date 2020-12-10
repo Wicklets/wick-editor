@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.12.10.12.54.22";
+var WICK_ENGINE_BUILD_VERSION = "2020.12.10.14.40.45";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -64100,7 +64100,7 @@ Wick.View.Path = class extends Wick.View {
       // Bug: Raw dataURL was saved, need find asset with that data
       this.model.project.getAssets('Image').forEach(imageAsset => {
         if (imageAsset.src === json[1].source) {
-          json[1].source = 'asset:' + imageAsset.uuid;
+          JSONsrc = 'asset:' + imageAsset.uuid;
         }
       });
     } else if (JSONsrc.startsWith('asset:')) {// Current format, no fix needed
@@ -64109,15 +64109,12 @@ Wick.View.Path = class extends Wick.View {
       JSONsrc = 'asset:' + (json[1].asset || json[1].data.asset);
     } else {
       console.error('WARNING: raster source format not recognized:');
-      console.log(json);
       return;
     } // Get image source from assets
 
 
-    var cachedImg = null;
-
-    if (json[1].source.startsWith('asset:')) {
-      var assetUUID = json[1].source.split(':')[1];
+    if (JSONsrc.startsWith('asset:')) {
+      var assetUUID = JSONsrc.split(':')[1];
       var imageAsset = this.model.project.getAssetByUUID(assetUUID);
       json[1].source = imageAsset.src;
     }
