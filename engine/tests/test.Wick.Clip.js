@@ -671,7 +671,6 @@ describe('Wick.Clip', function() {
                 clip.activeFrame.end = 10;
 
                 project.tick();
-                project.tick();
 
                 expect(clip.timeline.playheadPosition).to.equal(5);
 
@@ -689,7 +688,6 @@ describe('Wick.Clip', function() {
 
                 clip.addScript('load', 'gotoAndPlay(9)');
 
-                project.tick();
                 project.tick();
 
                 expect(project.root.timeline.playheadPosition).to.equal(9);
