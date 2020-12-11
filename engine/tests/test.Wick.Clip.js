@@ -1605,15 +1605,21 @@ describe('Wick.Clip', function() {
             clip.timeline.addFrame(frame3);
 
             clip.animationType = 'single';
-            clip.singleFrameNumber = 2;
             project.activeFrame.addClip(clip);
+            clip.singleFrameNumber = 2;
             project.framerate = 60; // speed up test time.
 
             let totalTicks = 0;
 
             project.play({
                 onAfterTick: () => {
-                    expect(clip.timeline.playheadPosition).to.equal(2);
+                    try {
+                        expect(clip.timeline.playheadPosition).to.equal(2);
+                    } catch {
+                        project.stop();
+                        done();
+                    }
+
                     totalTicks += 1;
 
                     if (totalTicks === 7) {

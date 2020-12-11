@@ -480,6 +480,7 @@ Wick.Clip = class extends Wick.Tickable {
      */
     gotoAndStop(frame) {
         this.timeline.gotoAndStop(frame);
+        this.applySingleFramePosition();
     }
 
     /**
@@ -488,6 +489,7 @@ Wick.Clip = class extends Wick.Tickable {
      */
     gotoAndPlay(frame) {
         this.timeline.gotoAndPlay(frame);
+        this.applySingleFramePosition();
     }
 
     /**
@@ -495,6 +497,7 @@ Wick.Clip = class extends Wick.Tickable {
      */
     gotoNextFrame() {
         this.timeline.gotoNextFrame();
+        this.applySingleFramePosition();
     }
 
     /**
@@ -502,6 +505,7 @@ Wick.Clip = class extends Wick.Tickable {
      */
     gotoPrevFrame() {
         this.timeline.gotoPrevFrame();
+        this.applySingleFramePosition();
     }
 
     /**

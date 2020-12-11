@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.12.10.18.51.6";
+var WICK_ENGINE_BUILD_VERSION = "2020.12.10.20.35.12";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -57503,6 +57503,7 @@ Wick.Clip = class extends Wick.Tickable {
 
   gotoAndStop(frame) {
     this.timeline.gotoAndStop(frame);
+    this.applySingleFramePosition();
   }
   /**
    * Moves a clip's playhead to a specific position and plays that clip's timeline from that position.
@@ -57512,6 +57513,7 @@ Wick.Clip = class extends Wick.Tickable {
 
   gotoAndPlay(frame) {
     this.timeline.gotoAndPlay(frame);
+    this.applySingleFramePosition();
   }
   /**
    * Move the playhead of the clips timeline forward one frame. Does nothing if the clip is on its last frame.
@@ -57520,6 +57522,7 @@ Wick.Clip = class extends Wick.Tickable {
 
   gotoNextFrame() {
     this.timeline.gotoNextFrame();
+    this.applySingleFramePosition();
   }
   /**
    * Move the playhead of the clips timeline backwards one frame. Does nothing if the clip is on its first frame.
@@ -57528,6 +57531,7 @@ Wick.Clip = class extends Wick.Tickable {
 
   gotoPrevFrame() {
     this.timeline.gotoPrevFrame();
+    this.applySingleFramePosition();
   }
   /**
    * Returns the name of the frame which is currently active. If multiple frames are active, returns the name of the first active frame.
