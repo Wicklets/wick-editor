@@ -33,6 +33,7 @@ Wick.Timeline = class extends Wick.Base {
         this._playing = true;
 
         this._fillGapsMethod = "auto_extend";
+        this._frameForced = false;
     }
 
     _serialize(args) {
@@ -98,6 +99,8 @@ Wick.Timeline = class extends Wick.Base {
      */
     forceFrame(frame) {
         this.playheadPosition = frame;
+        this._frameForced = true;
+        this.makeTimelineInBounds();
     }
 
     /**
@@ -344,9 +347,17 @@ Wick.Timeline = class extends Wick.Base {
     advance() {
         if (this._playing) {
             this.playheadPosition++;
-            if (this.playheadPosition > this.length) {
-                this.playheadPosition = 1;
-            }
+            this._frameForced = false;
+            this.makeTimelineInBounds();
+        }
+    }
+
+    /**
+     * Ensures playhead position is in bounds.
+     */
+    makeTimelineInBounds () {
+        if (this.playheadPosition > this.length) {
+            this.playheadPosition = 1;
         }
     }
 

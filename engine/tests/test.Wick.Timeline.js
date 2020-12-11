@@ -131,22 +131,6 @@ describe('Wick.Timeline', function() {
             timeline.advance();
             expect(timeline.playheadPosition).to.equal(1);
         });
-
-        it('should advance to given frame if _forceNextFrame is set', function () {
-            var timeline = new Wick.Timeline();
-            timeline.addLayer(new Wick.Layer());
-            timeline.layers[0].addFrame(new Wick.Frame(1,5));
-
-            timeline._forceNextFrame = 3;
-            timeline._playing = true;
-            timeline.advance();
-            expect(timeline.playheadPosition).to.equal(3);
-
-            timeline._forceNextFrame = 5;
-            timeline._playing = false;
-            timeline.advance();
-            expect(timeline.playheadPosition).to.equal(5);
-        });
     });
 
     describe('#activeFrames', function () {
@@ -215,13 +199,10 @@ describe('Wick.Timeline', function() {
 
             expect(timeline.playheadPosition).to.equal(1);
             timeline.gotoNextFrame();
-            timeline.advance();
             expect(timeline.playheadPosition).to.equal(2);
             timeline.gotoNextFrame();
-            timeline.advance();
             expect(timeline.playheadPosition).to.equal(3);
             timeline.gotoNextFrame();
-            timeline.advance();
             expect(timeline.playheadPosition).to.equal(1);
         });
     });
@@ -236,13 +217,10 @@ describe('Wick.Timeline', function() {
 
             expect(timeline.playheadPosition).to.equal(1);
             timeline.gotoPrevFrame();
-            timeline.advance();
             expect(timeline.playheadPosition).to.equal(3);
             timeline.gotoPrevFrame();
-            timeline.advance();
             expect(timeline.playheadPosition).to.equal(2);
             timeline.gotoPrevFrame();
-            timeline.advance();
             expect(timeline.playheadPosition).to.equal(1);
         });
     });

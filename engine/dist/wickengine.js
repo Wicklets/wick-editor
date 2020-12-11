@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.12.10.20.35.12";
+var WICK_ENGINE_BUILD_VERSION = "2020.12.10.21.14.13";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -53089,6 +53089,7 @@ Wick.Timeline = class extends Wick.Base {
     this._activeLayerIndex = 0;
     this._playing = true;
     this._fillGapsMethod = "auto_extend";
+    this._frameForced = false;
   }
 
   _serialize(args) {
@@ -53156,6 +53157,8 @@ Wick.Timeline = class extends Wick.Base {
 
   forceFrame(frame) {
     this.playheadPosition = frame;
+    this._frameForced = true;
+    this.makeTimelineInBounds();
   }
   /**
    * The index of the active layer. Determines which frame to draw onto.
@@ -53420,10 +53423,18 @@ Wick.Timeline = class extends Wick.Base {
   advance() {
     if (this._playing) {
       this.playheadPosition++;
+      this._frameForced = false;
+      this.makeTimelineInBounds();
+    }
+  }
+  /**
+   * Ensures playhead position is in bounds.
+   */
 
-      if (this.playheadPosition > this.length) {
-        this.playheadPosition = 1;
-      }
+
+  makeTimelineInBounds() {
+    if (this.playheadPosition > this.length) {
+      this.playheadPosition = 1;
     }
   }
   /**
