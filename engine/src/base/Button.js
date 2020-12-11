@@ -76,7 +76,7 @@ Wick.Button = class extends Wick.Clip {
     }
 
     _onActive () {
-        this.timeline._forceNextFrame = 1;
+        this.timeline.gotoFrame(1);
 
         var frame2Exists = this.timeline.getFramesAtPlayheadPosition(2).length > 0;
         var frame3Exists = this.timeline.getFramesAtPlayheadPosition(3).length > 0;

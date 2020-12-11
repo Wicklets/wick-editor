@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.12.10.21.14.13";
+var WICK_ENGINE_BUILD_VERSION = "2020.12.11.9.44.10";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -58479,7 +58479,7 @@ Wick.Button = class extends Wick.Clip {
   }
 
   _onActive() {
-    this.timeline._forceNextFrame = 1;
+    this.timeline.gotoFrame(1);
     var frame2Exists = this.timeline.getFramesAtPlayheadPosition(2).length > 0;
     var frame3Exists = this.timeline.getFramesAtPlayheadPosition(3).length > 0;
 
