@@ -584,7 +584,6 @@ class Inspector extends Component {
           isSearchable={true}
           onChange={(val) => {this.setSelectionAttribute('animationType', val.value)}} />
           {
-            this.getSelectionAttribute('singleFrameNumber') &&
             <InspectorNumericInput
             tooltip="Frame"
             val={this.getSelectionAttribute('singleFrameNumber')}
