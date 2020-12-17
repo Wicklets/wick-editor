@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.12.11.15.25.29";
+var WICK_ENGINE_BUILD_VERSION = "2020.12.17.13.33.54";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -53161,6 +53161,14 @@ Wick.Timeline = class extends Wick.Base {
     this.makeTimelineInBounds();
   }
   /**
+   * Returns true if the frame was forced previously.
+   */
+
+
+  get frameForced() {
+    return this._frameForced;
+  }
+  /**
    * The index of the active layer. Determines which frame to draw onto.
    * @type {number}
    */
@@ -55930,7 +55938,7 @@ Wick.Tickable = class extends Wick.Base {
 
 
   runScript(name, parameters) {
-    if (this.removed) {
+    if (this.removed || !this.onScreen) {
       return;
     }
 

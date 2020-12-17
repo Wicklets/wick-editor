@@ -104,6 +104,13 @@ Wick.Timeline = class extends Wick.Base {
     }
 
     /**
+     * Returns true if the frame was forced previously.
+     */
+    get frameForced () {
+        return this._frameForced;
+    }
+
+    /**
      * The index of the active layer. Determines which frame to draw onto.
      * @type {number}
      */
