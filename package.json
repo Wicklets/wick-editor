@@ -1,6 +1,6 @@
 {
   "name": "wick-editor",
-  "version": "1.19.0",
+  "version": "1.19.1",
   "author": "Wicklets LLC",
   "private": true,
   "homepage": "./",
@@ -108,10 +108,8 @@
     "predeploy": "npm run build",
     "editor-deploy": "npm run build; cp -r build/* ../wick-site/public/editor; cd ../wick-site/public/editor; rm CNAME; echo 'wickeditor.com/editor/' > CNAME; git add .; git commit -m 'update prerelease build'; git push --force;",
     "test-deploy": "npm run build; cp -r build/* ../wick-site/public/test; cd ../wick-site/public/test; rm CNAME; echo 'wickeditor.com/test/' > CNAME; git add .; git commit -m 'update prerelease build'; git push --force;",
-    
     "prerelease-deploy": "npm run build; cp -r build/* ../wick-editor-prerelease/; cd ../wick-editor-prerelease; rm CNAME; echo 'test.wickeditor.com' > CNAME; git add .; git commit -m 'update prerelease build'; git push --force;",
     "deploy": "gh-pages -d build",
-    
     "electron": "electron .",
     "electron-dev-macos": "ELECTRON_START_URL=http://localhost:3000 electron .",
     "electron-dev-windows": "set ELECTRON_START_URL=http://localhost:3000 && electron .",
