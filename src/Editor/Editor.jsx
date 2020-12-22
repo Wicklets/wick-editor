@@ -57,6 +57,8 @@ import WickCodeEditor from './PopOuts/WickCodeEditor/WickCodeEditor';
 
 import EditorWrapper from './EditorWrapper';
 
+const { version } = require('../../package.json');
+
 var classNames = require('classnames');
 
 class Editor extends EditorCore {
@@ -68,7 +70,7 @@ class Editor extends EditorCore {
     // "Live" editor states
     this.project = null;
     this.paper = null;
-    this.editorVersion = "1.19";
+    this.editorVersion = version + '';
 
     // GUI state
     this.state = {
