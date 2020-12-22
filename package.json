@@ -100,7 +100,7 @@
     "eject": "react-scripts eject",
     "dist": "electron-builder",
     "start": "react-scripts start",
-    "build": "react-scripts build && cp CNAME_editor ./build/CNAME",
+    "build": "react-scripts build && cp CNAME_editor ./build/CNAME; npm version patch",
     "build-engine": "cd engine; mkdir dist/; gulp; cp -a dist/. ../public/corelibs/wick-engine/",
     "build-engine-windows": "cd engine & mkdir dist  2>nul &    gulp & xcopy /EY dist\\. ..\\public\\corelibs\\wick-engine\\",
     "test": "react-scripts test",
