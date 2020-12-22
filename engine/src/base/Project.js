@@ -97,6 +97,8 @@ Wick.Project = class extends Wick.Base {
             zoom: new Wick.Tools.Zoom(),
         };
 
+        this._quadtree = new Wick.Quadtree(this.width, this.height);
+
         for (var toolName in this._tools) {
             this._tools[toolName].project = this;
         }
@@ -119,20 +121,51 @@ Wick.Project = class extends Wick.Base {
 
         this.history.project = this;
         this.history.pushState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
-
-        //console.log(this);
-        //let q = new Quadtree({width: 500, height: 500});
-        //console.log(q);
-        
     }
 
+    markClipQuadtreeDirty (clip) {
+        this._quadtree.dirty.add(clip.uuid);
+    }
+
+    // Return array of clips whose global bounding rectangles overlap with clip
     quadtreeHit (clip) {
-        let q = new Quadtree({width: this.width, height: this.height});
-        let activeClips = this.root.getChildrenRecursive().filter(item => {return item instanceof Wick.Clip && item.onScreen && item != clip});
-        activeClips.forEach(c => {  q.push(c.globalRectangleBound); });
+        // TODO  quadtree update
+        // update quadtree with dirty elements
+        let elements = [];
+        let q = this._quadtree;
+        this._quadtree.dirty.forEach(function(uuid) {
+            let clip = Wick.ObjectCache.getObjectByUUID(uuid);
+            if (!clip) {return;}
+
+            let element = q.elements[uuid];
+            if (element === undefined) {
+                element = {x: 0, y: 0, width: 0, height: 0, uuid: uuid, inTree: true};
+                q.elements[uuid] = element;
+            }
+            else if (element.inTree) {
+                q.quadtree.remove(element);
+            }
+            let bounds = clip.globalRectangleBound;
+            element.x = bounds.x;
+            element.y = bounds.y;
+            element.width = bounds.width;
+            element.height = bounds.height;
+            elements.push(element);
+        });
+        this._quadtree.quadtree.pushAll(elements);
+        this._quadtree.dirty.clear();
+        
         let b = clip.globalRectangleBound;
-        let colliding = q.colliding(b);
-        return colliding.map(item => this.getObjectByUUID(item.uuid));
+        let colliding = this._quadtree.quadtree.colliding(b);
+
+        let colliding_clips = [];
+        for (let c = 0; c < colliding.length; c++) {
+            let clip = Wick.ObjectCache.getObjectByUUID(colliding[c].uuid);
+            if (clip) {
+                colliding_clips.push(clip);
+            }
+        }
+        return colliding_clips;
     }
 
     /**
@@ -248,10 +281,12 @@ Wick.Project = class extends Wick.Base {
     }
 
     set width(width) {
+        // TODO quadtree resize
         if (typeof width !== 'number') return;
         if (width < 1) width = 1;
         if (width > 200000) width = 200000;
         this._width = width;
+        //this._quadtree.resize(this.width, this.height);
     }
 
     /**
@@ -263,10 +298,12 @@ Wick.Project = class extends Wick.Base {
     }
 
     set height(height) {
+        // TODO quadtree resize
         if (typeof height !== 'number') return;
         if (height < 1) height = 1;
         if (height > 200000) height = 200000;
         this._height = height;
+        //this._quadtree.resize(this.width, this.height);
     }
 
     /**
@@ -302,18 +339,12 @@ Wick.Project = class extends Wick.Base {
 
     set hitTestOptions(options) {
         if (options) {
-            if (options.mode === 'CIRCLE' || options.mode === 'RECTANGLE' || options.mode === 'CONVEX') {
+            if (options.mode === 'RECTANGLE' || options.mode === 'CONVEX') {
                 this._hitTestOptions.mode = options.mode;
             }
-            if (typeof options.offset === 'boolean') {
-                this._hitTestOptions.offset = options.offset;
-            }
-            if (typeof options.overlap === 'boolean') {
-                this._hitTestOptions.overlap = options.overlap;
-            }
-            if (typeof options.intersections === 'boolean') {
-                this._hitTestOptions.intersections = options.intersections;
-            }
+            this._hitTestOptions.offset = Boolean(options.offset);
+            this._hitTestOptions.overlap = Boolean(options.overlap);
+            this._hitTestOptions.intersections = Boolean(options.intersections);
         }
     }
 
@@ -1538,6 +1569,10 @@ Wick.Project = class extends Wick.Base {
         this.focus._attachChildClipReferences();
 
         this.focus.tick();
+
+        // TODO  quadtree clean
+        // Update quadtree
+        this._quadtree.clean();
 
         this.runScheduledScripts();
 

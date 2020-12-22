@@ -84,7 +84,8 @@ WickObjectCache = class {
 
         var object = this._objects[uuid];
         if(!object) {
-            console.error("Warning: object with uuid " + uuid + " was not found in the cache.");
+            // TODO quadtree error
+            //console.error("Warning: object with uuid " + uuid + " was not found in the cache.");
             return null;
         } else {
             return object;

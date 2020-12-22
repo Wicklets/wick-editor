@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.11.28.13.50.38";
+var WICK_ENGINE_BUILD_VERSION = "2020.12.22.6.51.10";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -45962,6 +45962,82 @@ Wick.Clipboard = class {
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/* Quadtree wrapper */
+// this.quadtree: 
+//   - quadtree-lib data structure (https://github.com/elbywan/quadtree-lib#readme) 
+//   - elements in form {x, y, width, height, uuid}
+// this.dirty:
+//   - list of quadtree elements ({x, y, width, height, uuid})
+// this.elements:
+//   - dictionary of elements {uuid1: element1, uuid2: element2}
+//   - these are the exact objects that go into this.quadtree by reference 
+Wick.Quadtree = class {
+  constructor(width, height) {
+    this._quadtree = new Quadtree({
+      width: width,
+      height: height
+    });
+    this.dirty = new Set();
+    this.elements = {};
+  }
+
+  get quadtree() {
+    return this._quadtree;
+  }
+
+  clean() {
+    // TODO quadtree see why this doesn't work
+    // this._quadtree = this._quadtree.filter(function(element) {
+    //     let clip = Wick.ObjectCache.getObjectByUUID(element.uuid);
+    //     return clip.onScreen;
+    // });
+    let to_remove = [];
+
+    this._quadtree.each(function (element) {
+      let clip = Wick.ObjectCache.getObjectByUUID(element.uuid);
+
+      if (!clip || !clip.onScreen) {
+        to_remove.push(element);
+        element.inTree = false;
+      }
+    });
+
+    for (let i = 0; i < to_remove.length; i++) {
+      this._quadtree.remove(to_remove[i]);
+    }
+  }
+
+  resize(width, height) {
+    this._quadtree.each(function (element) {
+      this.dirty.add(element.uuid);
+    });
+
+    this._quadtree = new Quadtree({
+      width: width,
+      height: height
+    });
+  }
+
+};
+/*
+ * Copyright 2020 WICKLETS LLC
+ *
+ * This file is part of Wick Engine.
+ *
+ * Wick Engine is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Engine is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 /* Small utility class for colors. */
 Wick.Color = class {
   /**
@@ -46584,7 +46660,8 @@ WickObjectCache = class {
     var object = this._objects[uuid];
 
     if (!object) {
-      console.error("Warning: object with uuid " + uuid + " was not found in the cache.");
+      // TODO quadtree error
+      //console.error("Warning: object with uuid " + uuid + " was not found in the cache.");
       return null;
     } else {
       return object;
@@ -49991,6 +50068,7 @@ Wick.Project = class extends Wick.Base {
       text: new Wick.Tools.Text(),
       zoom: new Wick.Tools.Zoom()
     };
+    this._quadtree = new Wick.Quadtree(this.width, this.height);
 
     for (var toolName in this._tools) {
       this._tools[toolName].project = this;
@@ -50011,25 +50089,70 @@ Wick.Project = class extends Wick.Base {
     this._scriptSchedule = [];
     this._error = null;
     this.history.project = this;
-    this.history.pushState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS); //console.log(this);
-    //let q = new Quadtree({width: 500, height: 500});
-    //console.log(q);
+    this.history.pushState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
   }
 
+  markClipQuadtreeDirty(clip) {
+    this._quadtree.dirty.add(clip.uuid);
+  } // Return array of clips whose global bounding rectangles overlap with clip
+
+
   quadtreeHit(clip) {
-    let q = new Quadtree({
-      width: this.width,
-      height: this.height
+    // TODO  quadtree update
+    // update quadtree with dirty elements
+    let elements = [];
+    let q = this._quadtree;
+
+    this._quadtree.dirty.forEach(function (uuid) {
+      let clip = Wick.ObjectCache.getObjectByUUID(uuid);
+
+      if (!clip) {
+        return;
+      }
+
+      let element = q.elements[uuid];
+
+      if (element === undefined) {
+        element = {
+          x: 0,
+          y: 0,
+          width: 0,
+          height: 0,
+          uuid: uuid,
+          inTree: true
+        };
+        q.elements[uuid] = element;
+      } else if (element.inTree) {
+        q.quadtree.remove(element);
+      }
+
+      let bounds = clip.globalRectangleBound;
+      element.x = bounds.x;
+      element.y = bounds.y;
+      element.width = bounds.width;
+      element.height = bounds.height;
+      elements.push(element);
     });
-    let activeClips = this.root.getChildrenRecursive().filter(item => {
-      return item instanceof Wick.Clip && item.onScreen && item != clip;
-    });
-    activeClips.forEach(c => {
-      q.push(c.globalRectangleBound);
-    });
+
+    this._quadtree.quadtree.pushAll(elements);
+
+    this._quadtree.dirty.clear();
+
     let b = clip.globalRectangleBound;
-    let colliding = q.colliding(b);
-    return colliding.map(item => this.getObjectByUUID(item.uuid));
+
+    let colliding = this._quadtree.quadtree.colliding(b);
+
+    let colliding_clips = [];
+
+    for (let c = 0; c < colliding.length; c++) {
+      let clip = Wick.ObjectCache.getObjectByUUID(colliding[c].uuid);
+
+      if (clip) {
+        colliding_clips.push(clip);
+      }
+    }
+
+    return colliding_clips;
   }
   /**
    * Prepares the project to be used in an editor.
@@ -50150,10 +50273,11 @@ Wick.Project = class extends Wick.Base {
   }
 
   set width(width) {
+    // TODO quadtree resize
     if (typeof width !== 'number') return;
     if (width < 1) width = 1;
     if (width > 200000) width = 200000;
-    this._width = width;
+    this._width = width; //this._quadtree.resize(this.width, this.height);
   }
   /**
    * The height of the project.
@@ -50166,10 +50290,11 @@ Wick.Project = class extends Wick.Base {
   }
 
   set height(height) {
+    // TODO quadtree resize
     if (typeof height !== 'number') return;
     if (height < 1) height = 1;
     if (height > 200000) height = 200000;
-    this._height = height;
+    this._height = height; //this._quadtree.resize(this.width, this.height);
   }
   /**
    * The framerate of the project.
@@ -50207,21 +50332,13 @@ Wick.Project = class extends Wick.Base {
 
   set hitTestOptions(options) {
     if (options) {
-      if (options.mode === 'CIRCLE' || options.mode === 'RECTANGLE' || options.mode === 'CONVEX') {
+      if (options.mode === 'RECTANGLE' || options.mode === 'CONVEX') {
         this._hitTestOptions.mode = options.mode;
       }
 
-      if (typeof options.offset === 'boolean') {
-        this._hitTestOptions.offset = options.offset;
-      }
-
-      if (typeof options.overlap === 'boolean') {
-        this._hitTestOptions.overlap = options.overlap;
-      }
-
-      if (typeof options.intersections === 'boolean') {
-        this._hitTestOptions.intersections = options.intersections;
-      }
+      this._hitTestOptions.offset = Boolean(options.offset);
+      this._hitTestOptions.overlap = Boolean(options.overlap);
+      this._hitTestOptions.intersections = Boolean(options.intersections);
     }
   }
   /**
@@ -51523,7 +51640,11 @@ Wick.Project = class extends Wick.Base {
 
     this.focus._attachChildClipReferences();
 
-    this.focus.tick();
+    this.focus.tick(); // TODO  quadtree clean
+    // Update quadtree
+
+    this._quadtree.clean();
+
     this.runScheduledScripts(); // Save the current keysDown
 
     this._lastMousePosition = {
@@ -57369,7 +57490,8 @@ Wick.Clip = class extends Wick.Tickable {
   remove() {
     // Don't attempt to remove if the object has already been removed.
     // (This is caused by calling remove() multiple times on one object inside a script.)
-    if (!this.parent) return; // Remove from the clones array.
+    if (!this.parent) return; // TODO quadtree? remove
+    // Remove from the clones array.
 
     this.sourceClip && this.sourceClip.removeClone(this.uuid);
     this.parent.removeClip(this);
@@ -57513,7 +57635,11 @@ Wick.Clip = class extends Wick.Tickable {
   }
 
   set transformation(transformation) {
-    this._transformation = transformation; // When the transformation changes, update the current tween, if one exists
+    // TODO  quadtree
+    this._transformation = transformation;
+
+    this._onDirtyTransform(); // When the transformation changes, update the current tween, if one exists
+
 
     if (this.parentFrame) {
       // This tween must only ever be the tween over the current playhead position.
@@ -57596,8 +57722,12 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   rectangleHits(other, options) {
-    let bounds1 = this.absoluteBounds;
-    let bounds2 = other.absoluteBounds; // TODO: write intersects so we don't rely on paper Rectangle objects
+    let r1 = this.globalRectangleBound;
+    let r2 = other.globalRectangleBound;
+    let bounds1 = new paper.Rectangle(r1.x, r1.y, r1.width, r1.height); //this.absoluteBounds;
+
+    let bounds2 = new paper.Rectangle(r2.x, r2.y, r2.width, r2.height); //other.absoluteBounds;
+    // TODO: write intersects so we don't rely on paper Rectangle objects
 
     if (bounds1.intersects(bounds2)) {
       let result = {};
@@ -57931,40 +58061,85 @@ Wick.Clip = class extends Wick.Tickable {
    */
 
 
-  hits(other, options) {
-    // Get hit options
+  hits(arg1, arg2) {
+    // TODO quadtree hits
+    // 
+    // (clip), (clip, options) -> hit clip
+    // (), (options) -> hit all
+    // (string), (string, options) -> hit all with tag
+    let other = null,
+        tag = null,
+        options = null,
+        all = false;
+
+    if (arg1 === null) {
+      all = true;
+    } else if (arg1 instanceof Wick.Clip) {
+      other = arg1;
+      options = arg2;
+    } else {
+      all = true;
+      options = arg1;
+    }
+
+    if (typeof arg1 === "string") {
+      tag = arg1;
+      options = arg2;
+    } // Get hit options
+
+
     let finalOptions = { ...this.project.hitTestOptions
     };
 
     if (options) {
-      if (options.mode === 'CIRCLE' || options.mode === 'RECTANGLE' || options.mode === 'CONVEX') {
+      if (options.mode === 'RECTANGLE' || options.mode === 'CONVEX') {
         finalOptions.mode = options.mode;
       }
 
-      if (typeof options.offset === "boolean") {
-        finalOptions.offset = options.offset;
+      if (options.offset !== undefined) {
+        finalOptions.offset = Boolean(options.offset);
       }
 
-      if (typeof options.overlap === "boolean") {
-        finalOptions.overlap = options.overlap;
+      if (options.overlap !== undefined) {
+        finalOptions.overlap = Boolean(options.overlap);
       }
 
-      if (typeof options.intersections === "boolean") {
-        finalOptions.intersections = options.intersections;
+      if (options.intersections !== undefined) {
+        finalOptions.intersections = Boolean(options.intersections);
       }
 
-      if (options.radius) {
+      if (typeof options.radius === "number") {
         finalOptions.radius = options.radius;
       }
     }
 
-    if (finalOptions.mode === 'CIRCLE') {
-      return this.circleHits(other, finalOptions);
-    } else if (finalOptions.mode === 'CONVEX') {
-      return this.convexHits(other, finalOptions);
-    } else {
-      return this.rectangleHits(other, finalOptions);
+    if (other) {
+      //console.log('mode 1');
+      if (finalOptions.mode === 'CONVEX') {
+        return this.convexHits(other, finalOptions);
+      } else {
+        return this.rectangleHits(other, finalOptions);
+      }
+    } //console.log('mode 2');
+
+
+    let hits = this.project.quadtreeHit(this);
+    let results = [];
+
+    for (let h = 0; h < hits.length; h++) {
+      other = hits[h]; // TODO check either all==true or the tag condition is satisfied
+
+      if (other !== this) {
+        let hit = finalOptions.mode === 'CONVEX' ? this.convexHits(other, finalOptions) : this.rectangleHits(other, finalOptions);
+
+        if (hit) {
+          hit.clip = other;
+          results.push(hit);
+        }
+      }
     }
+
+    return results;
   }
   /**
    * Returns true if this clip collides with another clip.
@@ -57976,7 +58151,9 @@ Wick.Clip = class extends Wick.Tickable {
   hitTest(other) {
     // TODO: write intersects so we don't rely on paper Rectangle objects
     return this.absoluteBounds.intersects(other.absoluteBounds);
-  }
+  } // Returns a rectangle in the coordinate space of the root clip
+  // guaranteed to bound the object
+
 
   get globalRectangleBound() {
     let b = this.absoluteBounds;
@@ -58086,7 +58263,10 @@ Wick.Clip = class extends Wick.Tickable {
   }
 
   set x(x) {
+    // TODO  quadtree
     this.transformation.x = x;
+
+    this._onDirtyTransform();
   }
   /**
    * The Y position of the clip.
@@ -58099,7 +58279,10 @@ Wick.Clip = class extends Wick.Tickable {
   }
 
   set y(y) {
+    // TODO  quadtree
     this.transformation.y = y;
+
+    this._onDirtyTransform();
   }
   /**
    * The X scale of the clip.
@@ -58112,9 +58295,12 @@ Wick.Clip = class extends Wick.Tickable {
   }
 
   set scaleX(scaleX) {
+    // TODO  quadtree
     if (scaleX === 0) scaleX = 0.001; // Protects against NaN issues
 
     this.transformation.scaleX = scaleX;
+
+    this._onDirtyTransform();
   }
   /**
    * The Y scale of the clip.
@@ -58127,9 +58313,12 @@ Wick.Clip = class extends Wick.Tickable {
   }
 
   set scaleY(scaleY) {
+    // TODO  quadtree
     if (scaleY === 0) scaleY = 0.001; // Protects against NaN issues
 
     this.transformation.scaleY = scaleY;
+
+    this._onDirtyTransform();
   }
   /**
    * The width of the clip.
@@ -58142,7 +58331,10 @@ Wick.Clip = class extends Wick.Tickable {
   }
 
   set width(width) {
+    // TODO  quadtree
     this.scaleX = width / this.width * this.scaleX;
+
+    this._onDirtyTransform();
   }
   /**
    * The height of the clip.
@@ -58155,7 +58347,10 @@ Wick.Clip = class extends Wick.Tickable {
   }
 
   set height(height) {
+    // TODO  quadtree
     this.scaleY = height / this.height * this.scaleY;
+
+    this._onDirtyTransform();
   }
   /**
    * The rotation of the clip.
@@ -58168,7 +58363,10 @@ Wick.Clip = class extends Wick.Tickable {
   }
 
   set rotation(rotation) {
+    // TODO  quadtree
     this.transformation.rotation = rotation;
+
+    this._onDirtyTransform();
   }
   /**
    * The opacity of the clip.
@@ -58192,6 +58390,7 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   clone() {
+    // TODO quadtree? prolly not, onActivated should handle it
     var clone = this.copy();
     clone.identifier = null;
     this.parentFrame.addClip(clone);
@@ -58298,6 +58497,20 @@ Wick.Clip = class extends Wick.Tickable {
         isPlaceholder: true
       }));
     }
+  } // called when transforms changed, 
+
+
+  _onDirtyTransform() {
+    this._onQuadtreeDirty();
+  }
+
+  _onQuadtreeDirty() {
+    // TODO  quadtree tell proj
+    // tell project I'm dirty
+    // only if not root
+    if (!this.isRoot && this.project) {
+      this.project.markClipQuadtreeDirty(this);
+    }
   }
 
   _onInactive() {
@@ -58309,7 +58522,11 @@ Wick.Clip = class extends Wick.Tickable {
   _onActivated() {
     super._onActivated();
 
-    this._tickChildren();
+    this._tickChildren(); // TODO  quadtree
+    // tell project I need to be drawn
+
+
+    this._onQuadtreeDirty();
 
     if (this.animationType === 'playOnce') {
       this.playedOnce = false;
