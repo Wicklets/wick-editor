@@ -29,6 +29,7 @@ import WickButton from './WickButton/WickButton';
 
 import { Input } from 'reactstrap';
 import WickTextInput from './WickTextInput/WickTextInput';
+import { isMobile } from 'react-device-detect';
 
 var classNames = require('classnames');
 
@@ -54,21 +55,24 @@ class WickInput extends Component {
   render() {
     let tooltipID = this.props.tooltipID === undefined ? 'action-button-tooltip-nyi' : this.props.tooltipID;
 
-    return (
-      <div
-        data-tip
-        data-for={tooltipID}
-        id={tooltipID}
-        className={classNames("wick-input-container", this.props.containerclassname)}>
-        { (this.props.tooltip !== undefined) && this.renderTooltip(tooltipID) }
-        { this.renderContent() }
-      </div>
-    )
+    if (this.props.tooltip && !isMobile) {
+      return (
+        <div
+          data-tip
+          data-for={tooltipID}
+          id={tooltipID}
+          className={classNames("wick-input-container", this.props.containerclassname)}>
+          {this.renderTooltip(tooltipID)}
+          {this.renderContent()}
+        </div>
+      );
+    } else {
+      return this.renderContent();
+    }
   }
 
   renderTooltip = (tooltipID) => {
     // Detect if on mobile to disable tooltips.
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
     return (
       <ReactTooltip
@@ -78,12 +82,6 @@ class WickInput extends Component {
         place={this.props.tooltipPlace === undefined ? 'bottom' : this.props.tooltipPlace}
         effect='solid'
         aria-haspopup='true'
-        // overridePosition={({ left, top }, _e, _t, node) => {
-        //   return {
-        //     top,
-        //     left: typeof node === 'string' ? left : Math.max(left, 0),
-        //   };
-        // }}
         className="wick-tooltip">
         <span>{this.props.tooltip}</span>
       </ReactTooltip>
