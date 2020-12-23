@@ -41,6 +41,7 @@ export default function WickButton(props) {
   return (
     <button
       {...props.buttonProps}
+      onTouchEnd={handleClick}
       onClick={handleClick}
       className={classNames("wick-button ", props.className)}>
       {props.children}

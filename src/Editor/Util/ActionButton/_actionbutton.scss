@@ -265,6 +265,7 @@ body.hasHover .action-button-tool:hover {
 .action-button-tool:active {
   //background-color: $wick-green-dark;
   border: 2px solid #01C094;
+  background-color: $editor-secondary;
   color: black;
 }
 
