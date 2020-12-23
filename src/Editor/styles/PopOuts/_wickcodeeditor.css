@@ -374,3 +374,7 @@
     background-color: var(--wick-error);
     padding-right: 4px;
 }
+
+.we-code-add {
+    background-color: var(--wick-tertiary); 
+}
