@@ -378,3 +378,7 @@
 .we-code-add {
     background-color: var(--wick-tertiary); 
 }
+
+.ace_search {
+    width: 250px;
+}

@@ -28,6 +28,7 @@ import { Console } from 'console-feed'
 // Import Ace Editor and themes.
 import AceEditor from 'react-ace';
 import 'brace/mode/javascript';
+import 'brace/ext/searchbox';
 
 import 'brace/theme/monokai';
 import 'brace/theme/cobalt';
