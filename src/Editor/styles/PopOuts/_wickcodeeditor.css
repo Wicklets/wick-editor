@@ -382,3 +382,8 @@
 .ace_search {
     width: 250px;
 }
+
+.we-code-editor-title-error {
+    color: var(--wick-error);
+    padding-left: 4px;
+}

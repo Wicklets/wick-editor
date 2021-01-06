@@ -369,7 +369,15 @@ export default function WickCodeEditor(props) {
       <div className="wick-code-editor-drag-handle">
         <div className="wick-code-editor-icon">{"</>"}</div>
         <div className="we-code-editor-title">
-          Code Editor | <div className="we-code-editor-title-selected">{`editing ${props.selectionType}`}</div>
+          Code Editor | 
+          { !props.error && <div className="we-code-editor-title-selected">
+            {`editing ${props.selectionType}`}
+            </div>
+          } 
+          { props.error && <div className="we-code-editor-title-error">
+                {`error - line ${props.error.lineNumber}`}
+              </div>
+          }
         </div>
         <ActionButton
           className="we-code-close-button"
