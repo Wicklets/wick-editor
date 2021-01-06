@@ -168,6 +168,23 @@ export default function WickCodeEditor(props) {
   }
 
   /**
+   * Maps errors to annotations in the gutter.
+   * @param {object} error - Object representing error from editor. Should include lineNumber, message.
+   */
+  function mapErrorToAnnotations(error) {
+    if (!error) {
+      return [];
+    }
+
+    let annotation = {};
+    annotation.row = error.lineNumber - 1;
+    annotation.type = 'error';
+    annotation.text = error.message;
+
+    return [annotation];
+  }
+
+  /**
    * Sets code editor font size. 
    * @param {*} size 
    */
@@ -296,6 +313,7 @@ export default function WickCodeEditor(props) {
           onChange={scriptOnChange}
           onLoad={(editor) => setAceEditor(editor)}
           markers={mapErrorToMarkers(props.error)}
+          annotations={mapErrorToAnnotations(props.error)}
           readOnly={!props.script}
         />
       }
