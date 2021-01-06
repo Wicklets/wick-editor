@@ -156,8 +156,6 @@ export default function WickCodeEditor(props) {
       return [];
     }
 
-
-
     let marker = {};
     marker.startRow = error.lineNumber - 1;
     marker.endRow = error.lineNumber - 1;
@@ -268,6 +266,7 @@ export default function WickCodeEditor(props) {
           </div>
     )
   }
+
 
   function renderCodeEditor () {
     return (

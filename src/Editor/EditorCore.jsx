@@ -1626,6 +1626,9 @@ class EditorCore extends Component {
    */
   clearCodeEditorError = () => {
       this.project.error = null;
+      this.setState({
+        codeError: null,
+      })
       this.projectDidChange({ actionName: "Clear Code Editor Error" });
   }
 
