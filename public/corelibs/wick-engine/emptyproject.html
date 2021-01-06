@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.12.17.13.33.54";
+var WICK_ENGINE_BUILD_VERSION = "2021.1.6.13.37.59";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -47397,22 +47397,26 @@ GlobalAPI = class {
 GlobalAPI.Random = class {
   constructor() {}
   /**
-   * Returns a random integer (whole number) between two given numbers, 0 and a given number, or 0 and 1.
-   * @param {number} num1 The minimum of the returned intege, or the maximum of the returned number if it is the only argument.
+   * Returns a random integer (whole number) between two given numbers, 0 and a given number, or 0 and 1. The random number is inclusive of the maximum range.
+   * @param {number} min The minimum of the returned integer, or the maximum of the returned number if it is the only argument.
    * @param {number} max The maximum of the returned integer.
-   * @returns {number} A random number between num1 and num2, 0 and num1, or 0 and 1.
-   * https://stackoverflow.com/questions/4959975/generate-random-number-between-two-numbers-in-javascript
+   * @returns {number} A random number between num1 and num2, 0 and num1, or 0 and 1. Will return 0 if max is greater than min.
+   * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
    */
 
 
-  integer(num1, num2) {
-    if (typeof num1 !== "undefined" && typeof num2 !== "undefined") {
-      return Math.floor(Math.random() * (num2 - num1) + num1);
-    } else if (typeof num1 !== "undefined" && typeof num2 == "undefined") {
-      return Math.floor(Math.random() * num1);
-    } else {
-      return Math.floor(Math.random() * 2);
+  integer(min, max) {
+    if (typeof min === 'undefined' && typeof max === 'undefined') {
+      min = 0;
+      max = 1;
+    } else if (typeof min === 'number' && typeof max === 'undefined') {
+      max = Math.ceil(min);
+      min = 0;
     }
+
+    if (max < min) return 0; // The maximum is inclusive and the minimum is inclusive
+
+    return Math.floor(Math.random() * (max - min + 1) + min);
   }
   /**
    * Returns a random floating point (decimal) number between two given numbers, 0 and a given number, or 0 and 1.
