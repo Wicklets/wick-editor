@@ -1472,15 +1472,19 @@ class EditorCore extends Component {
   }
 
   /**
-   * Start a timer to run an autosave sometime in the future.
+   * Attempts to autosave if enough time has passed since the last autosave.
    */
   requestAutosave = () => {
-      window.clearTimeout(this._autosaveTimeoutID);
-      this._autosaveTimeoutID = window.setTimeout(() => {
-          this.autoSaveProject(() => {
+    let now = Date.now();
+    let last = this._lastAutosave;
+    let timeSince = now - last;
 
-          });
-      }, 1000 * 60);
+    // Only autosave every 15 seconds.
+    if (timeSince > 15000) {
+      this.autoSaveProject(() => {
+        this._lastAutosave = Date.now();
+      });
+    }
   }
 
   /**

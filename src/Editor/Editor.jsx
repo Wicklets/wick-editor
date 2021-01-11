@@ -130,6 +130,9 @@ class Editor extends EditorCore {
     // Set up error.
     this.error = null;
 
+    // Last Autosave
+    this._lastAutosave = 0;
+
     // Create interfaces.
     this.fontInfoInterface = new FontInfoInterface(this);
 
