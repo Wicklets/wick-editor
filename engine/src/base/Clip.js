@@ -51,7 +51,6 @@ Wick.Clip = class extends Wick.Tickable {
         this._singleFrameNumber = 1; // Default to 1, this value is only used if the animation type is single
         this._playedOnce = false;
         this._isSynced = false;
-        this._removed = false;
 
         this._transformation = args.transformation || new Wick.Transformation();
 
@@ -143,17 +142,6 @@ Wick.Clip = class extends Wick.Tickable {
         } else {
             this.timeline.playheadPosition = 1; 
         }
-    }
-
-    /**
-     * Signals if an object is removed.
-     */
-    get removed () {
-        return this._removed;
-    }
-
-    set removed (bool) {
-        this._removed = bool; 
     }
 
     /**

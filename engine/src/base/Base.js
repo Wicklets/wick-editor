@@ -253,6 +253,20 @@ Wick.Base = class {
     }
 
     /**
+     * Signals if an object is removed from the project while playing.
+     * This is a temprary variable.
+     * @type {boolean}
+     */
+    get removed () {
+        return typeof this._removed === 'undefined' ? false : this._removed;
+    }
+
+    set removed (bool) {
+        this._removed = bool; 
+    }
+
+
+    /**
      * Returns the classname of a Wick Base object.
      * @type {string}
      */
