@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2021.1.13.5.39.35";
+var WICK_ENGINE_BUILD_VERSION = "2021.1.13.6.35.56";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -45950,9 +45950,9 @@ Wick.Clipboard = class {
 /* Quadtree wrapper */
 // this.quadtree: 
 //   - quadtree-lib data structure (https://github.com/elbywan/quadtree-lib#readme) 
-//   - elements in form {x, y, width, height, uuid}
+//   - elements in form {x, y, width, height, uuid, inTree}
 // this.dirty:
-//   - list of quadtree elements ({x, y, width, height, uuid})
+//   - set of quadtree elements ({x, y, width, height, uuid, inTree})
 // this.elements:
 //   - dictionary of elements {uuid1: element1, uuid2: element2}
 //   - these are the exact objects that go into this.quadtree by reference 
@@ -53224,7 +53224,8 @@ Wick.Timeline = class extends Wick.Base {
   }
 
   set playheadPosition(playheadPosition) {
-    // Automatically clear selection when any playhead in the project moves
+    let changed = this._playheadPosition !== playheadPosition; // Automatically clear selection when any playhead in the project moves
+
     if (this.project && this._playheadPosition !== playheadPosition && this.parentClip.isFocus) {
       this.project.selection.clear('Canvas');
       this.project.resetTools();
@@ -53241,6 +53242,10 @@ Wick.Timeline = class extends Wick.Base {
       frame.applyTweenTransforms();
       frame.updateClipTimelinesForAnimationType();
     });
+
+    if (changed && this.parentClip) {
+      this.parentClip._onVisualDirty();
+    }
   }
   /**
    * The index of the active layer. Determines which frame to draw onto.
@@ -58546,18 +58551,25 @@ Wick.Clip = class extends Wick.Tickable {
         isPlaceholder: true
       }));
     }
-  } // called when transforms changed, or when transforms of child changed.
+  } // called when transforms changed
 
 
   _onDirtyTransform() {
+    this._onVisualDirty();
+  } // called when transform changed, transform of child changed, 
+  // or frame of any recursive children timeline changes
+
+
+  _onVisualDirty() {
     this._onQuadtreeDirty();
 
     this._memoizedConvexHull = null;
 
     if (this.parentClip) {
-      this.parentClip._onDirtyTransform();
+      this.parentClip._onVisualDirty();
     }
-  }
+  } // called when need to be re-added to quadtree
+
 
   _onQuadtreeDirty() {
     // TODO  quadtree tell proj

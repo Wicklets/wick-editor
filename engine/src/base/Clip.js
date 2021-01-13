@@ -1374,13 +1374,20 @@ Wick.Clip = class extends Wick.Tickable {
         }
     }
 
-    // called when transforms changed, or when transforms of child changed.
+    // called when transforms changed
     _onDirtyTransform() {
-        this._onQuadtreeDirty();
-        this._memoizedConvexHull = null;
-        if (this.parentClip) {this.parentClip._onDirtyTransform();}
+        this._onVisualDirty();
     }
 
+    // called when transform changed, transform of child changed, 
+    // or frame of any recursive children timeline changes
+    _onVisualDirty() {
+        this._onQuadtreeDirty();
+        this._memoizedConvexHull = null;
+        if (this.parentClip) {this.parentClip._onVisualDirty();}
+    }
+
+    // called when need to be re-added to quadtree
     _onQuadtreeDirty() {
         // TODO  quadtree tell proj
         // tell project I'm dirty

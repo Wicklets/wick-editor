@@ -20,9 +20,9 @@
 /* Quadtree wrapper */
 // this.quadtree: 
 //   - quadtree-lib data structure (https://github.com/elbywan/quadtree-lib#readme) 
-//   - elements in form {x, y, width, height, uuid}
+//   - elements in form {x, y, width, height, uuid, inTree}
 // this.dirty:
-//   - list of quadtree elements ({x, y, width, height, uuid})
+//   - set of quadtree elements ({x, y, width, height, uuid, inTree})
 // this.elements:
 //   - dictionary of elements {uuid1: element1, uuid2: element2}
 //   - these are the exact objects that go into this.quadtree by reference 
