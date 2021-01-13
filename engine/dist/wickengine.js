@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2021.1.13.5.28.16";
+var WICK_ENGINE_BUILD_VERSION = "2021.1.13.5.39.35";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -57143,6 +57143,7 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     this._clones = [];
+    this._memoizedConvexHull = null;
   }
 
   _serialize(args) {
@@ -58271,6 +58272,10 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   get convexHull() {
+    if (this._memoizedConvexHull) {
+      return this._memoizedConvexHull;
+    }
+
     let points = this.points; // Infinity gets us the convex hull
 
     let ch = hull(points, Infinity); //console.log('h', ch.length);
@@ -58293,6 +58298,7 @@ Wick.Clip = class extends Wick.Tickable {
       }
     }
 
+    this._memoizedConvexHull = removedDuplicates;
     return removedDuplicates;
   }
   /**
@@ -58540,11 +58546,17 @@ Wick.Clip = class extends Wick.Tickable {
         isPlaceholder: true
       }));
     }
-  } // called when transforms changed, 
+  } // called when transforms changed, or when transforms of child changed.
 
 
   _onDirtyTransform() {
     this._onQuadtreeDirty();
+
+    this._memoizedConvexHull = null;
+
+    if (this.parentClip) {
+      this.parentClip._onDirtyTransform();
+    }
   }
 
   _onQuadtreeDirty() {

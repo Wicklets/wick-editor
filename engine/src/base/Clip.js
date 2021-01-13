@@ -68,6 +68,7 @@ Wick.Clip = class extends Wick.Tickable {
 
         this._clones = [];
 
+        this._memoizedConvexHull = null;
     }
 
     _serialize(args) {
@@ -1127,6 +1128,10 @@ Wick.Clip = class extends Wick.Tickable {
     // Gives clockwise in screen space, which is ccw in regular axes
     // Points are in global coordinates
     get convexHull () {
+        if (this._memoizedConvexHull) {
+            return this._memoizedConvexHull;
+        }
+
         let points = this.points;
         
         // Infinity gets us the convex hull
@@ -1149,6 +1154,7 @@ Wick.Clip = class extends Wick.Tickable {
                 removedDuplicates.push(ch[i]);
             }
         }
+        this._memoizedConvexHull = removedDuplicates;
         return removedDuplicates;
     }
 
@@ -1368,9 +1374,11 @@ Wick.Clip = class extends Wick.Tickable {
         }
     }
 
-    // called when transforms changed, 
+    // called when transforms changed, or when transforms of child changed.
     _onDirtyTransform() {
         this._onQuadtreeDirty();
+        this._memoizedConvexHull = null;
+        if (this.parentClip) {this.parentClip._onDirtyTransform();}
     }
 
     _onQuadtreeDirty() {
