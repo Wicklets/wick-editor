@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.12.22.6.51.10";
+var WICK_ENGINE_BUILD_VERSION = "2021.1.13.5.28.16";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -57806,29 +57806,11 @@ Wick.Clip = class extends Wick.Tickable {
   cw(x1, y1, x2, y2, x3, y3) {
     const cw = (y3 - y1) * (x2 - x1) - (y2 - y1) * (x3 - x1);
     return cw >= 0; // colinear ?
-  }
-  /**
-   * Perform convex hull hit test with other clip.
-   * @param {Wick.Clip} other - the clip to hit test with
-   * @param {object} options - Hit test options
-   * @returns {object} Hit information
-   */
+  } // Return intersections in form [[x1,y1], [x2,y2], ...]
 
 
-  convexHits(other, options) {
-    // Efficient check first
-    let bounds1 = this.absoluteBounds;
-    let bounds2 = other.absoluteBounds; // TODO: write intersects so we don't rely on paper Rectangle objects
-
-    if (!bounds1.intersects(bounds2)) {
-      return null;
-    }
-
-    let c1 = bounds1.center;
-    let c2 = bounds2.center; // clockwise arrays of points in format [[x1, y1], [x2, y2], ...]
-
-    let hull1 = this.convexHull;
-    let hull2 = other.convexHull;
+  intersectHulls(hull1, hull2) {
+    if (hull1.length < 3 || hull2.length < 3) return [];
     let finished1 = false;
     let finished2 = false;
     let i1 = hull1.length - 1;
@@ -57855,10 +57837,7 @@ Wick.Clip = class extends Wick.Tickable {
       let t1 = (c[0] + (d[0] - c[0]) * t2 - a[0]) / (b[0] - a[0]);
 
       if (0 <= t1 && t1 <= 1 && 0 <= t2 && t2 <= 1) {
-        intersections.push({
-          x: a[0] + (b[0] - a[0]) * t1,
-          y: a[1] + (b[1] - a[1]) * t1
-        });
+        intersections.push([a[0] + (b[0] - a[0]) * t1, a[1] + (b[1] - a[1]) * t1]);
       }
 
       let APointingToB = t1 > 1;
@@ -57900,31 +57879,71 @@ Wick.Clip = class extends Wick.Tickable {
           }
         }
       }
-    } // Ok, we have all the intersections now
+    }
 
+    return intersections;
+  }
+  /**
+   * Perform convex hull hit test with other clip.
+   * @param {Wick.Clip} other - the clip to hit test with
+   * @param {object} options - Hit test options
+   * @returns {object} Hit information
+   */
+
+
+  convexHits(other, options) {
+    // TODO: Efficient check first
+    let bounds1 = this.absoluteBounds;
+    let bounds2 = other.absoluteBounds;
+
+    if (bounds1.width === 0 && bounds1.height === 0 || bounds2.width === 0 && bounds2.height === 0) {
+      // These cases cause trouble, and often show up just for a single frame after a
+      // clip is cloned.
+      return null;
+    } //local to global transforms
+
+
+    let m1 = this.parentClip.view.group.globalMatrix; // TODO: stop reliance on view
+
+    let m2 = other.parentClip.view.group.globalMatrix;
+    let c1 = m1.transform(bounds1.center);
+    let c2 = m2.transform(bounds2.center); // clockwise arrays of points in format [[x1, y1], [x2, y2], ...]
+
+    let hull1 = this.convexHull;
+    let hull2 = other.convexHull;
+    let intersections = this.intersectHulls(hull1, hull2);
+
+    if (intersections.length === 0) {
+      // TODO: check if one is totally inside the other
+      return null;
+    }
 
     let avgIntersection = {
       x: 0,
       y: 0
     };
 
-    if (intersections.length === 0) {
-      avgIntersection.x = bounds1.width < bounds2.width ? c1.x : c2.x;
-      avgIntersection.y = bounds1.width < bounds2.width ? c1.y : c2.y;
-    } else {
-      for (let i = 0; i < intersections.length; i++) {
-        avgIntersection.x += intersections[i].x;
-        avgIntersection.y += intersections[i].y;
-      }
-
-      avgIntersection.x /= intersections.length;
-      avgIntersection.y /= intersections.length;
+    for (let i = 0; i < intersections.length; i++) {
+      avgIntersection.x += intersections[i][0];
+      avgIntersection.y += intersections[i][1];
     }
+
+    avgIntersection.x /= intersections.length;
+    avgIntersection.y /= intersections.length;
+    let m1i = m1.inverted(); //global to local matrix
 
     let result = {};
 
     if (options.intersections) {
-      result.intersections = intersections;
+      let local = this.globalToLocal(intersections);
+      result.intersections = [];
+
+      for (let i = 0; i < local.length; i++) {
+        result.intersections.push({
+          x: local[i][0],
+          y: local[i][1]
+        });
+      }
     }
 
     if (options.offset) {
@@ -57943,8 +57962,9 @@ Wick.Clip = class extends Wick.Tickable {
       let mag = Math.sqrt(directionX * directionX + directionY * directionY);
       directionX *= r / mag;
       directionY *= r / mag;
-      result.offsetX = directionX;
-      result.offsetY = directionY;
+      result.offsetX = m1i.a * directionX + m1i.c * directionY; // transform to local space
+
+      result.offsetY = m1i.b * directionX + m1i.d * directionY;
     }
 
     if (options.overlap) {
@@ -57957,15 +57977,17 @@ Wick.Clip = class extends Wick.Tickable {
         directionX = c2.x - c1.x;
         directionY = c2.y - c1.y;
       } else {
+        // Find longest distance between two intersections i and j, then take vector orthogonal to ij
+        //console.log(intersections);
         let max_d = 0;
 
         for (let i = 1; i < intersections.length; i++) {
-          let d = (intersections[i].y - intersections[0].y) * (intersections[i].y - intersections[0].y) + (intersections[i].x - intersections[0].x) * (intersections[i].x - intersections[0].x);
+          let d = (intersections[i][1] - intersections[0][1]) * (intersections[i][1] - intersections[0][1]) + (intersections[i][0] - intersections[0][0]) * (intersections[i][0] - intersections[0][0]);
 
           if (d > max_d) {
             max_d = d;
-            directionX = -(intersections[i].y - intersections[0].y);
-            directionY = intersections[i].x - intersections[0].x;
+            directionX = -(intersections[i][1] - intersections[0][1]);
+            directionY = intersections[i][0] - intersections[0][0];
 
             if (directionX * (c1.x - avgIntersection.x) + directionY * (c1.y - avgIntersection.y) > 0) {
               directionX = -directionX;
@@ -57973,7 +57995,8 @@ Wick.Clip = class extends Wick.Tickable {
             }
           }
         }
-      }
+      } //console.log(directionX, directionY);
+
 
       let targetTheta = Math.atan2(directionY, directionX);
       let r = this.radiusAtPointInDirection(hull1, avgIntersection, targetTheta);
@@ -57989,11 +58012,14 @@ Wick.Clip = class extends Wick.Tickable {
         directionY *= -1;
       }
 
-      let mag = Math.sqrt(directionX * directionX + directionY * directionY);
+      let mag = Math.sqrt(directionX * directionX + directionY * directionY); //console.log(directionX, directionY);
+
       directionX *= -r / mag;
-      directionY *= -r / mag;
-      result.overlapX = directionX;
-      result.overlapY = directionY;
+      directionY *= -r / mag; //console.log(directionX, directionY);
+
+      result.overlapX = m1i.a * directionX + m1i.c * directionY; // transform to local space
+
+      result.overlapY = m1i.b * directionX + m1i.d * directionY; //console.log(result.overlapX, result.overlapY);
     }
 
     return result;
@@ -58001,8 +58027,8 @@ Wick.Clip = class extends Wick.Tickable {
   /**
    * Casts a ray from p in the direction targetTheta and intersects it with the hull ch,
    * returns the distance from p to the surface of ch.
-   * @param {list} ch - the convex hull to intersect a ray with
-   * @param {object} p - the point of origin of the ray
+   * @param {list} ch - the convex hull to intersect a ray with [[x1,y1], [x2,y2], ...]
+   * @param {object} p - the point of origin of the ray {x, y}
    * @param {number} targetTheta - the direction of the ray
    * @returns {number} the distance to the surface of the convex hull from the point in the direction theta
    */
@@ -58010,7 +58036,7 @@ Wick.Clip = class extends Wick.Tickable {
 
   radiusAtPointInDirection(ch, p, targetTheta) {
     let minThetaDiff = Infinity;
-    let index;
+    let index = 0;
 
     for (let i = 0; i < ch.length; i++) {
       let theta = Math.atan2(ch[i][1] - p.y, ch[i][0] - p.x);
@@ -58109,20 +58135,25 @@ Wick.Clip = class extends Wick.Tickable {
 
 
     let hits = this.project.quadtreeHit(this);
-    let results = [];
+    let results = []; //console.log(hits.length);
 
     for (let h = 0; h < hits.length; h++) {
       other = hits[h]; // TODO check either all==true or the tag condition is satisfied
+      //console.log('oy', h);
 
       if (other !== this) {
-        let hit = finalOptions.mode === 'CONVEX' ? this.convexHits(other, finalOptions) : this.rectangleHits(other, finalOptions);
+        //console.log('ay', other);
+        let hit = finalOptions.mode === 'CONVEX' ? this.convexHits(other, finalOptions) : this.rectangleHits(other, finalOptions); //console.log('be');
 
         if (hit) {
           hit.clip = other;
           results.push(hit);
-        }
-      }
-    }
+        } //console.log('ce');
+
+      } //console.log('oy', h)
+
+    } //console.log('mode 2 done', results);
+
 
     return results;
   }
@@ -58178,6 +58209,26 @@ Wick.Clip = class extends Wick.Tickable {
     };
   }
   /**
+   * Transforms points from global space (relative to the top level clip)
+   * to local space (relative to the parent clip)
+   * @param {list} points - input points [[x1,y1],  [x2,y2], ...] 
+   * @returns {list} transformed points [[x1',y1'],  [x2',y2'], ...]
+   */
+
+
+  globalToLocal(points) {
+    let out = [];
+    let n = points.length;
+    this.parentClip.view.group.globalMatrix.inverted().transform(points.flat(), out, n);
+    let format = [];
+
+    for (let i = 0; i < n; i++) {
+      format.push([out[2 * i], out[2 * i + 1]]);
+    }
+
+    return format;
+  }
+  /**
    * The bounding box of the clip.
    * @type {object}
    */
@@ -58216,16 +58267,23 @@ Wick.Clip = class extends Wick.Tickable {
       return Math.sqrt(max_r);
     */
   } // Gives clockwise in screen space, which is ccw in regular axes
+  // Points are in global coordinates
 
 
   get convexHull() {
     let points = this.points; // Infinity gets us the convex hull
 
-    let ch = hull(points, Infinity);
+    let ch = hull(points, Infinity); //console.log('h', ch.length);
+
     let removedDuplicates = [];
     let epsilon = 0.01;
 
     for (let i = 0; i < ch.length; i++) {
+      if (ch[i] === undefined) {
+        continue;
+      } // This is weird, but prevents a bug
+
+
       if (removedDuplicates.length > 0) {
         if ((Math.abs(ch[i][0] - removedDuplicates[removedDuplicates.length - 1][0]) > epsilon || Math.abs(ch[i][1] - removedDuplicates[removedDuplicates.length - 1][1]) > epsilon) && (Math.abs(ch[i][0] - removedDuplicates[0][0]) > epsilon || Math.abs(ch[i][1] - removedDuplicates[0][1]) > epsilon)) {
           removedDuplicates.push(ch[i]);
@@ -63553,43 +63611,7 @@ Wick.View.Clip = class extends Wick.View {
 
   get absoluteBounds() {
     return this.group.bounds;
-  } // get radius () {
-  //     if (this._radius) {
-  //         return this._radius;
-  //     }
-  //     let center = this.absoluteBounds.center;
-  //     let convert = (point) => point.getDistance(center, true);
-  //     let compare = (a, b) => Math.max(a,b);
-  //     let initial = 0;
-  //     this._radius = Math.sqrt(this.reducePointsFromGroup(this.group, initial, convert, compare));
-  //     return this._radius;
-  // }
-  // get convexHull () {
-  //     let group = this.group;
-  //     let initial = [];
-  //     let convert = (point) => [[point.x, point.y]];
-  //     let compare = (list1, list2) => list1.concat(list2);
-  //     let points = this.reducePointsFromGroup(group, initial, convert, compare);
-  //     // Infinity gets us the convex hull
-  //     let ch = hull(points, Infinity);
-  //     let removedDuplicates = [];
-  //     let epsilon = 0.01;
-  //     for (let i = 0; i < ch.length; i++) {
-  //         if (removedDuplicates.length > 0) {
-  //             if ((Math.abs(ch[i][0] - removedDuplicates[removedDuplicates.length - 1][0]) > epsilon ||
-  //                 Math.abs(ch[i][1] - removedDuplicates[removedDuplicates.length - 1][1]) > epsilon) && 
-  //                 (Math.abs(ch[i][0] - removedDuplicates[0][0]) > epsilon ||
-  //                 Math.abs(ch[i][1] - removedDuplicates[0][1]) > epsilon)) {
-  //                 removedDuplicates.push(ch[i]);
-  //             }
-  //         }
-  //         else {
-  //             removedDuplicates.push(ch[i]);
-  //         }
-  //     }
-  //     return removedDuplicates;
-  // }
-
+  }
 
   get points() {
     let group = this.group;

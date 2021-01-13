@@ -60,51 +60,6 @@ Wick.View.Clip = class extends Wick.View {
         return this.group.bounds;
     }
 
-    // get radius () {
-    //     if (this._radius) {
-    //         return this._radius;
-    //     }
-
-    //     let center = this.absoluteBounds.center;
-    //     let convert = (point) => point.getDistance(center, true);
-    //     let compare = (a, b) => Math.max(a,b);
-    //     let initial = 0;
-
-    //     this._radius = Math.sqrt(this.reducePointsFromGroup(this.group, initial, convert, compare));
-
-    //     return this._radius;
-    // }
-
-    // get convexHull () {
-    //     let group = this.group;
-    //     let initial = [];
-    //     let convert = (point) => [[point.x, point.y]];
-    //     let compare = (list1, list2) => list1.concat(list2);
-
-    //     let points = this.reducePointsFromGroup(group, initial, convert, compare);
-
-    //     // Infinity gets us the convex hull
-    //     let ch = hull(points, Infinity);
-
-    //     let removedDuplicates = [];
-    //     let epsilon = 0.01;
-    //     for (let i = 0; i < ch.length; i++) {
-    //         if (removedDuplicates.length > 0) {
-    //             if ((Math.abs(ch[i][0] - removedDuplicates[removedDuplicates.length - 1][0]) > epsilon ||
-    //                 Math.abs(ch[i][1] - removedDuplicates[removedDuplicates.length - 1][1]) > epsilon) && 
-    //                 (Math.abs(ch[i][0] - removedDuplicates[0][0]) > epsilon ||
-    //                 Math.abs(ch[i][1] - removedDuplicates[0][1]) > epsilon)) {
-    //                 removedDuplicates.push(ch[i]);
-    //             }
-    //         }
-    //         else {
-    //             removedDuplicates.push(ch[i]);
-    //         }
-    //     }
-
-    //     return removedDuplicates;
-    // }
-
     get points () {
         let group = this.group;
         let initial = [];
