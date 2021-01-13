@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2021.1.12.11.30.8";
+var WICK_ENGINE_BUILD_VERSION = "2021.1.13.11.31.57";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -57450,7 +57450,8 @@ Wick.Clip = class extends Wick.Tickable {
   remove() {
     // Don't attempt to remove if the object has already been removed.
     // (This is caused by calling remove() multiple times on one object inside a script.)
-    if (!this.parent) return; // Force unload to run now, before object is removed;
+    if (!this.parent || this._willBeRemoved) return;
+    this._willBeRemoved = true; // Force unload to run now, before object is removed;
 
     this.runScript('unload'); // Remove from the clones array.
 
