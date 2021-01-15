@@ -68,7 +68,7 @@ Wick.Clip = class extends Wick.Tickable {
 
         this._clones = [];
 
-        this._memoizedConvexHull = null;
+        //this._memoizedConvexHull = null;
     }
 
     _serialize(args) {
@@ -857,7 +857,7 @@ Wick.Clip = class extends Wick.Tickable {
             else {
                 // Find longest distance between two intersections i and j, then take vector orthogonal to ij
                 //console.log(intersections);
-                let max_d = 0;
+                /*let max_d = 0;
                 for (let i = 1; i < intersections.length; i++) {
                     let d = (intersections[i][1] - intersections[0][1]) * (intersections[i][1] - intersections[0][1]) +
                         (intersections[i][0] - intersections[0][0]) * (intersections[i][0] - intersections[0][0]);
@@ -870,11 +870,27 @@ Wick.Clip = class extends Wick.Tickable {
                             directionY = -directionY;
                         }
                     }
+                }*/
+                let max_d = 0;
+                for (let j = 0; j < intersections.length - 1; j++) {
+                    for (let i = j + 1; i < intersections.length; i++) {
+                        let y = intersections[i][1] - intersections[j][1];
+                        let x = intersections[i][0] - intersections[j][0];
+                        let d = x * x + y * y;
+                        if (d > max_d) {
+                            max_d = d;
+                            directionX = -y;
+                            directionY = x;
+                            if (directionX * (c1.x - avgIntersection.x) + directionY * (c1.y - avgIntersection.y) > 0) {
+                                directionX = -directionX;
+                                directionY = -directionY;
+                            }
+                        }
+                    }
                 }
             }
-            //console.log(directionX, directionY);
 
-            let targetTheta = Math.atan2(directionY, directionX); 
+            let targetTheta = Math.atan2(directionY, directionX);
             let r = this.radiusAtPointInDirection(hull1, avgIntersection, targetTheta);
             targetTheta = (targetTheta + Math.PI) % (2 * Math.PI);
             r += this.radiusAtPointInDirection(hull2, avgIntersection, targetTheta);
@@ -1128,9 +1144,9 @@ Wick.Clip = class extends Wick.Tickable {
     // Gives clockwise in screen space, which is ccw in regular axes
     // Points are in global coordinates
     get convexHull () {
-        if (this._memoizedConvexHull) {
+        /*if (this._memoizedConvexHull) {
             return this._memoizedConvexHull;
-        }
+        }*/
 
         let points = this.points;
         
@@ -1154,7 +1170,7 @@ Wick.Clip = class extends Wick.Tickable {
                 removedDuplicates.push(ch[i]);
             }
         }
-        this._memoizedConvexHull = removedDuplicates;
+        //this._memoizedConvexHull = removedDuplicates;
         return removedDuplicates;
     }
 
@@ -1382,8 +1398,8 @@ Wick.Clip = class extends Wick.Tickable {
     // called when transform changed, transform of child changed, 
     // or frame of any recursive children timeline changes
     _onVisualDirty() {
+        //this._memoizedConvexHull = null;
         this._onQuadtreeDirty();
-        this._memoizedConvexHull = null;
         if (this.parentClip) {this.parentClip._onVisualDirty();}
     }
 

@@ -95,7 +95,9 @@ Wick.Timeline = class extends Wick.Base {
             frame.updateClipTimelinesForAnimationType();
         });
 
-        if (changed && this.parentClip) {this.parentClip._onVisualDirty();}
+        if (changed && this.parentClip) {
+            this.parentClip._onVisualDirty();
+        }
     }
 
     /**

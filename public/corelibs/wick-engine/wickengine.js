@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2021.1.13.6.35.56";
+var WICK_ENGINE_BUILD_VERSION = "2021.1.13.12.52.46";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -57985,24 +57985,42 @@ Wick.Clip = class extends Wick.Tickable {
       } else {
         // Find longest distance between two intersections i and j, then take vector orthogonal to ij
         //console.log(intersections);
+
+        /*let max_d = 0;
+        for (let i = 1; i < intersections.length; i++) {
+            let d = (intersections[i][1] - intersections[0][1]) * (intersections[i][1] - intersections[0][1]) +
+                (intersections[i][0] - intersections[0][0]) * (intersections[i][0] - intersections[0][0]);
+            if (d > max_d) {
+                max_d = d;
+                directionX = -(intersections[i][1] - intersections[0][1]);
+                directionY = intersections[i][0] - intersections[0][0];
+                if (directionX * (c1.x - avgIntersection.x) + directionY * (c1.y - avgIntersection.y) > 0) {
+                    directionX = -directionX;
+                    directionY = -directionY;
+                }
+            }
+        }*/
         let max_d = 0;
 
-        for (let i = 1; i < intersections.length; i++) {
-          let d = (intersections[i][1] - intersections[0][1]) * (intersections[i][1] - intersections[0][1]) + (intersections[i][0] - intersections[0][0]) * (intersections[i][0] - intersections[0][0]);
+        for (let j = 0; j < intersections.length - 1; j++) {
+          for (let i = j + 1; i < intersections.length; i++) {
+            let y = intersections[i][1] - intersections[j][1];
+            let x = intersections[i][0] - intersections[j][0];
+            let d = x * x + y * y;
 
-          if (d > max_d) {
-            max_d = d;
-            directionX = -(intersections[i][1] - intersections[0][1]);
-            directionY = intersections[i][0] - intersections[0][0];
+            if (d > max_d) {
+              max_d = d;
+              directionX = -y;
+              directionY = x;
 
-            if (directionX * (c1.x - avgIntersection.x) + directionY * (c1.y - avgIntersection.y) > 0) {
-              directionX = -directionX;
-              directionY = -directionY;
+              if (directionX * (c1.x - avgIntersection.x) + directionY * (c1.y - avgIntersection.y) > 0) {
+                directionX = -directionX;
+                directionY = -directionY;
+              }
             }
           }
         }
-      } //console.log(directionX, directionY);
-
+      }
 
       let targetTheta = Math.atan2(directionY, directionX);
       let r = this.radiusAtPointInDirection(hull1, avgIntersection, targetTheta);
@@ -58278,6 +58296,7 @@ Wick.Clip = class extends Wick.Tickable {
 
   get convexHull() {
     if (this._memoizedConvexHull) {
+      console.log("USED MEMO", this.identifier);
       return this._memoizedConvexHull;
     }
 
@@ -58304,6 +58323,7 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     this._memoizedConvexHull = removedDuplicates;
+    console.log("CALCULATED", this.identifier, this._memoizedConvexHull.length);
     return removedDuplicates;
   }
   /**
@@ -58561,9 +58581,9 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   _onVisualDirty() {
-    this._onQuadtreeDirty();
-
     this._memoizedConvexHull = null;
+
+    this._onQuadtreeDirty();
 
     if (this.parentClip) {
       this.parentClip._onVisualDirty();
@@ -63690,8 +63710,12 @@ Wick.View.Clip = class extends Wick.View {
   }
 
   render() {
-    // Prevent an unselectable object from being rendered
+    if (this.model.identifier === 'hittee') {
+      console.log('render', this.model.identifier);
+    } // Prevent an unselectable object from being rendered
     // due to a clip having no content on the first frame.
+
+
     this.model.ensureActiveFrameIsContentful(); // Render timeline view
 
     this.model.timeline.view.render(); // Add some debug info to the paper group
