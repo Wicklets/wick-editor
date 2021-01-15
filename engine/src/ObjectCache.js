@@ -84,7 +84,8 @@ WickObjectCache = class {
 
         var object = this._objects[uuid];
         if(!object) {
-            // TODO quadtree error
+            // This warning is removed because it shows up a lot when the hit test quadtree is used,
+            // which slows things down a lot.
             //console.error("Warning: object with uuid " + uuid + " was not found in the cache.");
             return null;
         } else {

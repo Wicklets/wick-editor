@@ -281,12 +281,11 @@ Wick.Project = class extends Wick.Base {
     }
 
     set width(width) {
-        // TODO quadtree resize
         if (typeof width !== 'number') return;
         if (width < 1) width = 1;
         if (width > 200000) width = 200000;
         this._width = width;
-        //this._quadtree.resize(this.width, this.height);
+        this._quadtree.resize(this.width, this.height);
     }
 
     /**
@@ -298,12 +297,11 @@ Wick.Project = class extends Wick.Base {
     }
 
     set height(height) {
-        // TODO quadtree resize
         if (typeof height !== 'number') return;
         if (height < 1) height = 1;
         if (height > 200000) height = 200000;
         this._height = height;
-        //this._quadtree.resize(this.width, this.height);
+        this._quadtree.resize(this.width, this.height);
     }
 
     /**

@@ -38,11 +38,6 @@ Wick.Quadtree = class {
     }
 
     clean() {
-        // TODO quadtree see why this doesn't work
-        // this._quadtree = this._quadtree.filter(function(element) {
-        //     let clip = Wick.ObjectCache.getObjectByUUID(element.uuid);
-        //     return clip.onScreen;
-        // });
         let to_remove = [];
         this._quadtree.each(function(element) {
             let clip = Wick.ObjectCache.getObjectByUUID(element.uuid);
@@ -58,6 +53,7 @@ Wick.Quadtree = class {
 
     resize(width, height) {
         this._quadtree.each(function(element) {
+            element.inTree = false;
             this.dirty.add(element.uuid);
         });
         this._quadtree = new Quadtree({width: width, height: height});

@@ -385,7 +385,6 @@ Wick.Clip = class extends Wick.Tickable {
         // Don't attempt to remove if the object has already been removed.
         // (This is caused by calling remove() multiple times on one object inside a script.)
         if (!this.parent) return;
-        // TODO quadtree? remove
         // Remove from the clones array.
         this.sourceClip && this.sourceClip.removeClone(this.uuid);
         this.parent.removeClip(this);
@@ -525,7 +524,6 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     set transformation(transformation) {
-        // TODO  quadtree
         this._transformation = transformation;
         this._onDirtyTransform();
 
@@ -841,7 +839,7 @@ Wick.Clip = class extends Wick.Tickable {
             let mag = Math.sqrt(directionX*directionX + directionY*directionY);
             directionX *= r / mag;
             directionY *= r / mag;
-            result.offsetX = m1i.a * directionX + m1i.c * directionY; // transform to local space
+            result.offsetX = m1i.a * directionX + m1i.c * directionY; // rotate to local space
             result.offsetY = m1i.b * directionX + m1i.d * directionY;
         }
         if (options.overlap) {
@@ -856,21 +854,6 @@ Wick.Clip = class extends Wick.Tickable {
             }
             else {
                 // Find longest distance between two intersections i and j, then take vector orthogonal to ij
-                //console.log(intersections);
-                /*let max_d = 0;
-                for (let i = 1; i < intersections.length; i++) {
-                    let d = (intersections[i][1] - intersections[0][1]) * (intersections[i][1] - intersections[0][1]) +
-                        (intersections[i][0] - intersections[0][0]) * (intersections[i][0] - intersections[0][0]);
-                    if (d > max_d) {
-                        max_d = d;
-                        directionX = -(intersections[i][1] - intersections[0][1]);
-                        directionY = intersections[i][0] - intersections[0][0];
-                        if (directionX * (c1.x - avgIntersection.x) + directionY * (c1.y - avgIntersection.y) > 0) {
-                            directionX = -directionX;
-                            directionY = -directionY;
-                        }
-                    }
-                }*/
                 let max_d = 0;
                 for (let j = 0; j < intersections.length - 1; j++) {
                     for (let i = j + 1; i < intersections.length; i++) {
@@ -907,13 +890,10 @@ Wick.Clip = class extends Wick.Tickable {
 
 
             let mag = Math.sqrt(directionX*directionX + directionY*directionY);
-            //console.log(directionX, directionY);
             directionX *= -r / mag;
             directionY *= -r / mag;
-            //console.log(directionX, directionY);
-            result.overlapX = m1i.a * directionX + m1i.c * directionY; // transform to local space
+            result.overlapX = m1i.a * directionX + m1i.c * directionY; // rotate to local space
             result.overlapY = m1i.b * directionX + m1i.d * directionY;
-            //console.log(result.overlapX, result.overlapY);
         }
         return result;
     }
@@ -956,13 +936,10 @@ Wick.Clip = class extends Wick.Tickable {
 
     /**
      * Perform hit test with other clip.
-     * @param {Wick.Clip} other - the clip to hit test with
-     * @param {object} options - Hit test options
      * @returns {object} Hit information
      */
     hits(arg1, arg2) {
-        // TODO quadtree hits
-        // 
+        // Interpretations of arg1 and arg2
         // (clip), (clip, options) -> hit clip
         // (), (options) -> hit all
         // (string), (string, options) -> hit all with tag
@@ -1006,7 +983,6 @@ Wick.Clip = class extends Wick.Tickable {
         }
 
         if (other) {
-            //console.log('mode 1');
             if (finalOptions.mode === 'CONVEX') {
                 return this.convexHits(other, finalOptions);
             }
@@ -1014,29 +990,23 @@ Wick.Clip = class extends Wick.Tickable {
                 return this.rectangleHits(other, finalOptions);
             }
         }
-        //console.log('mode 2');
+        
         let hits = this.project.quadtreeHit(this);
         let results = [];
-        //console.log(hits.length);
         for (let h = 0; h < hits.length; h++) {
             other = hits[h];
-            // TODO check either all==true or the tag condition is satisfied
-            //console.log('oy', h);
+            // TODO after tag system is implemented, 
+            // check either all==true or the tag condition is satisfied
             if (other !== this) {
-                //console.log('ay', other);
                 let hit = finalOptions.mode === 'CONVEX' ? 
                     this.convexHits(other, finalOptions) :
                     this.rectangleHits(other, finalOptions);
-                //console.log('be');
                 if (hit) {
                     hit.clip = other;
                     results.push(hit);
                 }
-                //console.log('ce');
             }
-            //console.log('oy', h)
         }
-        //console.log('mode 2 done', results);
         return results;
     }
 
@@ -1144,6 +1114,7 @@ Wick.Clip = class extends Wick.Tickable {
     // Gives clockwise in screen space, which is ccw in regular axes
     // Points are in global coordinates
     get convexHull () {
+        // TODO: implement memoization
         /*if (this._memoizedConvexHull) {
             return this._memoizedConvexHull;
         }*/
@@ -1152,7 +1123,6 @@ Wick.Clip = class extends Wick.Tickable {
         
         // Infinity gets us the convex hull
         let ch = hull(points, Infinity);
-        //console.log('h', ch.length);
         let removedDuplicates = [];
         let epsilon = 0.01;
         for (let i = 0; i < ch.length; i++) {
@@ -1170,7 +1140,8 @@ Wick.Clip = class extends Wick.Tickable {
                 removedDuplicates.push(ch[i]);
             }
         }
-        //this._memoizedConvexHull = removedDuplicates;
+        // TODO: implement memoization
+        //this._memoizedConvexHull = removedDuplicates; 
         return removedDuplicates;
     }
 
@@ -1183,7 +1154,6 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     set x(x) {
-        // TODO  quadtree
         this.transformation.x = x;
         this._onDirtyTransform();
     }
@@ -1197,7 +1167,6 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     set y(y) {
-        // TODO  quadtree
         this.transformation.y = y;
         this._onDirtyTransform();
     }
@@ -1211,7 +1180,6 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     set scaleX(scaleX) {
-        // TODO  quadtree
         if (scaleX === 0) scaleX = 0.001; // Protects against NaN issues
         this.transformation.scaleX = scaleX;
         this._onDirtyTransform();
@@ -1226,7 +1194,6 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     set scaleY(scaleY) {
-        // TODO  quadtree
         if (scaleY === 0) scaleY = 0.001; // Protects against NaN issues
         this.transformation.scaleY = scaleY;
         this._onDirtyTransform();
@@ -1241,7 +1208,6 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     set width(width) {
-        // TODO  quadtree
         this.scaleX = width / this.width * this.scaleX;
         this._onDirtyTransform();
     }
@@ -1255,7 +1221,6 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     set height(height) {
-        // TODO  quadtree
         this.scaleY = height / this.height * this.scaleY;
         this._onDirtyTransform();
     }
@@ -1269,7 +1234,6 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     set rotation(rotation) {
-        // TODO  quadtree
         this.transformation.rotation = rotation;
         this._onDirtyTransform();
     }
@@ -1293,7 +1257,6 @@ Wick.Clip = class extends Wick.Tickable {
      * @returns {Wick.Clip} the result of the clone.
      */
     clone() {
-        // TODO quadtree? prolly not, onActivated should handle it
         var clone = this.copy();
         clone.identifier = null;
         this.parentFrame.addClip(clone);
@@ -1405,9 +1368,6 @@ Wick.Clip = class extends Wick.Tickable {
 
     // called when need to be re-added to quadtree
     _onQuadtreeDirty() {
-        // TODO  quadtree tell proj
-        // tell project I'm dirty
-        // only if not root
         if (!this.isRoot && this.project) {
             this.project.markClipQuadtreeDirty(this);
         }
@@ -1422,8 +1382,6 @@ Wick.Clip = class extends Wick.Tickable {
         super._onActivated();
         this._tickChildren();
 
-        // TODO  quadtree
-        // tell project I need to be drawn
         this._onQuadtreeDirty();
 
         if (this.animationType === 'playOnce') {
