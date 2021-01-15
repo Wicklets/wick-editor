@@ -68,6 +68,7 @@ Wick.Clip = class extends Wick.Tickable {
 
         this._clones = [];
 
+        this._clipTags = [];
     }
 
     _serialize(args) {
@@ -188,6 +189,23 @@ Wick.Clip = class extends Wick.Tickable {
 
     set assetSourceUUID (assetSourceUUID) {
         this._assetSourceUUID = assetSourceUUID;
+    }
+
+    /**
+     * All the tags on the current clips.
+     */
+    get clipTags () {
+        return this._clipTags;
+    }
+
+    /**
+     * Add clip tag to current clip and to the project, if needed.
+     * @param {string} tag 
+     */
+    addClipTag (tag) {
+        if (!this.clipTags.includes(tag)) this.clipTags.push(tag);
+
+        this.project.addClipTag(tag);
     }
 
     /**

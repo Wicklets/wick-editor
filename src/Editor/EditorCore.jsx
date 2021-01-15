@@ -156,6 +156,31 @@ class EditorCore extends Component {
   }
 
   /**
+   * Returns all clip tags that are currently in use by the project.
+   */
+  getProjectClipTags = () => {
+    return this.project.clipTags; 
+  }
+
+  /**
+   * Return the clip tags of the currently selected clip.
+   * @returns {string[]} all clip tags of the currently selected clip.
+   */
+  getSelectedClipTags = () => {
+    return this.project.selection.clipTags;
+  }
+
+  /**
+   * Called when clip tag is created on a clip.
+   * @param {object} option option to create
+   */
+  onCreateClipTag = (option) => {
+    console.log("Attempting to create: ", option);
+    this.project.addClipTagToSelection(option);
+    this.projectDidChange({ actionName: `Add Clip Tag ${option}` });
+  }
+
+  /**
    * Shrinks the brush/eraser size by a given amount.
    */
   changeBrushSize = (amt) => {

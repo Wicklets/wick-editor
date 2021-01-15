@@ -448,6 +448,27 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
+     * Tags that belong to selected clip.
+     */
+    get clipTags () {
+        if (this.getSelectedObject() && this.selectionType === 'clip') {
+            return this.getSelectedObject().clipTags;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Add clip tag to selected clip.
+     * @param {string} tag
+     */
+    addClipTag (tag) {
+        if (this.getSelectedObject() && this.selectionType === 'clip') {
+            this.getSelectedObject().addClipTag(tag);
+        } 
+    }
+
+    /**
      * The position of the selection.
      * @type {number}
      */

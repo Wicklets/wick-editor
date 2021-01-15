@@ -35,6 +35,7 @@ import InspectorImagePreview from './InspectorPreview/InspectorPreviewTypes/Insp
 import InspectorSoundPreview from './InspectorPreview/InspectorPreviewTypes/InspectorSoundPreview';
 import InspectorScriptWindow from './InspectorScriptWindow/InspectorScriptWindow';
 import InspectorCheckbox from './InspectorRow/InspectorRowTypes/InspectorCheckbox';
+import InspectorTagWindow from './InspectorTagWindow/InspectorTagWindow';
 
 class Inspector extends Component {
   constructor (props) {
@@ -599,6 +600,18 @@ class Inspector extends Component {
     )
   }
 
+  renderClipTagType = () => {
+    return (
+      <div className="inspector-item">
+        <InspectorTagWindow
+          getProjectClipTags={this.props.getProjectClipTags}
+          getSelectedClipTags={this.props.getSelectedClipTags}
+          onCreateClipTag={this.props.onCreateClipTag}
+        />
+      </div>
+    )
+  }
+
   renderTweenEasingType = () => {
     let options = window.Wick.Tween.VALID_EASING_TYPES;
     let optionLabels = [];
@@ -788,6 +801,18 @@ class Inspector extends Component {
   }
 
   /**
+   * Renders the inspector view for clip tags
+   */
+  renderClipTags = () => {
+    return (
+      <div className="inspector-content">
+        { this.renderClipTagType() }
+      </div>
+    );
+  }
+
+
+  /**
    * Renders the inspector view for all image properties.
    */
   renderImage = () => {
@@ -952,6 +977,7 @@ class Inspector extends Component {
           {this.renderActions()}
           {this.props.selectionIsScriptable() && this.renderScripts()}
           {selectionType === 'clip' && this.renderAnimationSetting()}
+          {selectionType === 'clip' && this.renderClipTags()}
         </div>
       </div>
     )

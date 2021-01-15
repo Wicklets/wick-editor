@@ -119,6 +119,8 @@ Wick.Project = class extends Wick.Base {
 
         this.history.project = this;
         this.history.pushState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
+    
+        this._clipTags = [];
     }
 
     /**
@@ -282,6 +284,26 @@ Wick.Project = class extends Wick.Base {
         this._backgroundColor = backgroundColor;
     }
 
+    /**
+     * Returns an array that includes all tags currently used in the project.
+     * @type {string[]}
+     */
+    get clipTags () {
+        return this._clipTags;
+    }
+
+    /**
+     * Adds a clip tag to the project. If the tag already exists, it will not be added again.
+     * @param {string} tag Tag to add
+     */
+    addClipTagToSelection (tag) {
+        this.selection.addClipTag(tag);
+        if (!this.clipTags.includes(tag)) this.clipTags.push(tag);
+    }
+    
+    /**
+     * Options to use when the hits() function is called.
+     */
     get hitTestOptions() {
         return this._hitTestOptions;
     }
@@ -300,6 +322,25 @@ Wick.Project = class extends Wick.Base {
             if (typeof options.intersections === 'boolean') {
                 this._hitTestOptions.intersections = options.intersections;
             }
+        }
+    }
+
+    /**
+     * Returns an array of all tags that this clip has.
+     * @type {string[]}
+     */
+    get clipTags () {
+        return this._clipTags;
+    }
+
+    /**
+     * Adds a tag to this clip.
+     * @param {string} tag Tag to add 
+     */
+    addClipTag (tag) {
+        if (!this.clipTags.includes(tag)) {
+            this.clipTags.push(tag);
+            this.project.addClipTag(tag);
         }
     }
 
@@ -1776,8 +1817,6 @@ Wick.Project = class extends Wick.Base {
         if(!args.onFinish) args.onFinish = () => {};
         if(!args.width) args.width = this.width;
         if(!args.height) args.height = this.height;
-
-        
 
         var renderCopy = this;
         renderCopy.renderBlackBars = true; // Turn off black bars (removes black lines)

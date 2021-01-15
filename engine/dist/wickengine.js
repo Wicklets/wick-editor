@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2021.1.13.11.52.48";
+var WICK_ENGINE_BUILD_VERSION = "2021.1.15.13.30.57";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -50005,6 +50005,7 @@ Wick.Project = class extends Wick.Base {
     this._error = null;
     this.history.project = this;
     this.history.pushState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
+    this._clipTags = [];
   }
   /**
    * Prepares the project to be used in an editor.
@@ -50175,6 +50176,29 @@ Wick.Project = class extends Wick.Base {
   set backgroundColor(backgroundColor) {
     this._backgroundColor = backgroundColor;
   }
+  /**
+   * Returns an array that includes all tags currently used in the project.
+   * @type {string[]}
+   */
+
+
+  get clipTags() {
+    return this._clipTags;
+  }
+  /**
+   * Adds a clip tag to the project. If the tag already exists, it will not be added again.
+   * @param {string} tag Tag to add
+   */
+
+
+  addClipTagToSelection(tag) {
+    this.selection.addClipTag(tag);
+    if (!this.clipTags.includes(tag)) this.clipTags.push(tag);
+  }
+  /**
+   * Options to use when the hits() function is called.
+   */
+
 
   get hitTestOptions() {
     return this._hitTestOptions;
@@ -50197,6 +50221,27 @@ Wick.Project = class extends Wick.Base {
       if (typeof options.intersections === 'boolean') {
         this._hitTestOptions.intersections = options.intersections;
       }
+    }
+  }
+  /**
+   * Returns an array of all tags that this clip has.
+   * @type {string[]}
+   */
+
+
+  get clipTags() {
+    return this._clipTags;
+  }
+  /**
+   * Adds a tag to this clip.
+   * @param {string} tag Tag to add 
+   */
+
+
+  addClipTag(tag) {
+    if (!this.clipTags.includes(tag)) {
+      this.clipTags.push(tag);
+      this.project.addClipTag(tag);
     }
   }
   /**
@@ -52427,6 +52472,29 @@ Wick.Selection = class extends Wick.Base {
       this.getSelectedObject().singleFrameNumber = frame;
     } else {
       console.error("Cannot set singleFrameNumber of multiple objects...");
+    }
+  }
+  /**
+   * Tags that belong to selected clip.
+   */
+
+
+  get clipTags() {
+    if (this.getSelectedObject() && this.selectionType === 'clip') {
+      return this.getSelectedObject().clipTags;
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Add clip tag to selected clip.
+   * @param {string} tag
+   */
+
+
+  addClipTag(tag) {
+    if (this.getSelectedObject() && this.selectionType === 'clip') {
+      this.getSelectedObject().addClipTag(tag);
     }
   }
   /**
@@ -57111,6 +57179,7 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     this._clones = [];
+    this._clipTags = [];
   }
 
   _serialize(args) {
@@ -57236,6 +57305,24 @@ Wick.Clip = class extends Wick.Tickable {
 
   set assetSourceUUID(assetSourceUUID) {
     this._assetSourceUUID = assetSourceUUID;
+  }
+  /**
+   * All the tags on the current clips.
+   */
+
+
+  get clipTags() {
+    return this._clipTags;
+  }
+  /**
+   * Add clip tag to current clip and to the project, if needed.
+   * @param {string} tag 
+   */
+
+
+  addClipTag(tag) {
+    if (!this.clipTags.includes(tag)) this.clipTags.push(tag);
+    this.project.addClipTag(tag);
   }
   /**
    * The timeline of the clip.

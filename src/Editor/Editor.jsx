@@ -1174,6 +1174,9 @@ class Editor extends EditorCore {
                         updateLastColors={this.updateLastColors}
                         lastColorsUsed={this.state.lastColorsUsed}
                         getClipAnimationTypes={this.getClipAnimationTypes}
+                        getProjectClipTags={this.getProjectClipTags}
+                        getSelectedClipTags={this.getSelectedClipTags} 
+                        onCreateClipTag={this.onCreateClipTag}
                       />
                     </DockedPanel>
                   </ReflexElement>

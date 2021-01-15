@@ -192,3 +192,7 @@ $numeric-input-background: $editor-text-input-background;
   padding-left: 4px !important;
   padding-right: 4px !important;
 }
+
+.wick-input-select__clear-indicator {
+  display: none !important;
+}
