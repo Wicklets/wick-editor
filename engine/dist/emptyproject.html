@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2021.1.15.13.30.57";
+var WICK_ENGINE_BUILD_VERSION = "2021.1.15.17.12.38";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -50211,6 +50211,15 @@ Wick.Project = class extends Wick.Base {
     if (!this.clipTags.includes(tag)) this.clipTags.push(tag);
   }
   /**
+   * Removes clip tag from selection.
+   * @param {string} tag 
+   */
+
+
+  removeClipTagFromSelection(tag) {
+    this.selection.removeClipTag(tag);
+  }
+  /**
    * Options to use when the hits() function is called.
    */
 
@@ -52503,13 +52512,24 @@ Wick.Selection = class extends Wick.Base {
   }
   /**
    * Add clip tag to selected clip.
-   * @param {string} tag
+   * @param {string} tag tag to add
    */
 
 
   addClipTag(tag) {
     if (this.getSelectedObject() && this.selectionType === 'clip') {
       this.getSelectedObject().addClipTag(tag);
+    }
+  }
+  /**
+   * Removes tag from selected clip.
+   * @param {string} tag tag to remove
+   */
+
+
+  removeClipTag(tag) {
+    if (this.getSelectedObject() && this.selectionType === 'clip') {
+      this.getSelectedObject().removeClipTag(tag);
     }
   }
   /**
@@ -57338,6 +57358,17 @@ Wick.Clip = class extends Wick.Tickable {
   addClipTag(tag) {
     if (!this.clipTags.includes(tag)) this.clipTags.push(tag);
     this.project.addClipTag(tag);
+  }
+  /**
+   * Removes a clip tag from this clip.
+   * @param {string} tag 
+   */
+
+
+  removeClipTag(tag) {
+    if (this.clipTags.includes(tag)) {
+      this._clipTags = this.clipTags.filter(oldTag => oldTag !== tag);
+    }
   }
   /**
    * The timeline of the clip.

@@ -209,6 +209,16 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     /**
+     * Removes a clip tag from this clip.
+     * @param {string} tag 
+     */
+    removeClipTag (tag) {
+        if (this.clipTags.includes(tag)) {
+            this._clipTags = this.clipTags.filter(oldTag => oldTag !== tag);
+        }
+    }
+
+    /**
      * The timeline of the clip.
      * @type {Wick.Timeline}
      */

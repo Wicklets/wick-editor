@@ -300,6 +300,14 @@ Wick.Project = class extends Wick.Base {
         this.selection.addClipTag(tag);
         if (!this.clipTags.includes(tag)) this.clipTags.push(tag);
     }
+
+    /**
+     * Removes clip tag from selection.
+     * @param {string} tag 
+     */
+    removeClipTagFromSelection (tag) {
+        this.selection.removeClipTag(tag);
+    }
     
     /**
      * Options to use when the hits() function is called.

@@ -43,14 +43,22 @@ export default function InspectorTagWindow (props) {
         }
     }
 
+    let onChange = (value, item, action) => {
+        if (item.action === 'remove-value') {
+            props.removeClipTagFromSelection(item.removedValue.value);
+        } else if (item.action === 'select-option') {
+            props.addClipTagToSelection(item.option.value);
+        }
+    }
+
     return (
         <div className="inspector-tag-window-container">
             <div className="inspector-tag-window-title">
                 Tags
             </div>
             <WickInput
-                onCreateOption={props.onCreateClipTag}
-                onChange={(val) => {console.log("onChange", val)}}
+                onCreateOption={props.addClipTagToSelection}
+                onChange={onChange}
                 value={selected}
                 type="createable-select"
                 options={allTags}

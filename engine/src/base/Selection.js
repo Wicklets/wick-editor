@@ -460,11 +460,21 @@ Wick.Selection = class extends Wick.Base {
 
     /**
      * Add clip tag to selected clip.
-     * @param {string} tag
+     * @param {string} tag tag to add
      */
     addClipTag (tag) {
         if (this.getSelectedObject() && this.selectionType === 'clip') {
             this.getSelectedObject().addClipTag(tag);
+        } 
+    }
+
+    /**
+     * Removes tag from selected clip.
+     * @param {string} tag tag to remove
+     */
+    removeClipTag (tag) {
+        if (this.getSelectedObject() && this.selectionType === 'clip') {
+            this.getSelectedObject().removeClipTag(tag);
         } 
     }
 

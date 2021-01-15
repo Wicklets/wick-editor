@@ -171,13 +171,21 @@ class EditorCore extends Component {
   }
 
   /**
-   * Called when clip tag is created on a clip.
-   * @param {object} option option to create
+   * Removes tag from selected clip.
+   * @param {string} tag tag to remove
    */
-  onCreateClipTag = (option) => {
-    console.log("Attempting to create: ", option);
-    this.project.addClipTagToSelection(option);
-    this.projectDidChange({ actionName: `Add Clip Tag ${option}` });
+  removeClipTagFromSelection = (tag) => {
+    this.project.removeClipTagFromSelection(tag);
+    this.projectDidChange({ actionName: `Remove Clip Tag ${tag}` });
+  }
+
+  /**
+   * Adds clip tag to selection.
+   * @param {string} tag 
+   */
+  addClipTagToSelection = (tag) => {
+    this.project.addClipTagToSelection(tag);
+    this.projectDidChange({ actionName: `Add Clip Tag ${tag}` });
   }
 
   /**

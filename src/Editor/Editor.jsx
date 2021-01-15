@@ -1176,7 +1176,8 @@ class Editor extends EditorCore {
                         getClipAnimationTypes={this.getClipAnimationTypes}
                         getProjectClipTags={this.getProjectClipTags}
                         getSelectedClipTags={this.getSelectedClipTags} 
-                        onCreateClipTag={this.onCreateClipTag}
+                        removeClipTagFromSelection={this.removeClipTagFromSelection}
+                        addClipTagToSelection={this.addClipTagToSelection}
                       />
                     </DockedPanel>
                   </ReflexElement>

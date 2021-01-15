@@ -604,9 +604,10 @@ class Inspector extends Component {
     return (
       <div className="inspector-item">
         <InspectorTagWindow
+          addClipTagToSelection={this.props.addClipTagToSelection}
+          removeClipTagFromSelection={this.props.removeClipTagFromSelection}
           getProjectClipTags={this.props.getProjectClipTags}
           getSelectedClipTags={this.props.getSelectedClipTags}
-          onCreateClipTag={this.props.onCreateClipTag}
         />
       </div>
     )
