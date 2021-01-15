@@ -311,6 +311,12 @@ class ScriptInfoInterface extends Object {
                     description: 'Sets global settings for hit testing, project.hitTestOptions.',
                     param: [{name: 'that', type: 'object'}],
                 },
+                {
+                    name: 'getActiveClipsByTag',
+                    snippet: 'getActiveClipsByTag("tag")',
+                    description: 'Returns an array of all clips that have the provided tag.',
+                    param: [{name: 'tag', type: 'string'}]
+                }
             ]
         )
     }

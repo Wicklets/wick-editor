@@ -308,6 +308,26 @@ Wick.Project = class extends Wick.Base {
     removeClipTagFromSelection (tag) {
         this.selection.removeClipTag(tag);
     }
+
+    /**
+     * Returns an array of all clips that currently have this tag.
+     * TODO: This retrieval method is relatively inefficient and may 
+     * slow down on a project with many frames or clips.
+     * @param {string} tag tag to find. 
+     */
+    getActiveClipsByTag (tag) {
+        let clips = [];
+
+        this.activeFrames.forEach(frame => {
+            frame.clips.forEach(clip => {
+                if (clip.clipTags.includes(tag)) {
+                    clips.push(clip);
+                }
+            })
+        });
+
+        return clips;
+    }
     
     /**
      * Options to use when the hits() function is called.

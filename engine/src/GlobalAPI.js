@@ -35,6 +35,7 @@ GlobalAPI = class {
             'onEvent',
             'hideCursor','showCursor',
             'hitTestOptions',
+            'getActiveClipsByTag'
         ];
     }
 
@@ -110,8 +111,21 @@ GlobalAPI = class {
         this.scriptOwner.parentClip.gotoPrevFrame();
     }
 
+    /**
+     * Sets the hit test options for the editor globally. All calls to hits() will
+     * use these settings unless overridden. 
+     * @param {object} options 
+     */
     hitTestOptions (options) {
         this.scriptOwner.project.hitTestOptions = options;
+    }
+
+    /**
+     * Returns all currently active clips that have this tag.
+     * @param {string} tag 
+     */
+    getActiveClipsByTag (tag) {
+        return this.scriptOwner.project.getActiveClipsByTag(tag);
     }
 
     /**

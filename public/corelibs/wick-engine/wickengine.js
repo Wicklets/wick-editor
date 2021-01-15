@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2021.1.15.17.12.38";
+var WICK_ENGINE_BUILD_VERSION = "2021.1.15.17.45.4";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -47064,7 +47064,7 @@ GlobalAPI = class {
     return ['stop', 'play', 'gotoAndStop', 'gotoAndPlay', 'gotoNextFrame', 'gotoPrevFrame', // These are currently disabled, they are very slow for some reason.
     // They are currently hacked in inside Tickable._runFunction
     //'project','root','parent','parentObject',
-    'isMouseDown', 'mouseX', 'mouseY', 'mouseMoveX', 'mouseMoveY', 'key', 'keys', 'isKeyDown', 'keyIsDown', 'isKeyJustPressed', 'keyIsJustPressed', 'random', 'playSound', 'stopAllSounds', 'onEvent', 'hideCursor', 'showCursor', 'hitTestOptions'];
+    'isMouseDown', 'mouseX', 'mouseY', 'mouseMoveX', 'mouseMoveY', 'key', 'keys', 'isKeyDown', 'keyIsDown', 'isKeyJustPressed', 'keyIsJustPressed', 'random', 'playSound', 'stopAllSounds', 'onEvent', 'hideCursor', 'showCursor', 'hitTestOptions', 'getActiveClipsByTag'];
   }
   /**
    * @param {object} scriptOwner The tickable object which owns the script being evaluated.
@@ -47146,9 +47146,24 @@ GlobalAPI = class {
   gotoPrevFrame() {
     this.scriptOwner.parentClip.gotoPrevFrame();
   }
+  /**
+   * Sets the hit test options for the editor globally. All calls to hits() will
+   * use these settings unless overridden. 
+   * @param {object} options 
+   */
+
 
   hitTestOptions(options) {
     this.scriptOwner.project.hitTestOptions = options;
+  }
+  /**
+   * Returns all currently active clips that have this tag.
+   * @param {string} tag 
+   */
+
+
+  getActiveClipsByTag(tag) {
+    return this.scriptOwner.project.getActiveClipsByTag(tag);
   }
   /**
    * Returns an object representing the project with properties such as width, height, framerate, background color, and name.
@@ -50203,6 +50218,25 @@ Wick.Project = class extends Wick.Base {
 
   removeClipTagFromSelection(tag) {
     this.selection.removeClipTag(tag);
+  }
+  /**
+   * Returns an array of all clips that currently have this tag.
+   * TODO: This retrieval method is relatively inefficient and may 
+   * slow down on a project with many frames or clips.
+   * @param {string} tag tag to find. 
+   */
+
+
+  getActiveClipsByTag(tag) {
+    let clips = [];
+    this.activeFrames.forEach(frame => {
+      frame.clips.forEach(clip => {
+        if (clip.clipTags.includes(tag)) {
+          clips.push(clip);
+        }
+      });
+    });
+    return clips;
   }
   /**
    * Options to use when the hits() function is called.
