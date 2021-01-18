@@ -325,7 +325,7 @@ Wick.Tickable = class extends Wick.Base {
      * @returns {object} object containing error info if an error happened. Returns null if there was no error (script ran successfully)
      */
     runScript (name, parameters) {
-        if (this.removed || !this.onScreen) {
+        if (this.removed || (!this.onScreen && ! (name === 'unload'))) {
             return;
         }
 

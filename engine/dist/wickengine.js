@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2021.1.18.13.36.0";
+var WICK_ENGINE_BUILD_VERSION = "2021.1.18.16.5.26";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -56078,7 +56078,7 @@ Wick.Tickable = class extends Wick.Base {
 
 
   runScript(name, parameters) {
-    if (this.removed || !this.onScreen) {
+    if (this.removed || !this.onScreen && !(name === 'unload')) {
       return;
     }
 
