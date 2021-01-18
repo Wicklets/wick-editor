@@ -1040,6 +1040,7 @@ class EditorCore extends Component {
           text: "Error saving .wick file. Please try again." });
       }
 
+      file = new Blob([file], {type: 'application/wick'});
       window.saveFileFromWick(file, this.project.name, '.wick', success, fail);
 
       this.hideWaitOverlay();
@@ -1301,7 +1302,7 @@ class EditorCore extends Component {
     let toastID = this.toast('Exporting project as HTML...', 'info');
     let outputName = args.name || this.project.name;
     window.Wick.HTMLExport.bundleProject(this.project, html => {
-      let file = new Blob([html], {type: 'text/plain'});
+      let file = new Blob([html], {type: 'text/html'});
 
       let success = () => {
         this.updateToast(toastID, {
