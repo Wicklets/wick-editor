@@ -18,7 +18,6 @@
  */
 
 import React from 'react';
-import ReactGA from 'react-ga';
 
 import './_editor.scss';
 import './styles/default_theme.css';
@@ -203,9 +202,6 @@ class Editor extends EditorCore {
   }
 
   UNSAFE_componentWillMount = () => {
-    ReactGA.initialize('UA-88233944-1');
-    ReactGA.pageview(window.location.pathname + window.location.search);
-
     document.title =  `Wick Editor ${this.editorVersion}`;
     // Initialize "live" engine state
     this.project = new window.Wick.Project();
