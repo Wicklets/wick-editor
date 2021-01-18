@@ -236,11 +236,7 @@ Wick.WickFile = class {
             compressionOptions: {
                 level: 9
             },
-        }).then((file) => {
-            // Convert file type to ensure browser downloads file correctly.
-            let blob = new Blob([file], { type: 'application/wick'});
-            callback(blob);
-        });
+        }).then(callback);
     }
 
     /* Make any small backwards compatibility fixes needed */

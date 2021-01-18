@@ -1007,6 +1007,7 @@ class EditorCore extends Component {
           text: "Error saving .wick file. Please try again." });
       }
 
+      file = new Blob([file], {type: 'application/wick'});
       window.saveFileFromWick(file, this.project.name, '.wick', success, fail);
 
       this.hideWaitOverlay();

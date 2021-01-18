@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2021.1.14.10.52.28";
+var WICK_ENGINE_BUILD_VERSION = "2021.1.18.12.6.20";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -48404,13 +48404,7 @@ Wick.WickFile = class {
       compressionOptions: {
         level: 9
       }
-    }).then(file => {
-      // Convert file type to ensure browser downloads file correctly.
-      let blob = new Blob([file], {
-        type: 'application/wick'
-      });
-      callback(blob);
-    });
+    }).then(callback);
   }
   /* Make any small backwards compatibility fixes needed */
 
