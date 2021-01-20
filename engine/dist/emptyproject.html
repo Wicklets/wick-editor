@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2021.1.18.16.5.26";
+var WICK_ENGINE_BUILD_VERSION = "2021.1.20.18.42.18";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -48440,7 +48440,8 @@ Wick.WickFile = class {
 
 
   static _prepareProject(project) {
-    // 1.16+ projects don't allow gaps between frames.
+    project.defineClipTagMap(); // 1.16+ projects don't allow gaps between frames.
+
     Wick.ObjectCache.getAllObjects().filter(object => {
       return object instanceof Wick.Timeline;
     }).forEach(timeline => {
@@ -50036,6 +50037,7 @@ Wick.Project = class extends Wick.Base {
     this.history.project = this;
     this.history.pushState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
     this._clipTags = [];
+    this._clipTagMap = {};
   }
   /**
    * Prepares the project to be used in an editor.
@@ -50216,6 +50218,14 @@ Wick.Project = class extends Wick.Base {
     return this._clipTags;
   }
   /**
+   * A mapping of all tags to clips in the project.
+   */
+
+
+  get clipTagMap() {
+    return this._clipTagMap;
+  }
+  /**
    * Adds a clip tag to the project. If the tag already exists, it will not be added again.
    * @param {string} tag Tag to add
    */
@@ -50224,6 +50234,7 @@ Wick.Project = class extends Wick.Base {
   addClipTagToSelection(tag) {
     this.selection.addClipTag(tag);
     if (!this.clipTags.includes(tag)) this.clipTags.push(tag);
+    this.mapClipTagToClip(tag, this.selection.uuid);
   }
   /**
    * Removes clip tag from selection.
@@ -50233,6 +50244,59 @@ Wick.Project = class extends Wick.Base {
 
   removeClipTagFromSelection(tag) {
     this.selection.removeClipTag(tag);
+    this.removeClipTagFromMap(tag, this.selection.uuid);
+  }
+  /**
+   * Connects a tag to an object
+   * @param {string} tag tag to add to object 
+   * @param {string} uuid object to connect tag to.
+   */
+
+
+  mapClipTagToClip(tag, uuid) {
+    if (this._clipTagMap[tag]) {
+      this._clipTagMap[tag].add(uuid);
+    } else {
+      this._clipTagMap[tag] = new Set([uuid]);
+    }
+  }
+  /**
+   * Removes tag from clip map connected to uuid.
+   * @param {string} tag tag to remove from object
+   * @param {string} uuid uuid of object to disconnect 
+   */
+
+
+  removeClipTagFromMap(tag, uuid) {
+    if (this._clipTagMap[tag]) {
+      this._clipTagMap[tag].delete(uuid);
+    }
+
+    if (this._clipTagMap[tag].size === 0) {
+      this._clipTags = this._clipTags.filter(oldTag => tag !== oldTag);
+    }
+  }
+  /**
+   * Reviews all clips in the project and establishes the clip tag map.
+   * Also establishes a list of clip tags for all clips in the project.
+   */
+
+
+  defineClipTagMap() {
+    // Go through all layers, frames, and clips and connect clips to tags.
+    this.activeTimeline.layers.forEach(layer => {
+      layer.frames.forEach(frame => {
+        frame.clips.forEach(clip => {
+          clip.clipTags.forEach(tag => {
+            this.mapClipTagToClip(tag, clip.uuid);
+
+            if (!this.clipTags.includes(tag)) {
+              this.clipTags.push(tag);
+            }
+          });
+        });
+      });
+    });
   }
   /**
    * Returns an array of all clips that currently have this tag.
@@ -57260,6 +57324,7 @@ Wick.Clip = class extends Wick.Tickable {
     data.singleFrameNumber = this._singleFrameNumber;
     data.assetSourceUUID = this._assetSourceUUID;
     data.isSynced = this._isSynced;
+    data.clipTags = this._clipTags.concat([]);
     return data;
   }
 
@@ -57272,6 +57337,7 @@ Wick.Clip = class extends Wick.Tickable {
     this._singleFrameNumber = data.singleFrameNumber || 1;
     this._assetSourceUUID = data.assetSourceUUID;
     this._isSynced = data.isSynced;
+    this._clipTags = data.clipTags;
     this._playedOnce = false;
     this._clones = [];
   }
@@ -57391,7 +57457,6 @@ Wick.Clip = class extends Wick.Tickable {
 
   addClipTag(tag) {
     if (!this.clipTags.includes(tag)) this.clipTags.push(tag);
-    this.project.addClipTag(tag);
   }
   /**
    * Removes a clip tag from this clip.

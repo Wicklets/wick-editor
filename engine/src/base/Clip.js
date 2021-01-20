@@ -80,6 +80,7 @@ Wick.Clip = class extends Wick.Tickable {
         data.singleFrameNumber = this._singleFrameNumber;
         data.assetSourceUUID = this._assetSourceUUID;
         data.isSynced = this._isSynced;
+        data.clipTags = this._clipTags.concat([]);
 
         return data;
     }
@@ -93,6 +94,7 @@ Wick.Clip = class extends Wick.Tickable {
         this._singleFrameNumber = data.singleFrameNumber || 1;
         this._assetSourceUUID = data.assetSourceUUID;
         this._isSynced = data.isSynced;
+        this._clipTags = data.clipTags;
 
         this._playedOnce = false;
 
@@ -204,8 +206,6 @@ Wick.Clip = class extends Wick.Tickable {
      */
     addClipTag (tag) {
         if (!this.clipTags.includes(tag)) this.clipTags.push(tag);
-
-        this.project.addClipTag(tag);
     }
 
     /**

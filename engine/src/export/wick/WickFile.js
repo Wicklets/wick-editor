@@ -241,6 +241,7 @@ Wick.WickFile = class {
 
     /* Make any small backwards compatibility fixes needed */
     static _prepareProject(project) {
+        project.defineClipTagMap();
         // 1.16+ projects don't allow gaps between frames.
         Wick.ObjectCache.getAllObjects().filter(object => {
             return object instanceof Wick.Timeline;

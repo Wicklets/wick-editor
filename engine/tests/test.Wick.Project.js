@@ -903,6 +903,7 @@ describe('Wick.Project', function() {
                 }
             });
         });
+        
     });
 
     describe('#inject', function () {
@@ -2010,6 +2011,225 @@ describe('Wick.Project', function() {
         it('should move selected frames left', function () {
             // TODO
         });
+    });
+
+    describe('#tags', function () {
+        it('should be able to add a tag to a selected clip', function () {
+            var project = new Wick.Project();
+            let clip = new Wick.Clip({identifier: "taggedClip"});
+
+            project.selection.select(clip);
+
+            expect(clip.clipTags.length).to.equal(0);
+            expect(project.clipTags.length).to.equal(0);
+
+            project.addClipTagToSelection('tag1');
+
+            expect(clip.clipTags.length).to.equal(1);
+            expect(project.clipTags.length).to.equal(1);
+            expect(clip.clipTags.includes('tag1')).to.equal(true);
+            expect(project.clipTags.includes('tag1')).to.equal(true);
+        });
+
+        it('should be able to add tags to multiple clips', function () {
+            var project = new Wick.Project();
+            let clip1 = new Wick.Clip({identifier: "clip1"});
+            let clip2 = new Wick.Clip({identifier: "clip2"});
+            let clip3 = new Wick.Clip({identifier: "clip3"});
+
+            expect(clip1.clipTags.length).to.equal(0);
+            expect(clip2.clipTags.length).to.equal(0);
+            expect(clip3.clipTags.length).to.equal(0);
+            expect(project.clipTags.length).to.equal(0);
+
+
+            project.selection.select(clip1);
+            project.addClipTagToSelection('tag1');
+
+            expect(clip1.clipTags.length).to.equal(1);
+            expect(clip2.clipTags.length).to.equal(0);
+            expect(clip3.clipTags.length).to.equal(0);
+            expect(project.clipTags.length).to.equal(1);
+
+            project.selection.deselect(clip1);
+
+            project.selection.select(clip2);
+            project.addClipTagToSelection('tag2');
+
+
+            expect(clip1.clipTags.length).to.equal(1);
+            expect(clip2.clipTags.length).to.equal(1);
+            expect(clip3.clipTags.length).to.equal(0);
+            expect(project.clipTags.length).to.equal(2);
+
+            project.selection.deselect(clip2);
+
+            project.selection.select(clip3);
+            project.addClipTagToSelection('tag3');
+
+
+            expect(clip1.clipTags.length).to.equal(1);
+            expect(clip2.clipTags.length).to.equal(1);
+            expect(clip3.clipTags.length).to.equal(1);
+            expect(project.clipTags.length).to.equal(3);
+
+            project.selection.deselect(clip3);
+
+            expect(clip1.clipTags.includes('tag1')).to.equal(true);
+            expect(clip2.clipTags.includes('tag2')).to.equal(true);
+            expect(clip3.clipTags.includes('tag3')).to.equal(true);
+
+            expect(project.clipTags.includes('tag1')).to.equal(true);
+            expect(project.clipTags.includes('tag2')).to.equal(true);
+            expect(project.clipTags.includes('tag3')).to.equal(true);
+        });
+
+        it('should be able to remove a tag from a selected clip', function () {
+            var project = new Wick.Project();
+            let clip = new Wick.Clip({identifier: "taggedClip"});
+
+            project.selection.select(clip);
+
+            expect(clip.clipTags.length).to.equal(0);
+            expect(project.clipTags.length).to.equal(0);
+
+            project.addClipTagToSelection('tag1');
+
+            project.removeClipTagFromSelection('tag1');
+
+            expect(clip.clipTags.length).to.equal(0);
+            expect(project.clipTags.length).to.equal(0);
+            expect(clip.clipTags.includes('tag1')).to.equal(false);
+            expect(project.clipTags.includes('tag1')).to.equal(false);
+        });
+
+        it('should retrieve all clips tagged with a specific tag', function () {
+            var project = new Wick.Project();
+
+            
+            let clip1 = new Wick.Clip({identifier: "clip1"});
+            let clip2 = new Wick.Clip({identifier: "clip2"});
+            let clip3 = new Wick.Clip({identifier: "clip3"});
+
+            project.activeFrame.addClip(clip1);
+            project.activeFrame.addClip(clip2);
+            project.activeFrame.addClip(clip3);
+
+            project.selection.select(clip1);
+            project.addClipTagToSelection('tag1');
+            project.selection.deselect(clip1);
+
+            project.selection.select(clip2);
+            project.addClipTagToSelection('tag1');
+            project.selection.deselect(clip2);
+
+            project.selection.select(clip3);
+            project.addClipTagToSelection('tag1');
+            project.selection.deselect(clip3);
+
+            let taggedClips = project.getActiveClipsByTag('tag1');
+
+            expect(taggedClips.length).to.equal(3);
+
+            let taggedUUIDs = taggedClips.map(obj => obj.uuid);
+
+            expect(taggedUUIDs.includes(clip1.uuid)).to.equal(true);
+            expect(taggedUUIDs.includes(clip2.uuid)).to.equal(true);
+            expect(taggedUUIDs.includes(clip3.uuid)).to.equal(true);
+        });
+
+        it('should be able to define a clip tag map of the project', function () {
+            var project = new Wick.Project();
+
+            
+            let clip1 = new Wick.Clip({identifier: "clip1"});
+            let clip2 = new Wick.Clip({identifier: "clip2"});
+            let clip3 = new Wick.Clip({identifier: "clip3"});
+
+            project.activeFrame.addClip(clip1);
+            project.activeFrame.addClip(clip2);
+            project.activeFrame.addClip(clip3);
+
+            clip1.addClipTag('tag1');
+            clip2.addClipTag('tag2');
+            clip3.addClipTag('tag2');
+
+            expect(project.clipTags.length).to.equal(0);
+            expect(Object.keys(project.clipTagMap).length).to.equal(0);
+
+            project.defineClipTagMap();
+
+            expect(project.clipTags.length).to.equal(2);
+            expect(project.clipTags.includes('tag1')).to.equal(true);
+            expect(project.clipTags.includes('tag2')).to.equal(true);
+
+            expect(Object.keys(project.clipTagMap).length).to.equal(2);
+
+            expect(project.clipTagMap['tag1'].has(clip1.uuid)).to.equal(true)
+            expect(project.clipTagMap['tag2'].has(clip2.uuid)).to.equal(true)
+            expect(project.clipTagMap['tag2'].has(clip3.uuid)).to.equal(true)
+
+        });
+
+        it('should keep clipTags between play and pause', function (done) {
+            var project = new Wick.Project();
+
+            
+            let clip1 = new Wick.Clip({identifier: "clip1"});
+            let clip2 = new Wick.Clip({identifier: "clip2"});
+            let clip3 = new Wick.Clip({identifier: "clip3"});
+
+            project.activeFrame.addClip(clip1);
+            project.activeFrame.addClip(clip2);
+            project.activeFrame.addClip(clip3);
+
+            project.selection.select(clip1);
+            project.addClipTagToSelection('tag1');
+            project.selection.deselect(clip1);
+
+            project.selection.select(clip2);
+            project.addClipTagToSelection('tag2');
+            project.selection.deselect(clip2);
+
+            project.selection.select(clip3);
+            project.addClipTagToSelection('tag3');
+            project.selection.deselect(clip3);
+
+            project.play({onAfterTick: () => {
+                project.stop();
+
+                expect(project.clipTags.length).to.equal(3);
+                expect(clip1.clipTags.length).to.equal(1);
+                expect(clip2.clipTags.length).to.equal(1);
+                expect(clip3.clipTags.length).to.equal(1);
+
+                done();
+            }})
+        });
+
+        it('clones should retain tags of their parent', function () {
+            var project = new Wick.Project();
+
+            let clip1 = new Wick.Clip({identifier: "clip1"});
+           
+            project.activeFrame.addClip(clip1);
+
+            project.selection.select(clip1);
+            project.addClipTagToSelection('tag1');
+            project.selection.deselect(clip1);
+    
+            let clipsBeforeClone = project.getActiveClipsByTag('tag1').concat([]);
+            expect(clipsBeforeClone.length).to.equal(1);
+
+            let clone = clip1.clone();
+
+            let clipsAfterClone = project.getActiveClipsByTag('tag1').concat([]);
+            
+            expect(clipsAfterClone.length).to.equal(2);
+            expect(clone.clipTags.length).to.equal(1);
+            expect(clone.clipTags.includes('tag1')).to.equal(true);
+        });
+
     });
 
     describe('#insertBlankFrame', function () {
