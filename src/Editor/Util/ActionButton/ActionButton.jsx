@@ -29,9 +29,9 @@ var classNames = require('classnames');
 export default function ActionButton (props) {
   let isActive = props.isActive || (() => false);
   let colorClass = props.color ? "action-button-"+props.color : "action-button-green";
-  let finalColorClassName = classNames(colorClass, {'active-button' : isActive()}, props.buttonClassName)
-  let tooltipID = props.id ? ('action-button-tooltip-' + props.id) : 'action-button-tooltip-nyi';
   let newClassName = classNames("action-button", props.className);
+  let finalColorClassName = classNames(colorClass, {'active-button' : isActive()}, props.buttonClassName, newClassName)
+  let tooltipID = props.id ? ('action-button-tooltip-' + props.id) : 'action-button-tooltip-nyi';
 
   function runAction (e) {
     if (!props.disabled) {
@@ -86,7 +86,6 @@ export default function ActionButton (props) {
   }
 
   return (
-    <div className={newClassName}>
       <WickInput
         buttonProps={props.buttonProps}
         tooltip={getTooltip()}
@@ -99,6 +98,5 @@ export default function ActionButton (props) {
         onTouch={runAction}>
           {renderContent()}
       </WickInput>
-    </div>
   );
 }

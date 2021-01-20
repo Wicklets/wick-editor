@@ -5,6 +5,7 @@ import PlayButton from 'Editor/Util/PlayButton/PlayButton';
 import ReactTooltip from 'react-tooltip';
 import HotKeyInterface from 'Editor/hotKeyMap';
 import './_canvastransforms.scss';
+import { isMobile } from 'react-device-detect';
 
 var classNames = require('classnames');
 
@@ -146,9 +147,6 @@ class CanvasTransforms extends Component {
   }
 
   renderPlayButtonTooltip = () => {
-    // Detect if on mobile to disable tooltips.
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
     return (
       <ReactTooltip
         disable={isMobile}

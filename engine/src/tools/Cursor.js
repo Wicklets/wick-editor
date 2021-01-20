@@ -167,11 +167,11 @@ Wick.Tools.Cursor = class extends Wick.Tool {
                 this._selection.clear();
             }
 
-            this.selectionBox.items.filter(item => {
+            let selectables = this.selectionBox.items.filter(item => {
                 return item.data.wickUUID;
-            }).forEach(item => {
-                this._selectItem(item);
-            });
+            })
+
+            this._selectItems(selectables);
 
             // Only modify the canvas if you actually selected something.
             if (this.selectionBox.items.length > 0) {
@@ -337,6 +337,21 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     _selectItem (item) {
         var object = this._wickObjectFromPaperItem(item);
         this._selection.select(object);
+    }
+
+
+    /**
+     * Select multiple items simultaneously.
+     * @param {object[]} items paper items 
+     */
+    _selectItems (items) {
+        let objects = [];
+
+        items.forEach(item => {
+            objects.push(this._wickObjectFromPaperItem(item));
+        });
+
+        this._selection.selectMultipleObjects(objects);
     }
 
     _deselectItem (item) {

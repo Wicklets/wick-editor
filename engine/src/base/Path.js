@@ -42,6 +42,8 @@ Wick.Path = class extends Wick.Base {
         } else {
             this.json = new paper.Path({ insert: false }).exportJSON({ asString: false });
         }
+
+        this.needReimport = true;
     }
 
     /**
@@ -57,6 +59,7 @@ Wick.Path = class extends Wick.Base {
             raster.remove();
             var path = new Wick.Path({
                 json: Wick.View.Path.exportJSON(raster),
+                project: asset.project,
             });
             callback(path);
         }
@@ -71,6 +74,7 @@ Wick.Path = class extends Wick.Base {
         raster.remove();
         var path = new Wick.Path({
             json: Wick.View.Path.exportJSON(raster),
+            project: asset.project,
         });
         return path;
     }
@@ -144,6 +148,7 @@ Wick.Path = class extends Wick.Base {
 
     set json(json) {
         this._json = json;
+        this.needReimport = true;
         this.view.render();
     }
 
@@ -173,7 +178,7 @@ Wick.Path = class extends Wick.Base {
 
     set x(x) {
         this.view.item.position.x = x;
-        this.json = this.view.exportJSON();
+        this.updateJSON();
     }
 
     /**
@@ -186,7 +191,7 @@ Wick.Path = class extends Wick.Base {
 
     set y(y) {
         this.view.item.position.y = y;
-        this.json = this.view.exportJSON();
+        this.updateJSON();
     }
 
     /**
@@ -199,7 +204,7 @@ Wick.Path = class extends Wick.Base {
 
     set fillColor(fillColor) {
         this.view.item.fillColor = fillColor;
-        this.json = this.view.exportJSON();
+        this.updateJSON();
     }
 
     /**
@@ -212,7 +217,7 @@ Wick.Path = class extends Wick.Base {
 
     set strokeColor(strokeColor) {
         this.view.item.strokeColor = strokeColor;
-        this.json = this.view.exportJSON();
+        this.updateJSON();
     }
 
     /**
@@ -225,7 +230,7 @@ Wick.Path = class extends Wick.Base {
 
     set strokeWidth(strokeWidth) {
         this.view.item.strokeWidth = strokeWidth;
-        this.json = this.view.exportJSON();
+        this.updateJSON();
     }
 
     /**
@@ -241,7 +246,7 @@ Wick.Path = class extends Wick.Base {
 
     set opacity(opacity) {
         this.view.item.opacity = opacity;
-        this.json = this.view.exportJSON();
+        this.updateJSON();
     }
 
     /**
@@ -256,7 +261,7 @@ Wick.Path = class extends Wick.Base {
         this.view.item.fontFamily = fontFamily;
         this.fontWeight = 400;
         this.fontStyle = 'normal';
-        this.json = this.view.exportJSON();
+        this.updateJSON();
     }
 
     /**
@@ -270,7 +275,7 @@ Wick.Path = class extends Wick.Base {
     set fontSize(fontSize) {
         this.view.item.fontSize = fontSize;
         this.view.item.leading = fontSize * 1.2;
-        this.json = this.view.exportJSON();
+        this.updateJSON();
     }
 
     /**
@@ -287,6 +292,7 @@ Wick.Path = class extends Wick.Base {
             return;
         }
         this._fontWeight = fontWeight
+        this.updateJSON();
     }
 
     /**
@@ -299,6 +305,7 @@ Wick.Path = class extends Wick.Base {
 
     set fontStyle(fontStyle) {
         this._fontStyle = fontStyle;
+        this.updateJSON();
     }
 
     /**
@@ -323,6 +330,13 @@ Wick.Path = class extends Wick.Base {
 
     set textContent(textContent) {
         this.view.item.content = textContent;
+    }
+
+    /**
+     * Update the JSON of the path based on the path on the view.
+     */
+    updateJSON() {
+        this.json = this.view.exportJSON();
     }
 
     /**

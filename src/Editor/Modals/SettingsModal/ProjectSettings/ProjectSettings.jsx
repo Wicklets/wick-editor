@@ -147,6 +147,7 @@ class ProjectSettings extends Component {
     }
 
     this.props.updateProjectSettings(newSettings);
+    this.props.toggle && this.props.toggle();
   }
 
   reset = () => {

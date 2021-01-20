@@ -1,0 +1,56 @@
+#settings-panel-container {
+    --settings-input-size: 40px;
+    height: 100%;
+
+}
+
+.settings-input-container {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.setting-input-container {
+    height: 90%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 8px;
+}
+  
+.setting-input-container.mobile {
+    margin: 0;
+}
+
+.settings-numeric-slider {
+    display: flex;
+    height: 80%;
+    margin-right: 8px;
+}
+
+.settings-numeric-slider-container {
+    background-color: var(--wick-primary);
+    border-radius: var(--border-radius-secondary);
+}
+
+.settings-numeric-slider-icon {
+    margin-right: 8px;
+    padding: 2px;
+    height: 24px;
+    width: 24px; 
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.settings-numeric-input {
+    display: flex;
+    flex: 1;
+    width: 40px;
+    text-align: center;
+}
+
+.settings-numeric-input.mobile {
+    width: 34px !important;
+    flex: none;
+}

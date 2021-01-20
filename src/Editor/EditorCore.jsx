@@ -386,9 +386,7 @@ class EditorCore extends Component {
    * @param {object[]} objects - The objects to add to the selection.
    */
   selectObjects = (objects) => {
-    objects.forEach(object => {
-      this.project.selection.select(object);
-    });
+    this.project.selection.selectMultipleObjects(objects);
     this.projectDidChange({ actionName: "Select Multiple Objects" });
   }
 
@@ -817,7 +815,7 @@ class EditorCore extends Component {
       this.project.createSVGInstanceFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), dropPoint.x, dropPoint.y, svg => {
         this.projectDidChange({ actionName: "Create SVG Instance From Asset"});
       });
-    }else {
+    } else {
       console.error('object is not an ImageAsset or a ClipAsset')
     }
   }
@@ -909,8 +907,11 @@ class EditorCore extends Component {
    * Creates and imports Wick Assets from the acceptedFiles list, and displays an alert message for rejected files.
    * @param {File[]} acceptedFiles - Files uploaded by user with supported MIME types to import into the project
    * @param {File[]} rejectedFiles - Files uploaded by user with unsupported MIME types.
+   * @param {object} options - optional flags. Can include "create", which if true will create an instance of the object on the canvas.
    */
-  createAssets = (acceptedFiles, rejectedFiles) => {
+  createAssets = (acceptedFiles, rejectedFiles, options) => {
+    if (!options) options = {};
+
     let toastID = this.toast('Importing files...', 'info');
 
     // Error message for failed uploads
@@ -919,6 +920,10 @@ class EditorCore extends Component {
       this.updateToast(toastID, {
         type: 'error',
         text: 'Could not import files: ' + fileNamesRejected});
+    }
+
+    let createCallback = (asset) => {
+      if (options.create) this.createImageFromAsset(asset.uuid, options.location.x || 0, options.location.y || 0);
     }
 
     // Add all successfully uploaded assets
@@ -931,14 +936,14 @@ class EditorCore extends Component {
                 console.log('GIFImport onProgress: ' + percent);
             },
             onFinish: (gifAsset) => {
-                console.log('GIFImport onFinish:')
-                console.log(gifAsset)
                 this.project.addAsset(gifAsset);
                 this.projectDidChange({ actionName: "Add Asset" });
+                if (options.create) this.createImageFromAsset(gifAsset.uuid, options.location.x || 0, options.location.y || 0);
             }});
       } else {
         var file = acceptedFiles[i];
-        this.importFileAsAsset(file);
+
+        this.importFileAsAsset(file, createCallback);
       }
     }
   }
@@ -1002,6 +1007,7 @@ class EditorCore extends Component {
           text: "Error saving .wick file. Please try again." });
       }
 
+      file = new Blob([file], {type: 'application/wick'});
       window.saveFileFromWick(file, this.project.name, '.wick', success, fail);
 
       this.hideWaitOverlay();
@@ -1263,7 +1269,7 @@ class EditorCore extends Component {
     let toastID = this.toast('Exporting project as HTML...', 'info');
     let outputName = args.name || this.project.name;
     window.Wick.HTMLExport.bundleProject(this.project, html => {
-      let file = new Blob([html], {type: 'text/plain'});
+      let file = new Blob([html], {type: 'text/html'});
 
       let success = () => {
         this.updateToast(toastID, {
@@ -1467,15 +1473,19 @@ class EditorCore extends Component {
   }
 
   /**
-   * Start a timer to run an autosave sometime in the future.
+   * Attempts to autosave if enough time has passed since the last autosave.
    */
   requestAutosave = () => {
-      window.clearTimeout(this._autosaveTimeoutID);
-      this._autosaveTimeoutID = window.setTimeout(() => {
-          this.autoSaveProject(() => {
+    let now = Date.now();
+    let last = this._lastAutosave;
+    let timeSince = now - last;
 
-          });
-      }, 1000 * 60);
+    // Only autosave every 15 seconds.
+    if (timeSince > 15000) {
+      this.autoSaveProject(() => {
+        this._lastAutosave = Date.now();
+      });
+    }
   }
 
   /**
@@ -1621,6 +1631,9 @@ class EditorCore extends Component {
    */
   clearCodeEditorError = () => {
       this.project.error = null;
+      this.setState({
+        codeError: null,
+      })
       this.projectDidChange({ actionName: "Clear Code Editor Error" });
   }
 

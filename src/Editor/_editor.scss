@@ -270,7 +270,7 @@ body {
 .reflex-container.horizontal > .reflex-splitter.reflex-thin {
   border-bottom: $splitter-width solid $splitter-color !important;
   border-top: $splitter-width solid $splitter-color !important;
-  height: $splitter-width !important;
+  height: $splitter-width;
   cursor: row-resize;
   margin: -$splitter-width 0;
   width: 100%; }
@@ -292,3 +292,8 @@ body {
 .reflex-container.vertical > .reflex-splitter.reflex-thin:hover {
   border-right: $splitter-width solid $splitter-highlight-color !important;
   border-left: $splitter-width solid $splitter-highlight-color !important; }
+
+.mobile-reflex-splitter {
+  height: 15px !important;
+  border: 3px solid black !important;
+}

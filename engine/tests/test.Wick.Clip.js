@@ -671,7 +671,6 @@ describe('Wick.Clip', function() {
                 clip.activeFrame.end = 10;
 
                 project.tick();
-                project.tick();
 
                 expect(clip.timeline.playheadPosition).to.equal(5);
 
@@ -689,7 +688,6 @@ describe('Wick.Clip', function() {
 
                 clip.addScript('load', 'gotoAndPlay(9)');
 
-                project.tick();
                 project.tick();
 
                 expect(project.root.timeline.playheadPosition).to.equal(9);
@@ -1718,15 +1716,21 @@ describe('Wick.Clip', function() {
             clip.timeline.addFrame(frame3);
 
             clip.animationType = 'single';
-            clip.singleFrameNumber = 2;
             project.activeFrame.addClip(clip);
+            clip.singleFrameNumber = 2;
             project.framerate = 60; // speed up test time.
 
             let totalTicks = 0;
 
             project.play({
                 onAfterTick: () => {
-                    expect(clip.timeline.playheadPosition).to.equal(2);
+                    try {
+                        expect(clip.timeline.playheadPosition).to.equal(2);
+                    } catch {
+                        project.stop();
+                        done();
+                    }
+
                     totalTicks += 1;
 
                     if (totalTicks === 7) {

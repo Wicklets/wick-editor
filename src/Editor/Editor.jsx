@@ -18,7 +18,6 @@
  */
 
 import React from 'react';
-import ReactGA from 'react-ga';
 
 import './_editor.scss';
 import './styles/default_theme.css';
@@ -46,6 +45,7 @@ import Canvas from './Panels/Canvas/Canvas';
 import Inspector from './Panels/Inspector/Inspector';
 import MenuBar from './Panels/MenuBar/MenuBar';
 import Timeline from './Panels/Timeline/Timeline';
+import MobileContainer from './Panels/MobileContainer/MobileContainer'
 import DeleteCopyPaste from './Panels/DeleteCopyPaste/DeleteCopyPaste';
 import CanvasTransforms from './Panels/CanvasTransforms/CanvasTransforms';
 import Toolbox from './Panels/Toolbox/Toolbox';
@@ -55,6 +55,8 @@ import OutlinerExpandButton from './Panels/OutlinerExpandButton/OutlinerExpandBu
 import WickCodeEditor from './PopOuts/WickCodeEditor/WickCodeEditor';
 
 import EditorWrapper from './EditorWrapper';
+
+const { version } = require('../../package.json');
 
 var classNames = require('classnames');
 
@@ -67,7 +69,7 @@ class Editor extends EditorCore {
     // "Live" editor states
     this.project = null;
     this.paper = null;
-    this.editorVersion = "1.19";
+    this.editorVersion = version + '';
 
     // GUI state
     this.state = {
@@ -101,8 +103,6 @@ class Editor extends EditorCore {
       customHotKeys: {},
       colorPickerType: "swatches",
       lastColorsUsed: ["#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"],
-      renderMediumWidth: 1200,
-      renderSmallWidth: 800,
       exporting: false,
       useCustomOnionSkinningColors: false,
       customOnionSkinningColors: {
@@ -128,6 +128,9 @@ class Editor extends EditorCore {
 
     // Set up error.
     this.error = null;
+
+    // Last Autosave
+    this._lastAutosave = 0;
 
     // Create interfaces.
     this.fontInfoInterface = new FontInfoInterface(this);
@@ -198,10 +201,7 @@ class Editor extends EditorCore {
     this.builtinPreviews = {};
   }
 
-  componentWillMount = () => {
-    ReactGA.initialize('UA-88233944-1');
-    ReactGA.pageview(window.location.pathname + window.location.search);
-
+  UNSAFE_componentWillMount = () => {
     document.title =  `Wick Editor ${this.editorVersion}`;
     // Initialize "live" engine state
     this.project = new window.Wick.Project();
@@ -341,6 +341,7 @@ class Editor extends EditorCore {
       this.recenterCanvas(); // Recenter the canvas after reload;
       setTimeout(() => {
         preloader.style.display = 'none';
+        preloader.remove();
       }, 500);
       this.project.view.render()
     }, 2000); // Wait two seconds to allow editor to set up... TODO: Should connect this to load events.
@@ -902,9 +903,9 @@ class Editor extends EditorCore {
    * @returns {String} "large", "medium" or "small" depending on the width of the window.
    */
   getRenderSize = () => {
-    if (window.innerWidth > this.state.renderMediumWidth) {
+    if (window.innerWidth > 1200) {
       return "large";
-    } else if (window.innerWidth > this.state.renderSmallWidth) {
+    } else if (window.innerWidth > 800) {
       return "medium";
     } else {
       return "small";
@@ -1060,7 +1061,8 @@ class Editor extends EditorCore {
                       </ReflexContainer>
                     </ReflexElement>
 
-                    <ReflexSplitter {...this.resizeProps}/>
+                    {(renderSize === "small") && <ReflexSplitter {...this.resizeProps} className="mobile-reflex-splitter"/>}
+                    {!(renderSize === "small") && <ReflexSplitter {...this.resizeProps}/>}
 
                     {/*Timeline*/}
                     <ReflexElement
@@ -1069,6 +1071,53 @@ class Editor extends EditorCore {
                       onResize={this.resizeProps.onResize}
                       onStopResize={this.resizeProps.onStopTimelineResize}>
                       <DockedPanel  showOverlay={this.state.previewPlaying}>
+                      {renderSize === "small" 
+                      && <MobileContainer
+                          project={this.project}
+                          projectDidChange={this.projectDidChange}
+                          projectData={this.state.project}
+                          getSelectedTimelineObjects={this.getSelectedTimelineObjects}
+                          setOnionSkinOptions={this.setOnionSkinOptions}
+                          getOnionSkinOptions={this.getOnionSkinOptions}
+                          setFocusObject={this.setFocusObject}
+                          addTweenKeyframe={this.addTweenKeyframe}
+                          onRef={ref => this.timelineComponent = ref}
+                          dragSoundOntoTimeline={this.dragSoundOntoTimeline}
+
+                          getToolSetting={this.getToolSetting}
+                          setToolSetting={this.setToolSetting}
+                          getSelectionType={this.getSelectionType}
+                          getAllSoundAssets={this.getAllSoundAssets}
+                          getAllSelectionAttributes={this.getAllSelectionAttributes}
+                          setSelectionAttribute={this.setSelectionAttribute}
+                          editorActions={this.actionMapInterface.editorActions}
+                          selectionIsScriptable={this.selectionIsScriptable}
+                          script={this.getSelectedObjectScript()}
+                          scriptInfoInterface={this.scriptInfoInterface}
+                          deleteScript={this.deleteScript}
+                          editScript={this.editScript}
+                          fontInfoInterface={this.fontInfoInterface}
+                          
+                          importFileAsAsset={this.importFileAsAsset}
+                          colorPickerType={this.state.colorPickerType}
+                          changeColorPickerType={this.changeColorPickerType}
+                          updateLastColors={this.updateLastColors}
+                          lastColorsUsed={this.state.lastColorsUsed}
+                          getClipAnimationTypes={this.getClipAnimationTypes}
+                          
+                          assets={this.project.getAssets()}
+                          openModal={this.openModal}
+                          openImportAssetFileDialog={this.openImportAssetFileDialog}
+                          selectObjects={this.selectObjects}
+                          clearSelection={this.clearSelection}
+                          isObjectSelected={this.isObjectSelected}
+                          createAssets={this.createAssets} 
+                          importProjectAsWickFile={this.importProjectAsWickFile}
+                          createImageFromAsset={this.createImageFromAsset}
+                          toast={this.toast}
+                          deleteSelectedObjects={this.deleteSelectedObjects}
+                          addSoundToActiveFrame={this.addSoundToActiveFrame}/>}
+                        {renderSize !== "small" &&
                         <Timeline
                           project={this.project}
                           projectDidChange={this.projectDidChange}
@@ -1080,7 +1129,7 @@ class Editor extends EditorCore {
                           addTweenKeyframe={this.addTweenKeyframe}
                           onRef={ref => this.timelineComponent = ref}
                           dragSoundOntoTimeline={this.dragSoundOntoTimeline}
-                        />
+                        />}
                       </DockedPanel>
                     </ReflexElement>
                   </ReflexContainer>
@@ -1153,7 +1202,7 @@ class Editor extends EditorCore {
                   {window.enableAssetLibrary && 
                   <ReflexElement
                     minSize={100}
-                    size={500}
+                    size={300}
                     onResize={this.resizeProps.onResize}
                     onStopResize={this.resizeProps.onStopAssetLibraryResize}>
                     <DockedPanel showOverlay={this.state.previewPlaying}>
@@ -1196,6 +1245,7 @@ class Editor extends EditorCore {
               clearCodeEditorError={this.clearCodeEditorError}
               consoleLogs={this.state.consoleLogs}
               setConsoleLogs={this.setConsoleLogs}
+              renderSize={renderSize}
             />}
         </div>
       </EditorWrapper>

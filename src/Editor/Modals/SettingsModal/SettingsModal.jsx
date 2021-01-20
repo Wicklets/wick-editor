@@ -65,6 +65,7 @@ class SettingsModal extends Component {
               colorPickerType={this.props.colorPickerType}
               changeColorPickerType={this.props.changeColorPickerType}
               updateLastColors={this.props.updateLastColors}
+              toggle={this.props.toggle}
               lastColorsUsed={this.props.lastColorsUsed}/>
             <KeyboardShortcuts
               addCustomHotKeys={this.props.addCustomHotKeys}
@@ -73,6 +74,7 @@ class SettingsModal extends Component {
               keyMap={this.props.keyMap}
               keyMapGroups={this.props.keyMapGroups}
               toast={this.props.toast} 
+              toggle={this.props.toggle}
               createCombinedHotKeyMap={this.props.createCombinedHotKeyMap}/>
             <EditorSettings 
               colorPickerType={this.props.colorPickerType}
@@ -81,6 +83,7 @@ class SettingsModal extends Component {
               lastColorsUsed={this.props.lastColorsUsed}
               getToolSetting={this.props.getToolSetting}
               setToolSetting={this.props.setToolSetting}
+              toggle={this.props.toggle}
               getToolSettingRestrictions={this.props.getToolSettingRestrictions}/>
           </TabbedInterface>
         </div>

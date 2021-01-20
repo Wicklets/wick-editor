@@ -28,6 +28,7 @@ import { Console } from 'console-feed'
 // Import Ace Editor and themes.
 import AceEditor from 'react-ace';
 import 'brace/mode/javascript';
+import 'brace/ext/searchbox';
 
 import 'brace/theme/monokai';
 import 'brace/theme/cobalt';
@@ -155,8 +156,6 @@ export default function WickCodeEditor(props) {
       return [];
     }
 
-
-
     let marker = {};
     marker.startRow = error.lineNumber - 1;
     marker.endRow = error.lineNumber - 1;
@@ -166,6 +165,23 @@ export default function WickCodeEditor(props) {
     marker.type = 'background';
 
     return [marker];
+  }
+
+  /**
+   * Maps errors to annotations in the gutter.
+   * @param {object} error - Object representing error from editor. Should include lineNumber, message.
+   */
+  function mapErrorToAnnotations(error) {
+    if (!error) {
+      return [];
+    }
+
+    let annotation = {};
+    annotation.row = error.lineNumber - 1;
+    annotation.type = 'error';
+    annotation.text = error.message;
+
+    return [annotation];
   }
 
   /**
@@ -236,37 +252,9 @@ export default function WickCodeEditor(props) {
     }
   }
 
-  return (
-    <Rnd
-      id="wick-code-editor-resizeable"
-      bounds="window"
-      dragHandleClassName="wick-code-editor-drag-handle"
-      minWidth={props.codeEditorWindowProperties.minWidth}
-      minHeight={props.codeEditorWindowProperties.minHeight}
-      onResizeStop={onResizeHandler}
-      onDragStop={onDragHandler}
-      default={props.codeEditorWindowProperties}
-    >
-
-      <div className="wick-code-editor-drag-handle">
-        <div className="wick-code-editor-icon">{"</>"}</div>
-        <div className="we-code-editor-title">
-          Code Editor | <div className="we-code-editor-title-selected">{`editing ${props.selectionType}`}</div>
-        </div>
-        <ActionButton
-          className="we-code-close-button"
-          color="tool"
-          icon="cancel-white"
-          action={props.toggleCodeEditor} />
-      </div>
-      <div className="wick-code-editor-body">
-        <div className="wick-code-editor-reference">
-          <CodeReference
-            referenceItems={props.scriptInfoInterface.referenceItems}
-            addCodeToTab={addCodeToTab} />
-        </div>
-        <div className="wick-code-editor-content">
-          <div className="wick-code-editor-tabs">
+  function renderCodeTabs () {
+    return (
+      <div className="wick-code-editor-tabs">
             {props.script && props.script.scripts.map(script => {
               return <button
                 key={"script-tab-" + script.name}
@@ -293,38 +281,122 @@ export default function WickCodeEditor(props) {
               +
             </button>}
           </div>
+    )
+  }
+
+
+  function renderCodeEditor () {
+    return (
+      <div className={classNames("wick-code-editor-code", 'theme' + props.codeEditorWindowProperties.theme)}>
+      {
+        props.scriptToEdit === 'add' &&
+        <AddScriptPanel
+          availableScripts={props.script && props.script.getAvailableScripts()}
+          scripts={props.scriptInfoInterface.scriptData.filter(script => script.type === addScriptTab)}
+          changeTab={(tab) => setAddScriptTab(tab)}
+          addScript={addScript}
+          addScriptTab={addScriptTab}
+        />
+      }
+      {
+        props.scriptToEdit !== 'add' &&
+        <AceEditor
+          value={scriptToShow}
+          mode="javascript"
+          theme={props.codeEditorWindowProperties.theme}
+          fontSize={props.codeEditorWindowProperties.fontSize} // TODO: Controllable by User
+          width="100%"
+          height="100%"
+          name="wick-ace-editor"
+          focus={true}
+          editorProps={{ $blockScrolling: true }}
+          onChange={scriptOnChange}
+          onLoad={(editor) => setAceEditor(editor)}
+          markers={mapErrorToMarkers(props.error)}
+          annotations={mapErrorToAnnotations(props.error)}
+          readOnly={!props.script}
+        />
+      }
+    </div>
+    )
+  }
+
+  if (props.renderSize === 'small') {
+    return (
+      <Rnd
+        id="wick-code-editor-resizeable-small"
+        bounds="window"
+        dragHandleClassName="wick-code-editor-drag-handle"
+        width={window.innerWidth}
+        onResizeStop={onResizeHandler}
+        onDragStop={onDragHandler}
+        default={props.codeEditorWindowProperties}
+      >
+        <div className="we-code-editor-small">
+          <div className="wick-code-editor-drag-handle small">
+            <div className="we-code-editor-title small">
+              Code Editor | <div className="we-code-editor-title-selected">{`editing ${props.selectionType}`}</div>
+            </div>
+            <ActionButton
+              className="we-code-close-button"
+              color="tool"
+              icon="cancel-white"
+              action={props.toggleCodeEditor} />
+          </div>
+
+          <div className="wick-code-editor-body-small">
+            {renderCodeTabs()}
+            {renderCodeEditor()}
+          </div>
+
+        </div>
+      </Rnd>
+    )
+  } else {
+
+  return (
+    <Rnd
+      id="wick-code-editor-resizeable"
+      bounds="window"
+      dragHandleClassName="wick-code-editor-drag-handle"
+      minWidth={props.codeEditorWindowProperties.minWidth}
+      minHeight={props.codeEditorWindowProperties.minHeight}
+      onResizeStop={onResizeHandler}
+      onDragStop={onDragHandler}
+      default={props.codeEditorWindowProperties}
+    >
+
+      <div className="wick-code-editor-drag-handle">
+        <div className="wick-code-editor-icon">{"</>"}</div>
+        <div className="we-code-editor-title">
+          Code Editor | 
+          { !props.error && <div className="we-code-editor-title-selected">
+            {`editing ${props.selectionType}`}
+            </div>
+          } 
+          { props.error && <div className="we-code-editor-title-error">
+                {`error - line ${props.error.lineNumber}`}
+              </div>
+          }
+        </div>
+        <ActionButton
+          className="we-code-close-button"
+          color="tool"
+          icon="cancel-white"
+          action={props.toggleCodeEditor} />
+      </div>
+
+      <div className="wick-code-editor-body">
+        <div className="wick-code-editor-reference">
+          <CodeReference
+            referenceItems={props.scriptInfoInterface.referenceItems}
+            addCodeToTab={addCodeToTab} />
+        </div>
+        <div className="wick-code-editor-content">
+          {renderCodeTabs()}
           <ReflexContainer>
             <ReflexElement>
-              <div className={classNames("wick-code-editor-code", 'theme' + props.codeEditorWindowProperties.theme)}>
-                {
-                  props.scriptToEdit === 'add' &&
-                  <AddScriptPanel
-                    availableScripts={props.script && props.script.getAvailableScripts()}
-                    scripts={props.scriptInfoInterface.scriptData.filter(script => script.type === addScriptTab)}
-                    changeTab={(tab) => setAddScriptTab(tab)}
-                    addScript={addScript}
-                    addScriptTab={addScriptTab}
-                  />
-                }
-                {
-                  props.scriptToEdit !== 'add' &&
-                  <AceEditor
-                    value={scriptToShow}
-                    mode="javascript"
-                    theme={props.codeEditorWindowProperties.theme}
-                    fontSize={props.codeEditorWindowProperties.fontSize} // TODO: Controllable by User
-                    width="100%"
-                    height="100%"
-                    name="wick-ace-editor"
-                    focus={props.focus}
-                    editorProps={{ $blockScrolling: true }}
-                    onChange={scriptOnChange}
-                    onLoad={(editor) => setAceEditor(editor)}
-                    markers={mapErrorToMarkers(props.error)}
-                    readOnly={!props.script}
-                  />
-                }
-              </div>
+              {renderCodeEditor()}
             </ReflexElement>
 
             <ReflexSplitter></ReflexSplitter>
@@ -377,7 +449,7 @@ export default function WickCodeEditor(props) {
 
                 </div>
 
-                {consoleType === 'console' && <Console logs={props.consoleLogs} variant="dark" styles={{}}/>}
+                {consoleType === 'console' && <Console logs={props.consoleLogs} variant="dark"/>}
                 {consoleType === 'options' && renderCodeEditorOptions()}
               </div>
             </ReflexElement>
@@ -387,6 +459,8 @@ export default function WickCodeEditor(props) {
 
     </Rnd>
   )
+
+  }
 }
 
 /**

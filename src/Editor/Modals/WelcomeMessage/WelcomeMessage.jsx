@@ -27,7 +27,7 @@ import './_welcomemessage.scss';
 // import nightImage from 'resources/interface-images/blue_night.svg';
 import nightImageShort from 'resources/interface-images/blue_night_short.svg';
 
-import coolField from 'resources/splash-screens/cool_field2.png'
+import coolField from 'resources/splash-screens/cool_field3.png'
 
 var classNames = require('classnames');
 
@@ -43,9 +43,9 @@ class WelcomeModal extends Component {
 
     let t1 = ["Guy de Bree", "Dimp", "Hyun's Dojo"]
     let t2 = ["Constance Ye", "Dan Doggett", "Anonymous"]
-    let t3 = ["Gautaum Bose", "Trevor", "Jovanny Rodriguez"]
-    let t4 = ["Golan Levin", "ThisPodcastIsInEnglish", "Daniel Sun", "Benjamin Briand", "Joseph Hocking", "Charisse Hampton", "Jessie Young", "Bluecake", "O.K. Keyes", "Anonymous"]
-    let t5 = ["Joe", "Karlin Fox", "StepSwitcher", "Kandy Kat", "Pablosaurs910"]
+    let t3 = ["Gautaum Bose", "Trevor", "Jovanny Rodriguez", "André Bray", "Colin Fitz-Gerald"]
+    let t4 = ["Golan Levin", "Daniel Sun", "Benjamin Briand", "Joseph Hocking", "Charisse Hampton", "Jessie Young", "Bluecake", "O.K. Keyes", "Sarksus", "Laurens Bonnema", "Anonymous"]
+    let t5 = ["Joe", "Karlin Fox", "StepSwitcher", "Kandy Kat", "Ann Griffin", "Happyships", "Dixie Dorward", "Albin Rodriguex"]
     this.patreonSupporters = t1.concat(t2, t3, t4, t5)
   }
 

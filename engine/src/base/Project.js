@@ -588,8 +588,6 @@ Wick.Project = class extends Wick.Base {
                 subclip.applySingleFramePosition();
             });
         }
-
-
     }
 
     /**
@@ -993,9 +991,8 @@ Wick.Project = class extends Wick.Base {
 
         // Select the newly added frames
         this.selection.clear();
-        newFrames.forEach(frame => {
-            this.selection.select(frame);
-        });
+
+        this.selection.selectMultipleObjects(newFrames);
     }
 
     /**
@@ -1122,20 +1119,24 @@ Wick.Project = class extends Wick.Base {
      * Selects all objects that are visible on the canvas (excluding locked layers and onion skinned objects)
      */
     selectAll() {
+        let objectsToAdd = [];
+
         this.selection.clear();
         this.activeFrames.filter(frame => {
             return !frame.parentLayer.locked &&
                 !frame.parentLayer.hidden;
         }).forEach(frame => {
             frame.paths.forEach(path => {
-                this.selection.select(path);
+                objectsToAdd.push(path);
             });
             frame.clips.forEach(clip => {
-                this.selection.select(clip);
+                objectsToAdd.push(clip);
             });
         });
-    }
 
+        this.selection.selectMultipleObjects(objectsToAdd);
+    }
+    
     /**
      * Adds an image path to the active frame using a given asset as its image src.
      * @param {Wick.Asset} asset - the asset to use for the image src
@@ -1144,6 +1145,9 @@ Wick.Project = class extends Wick.Base {
      * @param {function} callback - the function to call after the path is created.
      */
     createImagePathFromAsset(asset, x, y, callback) {
+		let playheadPosition = this.focus.timeline.playheadPosition;
+		if (!this.activeFrame)
+			this.activeLayer.insertBlankFrame(playheadPosition);
         asset.createInstance(path => {
             this.activeFrame.addPath(path);
             path.x = x;
@@ -1160,6 +1164,9 @@ Wick.Project = class extends Wick.Base {
      * @param {function} callback - the function to call after the path is created.
      */
     createClipInstanceFromAsset(asset, x, y, callback) {
+		let playheadPosition = this.focus.timeline.playheadPosition;
+		if (!this.activeFrame)
+			this.activeLayer.insertBlankFrame(playheadPosition);
         asset.createInstance(clip => {
             this.activeFrame.addPath(clip);
             clip.x = x;
@@ -1176,6 +1183,9 @@ Wick.Project = class extends Wick.Base {
      * @param {function} callback - the function to call after the path is created.
      */
     createSVGInstanceFromAsset(asset, x, y, callback) {
+		let playheadPosition = this.focus.timeline.playheadPosition;
+		if (!this.activeFrame)
+			this.activeLayer.insertBlankFrame(playheadPosition);
         asset.createInstance(svg => {
             this.addObject(svg);
             svg.x = x;
@@ -1204,6 +1214,7 @@ Wick.Project = class extends Wick.Base {
 
         if (args.type === 'Button') {
             clip = new Wick[args.type]({
+                project: this,
                 identifier: args.identifier,
                 transformation: new Wick.Transformation({
                     x: this.selection.x + this.selection.width / 2,
@@ -1213,6 +1224,7 @@ Wick.Project = class extends Wick.Base {
             });
         } else {
             clip = new Wick[args.type]({
+                project: this.project,
                 identifier: args.identifier,
                 transformation: new Wick.Transformation({
                     x: this.selection.x + this.selection.width / 2,
@@ -1243,9 +1255,7 @@ Wick.Project = class extends Wick.Base {
             leftovers = leftovers.concat(clip.breakApart());
         });
 
-        leftovers.forEach(object => {
-            this.selection.select(object);
-        });
+        this.selection.selectMultipleObjects(leftovers);
     }
 
     /**
@@ -1478,7 +1488,6 @@ Wick.Project = class extends Wick.Base {
      * Run scripts in schedule, in order based on Tickable.possibleScripts.
      */
     runScheduledScripts () {
-        this._error = null;
         Wick.Tickable.possibleScripts.forEach(scriptOrderName => {
             this._scriptSchedule.forEach(scheduledScript => {
                 var {uuid, name, parameters} = scheduledScript;
@@ -1524,6 +1533,8 @@ Wick.Project = class extends Wick.Base {
             this.stop();
         }
 
+        this.error = null;
+
         this.history.saveSnapshot('state-before-play');
 
         this.selection.clear();
@@ -1533,14 +1544,22 @@ Wick.Project = class extends Wick.Base {
             args.onBeforeTick();
 
             this.tools.interact.determineMouseTargets();
+            // console.time('tick');
             var error = this.tick();
+            // console.timeEnd('tick');
+
+            // console.time('update');
             this.view.paper.view.update();
+            // console.timeEnd('update');
+
             if(error) {
                 this.stop();
                 return;
             }
 
+            // console.time('afterTick');
             args.onAfterTick();
+            // console.timeEnd('afterTick');
         }, 1000 / this.framerate);
     }
 
@@ -1580,7 +1599,7 @@ Wick.Project = class extends Wick.Base {
 
         this.view.render();
 
-        if(this._error) {
+        if (this._error) {
             return this._error;
         } else {
             return null;

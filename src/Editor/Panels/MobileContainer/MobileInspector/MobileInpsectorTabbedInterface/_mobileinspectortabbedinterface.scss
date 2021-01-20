@@ -1,0 +1,73 @@
+/*
+ * Copyright 2020 WICKLETS LLC
+ *
+ * This file is part of Wick Editor.
+ *
+ * Wick Editor is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Editor is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+ @import 'Editor/_wickbrand.scss';
+ 
+$header-height: 40px;
+
+.mobile-inspector-tabbed-interface {
+    background-color: $mobile-panel-background !important;
+    // background: none !important;
+    width: 100%;
+    height: 100%;
+}
+
+.mobile-inspector-tabbed-interface-main-tab-container {
+    padding-top: 5px;
+    background-color:$mobile-panel-background !important;
+    // background: none !important;
+    min-height: $header-height; 
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: flex-start;
+}
+
+.mobile-inspector-tabbed-interface-main-tab {
+    background-color: $inspector-tab-background;
+    min-height: $header-height;
+    border-radius: 5px 5px 0 0;
+    height: 100%;
+    width: 15%;
+    margin-right: 5px; 
+    border: none;
+    border-bottom: 3px solid $inspector-tab-underline; 
+    cursor: pointer;
+}
+
+.mobile-inspector-tabbed-interface-main-tab.selected {
+    background-color: $inspector-tab-background-selected;
+    transition: .4s;
+    border-bottom: 3px solid $wick-green; 
+}
+
+.mobile-inspector-tabbed-interface-icon {
+    margin: auto;
+}
+
+.mobile-inspector-tabbed-interface-main-tab:first-child {
+    margin-left: 0px;
+}
+
+.mobile-inspector-tabbed-interface-body {
+    background-color: $inspector-tab-background-selected;
+    width: 100%;
+    height: calc(100% - #{$header-height});
+}

@@ -34,6 +34,7 @@ class InspectorActionButton extends Component {
       <div className="inspector-button">
         <ActionButton
           color={actionColor}
+          icon={action.icon}
           id={"inspector-button-" + btnID}
           action={action.action}
           text={action.tooltip}/>

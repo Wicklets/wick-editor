@@ -211,7 +211,7 @@ describe('Wick.Path', function() {
     });
 
     describe('#fontFamily,fontSize,fontWeight', function() {
-        it('should return correct fontFamily/fontSize/fontWeight', function () {
+        it('should return correct fontFamily/fontSize/fontWeight', function () {            
             var path = TestUtils.paperToWickPath(new paper.PointText({
                 fillColor: '#000000',
                 fontFamily: 'Helvetica',
@@ -301,7 +301,7 @@ describe('Wick.Path', function() {
             imageAsset.createInstance(() => {
                 // The current format stores the asset UUID as such:
                 var currentImageFormat = new Wick.Path();
-                currentImageFormat._json = [
+                currentImageFormat.json = [
                   "Raster",
                   {
                     "applyMatrix": false,
@@ -321,30 +321,28 @@ describe('Wick.Path', function() {
 
                 // The old format stores the asset UUID slightly differently.
                 var oldImageFormat = new Wick.Path();
-                oldImageFormat._json = [
-                  "Raster",
-                  {
-                    "applyMatrix": false,
-                    "data": {
-                      "asset": imageAsset.uuid
-                    },
-                    "matrix": [
-                      1,
-                      0,
-                      0,
-                      1,
-                      300,
-                      200
-                    ],
-                    "crossOrigin": "",
-                    "source": "asset"
-                  }
+                oldImageFormat.json = [
+                    "Raster",
+                    {
+                        "applyMatrix": false,
+                        "data": { asset : imageAsset.uuid },
+                        "matrix": [
+                            1,
+                            0,
+                            0,
+                            1,
+                            300,
+                            200
+                        ],
+                        "crossOrigin": "",
+                        "source": "asset"
+                    }
                 ];
                 project.activeFrame.addPath(oldImageFormat);
 
                 // The old format, in a slightly different way (some projects have this for some reason)
                 var oldImageFormat2 = new Wick.Path();
-                oldImageFormat2._json = [
+                oldImageFormat2.json = [
                   "Raster",
                   {
                     "applyMatrix": false,
@@ -365,7 +363,7 @@ describe('Wick.Path', function() {
 
                 // Bug: Image paths sometimes store the actual image source. This is very bad for the filesize.
                 var buggedImageFormat = new Wick.Path();
-                buggedImageFormat._json = [
+                buggedImageFormat.json = [
                   "Raster",
                   {
                     "applyMatrix": false,
@@ -385,14 +383,14 @@ describe('Wick.Path', function() {
 
                 project.view.render();
 
-                expect(currentImageFormat.view.item.bounds.width).to.equal(100);
-                expect(currentImageFormat.view.item.bounds.height).to.equal(100);
-                expect(oldImageFormat.view.item.bounds.width).to.equal(100);
-                expect(oldImageFormat.view.item.bounds.height).to.equal(100);
-                expect(oldImageFormat2.view.item.bounds.width).to.equal(100);
-                expect(oldImageFormat2.view.item.bounds.height).to.equal(100);
-                expect(buggedImageFormat.view.item.bounds.width).to.equal(100);
-                expect(buggedImageFormat.view.item.bounds.height).to.equal(100);
+                expect(currentImageFormat.bounds.width).to.equal(100);
+                expect(currentImageFormat.bounds.height).to.equal(100);
+                expect(oldImageFormat.bounds.width).to.equal(100);
+                expect(oldImageFormat.bounds.height).to.equal(100);
+                expect(oldImageFormat2.bounds.width).to.equal(100);
+                expect(oldImageFormat2.bounds.height).to.equal(100);
+                expect(buggedImageFormat.bounds.width).to.equal(100);
+                expect(buggedImageFormat.bounds.height).to.equal(100);
 
                 done();
             });

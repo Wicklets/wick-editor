@@ -52,6 +52,8 @@ Wick.Base = class {
         this._children = [];
         this._childrenData = null;
         this._parent = null;
+
+        // If this is a project, use this object, otherwise use the passed in project if provided.
         this._project = this.classname === 'Project' ? this : args.project ? args.project : null;
 
         this.needsAutosave = true;
@@ -64,7 +66,7 @@ Wick.Base = class {
     /**
      * @param {object} data - Serialized data to use to create a new object.
      */
-    static fromData(data) {
+    static fromData(data, project) {
         if (!data.classname) {
             console.warn('Wick.Base.fromData(): data was missing, did you mean to deserialize something else?');
         }
@@ -72,7 +74,7 @@ Wick.Base = class {
             console.warn('Tried to deserialize an object with no Wick class: ' + data.classname);
         }
 
-        var object = new Wick[data.classname]({ uuid: data.uuid });
+        var object = new Wick[data.classname]({ uuid: data.uuid, project: project });
         object.deserialize(data);
 
         if (data.classname === 'Project') {
@@ -152,21 +154,16 @@ Wick.Base = class {
      * Returns a copy of a Wick Base object.
      * @return {Wick.Base} The object resulting from the copy
      */
-    copy(temporary) {
+    copy() {
         var data = this.serialize();
         data.uuid = uuidv4();
         var copy = Wick.Base.fromData(data);
-
-        if (temporary) {
-            copy._temporary = true;
-        }
 
         copy._childrenData = null;
 
         // Copy children
         this.getChildren().forEach(child => {
-
-            copy.addChild(child.copy(temporary));
+            copy.addChild(child.copy());
         });
 
         return copy;
@@ -215,15 +212,8 @@ Wick.Base = class {
         if (!exportData.object) console.error('Wick.Base.import(): exportData is missing data');
         if (!exportData.children) console.error('Wick.Base.import(): exportData is missing data');
 
-        var object = Wick.Base.fromData(exportData.object);
 
-        // Import children as well
-        exportData.children.forEach(childData => {
-            // Only need to call deserialize here, we just want the object to get added to ObjectCache
-            var child = Wick.Base.fromData(childData);
-        });
-
-        // Also import linked assets
+        // Import assets first in case the objects need them!
         exportData.assets.forEach(assetData => {
             // Don't import assets if they exist in the project already
             // (Assets only get reimported when objects are pasted between projects)
@@ -231,8 +221,16 @@ Wick.Base = class {
                 return;
             }
 
-            var asset = Wick.Base.fromData(assetData);
+            var asset = Wick.Base.fromData(assetData, project);
             project.addAsset(asset);
+        });
+
+        var object = Wick.Base.fromData(exportData.object, project);
+
+        // Import children as well
+        exportData.children.forEach(childData => {
+            // Only need to call deserialize here, we just want the object to get added to ObjectCache
+            var child = Wick.Base.fromData(childData, project);
         });
 
         return object;
@@ -253,6 +251,20 @@ Wick.Base = class {
     get needsAutosave() {
         return Wick.ObjectCache.objectNeedsAutosave(this);
     }
+
+    /**
+     * Signals if an object is removed from the project while playing.
+     * This is a temprary variable.
+     * @type {boolean}
+     */
+    get removed () {
+        return typeof this._removed === 'undefined' ? false : this._removed;
+    }
+
+    set removed (bool) {
+        this._removed = bool; 
+    }
+
 
     /**
      * Returns the classname of a Wick Base object.
@@ -381,27 +393,20 @@ Wick.Base = class {
         }
 
         if (classname instanceof Array) {
+            let classNames = new Set(classname);
             var children = [];
 
             if (this._children !== undefined) {
-                this._children.forEach(child => {
-                    if (classname.indexOf(child.classname) !== -1) {
-                        children.push(child)
-                    }
-                })
+                children = this._children.filter(child => classNames.has(child.classname));
             }
+
             return children;
         } else if (classname === undefined) {
             // Retrieve all children if no classname was given
             return Array.from(this._children);
         } else {
             // Retrieve children by classname
-            var children = [];
-            this._children.forEach(child => {
-                if (child.classname === classname) {
-                    children.push(child);
-                }
-            });
+            var children = this._children.filter(child => child.classname === classname);
             return children || [];
         }
     }
@@ -410,11 +415,13 @@ Wick.Base = class {
      * Get an array of all children of this object, and the children of those children, recursively.
      * @type {Wick.Base[]}
      */
-    getChildrenRecursive() {
+    getChildrenRecursive(level, original) {
         var children = this.getChildren();
+
         this.getChildren().forEach(child => {
-            children = children.concat(child.getChildrenRecursive());
+            children = children.concat(child.getChildrenRecursive(level + 1, original));
         });
+
         return children;
     }
 
@@ -495,8 +502,6 @@ Wick.Base = class {
         child._parent = this;
         child._setProject(this.project);
 
-
-
         this._children.push(child);
     }
 
@@ -548,8 +553,6 @@ Wick.Base = class {
      * @param {Wick.Base} child - the child to remove.
      */
     removeChild(child) {
-        var classname = child.classname;
-
         if (!this._children) {
             return;
         }

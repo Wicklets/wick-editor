@@ -222,11 +222,7 @@ Wick.Clip = class extends Wick.Tickable {
         } else {
             this._animationType = animationType;
 
-            if (animationType === 'single') {
-                this.applySingleFramePosition();
-            } else {
-                this.timeline.playheadPosition = 1; // Reset timeline position if we are not on single frame.
-            }
+            this.resetTimelinePosition();
         }
     }
 
@@ -338,10 +334,21 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     /**
+     * Resets the clip's timeline position.
+     */
+    resetTimelinePosition () {
+        if (this.animationType === 'single') {
+            this.applySingleFramePosition();
+        } else {
+            this.timeline.playheadPosition = 1; // Reset timeline position if we are not on single frame.
+        }
+    }
+
+    /**
      * Updates the frame's single frame positions if necessary. Only works if the clip's animationType is 'single'.
      */
     applySingleFramePosition () {
-        if (this.animationType === 'single') {
+        if (this.animationType === 'single') { 
             // Ensure that the single frame we've chosen is reflected no matter what.
             this.timeline.playheadPosition = this.singleFrameNumber;
         }
@@ -384,10 +391,16 @@ Wick.Clip = class extends Wick.Tickable {
     remove() {
         // Don't attempt to remove if the object has already been removed.
         // (This is caused by calling remove() multiple times on one object inside a script.)
-        if (!this.parent) return;
+        if (!this.parent || this._willBeRemoved) return;
+        this._willBeRemoved = true;
+
+        // Force unload to run now, before object is removed;
+        this.runScript('unload'); 
+
         // Remove from the clones array.
         this.sourceClip && this.sourceClip.removeClone(this.uuid);
         this.parent.removeClip(this);
+        this.removed = true;
     }
 
     /**
@@ -428,19 +441,13 @@ Wick.Clip = class extends Wick.Tickable {
             object.y -= this.transformation.y;
         });
 
-        // Add clips
-        objects.filter(object => {
-            return object instanceof Wick.Clip;
-        }).forEach(clip => {
-            this.activeFrame.addClip(clip);
-        });
-
-        // Add paths
-        objects.filter(object => {
-            return object instanceof Wick.Path;
-        }).forEach(path => {
-            this.activeFrame.addPath(path);
-        });
+        objects.forEach(obj => {
+            if (obj instanceof Wick.Clip) {
+                this.activeFrame.addClip(obj);
+            } else if (obj instanceof Wick.Path) {
+                this.activeFrame.addPath(obj);
+            }
+        }); 
     }
 
     /**
@@ -463,6 +470,7 @@ Wick.Clip = class extends Wick.Tickable {
      */
     gotoAndStop(frame) {
         this.timeline.gotoAndStop(frame);
+        this.applySingleFramePosition();
     }
 
     /**
@@ -471,6 +479,7 @@ Wick.Clip = class extends Wick.Tickable {
      */
     gotoAndPlay(frame) {
         this.timeline.gotoAndPlay(frame);
+        this.applySingleFramePosition();
     }
 
     /**
@@ -478,6 +487,7 @@ Wick.Clip = class extends Wick.Tickable {
      */
     gotoNextFrame() {
         this.timeline.gotoNextFrame();
+        this.applySingleFramePosition();
     }
 
     /**
@@ -485,6 +495,7 @@ Wick.Clip = class extends Wick.Tickable {
      */
     gotoPrevFrame() {
         this.timeline.gotoPrevFrame();
+        this.applySingleFramePosition();
     }
 
     /**

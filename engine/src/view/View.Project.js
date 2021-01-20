@@ -182,7 +182,6 @@ Wick.View.Project = class extends Wick.View {
         this._displayCanvasInContainer(this._svgCanvas);
         this.resize();
         this._renderSVGCanvas();
-
         this._updateCanvasContainerBGColor();
     }
 

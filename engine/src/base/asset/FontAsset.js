@@ -81,7 +81,6 @@ Wick.FontAsset = class extends Wick.FileAsset {
                 callback();
     		}).catch(error => {
                 console.error('FontAsset.load(): An error occured while loading a font:');
-                console.log(font);
                 console.error(error);
                 callback(); // Make the callback so that the page doesn't freeze.
     		});

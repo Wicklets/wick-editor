@@ -83,13 +83,14 @@ class ActionMapInterface extends Object {
         id: 'action-toggle-code-editor',
       },
       editTimeline: {
-        icon: 'timeline',
+        icon: 'timeline-dark',
         tooltip: 'Edit Timeline',
         action: this.editor.focusTimelineOfSelectedObject,
         id: 'action-edit-timeline',
+        color: 'active-green'
       },
       breakApart: {
-        icon: 'breakApart',
+        icon: 'breakApart-dark',
         tooltip: 'Break Apart',
         action: this.editor.breakApartSelection,
         id: 'action-break-apart',
@@ -155,22 +156,22 @@ class ActionMapInterface extends Object {
         id: 'action-show-more-canvas-options',
       },
       convertSelectionToButton: {
-        icon: 'convertToButton',
+        icon: 'button-object-dark',
         tooltip: 'Make Button',
         action: this.editor.createButtonFromSelection,
         id: 'action-convert-selection-to-button',
-        color: 'blue'
+        color: 'active-green'
       },
       convertSelectionToClip: {
-        icon: 'convertToClip',
+        icon: 'clip-object-dark',
         tooltip: 'Make Clip',
         action: this.editor.createClipFromSelection,
         id: 'action-convert-selection-to-clip',
         color: 'active-blue'
       },
       addAssetToCanvas: {
-        icon: 'convertToClip',
-        tooltip: 'Add asset to canvas',
+        icon: 'add',
+        tooltip: 'Add To Canvas',
         action: this.editor.createInstanceOfSelectedAsset,
         id: 'action-create-instance-of-selected-asset',
         color: 'active-blue'

@@ -32,6 +32,7 @@ $toolbox-max-button-size: 30px;
   border-top: none;
   border-right: none;
   display: flex;
+  overflow-x: hidden;
 }
 
 .tool-box-large {
@@ -59,13 +60,10 @@ $toolbox-max-button-size: 30px;
   border-bottom: none;
 }
 
-.tool-box:hover {
-  overflow-x: auto;
-}
-
 .tool-box-container {
   height: 100%; 
   width: 100%;
+  overflow: hidden;
 }
 
 .tool-collection-container {

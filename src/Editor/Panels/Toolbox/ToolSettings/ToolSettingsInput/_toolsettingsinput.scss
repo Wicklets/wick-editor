@@ -46,26 +46,12 @@ $settings-input-size: 40px;
   margin-right: 4px;
 }
 
-.settings-numeric-slider {
-  width: calc(2 * #{$settings-input-size});
-}
 
 .settings-checkbox-input {
   height: 30px;
   width: 30px;
   display: flex;
   align-items: center;
-}
-
-.setting-input-container {
-  height: 80%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 4px;
-}
-.setting-input-container.mobile {
-  margin: 0;
 }
 
 .toolbox-input-icon {

@@ -182,7 +182,8 @@ describe('Wick.Clipboard', function() {
             expect(project.getAssets().length).to.equal(1);
             expect(project.getAssets()[0].uuid).to.equal(project.getAssets()[0].uuid);
             expect(project.getAssets()[0].src).to.equal(TestUtils.TEST_IMG_SRC_PNG);
-            expect(project.activeFrame.paths[0].json[1].source).to.equal(TestUtils.TEST_IMG_SRC_PNG);
+
+            expect(project.activeFrame.paths[0].json[1].source).to.equal(`asset:${imageAsset.uuid}`);
             expect(project.activeFrame.paths[1].json[1].source).to.equal(TestUtils.TEST_IMG_SRC_PNG);
 
             done();

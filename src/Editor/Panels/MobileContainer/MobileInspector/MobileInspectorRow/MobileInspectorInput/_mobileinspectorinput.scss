@@ -1,0 +1,52 @@
+/*
+ * Copyright 2020 WICKLETS LLC
+ *
+ * This file is part of Wick Editor.
+ *
+ * Wick Editor is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Editor is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+@import 'Editor/_wickbrand.scss';
+@import '../_mobileinspectorrow.scss';
+
+.inspector-input-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-left: $input-container-margin;
+}
+
+.inspector-input-element {
+  display: inline-block;
+  height: $inspector-row-height;
+}
+
+.single-input-element {
+  width: $single-input-size;
+}
+
+.double-input-element {
+  width: $double-input-unit-width;
+}
+
+.input-divider {
+  color: #FFFFFF; //$interface-primary-text;
+  width: $double-input-divider-width;
+  text-align: center;
+}
+
+.double-input {
+  height: $inspector-row-height;
+  display: flex;
+}

@@ -47943,10 +47943,9 @@ Wick.Project = class extends Wick.Base {
     } // Select the newly added frames
 
 
-    this.selection.clear();
-    addedFrames.forEach(frame => {
-      this.selection.select(frame);
-    });
+	this.selection.clear();
+	
+	this.selection.selectMultipleObjects(addedFrames);
   }
   /**
    * A tween can be created if frames are selected or if there is a frame under the playhead on the active layer.
