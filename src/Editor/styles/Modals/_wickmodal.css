@@ -1,0 +1,13 @@
+.we-modal-title {
+    color: var(--wick-text-primary);
+    font-size: 20px;
+    text-align: left;
+    width: 100%;
+}
+
+.we-modal-subtitle {
+    color: var(--wick-text-secondary);
+    text-align: left;
+    width: 100%;
+}
+

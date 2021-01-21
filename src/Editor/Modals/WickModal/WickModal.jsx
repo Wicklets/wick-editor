@@ -23,6 +23,10 @@ import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 
 import './_wickmodal.scss';
+import 'Editor/styles/default_theme.css';
+import 'Editor/styles/Modals/_wickmodal.css';
+
+
 
 var classNames = require('classnames');
 

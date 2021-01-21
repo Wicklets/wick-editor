@@ -34,6 +34,7 @@ import MobileMenu from '../MobileMenu/MobileMenu';
 import SavedProjects from '../SavedProjects/SavedProjects';
 import SimpleProjectSettings from '../SimpleProjectSettings/SimpleProjectSettings';
 import SupportUs from '../SupportUs/SupportUs';
+import ChooseExport from '../ChooseExport/ChooseExport';
 
 class ModalHandler extends Component {
   render() {
@@ -173,6 +174,13 @@ class ModalHandler extends Component {
           toggle={this.props.closeActiveModal}
           open={this.props.activeModalName === 'SupportUs'}
           />
+
+        <ChooseExport
+          isMobile={isMobile}
+          openModal={this.props.openModal}
+          toggle={this.props.closeActiveModal}
+          open={this.props.activeModalName === 'ChooseExport'}
+          />  
       </div>
     );
   }

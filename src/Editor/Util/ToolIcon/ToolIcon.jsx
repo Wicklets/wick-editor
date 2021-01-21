@@ -184,6 +184,11 @@ import iconCodeBack from 'resources/code-icons/back.svg';
 // Support Us
 import iconRedHeart from 'resources/support-us-icons/red-heart.svg';
 
+//Export
+import iconAnimation from 'resources/tool-icons/animation.svg';
+import iconInteractive from 'resources/tool-icons/touch.svg';
+import iconAudio from 'resources/tool-icons/audio.svg';
+
 const icons = {
   "brush":iconBrush,
   "cursor":iconCursor,
@@ -324,7 +329,10 @@ const icons = {
   "codeBack": iconCodeBack,
   "redheart": iconRedHeart,
   "add-dark": iconAddDark,
-  "upload-dark": iconUploadDark
+  "upload-dark": iconUploadDark,
+  "animation": iconAnimation,
+  "interactive": iconInteractive,
+  "audio": iconAudio,
 }
 
 var classNames = require('classnames');

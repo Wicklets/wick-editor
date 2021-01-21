@@ -1,0 +1,43 @@
+.choose-export-button {
+    width: 125px;
+    margin: 4px;
+    border-radius: var(--border-radius-secondary);
+    background-color: var(--wick-primary);
+    border: none;
+    transition: var(--normal-transition) all;
+    color: var(--wick-text-tertiary);
+    font-size: 18px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    box-shadow: 2px 2px var(--wick-secondary);
+}
+
+.choose-export-button:hover {
+    background-color: var(--wick-secondary);
+    box-shadow: 4px 4px var(--wick-primary);
+    color: var(--wick-text-primary);
+}
+
+.choose-export-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    width: 100%;
+}
+
+.choose-export-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.choose-export-button-icon-container {
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.choose-export-button-text {
+    margin-bottom: 4px;
+    font-weight: bold;
+}
