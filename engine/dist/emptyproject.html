@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2021.1.20.11.37.46";
+var WICK_ENGINE_BUILD_VERSION = "2021.1.21.3.11.52";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -57947,6 +57947,7 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   intersectHulls(hull1, hull2) {
+    console.log('intersectHulls');
     if (hull1.length < 3 || hull2.length < 3) return [];
     let finished1 = false;
     let finished2 = false;
@@ -57956,6 +57957,7 @@ Wick.Clip = class extends Wick.Tickable {
     let n = 0; // Algorithm from https://www.bowdoin.edu/~ltoma/teaching/cs3250-CompGeom/spring17/Lectures/cg-convexintersection.pdf
 
     while ((!finished1 || !finished2) && n <= 2 * (hull1.length + hull2.length)) {
+      console.log(n);
       n++; // line segments A is ab, B is cd
 
       let a = hull1[i1],
@@ -57969,9 +57971,22 @@ Wick.Clip = class extends Wick.Tickable {
       //a.y + (b.y - a.y) * (c.x + (d.x - c.x)t2 - a.x) / (b.x - a.x) = c.y + (d.y - c.y)t2
       //t2((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y)) = c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x)
       //t2 = (c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x))  /  ((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y))
+      //t2 = ((b.x - a.x)*(c.y - a.y) - (b.y - a.y)*(c.x - a.x)) / ((b.y - a.y)(d.x - c.x) + (b.x - a.x)*(-d.y + c.y))
 
-      let t2 = (c[1] - a[1] - (b[1] - a[1]) * (c[0] - a[0]) / (b[0] - a[0])) / ((b[1] - a[1]) * (d[0] - c[0]) / (b[0] - a[0]) - d[1] + c[1]);
-      let t1 = (c[0] + (d[0] - c[0]) * t2 - a[0]) / (b[0] - a[0]);
+      let t1, t2;
+
+      if ((b[1] - a[1]) * (d[0] - c[0]) - (b[0] - a[0]) * (d[1] + c[1]) === 0) {
+        t2 = Infinity;
+        t1 = Infinity;
+      } else {
+        t2 = ((c[1] - a[1]) * (b[0] - a[0]) - (b[1] - a[1]) * (c[0] - a[0])) / ((b[1] - a[1]) * (d[0] - c[0]) + (b[0] - a[0]) * (-d[1] + c[1]));
+
+        if (b[0] === a[0]) {
+          t1 = (c[1] + (d[1] - c[1]) * t2 - a[1]) / (b[1] - a[1]);
+        } else {
+          t1 = (c[0] + (d[0] - c[0]) * t2 - a[0]) / (b[0] - a[0]);
+        }
+      }
 
       if (0 <= t1 && t1 <= 1 && 0 <= t2 && t2 <= 1) {
         intersections.push([a[0] + (b[0] - a[0]) * t1, a[1] + (b[1] - a[1]) * t1]);
@@ -58197,8 +58212,21 @@ Wick.Clip = class extends Wick.Tickable {
     //t2((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y)) = c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x)
     //t2 = (c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x))  /  ((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y))
 
-    let t2 = (c[1] - a[1] - (b[1] - a[1]) * (c[0] - a[0]) / (b[0] - a[0])) / ((b[1] - a[1]) * (d[0] - c[0]) / (b[0] - a[0]) - d[1] + c[1]);
-    let t1 = (c[0] + (d[0] - c[0]) * t2 - a[0]) / (b[0] - a[0]);
+    let t1, t2;
+
+    if ((b[1] - a[1]) * (d[0] - c[0]) - (b[0] - a[0]) * (d[1] + c[1]) === 0) {
+      t2 = Infinity;
+      t1 = Infinity;
+    } else {
+      t2 = ((c[1] - a[1]) * (b[0] - a[0]) - (b[1] - a[1]) * (c[0] - a[0])) / ((b[1] - a[1]) * (d[0] - c[0]) + (b[0] - a[0]) * (-d[1] + c[1]));
+
+      if (b[0] === a[0]) {
+        t1 = (c[1] + (d[1] - c[1]) * t2 - a[1]) / (b[1] - a[1]);
+      } else {
+        t1 = (c[0] + (d[0] - c[0]) * t2 - a[0]) / (b[0] - a[0]);
+      }
+    }
+
     return Math.hypot(a[0] + (b[0] - a[0]) * t1 - p.x, a[1] + (b[1] - a[1]) * t1 - p.y);
   }
   /**

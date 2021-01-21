@@ -734,8 +734,21 @@ Wick.Clip = class extends Wick.Tickable {
             //a.y + (b.y - a.y) * (c.x + (d.x - c.x)t2 - a.x) / (b.x - a.x) = c.y + (d.y - c.y)t2
             //t2((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y)) = c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x)
             //t2 = (c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x))  /  ((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y))
-            let t2 = (c[1] - a[1] - (b[1] - a[1]) * (c[0] - a[0]) / (b[0] - a[0]))  /  ((b[1] - a[1]) * (d[0] - c[0]) / (b[0] - a[0]) - d[1] + c[1]);
-            let t1 = (c[0] + (d[0] - c[0]) * t2 - a[0]) / (b[0] - a[0]);
+            //t2 = ((b.x - a.x)*(c.y - a.y) - (b.y - a.y)*(c.x - a.x)) / ((b.y - a.y)(d.x - c.x) + (b.x - a.x)*(-d.y + c.y))
+            let t1, t2;
+            if ((b[1] - a[1]) * (d[0] - c[0]) - (b[0] - a[0])*(d[1] + c[1]) === 0) {
+                t2 = Infinity;
+                t1 = Infinity;
+            }
+            else {
+                t2 = ((c[1] - a[1])*(b[0] - a[0]) - (b[1] - a[1]) * (c[0] - a[0]))  /  ((b[1] - a[1]) * (d[0] - c[0]) + (b[0] - a[0]) * (-d[1] + c[1]));
+                if (b[0] === a[0]) {
+                    t1 = (c[1] + (d[1] - c[1]) * t2 - a[1]) / (b[1] - a[1]);
+                }
+                else {
+                    t1 = (c[0] + (d[0] - c[0]) * t2 - a[0]) / (b[0] - a[0]);
+                }
+            }
 
             if (0 <= t1 && t1 <= 1 && 0 <= t2 && t2 <= 1) {
                 intersections.push([a[0] + (b[0] - a[0])*t1, a[1] + (b[1] - a[1]) * t1]);
@@ -808,7 +821,9 @@ Wick.Clip = class extends Wick.Tickable {
         // clockwise arrays of points in format [[x1, y1], [x2, y2], ...]
         let hull1 = this.convexHull;
         let hull2 = other.convexHull;
+
         let intersections = this.intersectHulls(hull1, hull2);
+
         if (intersections.length === 0) {
             // TODO: check if one is totally inside the other
             return null;
@@ -940,8 +955,20 @@ Wick.Clip = class extends Wick.Tickable {
         //a.y + (b.y - a.y) * (c.x + (d.x - c.x)t2 - a.x) / (b.x - a.x) = c.y + (d.y - c.y)t2
         //t2((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y)) = c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x)
         //t2 = (c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x))  /  ((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y))
-        let t2 = (c[1] - a[1] - (b[1] - a[1]) * (c[0] - a[0]) / (b[0] - a[0]))  /  ((b[1] - a[1]) * (d[0] - c[0]) / (b[0] - a[0]) - d[1] + c[1]);
-        let t1 = (c[0] + (d[0] - c[0]) * t2 - a[0]) / (b[0] - a[0]);
+        let t1, t2;
+        if ((b[1] - a[1]) * (d[0] - c[0]) - (b[0] - a[0])*(d[1] + c[1]) === 0) {
+            t2 = Infinity;
+            t1 = Infinity;
+        }
+        else {
+            t2 = ((c[1] - a[1])*(b[0] - a[0]) - (b[1] - a[1]) * (c[0] - a[0]))  /  ((b[1] - a[1]) * (d[0] - c[0]) + (b[0] - a[0]) * (-d[1] + c[1]));
+            if (b[0] === a[0]) {
+                t1 = (c[1] + (d[1] - c[1]) * t2 - a[1]) / (b[1] - a[1]);
+            }
+            else {
+                t1 = (c[0] + (d[0] - c[0]) * t2 - a[0]) / (b[0] - a[0]);
+            }
+        }
         return Math.hypot(a[0] + (b[0] - a[0])*t1 - p.x, a[1] + (b[1] - a[1]) * t1 - p.y);
     }
 

@@ -1519,7 +1519,6 @@ describe('Wick.Clip', function() {
                     to: new paper.Point(50,50),
                     fillColor: 'red',
                 })));
-                clip1.transformation.x = 50;
 
                 var clip2 = new Wick.Clip({identifier: 'clip2'});
                 clip2.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
@@ -1527,12 +1526,11 @@ describe('Wick.Clip', function() {
                     to: new paper.Point(75,60),
                     fillColor: 'red',
                 })));
-                clip2.transformation.x = 100;
 
                 project.activeFrame.addClip(clip1);
                 project.activeFrame.addClip(clip2);
 
-                clip1.addScript('load', 'this.__hits = this.hits(clip2, {overlap: true, offset: true})'); 
+                clip1.addScript('load', 'this.__hits = this.hits(clip2, {mode: "CONVEX", overlap: true, offset: true})'); 
 
                 project.play({
                     onBeforeTick: () => {
@@ -1541,6 +1539,10 @@ describe('Wick.Clip', function() {
                     onAfterTick: () => {
                         console.log(clip1.__hits);
                         expect(Boolean(clip1.__hits)).to.equal(true);
+                        expect(clip1.__hits.overlapX).to.equal(-75);
+                        expect(clip1.__hits.overlapY).to.equal(0);
+                        expect(clip1.__hits.offsetX).to.equal(-75);
+                        expect(clip1.__hits.offsetY).to.equal(-30);
                         project.stop();
                         done();
                     }
