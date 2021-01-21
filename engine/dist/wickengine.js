@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2021.1.21.3.11.52";
+var WICK_ENGINE_BUILD_VERSION = "2021.1.21.3.27.20";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -57932,7 +57932,6 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   intersectHulls(hull1, hull2) {
-    console.log('intersectHulls');
     if (hull1.length < 3 || hull2.length < 3) return [];
     let finished1 = false;
     let finished2 = false;
@@ -57942,7 +57941,6 @@ Wick.Clip = class extends Wick.Tickable {
     let n = 0; // Algorithm from https://www.bowdoin.edu/~ltoma/teaching/cs3250-CompGeom/spring17/Lectures/cg-convexintersection.pdf
 
     while ((!finished1 || !finished2) && n <= 2 * (hull1.length + hull2.length)) {
-      console.log(n);
       n++; // line segments A is ab, B is cd
 
       let a = hull1[i1],
