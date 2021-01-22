@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2021.1.18.12.6.20";
+var WICK_ENGINE_BUILD_VERSION = "2021.1.22.14.13.2";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -46299,8 +46299,8 @@ Wick.History = class {
 
     let objects = new Set(state.map(obj => obj.uuid));
     let stateObject = {
-      state: this._generateState(filter),
-      objects: objects,
+      state,
+      objects,
       actionName: actionName || "Unknown Action",
       timeSinceLastPush: now - this.lastHistoryPush
     };
@@ -46311,7 +46311,7 @@ Wick.History = class {
     this._undoStack = this._undoStack.slice(-64); // get the last 64 items in the undo stack
   }
   /**
-   * Pop the last state in the undo stack off and apply the new last state to the project.
+   * Pop the last state off the undo stack off apply the new state to the project.
    * @returns {boolean} True if the undo stack is non-empty, false otherwise
    */
 
@@ -46348,9 +46348,11 @@ Wick.History = class {
       return false;
     }
 
-    var recoveredState = this._redoStack.pop().state;
+    let recovered = this._redoStack.pop();
 
-    this._undoStack.push(recoveredState);
+    this._undoStack.push(recovered);
+
+    var recoveredState = recovered.state;
 
     this._recoverState(recoveredState);
 

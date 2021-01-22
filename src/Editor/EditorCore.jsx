@@ -77,7 +77,9 @@ class EditorCore extends Component {
    * Undo the last action that was done.
    */
   undoAction = () => {
-    if(!this.project.undo()) {
+    let undo = this.project.undo();
+    console.log({undo})
+    if(!undo) {
       this.toast('Nothing to undo.', 'warning');
     } else {
       this.projectDidChange({ skipHistory:true, actionName: "Undo" });
@@ -88,7 +90,9 @@ class EditorCore extends Component {
    * Recover the state of the project from before the last action was done.
    */
   redoAction = () => {
-    if(!this.project.redo()) {
+    let redo = this.project.redo();
+    console.log({redo});
+    if(!redo) {
       this.toast('Nothing to redo.', 'warning');
     } else {
       this.projectDidChange({skipHistory:true, actionName: "Redo" });

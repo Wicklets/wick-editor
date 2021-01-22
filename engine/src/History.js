@@ -87,8 +87,8 @@ Wick.History = class {
         let state = this._generateState(filter);
         let objects = new Set(state.map(obj => obj.uuid));
         let stateObject = {
-            state: this._generateState(filter), 
-            objects: objects,
+            state,
+            objects,
             actionName: actionName || "Unknown Action",
             timeSinceLastPush: now - this.lastHistoryPush,
         }
@@ -100,7 +100,7 @@ Wick.History = class {
     }
 
     /**
-     * Pop the last state in the undo stack off and apply the new last state to the project.
+     * Pop the last state off the undo stack off apply the new state to the project.
      * @returns {boolean} True if the undo stack is non-empty, false otherwise
      */
     popState () {
@@ -134,9 +134,10 @@ Wick.History = class {
             return false;
         }
 
-        var recoveredState = this._redoStack.pop().state;
-        this._undoStack.push(recoveredState);
+        let recovered = this._redoStack.pop();
+        this._undoStack.push(recovered);
 
+        var recoveredState = recovered.state;
         this._recoverState(recoveredState);
 
         return true;

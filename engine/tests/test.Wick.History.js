@@ -296,6 +296,18 @@ describe('Wick.History', function() {
         expect(project.history.numRedoStates).to.equal(3);
     });
 
+    it('should not crash when undoing and redoing multiple times', function () {
+        var project = new Wick.Project();
+
+        project.history.pushState();
+        project.history.pushState();
+        project.history.pushState();
+        project.undo();
+        project.redo();
+        project.undo();
+        project.redo();
+    });
+
     it('undo() should cancel in-progress brush strokes', function () {
         // TODO
     });
