@@ -34,7 +34,7 @@ var classNames = require('classnames');
 class WelcomeModal extends Component {
   constructor () {
     super();
-    this.forumPost = "https://forum.wickeditor.com/t/help-needed-wick-editor-version-1-18-new-fill-bucket-outliner-tool-mobile-improvements/3314";
+    this.forumPost = "https://forum.wickeditor.com/t/new-release-wick-editor-1-19-new-code-editor-reference/4019";
     this.updates = [
       "New Code Editor!",
       "New Hit Test Options",
