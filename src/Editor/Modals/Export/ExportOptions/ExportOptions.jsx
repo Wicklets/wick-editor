@@ -21,7 +21,7 @@ import React, { Component } from 'react';
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import WickModal from 'Editor/Modals/WickModal/WickModal';
 import WickInput from 'Editor/Util/WickInput/WickInput';
-import ObjectInfo from '../Util/ObjectInfo/ObjectInfo';
+import ObjectInfo from '../../Util/ObjectInfo/ObjectInfo';
 import TabbedInterface from 'Editor/Util/TabbedInterface/TabbedInterface';
 
 import './_exportoptions.scss';

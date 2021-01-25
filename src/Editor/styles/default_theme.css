@@ -3,6 +3,9 @@
     --border-radius-primary: 8px;
     --border-radius-secondary: 4px;
 
+    --small-padding: 4px;
+    --large-padding: 8px;
+
     /* Main Colors */
     --wick-primary: #303030;
     --wick-secondary: #3B3B3B;

@@ -11,3 +11,8 @@
     width: 100%;
 }
 
+.we-modal-content {
+    width: 100%;
+    flex: 1;
+    margin-top: var(--large-padding);
+}

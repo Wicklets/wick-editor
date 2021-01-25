@@ -1,0 +1,11 @@
+.we-export-module {
+  width: 100%;
+  background-color: var(--wick-secondary);
+  border-radius: var(--border-radius-secondary);
+  padding: var(--small-padding);
+}
+
+.we-export-title {
+  color: white;
+  margin-bottom: var(--small-padding);
+}

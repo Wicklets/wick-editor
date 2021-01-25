@@ -23,7 +23,7 @@ import MakeInteractive from '../MakeInteractive/MakeInteractive';
 import AutosaveWarning from '../AutosaveWarning/AutosaveWarning';
 import WelcomeMessage from '../WelcomeMessage/WelcomeMessage';
 import MakeAnimated from '../MakeAnimated/MakeAnimated';
-import ExportOptions from '../ExportOptions/ExportOptions';
+import ExportOptions from '../Export/ExportOptions/ExportOptions';
 import GeneralWarning from '../GeneralWarning/GeneralWarning';
 import ExportMedia from '../ExportMedia/ExportMedia';
 import SettingsModal from '../SettingsModal/SettingsModal';
@@ -35,6 +35,7 @@ import SavedProjects from '../SavedProjects/SavedProjects';
 import SimpleProjectSettings from '../SimpleProjectSettings/SimpleProjectSettings';
 import SupportUs from '../SupportUs/SupportUs';
 import ChooseExport from '../ChooseExport/ChooseExport';
+import ExportAnimation from '../Export/ExportAnimation';
 
 class ModalHandler extends Component {
   render() {
@@ -181,6 +182,17 @@ class ModalHandler extends Component {
           toggle={this.props.closeActiveModal}
           open={this.props.activeModalName === 'ChooseExport'}
           />  
+
+        <ExportAnimation 
+         exportProjectAsGif={this.props.exportProjectAsGif}
+         exportProjectAsVideo={this.props.exportProjectAsVideo}
+         project={this.props.project}
+
+         isMobile={isMobile}
+         openModal={this.props.openModal}
+         toggle={this.props.closeActiveModal}
+         open={this.props.activeModalName === 'ExportAnimation'}
+         />
       </div>
     );
   }
