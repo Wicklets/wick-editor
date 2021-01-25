@@ -39,9 +39,11 @@
     
     --wick-green: #09F197;
     --wick-green-light: #19ffa7;
+    --wick-green-text: black;
 
     --wick-yellow: #F0CC00;
     --wick-yellow-light: #ffde20;
+    --wick-yellow-text: black;
 
     --wick-light-blue: #92D8FF;
     --wick-light-blue-light: #74ceff;

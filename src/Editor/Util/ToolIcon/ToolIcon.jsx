@@ -188,6 +188,7 @@ import iconRedHeart from 'resources/support-us-icons/red-heart.svg';
 import iconAnimation from 'resources/tool-icons/animation.svg';
 import iconInteractive from 'resources/tool-icons/touch.svg';
 import iconAudio from 'resources/tool-icons/audio.svg';
+import iconGif from 'resources/tool-icons/gif.svg';
 
 const icons = {
   "brush":iconBrush,
@@ -333,6 +334,7 @@ const icons = {
   "animation": iconAnimation,
   "interactive": iconInteractive,
   "audio": iconAudio,
+  "gif": iconGif,
 }
 
 var classNames = require('classnames');

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import '../../styles/Modals/Export/_exportmodule.css';
+import '../../../styles/Modals/Export/_exportmodule.css';
 
 export default function ExportModule (props) {
     return (
@@ -9,6 +9,6 @@ export default function ExportModule (props) {
             {props.title}
         </div>
         {props.children}
-    </div>
+      </div>
     )
   }
