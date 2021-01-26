@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import WickModal from '../WickModal/WickModal';
 import ExportChoice from './ExportModules/ExportChoice';
 import ExportNameInput from './ExportModules/ExportNameInput';
+import ExportQuality from './ExportModules/ExportQuality';
 
 export default function ExportAnimation (props) {
   const [projectName, setProjectName] = useState('')
   const [exportType, setExportType] = useState({name: "GIF"});
+  const [videoQuality, setVideoQuality] = useState(7);
 
   let videoOptions = [
     {
@@ -45,6 +47,13 @@ export default function ExportAnimation (props) {
             onChange={setExportType}
             selected={exportType}
           />
+          <ExportQuality
+            title="Image Quality"
+            value={videoQuality}
+            onChange={setVideoQuality} 
+            min={1}
+            max={10}
+            step={1} />
         </div>
     </WickModal>
   )

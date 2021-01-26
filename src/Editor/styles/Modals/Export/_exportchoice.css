@@ -14,6 +14,7 @@
   background-color: var(--wick-tertiary);
   color: var(--wick-text-primary);
   transition: all .3s;
+  box-shadow: 2px 2px var(--wick-secondary);
 }
 
 .choice-option:hover {

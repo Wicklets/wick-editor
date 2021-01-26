@@ -1,0 +1,22 @@
+.export-quality-container {
+  width: 100%;
+  height: 50px;
+  padding: 0 20px;
+}
+
+.MuiSlider-markLabelActive {
+  color: var(--wick-text-tertiary) !important;
+}
+
+.MuiSlider-mark {
+  color: black !important;
+}
+
+.MuiSlider-markActive {
+  color: black !important;
+  background-color: black !important;
+}
+
+.MuiSlider-root {
+  color: var(--wick-green) !important;
+}
