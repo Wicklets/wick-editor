@@ -4,8 +4,16 @@
   padding: 0 20px;
 }
 
+.MuiSlider-markLabel {
+  transition: all .3s;
+}
+
 .MuiSlider-markLabelActive {
   color: var(--wick-text-tertiary) !important;
+}
+
+.MuiSlider-valueLabel {
+  color: black;
 }
 
 .MuiSlider-mark {

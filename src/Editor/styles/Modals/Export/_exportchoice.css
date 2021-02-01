@@ -4,9 +4,8 @@
 }
 
 .choice-option {
-  width: 75px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center;
   align-items: center;
   border-radius: var(--border-radius-secondary);
@@ -28,8 +27,9 @@
 }
 
 .choice-icon {
-  height: 50px;
-  width: 50px;
+  height: 30px;
+  width: 30px;
+  margin-left: var(--large-padding);
 }
 
 .choice-name {

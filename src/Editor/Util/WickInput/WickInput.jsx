@@ -279,7 +279,7 @@ class WickInput extends Component {
 
   renderCheckbox = () => {
     return (
-      <div className="wick-checkbox-container">
+      <div className={classNames("wick-checkbox-container", this.props.containerClassName)}>
         {this.props.label && 
           <label htmlFor={this.props.label} className="wick-checkbox-label">
             {this.props.label}

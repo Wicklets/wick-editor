@@ -78,6 +78,16 @@ export default function WickTextInput (props) {
         }
     }
 
+    /**
+     * Runs when the text input is blurred, or after a specified amount of
+     * time after an edit.
+     * @param {*} e 
+     */
+    function internalOnChangeComplete (e) {
+        internalOnChange(e);
+        props.onChangeComplete && props.onChangeComplete(displayValue);
+    }
+
     return (
         <input
             {...rest}
@@ -85,6 +95,6 @@ export default function WickTextInput (props) {
             value={displayValue}
             type="text"
             onChange={internalOnChange}
-            onBlur={internalOnChange}/>
+            onBlur={internalOnChangeComplete}/>
     )
 }

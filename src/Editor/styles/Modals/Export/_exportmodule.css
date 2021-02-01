@@ -2,8 +2,8 @@
   width: 100%;
   background-color: var(--wick-secondary);
   border-radius: var(--border-radius-secondary);
-  padding: var(--large-padding);
-  margin-top: var(--large-padding);
+  padding: var(--small-padding);
+  margin-top: var(--small-padding);
 }
 
 .we-export-title {
@@ -14,4 +14,6 @@
 
 .export-modal {
   font-family: 'Nunito';
+  max-width: 300px;
+  transition: all .3s;
 }

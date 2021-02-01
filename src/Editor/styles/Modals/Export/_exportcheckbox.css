@@ -1,0 +1,16 @@
+.export-checkbox-container {
+  display: flex;
+}
+
+.export-checkbox-text {
+  display: flex;
+  flex: 1;
+  color: var(--wick-text-secondary);
+  justify-content: right;
+  padding-right: var(--large-padding);
+}
+
+.export-check-container {
+  width: 25px;
+  height: 25px;
+}

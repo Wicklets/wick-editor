@@ -13,9 +13,9 @@
 }
 
 .choose-export-button:hover {
-    background-color: var(--wick-secondary);
+    background-color: var(--wick-green);
     box-shadow: 4px 4px var(--wick-primary);
-    color: var(--wick-text-primary);
+    color: var(--wick-green-text);
 }
 
 .choose-export-content {

@@ -22,7 +22,10 @@ export default function ChooseExport (props) {
             </div>
             <div className="choose-export-content">
                 <div className="choose-export-column">
-                    <ExportButton text="Animation" icon="animation"/>
+                    <ExportButton 
+                        text="Animation" 
+                        icon="animation"
+                        onClick={() => {props.openModal('ExportAnimation')}} />
                     <ExportButton text="Audio" icon="audio"/>
                 </div>
                 <div className="choose-export-column">
@@ -36,7 +39,9 @@ export default function ChooseExport (props) {
 
 function ExportButton (props) {
     return (
-        <button className="choose-export-button">
+        <button 
+            className="choose-export-button"
+            onClick={props.onClick}>
             <div className="choose-export-button-text">{props.text}</div>
             <div className="choose-export-button-icon-container">
                 <ToolIcon name={props.icon} />

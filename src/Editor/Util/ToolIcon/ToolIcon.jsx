@@ -189,6 +189,8 @@ import iconAnimation from 'resources/tool-icons/animation.svg';
 import iconInteractive from 'resources/tool-icons/touch.svg';
 import iconAudio from 'resources/tool-icons/audio.svg';
 import iconGif from 'resources/tool-icons/gif.svg';
+import iconLink from 'resources/tool-icons/link.svg';
+import iconUnlink from 'resources/tool-icons/unlink.svg';
 
 const icons = {
   "brush":iconBrush,
@@ -335,6 +337,8 @@ const icons = {
   "interactive": iconInteractive,
   "audio": iconAudio,
   "gif": iconGif,
+  "link": iconLink,
+  "unlink": iconUnlink,
 }
 
 var classNames = require('classnames');

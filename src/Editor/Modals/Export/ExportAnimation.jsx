@@ -1,13 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import WickModal from '../WickModal/WickModal';
 import ExportChoice from './ExportModules/ExportChoice';
+import ExportFooter from './ExportModules/ExportFooter';
 import ExportNameInput from './ExportModules/ExportNameInput';
 import ExportQuality from './ExportModules/ExportQuality';
+import ExportSize from './ExportModules/ExportSize';
+import WickInput from 'Editor/Util/WickInput/WickInput';
+import ExportCheckbox from './ExportModules/ExportCheckbox';
 
 export default function ExportAnimation (props) {
   const [projectName, setProjectName] = useState('')
   const [exportType, setExportType] = useState({name: "GIF"});
   const [videoQuality, setVideoQuality] = useState(7);
+  const [size, setSize] = useState({width: props.project.width, height: props.project.height})
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  useTraceUpdate(props);
 
   let videoOptions = [
     {
@@ -15,7 +22,7 @@ export default function ExportAnimation (props) {
       icon: "gif"
     }, 
     {
-      name: "Video",
+      name: "MP4",
       icon: "animation"
     }
   ]
@@ -23,6 +30,14 @@ export default function ExportAnimation (props) {
   useEffect(() => {
     setProjectName(props.project.name);
   }, [props.project.name]);
+
+  function exportAnimation () {
+    const details = {
+      name: projectName,
+      type: exportType.name,
+      quality: videoQuality,
+    }
+  }
 
   return (
     <WickModal
@@ -47,14 +62,47 @@ export default function ExportAnimation (props) {
             onChange={setExportType}
             selected={exportType}
           />
-          <ExportQuality
+
+          <ExportCheckbox 
+          checked={showAdvanced}
+          onChange={() => setShowAdvanced(!showAdvanced)}
+          text="Show Advanced Options"/>
+
+          {showAdvanced && <ExportQuality
             title="Image Quality"
             value={videoQuality}
             onChange={setVideoQuality} 
-            min={1}
+            min={0}
             max={10}
-            step={1} />
+            step={1} />}
+
+          {showAdvanced && <ExportSize
+            originalWidth={props.project.width}
+            originalHeight={props.project.height}
+            size={size}
+            onChange={setSize} /> }
+
+          <ExportFooter 
+            exportAction={exportAnimation}
+            openModal={props.openModal}
+          />
         </div>
     </WickModal>
   )
+}
+
+function useTraceUpdate(props) {
+  const prev = useRef(props);
+  useEffect(() => {
+    const changedProps = Object.entries(props).reduce((ps, [k, v]) => {
+      if (prev.current[k] !== v) {
+        ps[k] = [prev.current[k], v];
+      }
+      return ps;
+    }, {});
+    if (Object.keys(changedProps).length > 0) {
+      console.log('Changed props:', changedProps);
+    }
+    prev.current = props;
+  });
 }

@@ -6,8 +6,8 @@ import '../../../styles/Modals/Export/_exportquality.css';
 
 export default function ExportQuality (props) {
 
-  let min = props.min || 1;
-  let max = props.max || 10;
+  let min = props.min === undefined ? 1 : props.min;
+  let max = props.max === undefined ? 10 : props.max;
 
   let marks = [
     {
@@ -33,8 +33,8 @@ export default function ExportQuality (props) {
       title={props.title}>
       <div className="export-quality-container">
         <Slider 
-          min={props.min || 1}
-          max={props.max || 10}
+          min={min}
+          max={max}
           step={props.step || 1}
           onChange={onChange}
           marks={marks}
