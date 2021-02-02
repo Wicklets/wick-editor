@@ -38,6 +38,7 @@ import ChooseExport from '../ChooseExport/ChooseExport';
 import ExportAnimation from '../Export/ExportAnimation';
 import ExportInteractive from '../Export/ExportInteractive';
 import ExportAudio from '../Export/ExportAudio';
+import ExportImages from '../Export/ExportImages';
 
 export default function ModalHandler (props) {
   let isMobile = props.getRenderSize() === "small";
@@ -194,6 +195,15 @@ export default function ModalHandler (props) {
       
           open={props.activeModalName === 'ExportAudio'} 
           {...standardModalOptions} />
+
+        <ExportImages
+          exportProjectAsImageSequence={props.exportProjectAsImageSequence}
+          exportProjectAsImageSVG={props.exportProjectAsImageSVG}
+          project={props.project}
+          
+          open={props.activeModalName === 'ExportImages'} 
+          {...standardModalOptions} />
+
       </div>
   )
 }

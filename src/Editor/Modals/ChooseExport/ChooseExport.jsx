@@ -37,7 +37,10 @@ export default function ChooseExport (props) {
                         icon="interactive"
                         onClick={() => {props.openModal('ExportInteractive')}}
                         />
-                    <ExportButton text="Images" icon="image"/>
+                    <ExportButton 
+                        text="Images" 
+                        icon="image"
+                        onClick={() => {props.openModal('ExportImages')}}/>
                 </div>
             </div>
         </WickModal>
