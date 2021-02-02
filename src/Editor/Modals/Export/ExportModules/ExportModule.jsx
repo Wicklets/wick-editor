@@ -2,8 +2,6 @@ import React from 'react';
 
 import '../../../styles/Modals/Export/_exportmodule.css';
 
-let classNames = require('classnames');
-
 export default function ExportModule (props) {
     return (
       <div className="we-export-module">

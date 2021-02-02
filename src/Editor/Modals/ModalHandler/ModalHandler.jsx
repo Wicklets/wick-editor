@@ -17,13 +17,12 @@
  * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { Component } from 'react';
+import React from 'react';
 
 import MakeInteractive from '../MakeInteractive/MakeInteractive';
 import AutosaveWarning from '../AutosaveWarning/AutosaveWarning';
 import WelcomeMessage from '../WelcomeMessage/WelcomeMessage';
 import MakeAnimated from '../MakeAnimated/MakeAnimated';
-import ExportOptions from '../Export/ExportOptions/ExportOptions';
 import GeneralWarning from '../GeneralWarning/GeneralWarning';
 import ExportMedia from '../ExportMedia/ExportMedia';
 import SettingsModal from '../SettingsModal/SettingsModal';
@@ -73,21 +72,7 @@ export default function ModalHandler (props) {
           open={props.activeModalName === 'WelcomeMessage'}
           editorVersion={props.editorVersion}
         />
-        <ExportOptions
-          {...standardModalOptions}
-          closeActiveModal={props.closeActiveModal}
-          queueModal={props.queueModal}
-          exportProjectAsGif={props.exportProjectAsGif}
-          exportProjectAsStandaloneZip={props.exportProjectAsStandaloneZip}
-          exportProjectAsStandaloneHTML={props.exportProjectAsStandaloneHTML}
-          exportProjectAsVideo={props.exportProjectAsVideo}
-          exportProjectAsImageSequence={props.exportProjectAsImageSequence}
-          exportProjectAsAudioTrack={props.exportProjectAsAudioTrack}
-          exportProjectAsImageSVG={props.exportProjectAsImageSVG}
-          open={props.activeModalName === 'ExportOptions'}
-          projectName={props.project.name}
-          project={props.project}
-          />
+
         <GeneralWarning
           {...standardModalOptions}
           open={props.activeModalName === 'GeneralWarning'}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import WickModal from '../WickModal/WickModal';
 import ExportChoice from './ExportModules/ExportChoice';
 import ExportFooter from './ExportModules/ExportFooter';

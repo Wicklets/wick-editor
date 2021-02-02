@@ -1,14 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import ExportModule from './ExportModule';
 import WickInput from 'Editor/Util/WickInput/WickInput';
 
 import 'Editor/styles/Modals/Export/_exportsize.css';
-import ToolIcon from '../../../Util/ToolIcon/ToolIcon';
 
 const classNames = require('classnames');
 
 export default function ExportSize (props) {
-  const [linked, setLinked] = useState(true);
   const [dropdownOption, setDropdownOption] = useState('1080p')
 
   const commonSizeOptions = [
@@ -55,13 +53,13 @@ export default function ExportSize (props) {
     props.onChange({width, height});
   }
 
-  // Rounds size to nearest even value.
-  // mp4 width and height must be multiples of 2.
-  function fixSize (size) {
-    if (size < 2) return 2;
-    let excess = size % 2;
-    return size - excess;
-  }
+  // // Rounds size to nearest even value.
+  // // mp4 width and height must be multiples of 2.
+  // function fixSize (size) {
+  //   if (size < 2) return 2;
+  //   let excess = size % 2;
+  //   return size - excess;
+  // }
 
   function updateWidth (width) {
     updateSize(width, props.size.height);
@@ -71,17 +69,17 @@ export default function ExportSize (props) {
     updateSize(props.size.width, height);
   }
 
-  function LinkButton () {
-    return (
-      <button 
-        onClick={() => setLinked(!linked)}
-        className="link-button">
-        <ToolIcon 
-          className="link-icon"
-          name={linked ? "link" : "unlink"} />
-      </button>
-    )
-  }
+  // function LinkButton () {
+  //   return (
+  //     <button 
+  //       onClick={() => setLinked(!linked)}
+  //       className="link-button">
+  //       <ToolIcon 
+  //         className="link-icon"
+  //         name={linked ? "link" : "unlink"} />
+  //     </button>
+  //   )
+  // }
 
   function SizeButton (props) {
 
