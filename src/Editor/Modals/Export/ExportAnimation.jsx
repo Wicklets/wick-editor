@@ -14,7 +14,6 @@ export default function ExportAnimation (props) {
   const [videoQuality, setVideoQuality] = useState(7);
   const [size, setSize] = useState({width: props.project.width, height: props.project.height})
   const [showAdvanced, setShowAdvanced] = useState(false);
-  useTraceUpdate(props);
 
   let videoOptions = [
     {
@@ -31,11 +30,19 @@ export default function ExportAnimation (props) {
     setProjectName(props.project.name);
   }, [props.project.name]);
 
-  function exportAnimation () {
-    const details = {
+
+  function finalizeExport () {
+    let args = {
       name: projectName,
-      type: exportType.name,
+      width: size.width,
+      height: size.height,
       quality: videoQuality,
+    }
+
+    if (exportType.name === "GIF") {
+      props.exportProjectAsGif(args);
+    } else if (exportType.name === "MP4") {
+      props.exportProjectAsVideo(args);
     }
   }
 
@@ -83,26 +90,10 @@ export default function ExportAnimation (props) {
             onChange={setSize} /> }
 
           <ExportFooter 
-            exportAction={exportAnimation}
+            exportAction={finalizeExport}
             openModal={props.openModal}
           />
         </div>
     </WickModal>
   )
-}
-
-function useTraceUpdate(props) {
-  const prev = useRef(props);
-  useEffect(() => {
-    const changedProps = Object.entries(props).reduce((ps, [k, v]) => {
-      if (prev.current[k] !== v) {
-        ps[k] = [prev.current[k], v];
-      }
-      return ps;
-    }, {});
-    if (Object.keys(changedProps).length > 0) {
-      console.log('Changed props:', changedProps);
-    }
-    prev.current = props;
-  });
 }
