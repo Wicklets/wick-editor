@@ -29,7 +29,11 @@ export default function ChooseExport (props) {
                     <ExportButton text="Audio" icon="audio"/>
                 </div>
                 <div className="choose-export-column">
-                    <ExportButton text="Interactive" icon="interactive"/>
+                    <ExportButton 
+                        text="Interactive" 
+                        icon="interactive"
+                        onClick={() => {props.openModal('ExportInteractive')}}
+                        />
                     <ExportButton text="Images" icon="image"/>
                 </div>
             </div>

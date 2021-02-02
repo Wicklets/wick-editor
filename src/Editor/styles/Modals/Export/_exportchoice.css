@@ -29,7 +29,7 @@
 .choice-icon {
   height: 30px;
   width: 30px;
-  margin-left: var(--large-padding);
+  padding: var(--small-padding);
 }
 
 .choice-name {

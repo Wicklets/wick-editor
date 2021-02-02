@@ -5,7 +5,6 @@ import ExportFooter from './ExportModules/ExportFooter';
 import ExportNameInput from './ExportModules/ExportNameInput';
 import ExportQuality from './ExportModules/ExportQuality';
 import ExportSize from './ExportModules/ExportSize';
-import WickInput from 'Editor/Util/WickInput/WickInput';
 import ExportCheckbox from './ExportModules/ExportCheckbox';
 
 export default function ExportAnimation (props) {
