@@ -37,6 +37,7 @@ import SupportUs from '../SupportUs/SupportUs';
 import ChooseExport from '../ChooseExport/ChooseExport';
 import ExportAnimation from '../Export/ExportAnimation';
 import ExportInteractive from '../Export/ExportInteractive';
+import ExportAudio from '../Export/ExportAudio';
 
 export default function ModalHandler (props) {
   let isMobile = props.getRenderSize() === "small";
@@ -186,6 +187,13 @@ export default function ModalHandler (props) {
           open={props.activeModalName === 'ExportInteractive'} 
           {...standardModalOptions}
           />
+
+        <ExportAudio
+          exportProjectAsAudioTrack={props.exportProjectAsAudioTrack}
+          project={props.project}
+      
+          open={props.activeModalName === 'ExportAudio'} 
+          {...standardModalOptions} />
       </div>
   )
 }
