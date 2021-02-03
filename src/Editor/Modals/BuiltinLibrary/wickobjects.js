@@ -1,4 +1,4 @@
-export default {
+let wickobjects = {
   "name": "Clips",
   "assets": [{
     "file": "wickobjects/button.wickobj",
@@ -34,3 +34,5 @@ export default {
     "icon": "icons/textinput.png",
   }],
 }
+
+export default wickobjects;

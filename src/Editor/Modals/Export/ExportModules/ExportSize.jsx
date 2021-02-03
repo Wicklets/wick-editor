@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import ExportModule from './ExportModule';
 import WickInput from 'Editor/Util/WickInput/WickInput';
 
@@ -9,7 +9,7 @@ const classNames = require('classnames');
 export default function ExportSize (props) {
   const [dropdownOption, setDropdownOption] = useState('1080p')
 
-  const commonSizeOptions = [
+  const commonSizeOptions = useMemo(() => [
     {
       name: '1080p',
       width: 1920,
@@ -25,7 +25,7 @@ export default function ExportSize (props) {
       width: 720,
       height: 480
     }
-  ]
+  ], []);
 
   // Create options for the react-select dropdown.
   let dropdownOptions = commonSizeOptions.map(option => {return {
@@ -38,7 +38,7 @@ export default function ExportSize (props) {
     label: 'custom'
   });
 
-  useEffect(resetDropdownValueOnChange, [props.size.width, props.size.height])
+  useEffect(resetDropdownValueOnChange, [props.size.width, props.size.height, commonSizeOptions])
 
   function resetDropdownValueOnChange () {
     for (let option of commonSizeOptions) {

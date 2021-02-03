@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 let classNames = require('classnames');
 
@@ -19,35 +19,22 @@ export default function WickTextInput (props) {
 
     let { isValid, cleanUp, isValidRegex, ...rest } = props;
 
-    // Update the display value if it's updated elsewhere.
-    useEffect(resetDisplayValueOnChange, [props.value])
-
-    /**
-     * Resets the display value of the component if the value
-     * is changed somewhere else.
-     */
-    function resetDisplayValueOnChange () {
-        let val = props.value;
-        if (fullIsValid(val)) { val = internalCleanup(val) }
-        setDisplayValue(val);
-    }
-
     function wrappedOnChange (val) {
         props.onChange && props.onChange(val);
     }
 
-    function internalCleanup (val) {
+    let internalCleanup = useCallback((val) => {
         if (cleanUp) {
             return cleanUp(val);
         } 
         return val;
-    }
+    }, [cleanUp]);
 
     /**
      * Returns true if all conditions for validity of this input are met.
      * If no validity methods have been passed to this object, returns true;
      */
-    function fullIsValid (val) {
+    let fullIsValid = useCallback((val) => {
 
         // Default to true;
         let valid = true;
@@ -61,6 +48,19 @@ export default function WickTextInput (props) {
         }
 
         return valid;
+    }, [isValid, isValidRegex]);
+
+    // Update the display value if it's updated elsewhere.
+    useEffect(resetDisplayValueOnChange, [props.value, fullIsValid, internalCleanup])
+
+    /**
+     * Resets the display value of the component if the value
+     * is changed somewhere else.
+     */
+    function resetDisplayValueOnChange () {
+        let val = props.value;
+        if (fullIsValid(val)) { val = internalCleanup(val) }
+        setDisplayValue(val);
     }
 
     /**

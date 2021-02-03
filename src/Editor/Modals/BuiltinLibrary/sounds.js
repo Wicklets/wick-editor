@@ -1,4 +1,4 @@
-export default {
+let sounds = {
   "name": "Sounds",
   "assets": [
     {
@@ -219,3 +219,5 @@ export default {
     }
   ]
 }
+
+export default sounds;

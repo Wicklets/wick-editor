@@ -13,7 +13,7 @@ export default function SimpleProjectSettings(props) {
   const [newWidth, setNewWidth] = useState(props.project.width);
   const [newHeight, setNewHeight] = useState(props.project.height);
 
-  useEffect(resetProjectDetails, [open]);
+  useEffect(resetProjectDetails, [open, props.project.name, props.project.framerate, props.project.width, props.project.height]);
 
   function resetProjectDetails() {
     setNewProjectName(props.project.name);
