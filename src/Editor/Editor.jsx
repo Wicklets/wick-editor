@@ -75,7 +75,7 @@ class Editor extends EditorCore {
     this.state = {
       project: null,
       previewPlaying: false,
-      activeModalName: "ChooseExport", //window.localStorage.skipWelcomeMessage ? null : "WelcomeMessage",
+      activeModalName: window.localStorage.skipWelcomeMessage ? null : "WelcomeMessage",
       activeModalQueue: [],
       codeEditorOpen: false,
       scriptToEdit: "default",
