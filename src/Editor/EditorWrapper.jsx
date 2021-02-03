@@ -37,7 +37,7 @@ export default function EditorWrapper(props) {
     useEffect(() => {
         Hook(window.console, log => {props.editor.setConsoleLogs([...props.editor.state.consoleLogs, log])}, false)
         return () => Unhook(window.console)
-    }, [])
+    }, [props.editor])
 
 
     return (

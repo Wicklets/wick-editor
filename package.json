@@ -43,7 +43,7 @@
     "react-reflex": "^3.0.6",
     "react-resize-detector": "^3.1.3",
     "react-rnd": "^10.2.3",
-    "react-scripts": "2.0.5",
+    "react-scripts": "^4.0.2",
     "react-select": "^3.2.0",
     "react-sizeme": "^2.6.12",
     "react-spinners": "^0.9.0",

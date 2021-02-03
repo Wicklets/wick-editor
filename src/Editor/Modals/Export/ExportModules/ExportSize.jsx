@@ -38,7 +38,9 @@ export default function ExportSize (props) {
     label: 'custom'
   });
 
-  useEffect(() => {
+  useEffect(resetDropdownValueOnChange, [props.size.width, props.size.height])
+
+  function resetDropdownValueOnChange () {
     for (let option of commonSizeOptions) {
       if (props.size.width === option.width && props.size.height === option.height) {
         setDropdownOption(option.name);
@@ -47,8 +49,8 @@ export default function ExportSize (props) {
         setDropdownOption('custom');
       }
     }
-  }, [props.size.width, props.size.height])
-
+  }
+  
   function updateSize (width, height) {
     props.onChange({width, height});
   }

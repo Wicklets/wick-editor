@@ -20,12 +20,17 @@ export default function WickTextInput (props) {
     let { isValid, cleanUp, isValidRegex, ...rest } = props;
 
     // Update the display value if it's updated elsewhere.
-    useEffect(() => {
+    useEffect(resetDisplayValueOnChange, [props.value])
+
+    /**
+     * Resets the display value of the component if the value
+     * is changed somewhere else.
+     */
+    function resetDisplayValueOnChange () {
         let val = props.value;
         if (fullIsValid(val)) { val = internalCleanup(val) }
-
         setDisplayValue(val);
-    }, [props.value])
+    }
 
     function wrappedOnChange (val) {
         props.onChange && props.onChange(val);
