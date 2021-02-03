@@ -3,17 +3,19 @@
     --border-radius-primary: 8px;
     --border-radius-secondary: 4px;
 
+    --small-padding: 4px;
+    --large-padding: 8px;
+
     /* Main Colors */
     --wick-primary: #303030;
     --wick-secondary: #3B3B3B;
     --wick-tertiary: #706d6d;
     --wick-disabled: #666666;
 
-
     /* Text Colors */
     --wick-text-primary: white;
     --wick-text-secondary: #BDBDBD;
-    --wick-text-tertiary: #919191;
+    --wick-text-tertiary: #d5d5d5;
     --wick-text-disabled: white;
     --wick-text-event: black;
 
@@ -26,18 +28,27 @@
     --wick-event-keyboard-selected: #FFE243;
     --wick-event-timeline-selected: #05B8FF;
 
+    /* Transitions */
+    --normal-transition: .3s;
+    --fast-transition: .1s;
+    --slow-transition: .5s;
+
     /* Theme Colors */
     --wick-red: #FF7878;
     --wick-red-light: #ff5c5c;
     
     --wick-green: #09F197;
     --wick-green-light: #19ffa7;
+    --wick-green-dark:#07bd77;
+    --wick-green-text: black;
 
     --wick-yellow: #F0CC00;
     --wick-yellow-light: #ffde20;
+    --wick-yellow-text: black;
 
     --wick-light-blue: #92D8FF;
     --wick-light-blue-light: #74ceff;
+    --wick-light-blue-text: black;
 
     --wick-purple: #C987FA;
     --wick-purple-light: #d49bff;
@@ -48,8 +59,12 @@
     --wick-pink: #FF66F0;
     --wick-pink-light: #ff80f2;
 
-    --wick-error: rgba(255, 0, 0, .6);
+    --wick-gray: #CCCCCC;
+    --wick-gray-light: #EEEEEE;
+    --wick-gray-dark: #AAAAAA;
+    --wick-gray-text: black;
 
+    --wick-error: rgba(255, 0, 0, .6);
 
     /* Shadows */
     --wick-box-shadow: 2px 2px 8px var(--wick-primary); 

@@ -1,0 +1,37 @@
+.export-choice-container {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.choice-option {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  border-radius: var(--border-radius-secondary);
+  border: none;
+  background-color: var(--wick-tertiary);
+  color: var(--wick-text-primary);
+  transition: all .3s;
+  box-shadow: 2px 2px var(--wick-secondary);
+}
+
+.choice-option:hover {
+  background-color: var(--wick-yellow);
+  color: var(--wick-green-text);
+}
+
+.choice-option.selected {
+  background-color: var(--wick-green);
+  color: var(--wick-green-text)
+}
+
+.choice-icon {
+  height: 30px;
+  width: 30px;
+  padding: var(--small-padding);
+}
+
+.choice-name {
+  font-size: 20px;
+}

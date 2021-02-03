@@ -1,0 +1,30 @@
+.export-footer {
+  width: 100%;
+  display: flex;
+  margin-top: var(--large-padding); 
+  justify-content: space-between;
+}
+
+.export-button {
+  border-radius: var(--border-radius-secondary);
+  font-size: 20px;
+  border: none;
+}
+
+.export-back {
+  background-color: var(--wick-gray);
+  color: var(--wick-light-blue-text);
+}
+
+.export-back:hover {
+  background-color: var(--wick-gray-light);
+}
+
+.export-complete {
+  background-color: var(--wick-green);
+  color: var(--wick-green-text);
+}
+
+.export-complete:hover {
+  background-color: var(--wick-green-light);
+}

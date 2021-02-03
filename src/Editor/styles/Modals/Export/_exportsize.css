@@ -1,0 +1,50 @@
+.export-size-table {
+  border: none !important;
+  color: var(--wick-text-tertiary); 
+}
+
+.export-size-table td {
+  border: none !important;
+}
+
+.export-link-icon {
+  padding: 0 var(--small-padding);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2.5px;
+  margin-bottom: 2.5px;
+}
+
+.export-link-container {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.link-button {
+  height: 25px;
+  min-height: 25px;
+  min-width: 40px;
+  border: none;
+  border-radius: var(--border-radius-secondary);
+  background-color: var(--wick-primary);
+  transition: all .3s;
+}
+
+.link-button:hover {
+  background-color: var(--wick-tertiary);
+}
+
+.size-option {
+  border: none;
+  padding: none;
+  border-radius: var(--border-radius-secondary);
+  font-size: 12px;
+  margin: 1px;
+}
+
+.size-option.selected {
+  background-color: var(--wick-green);
+}

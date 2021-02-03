@@ -1,0 +1,19 @@
+.we-export-module {
+  width: 100%;
+  background-color: var(--wick-secondary);
+  border-radius: var(--border-radius-secondary);
+  padding: var(--small-padding);
+  margin-top: var(--small-padding);
+}
+
+.we-export-title {
+  color: white;
+  font-weight: bold;
+  margin-bottom: var(--small-padding);
+}
+
+.export-modal {
+  font-family: 'Nunito';
+  max-width: 300px;
+  transition: all .3s;
+}

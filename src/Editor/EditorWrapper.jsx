@@ -60,7 +60,7 @@ export default function EditorWrapper(props) {
                 allowChanges={true}
                 keyMap={props.editor.getKeyMap()}
                 handlers={props.editor.getKeyHandlers()} />
-            <div id="editor" className="theme-default">
+            <div id="editor">
                 <ModalHandler
                     getRenderSize={props.editor.getRenderSize}
                     activeModalName={props.editor.state.activeModalName}
