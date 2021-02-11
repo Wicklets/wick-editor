@@ -172,7 +172,7 @@ class Inspector extends Component {
         <InspectorColorNumericInput
           tooltip1="Fill"
           tooltip2="Opacity"
-          val1={this.getSelectionAttribute('fillColor').toCSS()}
+          val1={this.getSelectionAttribute('fillColor').rgba}
           onChange1={(col) => this.setSelectionAttribute('fillColor', col)}
           id={"inspector-selection-fill-color"}
           val2={this.getSelectionAttribute('fillColorOpacity')}
@@ -187,7 +187,7 @@ class Inspector extends Component {
           tooltip1="Stroke"
           tooltip2="Weight"
 
-          val1={this.getSelectionAttribute('strokeColor').toCSS()}
+          val1={this.getSelectionAttribute('strokeColor').rgba}
           onChange1={(col) => this.setSelectionAttribute('strokeColor', col)}
           id={"inspector-selection-stroke-color"}
           stroke={true}

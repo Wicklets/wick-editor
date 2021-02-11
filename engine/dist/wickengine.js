@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2021.2.11.13.34.32";
+var WICK_ENGINE_BUILD_VERSION = "2021.2.11.15.51.12";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -49640,6 +49640,7 @@ Wick.Transformable = class extends Wick.Base {
 
   set x(x) {
     this._x = x;
+    this.onTransformableChange();
   }
 
   get y() {
@@ -49648,6 +49649,7 @@ Wick.Transformable = class extends Wick.Base {
 
   set y(y) {
     this._y = y;
+    this.onTransformableChange();
   }
 
   get width() {
@@ -49656,6 +49658,7 @@ Wick.Transformable = class extends Wick.Base {
 
   set width(width) {
     this._width = width;
+    this.onTransformableChange();
   }
 
   get height() {
@@ -49664,6 +49667,7 @@ Wick.Transformable = class extends Wick.Base {
 
   set height(height) {
     this._height = height;
+    this.onTransformableChange();
   }
 
   get scaleX() {
@@ -49672,6 +49676,7 @@ Wick.Transformable = class extends Wick.Base {
 
   set scaleX(scaleX) {
     this._scaleX = scaleX;
+    this.onTransformableChange();
   }
 
   get scaleY() {
@@ -49680,6 +49685,7 @@ Wick.Transformable = class extends Wick.Base {
 
   set scaleY(scaleY) {
     this._scaleY = scaleY;
+    this.onTransformableChange();
   }
 
   get lockedScale() {
@@ -49688,6 +49694,7 @@ Wick.Transformable = class extends Wick.Base {
 
   set lockedScale(lockedScale) {
     this._lockedScale = lockedScale;
+    this.onTransformableChange();
   }
 
   get rotation() {
@@ -49696,6 +49703,7 @@ Wick.Transformable = class extends Wick.Base {
 
   set rotation(rotation) {
     this._rotation = rotation;
+    this.onTransformableChange();
   }
 
   get opacity() {
@@ -49704,6 +49712,7 @@ Wick.Transformable = class extends Wick.Base {
 
   set opacity(opacity) {
     this._opacity = opacity;
+    this.onTransformableChange();
   }
 
   get pivotX() {
@@ -49712,6 +49721,7 @@ Wick.Transformable = class extends Wick.Base {
 
   set pivotX(pivotX) {
     this._pivotX = pivotX;
+    this.onTransformableChange();
   }
 
   get pivotY() {
@@ -49720,6 +49730,7 @@ Wick.Transformable = class extends Wick.Base {
 
   set pivotY(pivotY) {
     this._pivotY = pivotY;
+    this.onTransformableChange();
   }
 
   get lockedPivot() {
@@ -49728,6 +49739,14 @@ Wick.Transformable = class extends Wick.Base {
 
   set lockedPivot(lockedPivot) {
     this._lockedPivot = lockedPivot;
+    this.onTransformableChange();
+  }
+  /**
+   * Runs once whenever a transformable property is changed.
+   */
+
+
+  onTransformableChange() {// To be changed wehn subclassed
   }
 
 };
@@ -54228,8 +54247,8 @@ Wick.Path = class extends Wick.Transformable {
     if (!args) args = {};
     super(args); // Generic Path Information
 
-    this._fillColor = args.fillColor === undefined ? new Wick.Color() : args.fillColor;
-    this._strokeColor = args.strokeColor === undefined ? new Wick.Color() : args.strokeColor;
+    this._fillColor = args.fillColor === undefined ? new Wick.Color() : new Wick.Color(args.fillColor);
+    this._strokeColor = args.strokeColor === undefined ? new Wick.Color() : new Wick.Color(args.strokeColor);
     this._strokeWidth = args.strokeWidth === undefined ? 1 : args.strokeWidth;
     this._fontStyle = 'normal';
     this._fontWeight = 400;
@@ -54251,6 +54270,7 @@ Wick.Path = class extends Wick.Transformable {
     }
 
     this.needReimport = true;
+    this.needRender = true;
   }
   /**
    * Create a path containing an image from an ImageAsset.
@@ -54490,19 +54510,6 @@ Wick.Path = class extends Wick.Transformable {
     this.updateJSON();
   }
   /**
-   * The original style of the path (used to recover the path's style if it was changed by a custom onion skin style)
-   * @type {object}
-   */
-
-
-  get originalStyle() {
-    return this._originalStyle;
-  }
-
-  set originalStyle(originalStyle) {
-    this._originalStyle = originalStyle;
-  }
-  /**
    * The content of the text.
    * @type {string}
    */
@@ -54675,6 +54682,11 @@ Wick.Path = class extends Wick.Transformable {
 
   get isPlaceholder() {
     return this._isPlaceholder;
+  } // When the transform changes, signal a rerender is necessary.
+
+
+  onTransformableChange() {
+    this.needRender = true;
   }
 
 };
@@ -64371,13 +64383,29 @@ Wick.View.Path = class extends Wick.View {
     if (!this.model.json) {
       console.warn('Path ' + this.model.uuid + ' is missing path JSON.');
       return;
-    } // Apply Transformations to the path.
+    }
 
+    if (!this.model.needRender) {
+      return;
+    }
+
+    console.log("Rendering Path", {
+      applied: this.item.applyMatrix,
+      rotation: this.item.rotation
+    }); // Apply Transformations to the path.
 
     this.item.position.x = this.model.x;
     this.item.position.y = this.model.y; // Scale to expected width and height based on scaleX and scaleY;
+    // Invert previous scale values.
+
+    let inverseScaleX = 1 / this.item.scaling.x;
+    let inverseScaleY = 1 / this.item.scaling.y;
+    this.item.scale(inverseScaleX, inverseScaleY); // Apply current scale values.
 
     this.item.scale(this.model.scaleX, this.model.scaleY); // Rotate
+    // Undo Previous Rotation
+
+    this.item.rotate(-this.item.rotation); // Apply Current Rotation
 
     this.item.rotate(this.model.rotation); // Apply colors and onion skins, if needed.
 
@@ -64388,6 +64416,8 @@ Wick.View.Path = class extends Wick.View {
       this.item.fillColor = this.model.fillColor;
       this.item.strokeWidth = this.model.strokeWidth;
     }
+
+    this.model.needRender = false;
   }
   /**
    * Import paper.js path data into this Wick Path, replacing the current path data if necessary.

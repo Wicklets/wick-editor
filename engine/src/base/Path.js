@@ -31,8 +31,8 @@ Wick.Path = class extends Wick.Transformable {
         super(args);
 
         // Generic Path Information
-        this._fillColor = args.fillColor === undefined ? new Wick.Color() : args.fillColor;
-        this._strokeColor = args.strokeColor === undefined ? new Wick.Color() : args.strokeColor;
+        this._fillColor = args.fillColor === undefined ? new Wick.Color() : new Wick.Color(args.fillColor);
+        this._strokeColor = args.strokeColor === undefined ? new Wick.Color() : new Wick.Color(args.strokeColor);
         this._strokeWidth = args.strokeWidth === undefined ? 1 : args.strokeWidth;
 
         this._fontStyle = 'normal';
@@ -49,6 +49,7 @@ Wick.Path = class extends Wick.Transformable {
         }
 
         this.needReimport = true;
+        this.needRender = true;
     }
 
     /**
@@ -277,18 +278,6 @@ Wick.Path = class extends Wick.Transformable {
     }
 
     /**
-     * The original style of the path (used to recover the path's style if it was changed by a custom onion skin style)
-     * @type {object}
-     */
-    get originalStyle () {
-        return this._originalStyle;
-    }
-
-    set originalStyle (originalStyle) {
-        this._originalStyle = originalStyle;
-    }
-
-    /**
      * The content of the text.
      * @type {string}
      */
@@ -447,5 +436,10 @@ Wick.Path = class extends Wick.Transformable {
 
     get isPlaceholder () {
         return this._isPlaceholder;
+    }
+
+    // When the transform changes, signal a rerender is necessary.
+    onTransformableChange () {
+        this.needRender = true;
     }
 }

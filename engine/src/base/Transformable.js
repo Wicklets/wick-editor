@@ -75,6 +75,7 @@ Wick.Transformable = class extends Wick.Base {
 
   set x (x) {
     this._x = x;
+    this.onTransformableChange();
   }
 
   get y () {
@@ -83,6 +84,7 @@ Wick.Transformable = class extends Wick.Base {
 
   set y (y) {
     this._y = y;
+    this.onTransformableChange();
   }
 
   get width () {
@@ -91,6 +93,7 @@ Wick.Transformable = class extends Wick.Base {
 
   set width (width) {
     this._width = width;
+    this.onTransformableChange();
   }
 
   get height () {
@@ -99,6 +102,7 @@ Wick.Transformable = class extends Wick.Base {
 
   set height (height) {
     this._height = height;
+    this.onTransformableChange();
   }
 
   get scaleX () {
@@ -107,6 +111,7 @@ Wick.Transformable = class extends Wick.Base {
 
   set scaleX (scaleX) {
     this._scaleX = scaleX;
+    this.onTransformableChange();
   }
 
   get scaleY () {
@@ -115,6 +120,7 @@ Wick.Transformable = class extends Wick.Base {
 
   set scaleY (scaleY) {
     this._scaleY = scaleY;
+    this.onTransformableChange();
   }
 
   get lockedScale () {
@@ -123,6 +129,7 @@ Wick.Transformable = class extends Wick.Base {
 
   set lockedScale (lockedScale) {
     this._lockedScale = lockedScale;
+    this.onTransformableChange();
   }
 
   get rotation () {
@@ -131,6 +138,7 @@ Wick.Transformable = class extends Wick.Base {
 
   set rotation (rotation) {
     this._rotation = rotation;
+    this.onTransformableChange();
   }
 
   get opacity () {
@@ -139,6 +147,7 @@ Wick.Transformable = class extends Wick.Base {
 
   set opacity (opacity) {
     this._opacity = opacity;
+    this.onTransformableChange();
   }
 
   get pivotX () {
@@ -147,6 +156,7 @@ Wick.Transformable = class extends Wick.Base {
 
   set pivotX (pivotX) {
     this._pivotX = pivotX;
+    this.onTransformableChange();
   }
 
   get pivotY () {
@@ -155,6 +165,7 @@ Wick.Transformable = class extends Wick.Base {
 
   set pivotY (pivotY) {
     this._pivotY = pivotY;
+    this.onTransformableChange();
   }
 
   get lockedPivot () {
@@ -163,5 +174,13 @@ Wick.Transformable = class extends Wick.Base {
 
   set lockedPivot (lockedPivot) {
     this._lockedPivot = lockedPivot;
+    this.onTransformableChange();
+  }
+
+  /**
+   * Runs once whenever a transformable property is changed.
+   */
+  onTransformableChange () {
+    // To be changed wehn subclassed
   }
 }

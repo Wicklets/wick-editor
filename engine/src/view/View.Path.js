@@ -46,14 +46,34 @@ Wick.View.Path = class extends Wick.View {
             return;
         }
 
+        if (!this.model.needRender) {
+            return;
+        }
+
+        console.log("Rendering Path", 
+        {
+            applied: this.item.applyMatrix,
+            rotation: this.item.rotation
+        });
+
         // Apply Transformations to the path.
         this.item.position.x = this.model.x;
         this.item.position.y = this.model.y;
 
         // Scale to expected width and height based on scaleX and scaleY;
+        // Invert previous scale values.
+        let inverseScaleX = 1 / this.item.scaling.x;
+        let inverseScaleY = 1 / this.item.scaling.y;
+        this.item.scale(inverseScaleX, inverseScaleY);
+
+        // Apply current scale values.
         this.item.scale(this.model.scaleX, this.model.scaleY);
 
         // Rotate
+        // Undo Previous Rotation
+        this.item.rotate(-this.item.rotation); 
+
+        // Apply Current Rotation
         this.item.rotate(this.model.rotation);
 
         // Apply colors and onion skins, if needed.
@@ -64,6 +84,8 @@ Wick.View.Path = class extends Wick.View {
             this.item.fillColor = this.model.fillColor;
             this.item.strokeWidth = this.model.strokeWidth;
         }
+
+        this.model.needRender = false;
     }
 
     /**
