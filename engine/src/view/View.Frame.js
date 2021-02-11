@@ -84,74 +84,68 @@ Wick.View.Frame = class extends Wick.View {
     }
 
     _applyDrawableChanges() {
+        // console.log("Applying Drawable Changes");
 
-        this.model.drawable.filter(path => {
-            return path instanceof Wick.Path && path.isDynamicText;
-        }).forEach(path => {
-            path.view.item.bringToFront();
-        }); // Clear all WickPaths from the frame
+        // this.model.drawable.filter(path => {
+        //     return path instanceof Wick.Path && path.isDynamicText;
+        // }).forEach(path => {
+        //     path.view.item.bringToFront();
+        // }); // Clear all WickPaths from the frame
 
-        // Reorder clips
-        var drawables = this.model.drawable.concat([]);
-        drawables.forEach(drawable => {
-            // should realkly be remove child
-            this.model.removeClip(drawable);
-        });
-
-
-
-        this.objectsLayer.children.filter(child => {
-            return child.data.wickType !== 'gui';
-        }).forEach(child => {
-            if (child instanceof paper.Group || child instanceof Wick.Clip) {
-                this.model.addClip(drawables.find(g => {
-                    return g.uuid === child.data.wickUUID;
-                }));
-            } else {
-                var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
-                var pathJSON = Wick.View.Path.exportJSON(child);
-                var wickPath = new Wick.Path({
-                    project: this.model.project,
-                    json: pathJSON
-                });
-                this.model.addPath(wickPath);
-                wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
-                wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
-                wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;
-                child.name = wickPath.uuid;
-            }
-        }); // Update clip transforms
+        // // Reorder clips
+        // var drawables = this.model.drawable.concat([]);
+        // drawables.forEach(drawable => {
+        //     // should realkly be remove child
+        //     this.model.removeClip(drawable);
+        // });
 
 
 
-        this.objectsLayer.children.filter(child => {
-            return child.data.wickType !== 'gui';
-        }).forEach(child => {
-            if (child instanceof paper.Group || child instanceof Wick.Clip) {
-                var wickClip = Wick.ObjectCache.getObjectByUUID(child.data.wickUUID);
-                wickClip.transformation = new Wick.Transformation({
-                    x: child.position.x,
-                    y: child.position.y,
-                    scaleX: child.scaling.x,
-                    scaleY: child.scaling.y,
-                    rotation: child.rotation,
-                    opacity: child.opacity
+        // this.objectsLayer.children.filter(child => {
+        //     return child.data.wickType !== 'gui';
+        // }).forEach(child => {
+        //     if (child instanceof paper.Group || child instanceof Wick.Clip) {
+        //         this.model.addClip(drawables.find(g => {
+        //             return g.uuid === child.data.wickUUID;
+        //         }));
+        //     } else {
 
-                });
-            }
-        });
+        //         console.log(child);
 
-        /*
-        var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
-        var pathJSON = Wick.View.Path.exportJSON(child);
-        var wickPath = new Wick.Path({json:pathJSON});
+        //         var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
+        //         var pathJSON = Wick.View.Path.exportJSON(child);
+        //         var wickPath = new Wick.Path({
+        //             project: this.model.project,
+        //             json: pathJSON
+        //         });
 
-        this.model.addPath(wickPath);
-        wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
-        wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
-        wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;
-        wickPath.isPlaceholder = originalWickPath ? originalWickPath.isPlaceholder : false;
-        child.name = wickPath.uuid;
-        */
+        //         console.log("Got Path Data");
+
+        //         this.model.addPath(wickPath);
+        //         wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
+        //         wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
+        //         wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;
+        //         child.name = wickPath.uuid;
+        //     }
+        // }); // Update clip transforms
+
+
+
+        // this.objectsLayer.children.filter(child => {
+        //     return child.data.wickType !== 'gui';
+        // }).forEach(child => {
+        //     if (child instanceof paper.Group || child instanceof Wick.Clip) {
+        //         var wickClip = Wick.ObjectCache.getObjectByUUID(child.data.wickUUID);
+        //         wickClip.transformation = new Wick.Transformation({
+        //             x: child.position.x,
+        //             y: child.position.y,
+        //             scaleX: child.scaling.x,
+        //             scaleY: child.scaling.y,
+        //             rotation: child.rotation,
+        //             opacity: child.opacity
+
+        //         });
+        //     }
+        // });
     }
 };

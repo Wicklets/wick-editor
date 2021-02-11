@@ -32,9 +32,8 @@ Wick.View.Path = class extends Wick.View {
      */
     get item () {
         if(!this._item) {
-            this.render();
+            this.importJSON();
         }
-
         return this._item;
     }
 
@@ -47,75 +46,46 @@ Wick.View.Path = class extends Wick.View {
             return;
         }
 
-        this.importJSON(this.model.json);
+        // Apply Transformations to the path.
+        this.item.position.x = this.model.x;
+        this.item.position.y = this.model.y;
 
-        // Apply onion skin style if Needed
-        // (This is done here in the Path code because we actually change the style of the path
-        // if the current onion skin mode is set to "outlines" or "tint")
+        // Scale to expected width and height based on scaleX and scaleY;
+        this.item.scale(this.model.scaleX, this.model.scaleY);
+
+        // Rotate
+        this.item.rotate(this.model.rotation);
+
+        // Apply colors and onion skins, if needed.
         if(this.model.parentFrame && this.model.parentFrame.onionSkinned) {
             this.applyOnionSkinStyles();
         } else {
-            if(this.item.data.originalStyle) {
-                this.item.strokeColor = this.item.data.originalStyle.strokeColor;
-                this.item.fillColor = this.item.data.originalStyle.fillColor;
-                this.item.strokeWidth = this.item.data.originalStyle.strokeWidth;
-            }
+            this.item.strokeColor = this.model.strokeColor;
+            this.item.fillColor = this.model.fillColor;
+            this.item.strokeWidth = this.model.strokeWidth;
         }
     }
 
     /**
      * Import paper.js path data into this Wick Path, replacing the current path data if necessary.
      * Uses cached data otherwise.
-     * @param {object} json - Data for the path created with paper.js exportJSON({asString:false})
      */
-    importJSON (json) {
-        // if(this.model.project && this.model.project.playing) return;
-
-        // Don't import the information if we don't need to...
-        if (this._item && !this.model.needReimport) {
-            return;
-        }
-
-        // Imports rasters if this json is a raster item.
-        if (json[0] === 'Raster') {
-            if (!this.importRaster(json)) return false;
-        }
-
-        // Import JSON data into paper.js
-        this._item = this.paper.importJSON(json);
+    importJSON () {
+        this._item = this.paper.importJSON(this.model.json);
         this._item.remove();
-
-        // Check if we need to recover the UUID from the paper path
-        if(this._item.data.wickUUID) {
-            this.model.uuid = this._item.data.wickUUID;
-        } else {
-            this._item.data.wickUUID = this.model.uuid;
-            this._item.data.wickType = 'path';
-        }
-
-        this._item.fontWeight = `${this.model.fontWeight} ${this.model.fontStyle}`;
-
-        this.model.needReimport = false;
+        this._item.data.wickUUID = this.model.uuid;
+        this._item.data.wickType = 'path';
+        this._item.applyMatrix = false;
     }
 
     /**
      * Export this path as paper.js Path json data.
      */
     exportJSON () {
-        return Wick.View.Path.exportJSON(this.item);
-    }
-
-    /**
-     * Export a path as paper.js Path json data.
-     */
-    static exportJSON (item) {
-        // Recover original style (if needed - only neccesary if style was overritten by custom onion skin style)
-        if(item.data.originalStyle) {
-            item.strokeColor = item.data.originalStyle.strokeColor;
-            item.fillColor = item.data.originalStyle.fillColor;
-            item.strokeWidth = item.data.originalStyle.strokeWidth;
-        }
-        return item.exportJSON({asString:false});
+        this.item.strokeColor = this.model.strokeColor;
+        this.item.fillColor = this.model.fillColor;
+        this.item.strokeWidth = this.model.strokeWidth;
+        return this.item.exportJSON({asString: false});
     }
 
     /**
@@ -161,16 +131,10 @@ Wick.View.Path = class extends Wick.View {
 
     applyOnionSkinStyles () {
         var onionSkinStyle = this.model.project && this.model.project.toolSettings.getSetting('onionSkinStyle');
-        this.item.data.originalStyle = this.item.data.originalStyle || {
-            strokeColor: this.item.strokeColor,
-            fillColor: this.item.fillColor,
-            strokeWidth: this.item.strokeWidth,
-        };
-
         var frame = this.model.parentFrame;
         var playheadPosition = this.model.project.focus.timeline.playheadPosition;
-
         var onionTintColor = new Wick.Color("#ffffff");
+
         if(frame.midpoint < playheadPosition) {
             onionTintColor = this.model.project.toolSettings.getSetting('backwardOnionSkinTint').rgba;
         } else if(frame.midpoint > playheadPosition) {

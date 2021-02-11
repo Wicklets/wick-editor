@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2021.1.20.18.42.18";
+var WICK_ENGINE_BUILD_VERSION = "2021.2.11.13.34.32";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -49600,6 +49600,172 @@ Wick.Base = class {
  */
 
 /**
+ * Transformables are any object that can be represented on the canvas, selected, or trasnformed.
+ */
+Wick.Transformable = class extends Wick.Base {
+  constructor(args) {
+    if (!args) args = {};
+    super(args);
+    this.init(args);
+  }
+
+  init(data) {
+    if (!data) data = {};
+    this._x = data.x === undefined ? 0 : data.x;
+    this._y = data.y === undefined ? 0 : data.y;
+    this._width = data.width === undefined ? 1 : data.width;
+    this._height = data.height === undefined ? 1 : data.height;
+    this._scaleX = data.scaleX === undefined ? 1 : data.scaleX;
+    this._scaleY = data.scaleY === undefined ? 1 : data.scaleY;
+    this._lockedScale = data.lockedScale === undefined ? false : data.lockedScale;
+    this._rotation = data.rotation === undefined ? 0 : data.rotation;
+    this._pivotX = data.pivotX === undefined ? 0 : data.pivotX;
+    this._pivotY = data.pivotY === undefined ? 0 : data.pivotY;
+    this._lockedPivot = data.lockedPivot === undefined ? true : data.lockedPivot;
+    this._opacity = data.opacity === undefined ? 1 : data.opacity;
+  }
+
+  _serialize(args) {
+    var data = super._serialize(args);
+
+    data.x = this.x;
+    data.y = this.y;
+    data.width = this.width;
+    data.height = this.height;
+    data.scaleX = this.scaleX;
+    data.scaleY = this.scaleY;
+    data.lockedScale = this.lockedScale;
+    data.rotation = this.rotation;
+    data.pivotX = this.pivotX;
+    data.pivotY = this.pivotY;
+    data.lockedPivot = this.lockedPivot;
+    data.opacity = this.opacity;
+    return data;
+  }
+
+  _deserialize(data) {
+    super._deserialize(data);
+
+    this.init(data);
+  }
+
+  get x() {
+    return this._x;
+  }
+
+  set x(x) {
+    this._x = x;
+  }
+
+  get y() {
+    return this._y;
+  }
+
+  set y(y) {
+    this._y = y;
+  }
+
+  get width() {
+    return this._width;
+  }
+
+  set width(width) {
+    this._width = width;
+  }
+
+  get height() {
+    return this._height;
+  }
+
+  set height(height) {
+    this._height = height;
+  }
+
+  get scaleX() {
+    return this._scaleX;
+  }
+
+  set scaleX(scaleX) {
+    this._scaleX = scaleX;
+  }
+
+  get scaleY() {
+    return this._scaleY;
+  }
+
+  set scaleY(scaleY) {
+    this._scaleY = scaleY;
+  }
+
+  get lockedScale() {
+    return this._lockedScale;
+  }
+
+  set lockedScale(lockedScale) {
+    this._lockedScale = lockedScale;
+  }
+
+  get rotation() {
+    return this._rotation;
+  }
+
+  set rotation(rotation) {
+    this._rotation = rotation;
+  }
+
+  get opacity() {
+    return this._opacity;
+  }
+
+  set opacity(opacity) {
+    this._opacity = opacity;
+  }
+
+  get pivotX() {
+    return this._pivotX;
+  }
+
+  set pivotX(pivotX) {
+    this._pivotX = pivotX;
+  }
+
+  get pivotY() {
+    return this._pivotY;
+  }
+
+  set pivotY(pivotY) {
+    this._pivotY = pivotY;
+  }
+
+  get lockedPivot() {
+    return this._lockedPivot;
+  }
+
+  set lockedPivot(lockedPivot) {
+    this._lockedPivot = lockedPivot;
+  }
+
+};
+/*
+ * Copyright 2020 WICKLETS LLC
+ *
+ * This file is part of Wick Engine.
+ *
+ * Wick Engine is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Engine is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/**
  * Represents a Wick Layer.
  */
 Wick.Layer = class extends Wick.Base {
@@ -54067,7 +54233,7 @@ Wick.Tween = class extends Wick.Base {
 /**
  * Represents a Wick Path.
  */
-Wick.Path = class extends Wick.Base {
+Wick.Path = class extends Wick.Transformable {
   /**
    * Create a Wick Path.
    * @param {array} json - Path data exported from paper.js using exportJSON({asString:false}).
@@ -54075,7 +54241,11 @@ Wick.Path = class extends Wick.Base {
    */
   constructor(args) {
     if (!args) args = {};
-    super(args);
+    super(args); // Generic Path Information
+
+    this._fillColor = args.fillColor === undefined ? new Wick.Color() : args.fillColor;
+    this._strokeColor = args.strokeColor === undefined ? new Wick.Color() : args.strokeColor;
+    this._strokeWidth = args.strokeWidth === undefined ? 1 : args.strokeWidth;
     this._fontStyle = 'normal';
     this._fontWeight = 400;
     this._isPlaceholder = args.isPlaceholder;
@@ -54159,6 +54329,9 @@ Wick.Path = class extends Wick.Base {
     data.fontStyle = this._fontStyle;
     data.fontWeight = this._fontWeight;
     data.isPlaceholder = this._isPlaceholder;
+    data.strokeColor = this.strokeColor;
+    data.fillColor = this.fillColor;
+    data.strokeWidth = this.strokeWidth;
     return data;
   }
 
@@ -54169,6 +54342,48 @@ Wick.Path = class extends Wick.Base {
     this._fontStyle = data.fontStyle || 'normal';
     this._fontWeight = data.fontWeight || 400;
     this._isPlaceholder = data.isPlaceholder;
+    this._fillColor = data.fillColor;
+    this._strokeColor = data.strokeColor;
+    this._strokeWidth = data.strokeWidth;
+  }
+  /**
+   * The fill color of the path.
+   * @type {Wick.Color}
+   */
+
+
+  get fillColor() {
+    return this._fillColor;
+  }
+
+  set fillColor(fillColor) {
+    this._fillColor = fillColor;
+  }
+  /**
+   * The stroke color of the path.
+   * @type {Wick.Color}
+   */
+
+
+  get strokeColor() {
+    return this._strokeColor;
+  }
+
+  set strokeColor(strokeColor) {
+    this._strokeColor = strokeColor;
+  }
+  /**
+   * The stroke width of the path.
+   * @type {number}
+   */
+
+
+  get strokeWidth() {
+    return this._strokeWidth;
+  }
+
+  set strokeWidth(strokeWidth) {
+    this._strokeWidth = strokeWidth;
   }
   /**
    * Determines if this Path is visible in the project.
@@ -54224,94 +54439,6 @@ Wick.Path = class extends Wick.Base {
       width: paperBounds.width,
       height: paperBounds.height
     };
-  }
-  /**
-   * The position of the path.
-   * @type {number}
-   */
-
-
-  get x() {
-    return this.view.item.position.x;
-  }
-
-  set x(x) {
-    this.view.item.position.x = x;
-    this.updateJSON();
-  }
-  /**
-   * The position of the path.
-   * @type {number}
-   */
-
-
-  get y() {
-    return this.view.item.position.y;
-  }
-
-  set y(y) {
-    this.view.item.position.y = y;
-    this.updateJSON();
-  }
-  /**
-   * The fill color of the path.
-   * @type {paper.Color}
-   */
-
-
-  get fillColor() {
-    return this.view.item.fillColor || new paper.Color();
-  }
-
-  set fillColor(fillColor) {
-    this.view.item.fillColor = fillColor;
-    this.updateJSON();
-  }
-  /**
-   * The stroke color of the path.
-   * @type {paper.Color}
-   */
-
-
-  get strokeColor() {
-    return this.view.item.strokeColor || new paper.Color();
-  }
-
-  set strokeColor(strokeColor) {
-    this.view.item.strokeColor = strokeColor;
-    this.updateJSON();
-  }
-  /**
-   * The stroke width of the path.
-   * @type {number}
-   */
-
-
-  get strokeWidth() {
-    return this.view.item.strokeWidth;
-  }
-
-  set strokeWidth(strokeWidth) {
-    this.view.item.strokeWidth = strokeWidth;
-    this.updateJSON();
-  }
-  /**
-   * The opacity of the path.
-   * @type {number}
-   */
-
-
-  get opacity() {
-    if (this.view.item.opacity === undefined || this.view.item.opacity === null) {
-      return 1.0;
-    }
-
-    return this.view.item.opacity;
-  }
-
-  set opacity(opacity) {
-    this.view.item.opacity = opacity;
-    this.updateJSON();
   }
   /**
    * The font family of the path.
@@ -59021,7 +59148,10 @@ Wick.Tool = class {
    */
 
 
-  addPathToProject(path, frame) {
+  addPathToProject({
+    path,
+    pathData
+  }) {
     // Avoid adding empty paths
     if (!path) {
       return;
@@ -59038,7 +59168,6 @@ Wick.Tool = class {
     if (!this.project.activeFrame) {
       // Automatically add a frame is there isn't one
       this.project.insertBlankFrame();
-      this.project.view.render();
     }
 
     if (!path) {
@@ -59046,21 +59175,14 @@ Wick.Tool = class {
       return;
     }
 
-    if (frame && frame !== this.project.activeFrame) {
-      /* If the path must be added to a frame other than the active frame,
-       * convert the paper.js path into a Wick path and add it to the given frame. */
-      var wickPath = new Wick.Path({
-        json: path.exportJSON({
-          asString: false
-        })
-      });
-      frame.addPath(wickPath);
-    } else {
-      /* Otherwise, directly add the paper.js path to the paper.js project.
-         This is signifigantly faster than creating the Wick path, as this
-         method does not require a re-render of the canvas. */
-      this.paper.project.activeLayer.addChild(path);
-    }
+    var wickPath = new Wick.Path({
+      json: path.exportJSON({
+        asString: false
+      }),
+      ...pathData
+    });
+    this.project.activeFrame.addPath(wickPath);
+    this.project.view.render();
   }
 
 };
@@ -59438,7 +59560,17 @@ Wick.Tools.Brush = class extends Wick.Tool {
       } // Done! Add the path to the project
 
 
-      this.addPathToProject(result, this._currentDrawingFrame); // We're done potracing using the current croquis canvas, reset the stroke bounds
+      this.addPathToProject({
+        path: result,
+        frame: this._currentDrawingFrame,
+        pathData: {
+          x: result.position.x,
+          y: result.position.y,
+          fillColor: this.getSetting('fillColor').rgba,
+          strokeColor: this.getSetting('strokeColor').rgba,
+          strokeWidth: 0
+        }
+      }); // We're done potracing using the current croquis canvas, reset the stroke bounds
 
       this._resetStrokeBounds(point); // Clear croquis canvas
 
@@ -64154,67 +64286,56 @@ Wick.View.Frame = class extends Wick.View {
     this.objectsLayer.addChildren(children);
   }
 
-  _applyDrawableChanges() {
-    this.model.drawable.filter(path => {
-      return path instanceof Wick.Path && path.isDynamicText;
-    }).forEach(path => {
-      path.view.item.bringToFront();
-    }); // Clear all WickPaths from the frame
-    // Reorder clips
-
-    var drawables = this.model.drawable.concat([]);
-    drawables.forEach(drawable => {
-      // should realkly be remove child
-      this.model.removeClip(drawable);
-    });
-    this.objectsLayer.children.filter(child => {
-      return child.data.wickType !== 'gui';
-    }).forEach(child => {
-      if (child instanceof paper.Group || child instanceof Wick.Clip) {
-        this.model.addClip(drawables.find(g => {
-          return g.uuid === child.data.wickUUID;
-        }));
-      } else {
-        var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
-        var pathJSON = Wick.View.Path.exportJSON(child);
-        var wickPath = new Wick.Path({
-          project: this.model.project,
-          json: pathJSON
-        });
-        this.model.addPath(wickPath);
-        wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
-        wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
-        wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;
-        child.name = wickPath.uuid;
-      }
-    }); // Update clip transforms
-
-    this.objectsLayer.children.filter(child => {
-      return child.data.wickType !== 'gui';
-    }).forEach(child => {
-      if (child instanceof paper.Group || child instanceof Wick.Clip) {
-        var wickClip = Wick.ObjectCache.getObjectByUUID(child.data.wickUUID);
-        wickClip.transformation = new Wick.Transformation({
-          x: child.position.x,
-          y: child.position.y,
-          scaleX: child.scaling.x,
-          scaleY: child.scaling.y,
-          rotation: child.rotation,
-          opacity: child.opacity
-        });
-      }
-    });
-    /*
-    var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
-    var pathJSON = Wick.View.Path.exportJSON(child);
-    var wickPath = new Wick.Path({json:pathJSON});
-     this.model.addPath(wickPath);
-    wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
-    wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
-    wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;
-    wickPath.isPlaceholder = originalWickPath ? originalWickPath.isPlaceholder : false;
-    child.name = wickPath.uuid;
-    */
+  _applyDrawableChanges() {// console.log("Applying Drawable Changes");
+    // this.model.drawable.filter(path => {
+    //     return path instanceof Wick.Path && path.isDynamicText;
+    // }).forEach(path => {
+    //     path.view.item.bringToFront();
+    // }); // Clear all WickPaths from the frame
+    // // Reorder clips
+    // var drawables = this.model.drawable.concat([]);
+    // drawables.forEach(drawable => {
+    //     // should realkly be remove child
+    //     this.model.removeClip(drawable);
+    // });
+    // this.objectsLayer.children.filter(child => {
+    //     return child.data.wickType !== 'gui';
+    // }).forEach(child => {
+    //     if (child instanceof paper.Group || child instanceof Wick.Clip) {
+    //         this.model.addClip(drawables.find(g => {
+    //             return g.uuid === child.data.wickUUID;
+    //         }));
+    //     } else {
+    //         console.log(child);
+    //         var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
+    //         var pathJSON = Wick.View.Path.exportJSON(child);
+    //         var wickPath = new Wick.Path({
+    //             project: this.model.project,
+    //             json: pathJSON
+    //         });
+    //         console.log("Got Path Data");
+    //         this.model.addPath(wickPath);
+    //         wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
+    //         wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
+    //         wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;
+    //         child.name = wickPath.uuid;
+    //     }
+    // }); // Update clip transforms
+    // this.objectsLayer.children.filter(child => {
+    //     return child.data.wickType !== 'gui';
+    // }).forEach(child => {
+    //     if (child instanceof paper.Group || child instanceof Wick.Clip) {
+    //         var wickClip = Wick.ObjectCache.getObjectByUUID(child.data.wickUUID);
+    //         wickClip.transformation = new Wick.Transformation({
+    //             x: child.position.x,
+    //             y: child.position.y,
+    //             scaleX: child.scaling.x,
+    //             scaleY: child.scaling.y,
+    //             rotation: child.rotation,
+    //             opacity: child.opacity
+    //         });
+    //     }
+    // });
   }
 
 };
@@ -64251,7 +64372,7 @@ Wick.View.Path = class extends Wick.View {
 
   get item() {
     if (!this._item) {
-      this.render();
+      this.importJSON();
     }
 
     return this._item;
@@ -64265,56 +64386,38 @@ Wick.View.Path = class extends Wick.View {
     if (!this.model.json) {
       console.warn('Path ' + this.model.uuid + ' is missing path JSON.');
       return;
-    }
+    } // Apply Transformations to the path.
 
-    this.importJSON(this.model.json); // Apply onion skin style if Needed
-    // (This is done here in the Path code because we actually change the style of the path
-    // if the current onion skin mode is set to "outlines" or "tint")
+
+    this.item.position.x = this.model.x;
+    this.item.position.y = this.model.y; // Scale to expected width and height based on scaleX and scaleY;
+
+    this.item.scale(this.model.scaleX, this.model.scaleY); // Rotate
+
+    this.item.rotate(this.model.rotation); // Apply colors and onion skins, if needed.
 
     if (this.model.parentFrame && this.model.parentFrame.onionSkinned) {
       this.applyOnionSkinStyles();
     } else {
-      if (this.item.data.originalStyle) {
-        this.item.strokeColor = this.item.data.originalStyle.strokeColor;
-        this.item.fillColor = this.item.data.originalStyle.fillColor;
-        this.item.strokeWidth = this.item.data.originalStyle.strokeWidth;
-      }
+      this.item.strokeColor = this.model.strokeColor;
+      this.item.fillColor = this.model.fillColor;
+      this.item.strokeWidth = this.model.strokeWidth;
     }
   }
   /**
    * Import paper.js path data into this Wick Path, replacing the current path data if necessary.
    * Uses cached data otherwise.
-   * @param {object} json - Data for the path created with paper.js exportJSON({asString:false})
    */
 
 
-  importJSON(json) {
-    // if(this.model.project && this.model.project.playing) return;
-    // Don't import the information if we don't need to...
-    if (this._item && !this.model.needReimport) {
-      return;
-    } // Imports rasters if this json is a raster item.
+  importJSON() {
+    this._item = this.paper.importJSON(this.model.json);
 
+    this._item.remove();
 
-    if (json[0] === 'Raster') {
-      if (!this.importRaster(json)) return false;
-    } // Import JSON data into paper.js
-
-
-    this._item = this.paper.importJSON(json);
-
-    this._item.remove(); // Check if we need to recover the UUID from the paper path
-
-
-    if (this._item.data.wickUUID) {
-      this.model.uuid = this._item.data.wickUUID;
-    } else {
-      this._item.data.wickUUID = this.model.uuid;
-      this._item.data.wickType = 'path';
-    }
-
-    this._item.fontWeight = `${this.model.fontWeight} ${this.model.fontStyle}`;
-    this.model.needReimport = false;
+    this._item.data.wickUUID = this.model.uuid;
+    this._item.data.wickType = 'path';
+    this._item.applyMatrix = false;
   }
   /**
    * Export this path as paper.js Path json data.
@@ -64322,22 +64425,10 @@ Wick.View.Path = class extends Wick.View {
 
 
   exportJSON() {
-    return Wick.View.Path.exportJSON(this.item);
-  }
-  /**
-   * Export a path as paper.js Path json data.
-   */
-
-
-  static exportJSON(item) {
-    // Recover original style (if needed - only neccesary if style was overritten by custom onion skin style)
-    if (item.data.originalStyle) {
-      item.strokeColor = item.data.originalStyle.strokeColor;
-      item.fillColor = item.data.originalStyle.fillColor;
-      item.strokeWidth = item.data.originalStyle.strokeWidth;
-    }
-
-    return item.exportJSON({
+    this.item.strokeColor = this.model.strokeColor;
+    this.item.fillColor = this.model.fillColor;
+    this.item.strokeWidth = this.model.strokeWidth;
+    return this.item.exportJSON({
       asString: false
     });
   }
@@ -64386,11 +64477,6 @@ Wick.View.Path = class extends Wick.View {
 
   applyOnionSkinStyles() {
     var onionSkinStyle = this.model.project && this.model.project.toolSettings.getSetting('onionSkinStyle');
-    this.item.data.originalStyle = this.item.data.originalStyle || {
-      strokeColor: this.item.strokeColor,
-      fillColor: this.item.fillColor,
-      strokeWidth: this.item.strokeWidth
-    };
     var frame = this.model.parentFrame;
     var playheadPosition = this.model.project.focus.timeline.playheadPosition;
     var onionTintColor = new Wick.Color("#ffffff");

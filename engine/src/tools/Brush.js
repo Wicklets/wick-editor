@@ -376,7 +376,17 @@ Wick.Tools.Brush = class extends Wick.Tool {
             }
 
             // Done! Add the path to the project
-            this.addPathToProject(result, this._currentDrawingFrame);
+            this.addPathToProject({
+                path: result, 
+                frame: this._currentDrawingFrame,
+                pathData: {
+                    x: result.position.x,
+                    y: result.position.y,
+                    fillColor: this.getSetting('fillColor').rgba,
+                    strokeColor: this.getSetting('strokeColor').rgba,
+                    strokeWidth: 0,
+                }
+            });
 
             // We're done potracing using the current croquis canvas, reset the stroke bounds
             this._resetStrokeBounds(point);

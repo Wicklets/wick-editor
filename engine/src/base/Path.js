@@ -20,7 +20,7 @@
 /**
  * Represents a Wick Path.
  */
-Wick.Path = class extends Wick.Base {
+Wick.Path = class extends Wick.Transformable {
     /**
      * Create a Wick Path.
      * @param {array} json - Path data exported from paper.js using exportJSON({asString:false}).
@@ -29,6 +29,11 @@ Wick.Path = class extends Wick.Base {
     constructor(args) {
         if (!args) args = {};
         super(args);
+
+        // Generic Path Information
+        this._fillColor = args.fillColor === undefined ? new Wick.Color() : args.fillColor;
+        this._strokeColor = args.strokeColor === undefined ? new Wick.Color() : args.strokeColor;
+        this._strokeWidth = args.strokeWidth === undefined ? 1 : args.strokeWidth;
 
         this._fontStyle = 'normal';
         this._fontWeight = 400;
@@ -106,6 +111,10 @@ Wick.Path = class extends Wick.Base {
         data.fontWeight = this._fontWeight;
         data.isPlaceholder = this._isPlaceholder;
 
+        data.strokeColor = this.strokeColor;
+        data.fillColor = this.fillColor;
+        data.strokeWidth = this.strokeWidth;
+
         return data;
     }
 
@@ -115,6 +124,46 @@ Wick.Path = class extends Wick.Base {
         this._fontStyle = data.fontStyle || 'normal';
         this._fontWeight = data.fontWeight || 400;
         this._isPlaceholder = data.isPlaceholder;
+
+        this._fillColor = data.fillColor;
+        this._strokeColor = data.strokeColor;
+        this._strokeWidth = data.strokeWidth;
+    }
+
+    /**
+     * The fill color of the path.
+     * @type {Wick.Color}
+     */
+    get fillColor() {
+        return this._fillColor;
+    }
+
+    set fillColor(fillColor) {
+        this._fillColor = fillColor;
+    }
+
+    /**
+     * The stroke color of the path.
+     * @type {Wick.Color}
+     */
+    get strokeColor() {
+        return this._strokeColor;
+    }
+
+    set strokeColor(strokeColor) {
+        this._strokeColor = strokeColor;
+    }
+
+    /**
+     * The stroke width of the path.
+     * @type {number}
+     */
+    get strokeWidth() {
+        return this._strokeWidth;
+    }
+
+    set strokeWidth(strokeWidth) {
+        this._strokeWidth = strokeWidth;
     }
 
     /**
@@ -166,87 +215,6 @@ Wick.Path = class extends Wick.Base {
             width: paperBounds.width,
             height: paperBounds.height,
         };
-    }
-
-    /**
-     * The position of the path.
-     * @type {number}
-     */
-    get x() {
-        return this.view.item.position.x;
-    }
-
-    set x(x) {
-        this.view.item.position.x = x;
-        this.updateJSON();
-    }
-
-    /**
-     * The position of the path.
-     * @type {number}
-     */
-    get y() {
-        return this.view.item.position.y;
-    }
-
-    set y(y) {
-        this.view.item.position.y = y;
-        this.updateJSON();
-    }
-
-    /**
-     * The fill color of the path.
-     * @type {paper.Color}
-     */
-    get fillColor() {
-        return this.view.item.fillColor || new paper.Color();
-    }
-
-    set fillColor(fillColor) {
-        this.view.item.fillColor = fillColor;
-        this.updateJSON();
-    }
-
-    /**
-     * The stroke color of the path.
-     * @type {paper.Color}
-     */
-    get strokeColor() {
-        return this.view.item.strokeColor || new paper.Color();
-    }
-
-    set strokeColor(strokeColor) {
-        this.view.item.strokeColor = strokeColor;
-        this.updateJSON();
-    }
-
-    /**
-     * The stroke width of the path.
-     * @type {number}
-     */
-    get strokeWidth() {
-        return this.view.item.strokeWidth;
-    }
-
-    set strokeWidth(strokeWidth) {
-        this.view.item.strokeWidth = strokeWidth;
-        this.updateJSON();
-    }
-
-    /**
-     * The opacity of the path.
-     * @type {number}
-     */
-    get opacity() {
-        if (this.view.item.opacity === undefined || this.view.item.opacity === null) {
-            return 1.0;
-        }
-        return this.view.item.opacity;
-    }
-
-    set opacity(opacity) {
-        this.view.item.opacity = opacity;
-        this.updateJSON();
     }
 
     /**
