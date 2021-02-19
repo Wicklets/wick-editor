@@ -280,7 +280,7 @@ class ProjectSettings extends Component {
           <WickInput
             type="color"
             id="project-background-color-picker"
-            disableAlpha={true}
+            disableAlpha={false}
             placement={'bottom'}
             color={this.state.backgroundColor}
             onChange={this.changeProjectBackgroundColor}
