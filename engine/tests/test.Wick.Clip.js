@@ -1437,6 +1437,199 @@ describe('Wick.Clip', function() {
             });
         });
 
+        describe('#hits', function() {
+            it('should work with two basic clips (not touching)', function (done) {
+                var project = new Wick.Project();
+
+                var clip1 = new Wick.Clip({identifier: 'clip1'});
+                clip1.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                    from: new paper.Point(-50,-50),
+                    to: new paper.Point(50,50),
+                    fillColor: 'red',
+                })));
+                clip1.transformation.x = 50;
+
+                var clip2 = new Wick.Clip({identifier: 'clip2'});
+                clip2.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                    from: new paper.Point(-50,-50),
+                    to: new paper.Point(50,50),
+                    fillColor: 'red',
+                })));
+                clip2.transformation.x = 150;
+
+                project.activeFrame.addClip(clip1);
+                project.activeFrame.addClip(clip2);
+
+                clip1.addScript('load', 'this.__hits = this.hits(clip2)');
+
+                project.play({
+                    onBeforeTick: () => {
+                        project.view.render();
+                    },
+                    onAfterTick: () => {
+                        expect(Boolean(clip1.__hits)).to.equal(false);
+                        project.stop();
+                        done();
+                    }
+                });
+            });
+
+            it('should work with two basic clips (touching)', function (done) {
+                var project = new Wick.Project();
+
+                var clip1 = new Wick.Clip({identifier: 'clip1'});
+                clip1.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                    from: new paper.Point(-50,-50),
+                    to: new paper.Point(50,50),
+                    fillColor: 'red',
+                })));
+                clip1.transformation.x = 50;
+
+                var clip2 = new Wick.Clip({identifier: 'clip2'});
+                clip2.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                    from: new paper.Point(-50,-50),
+                    to: new paper.Point(50,50),
+                    fillColor: 'red',
+                })));
+                clip2.transformation.x = 100;
+
+                project.activeFrame.addClip(clip1);
+                project.activeFrame.addClip(clip2);
+
+                clip1.addScript('load', 'this.__hits = this.hits(clip2)');
+
+                project.play({
+                    onBeforeTick: () => {
+                        project.view.render();
+                    },
+                    onAfterTick: () => {
+                        expect(Boolean(clip1.__hits)).to.equal(true);
+                        project.stop();
+                        done();
+                    }
+                });
+            });
+
+            it('should have correct offset and overlap (touching)', function (done) {
+                var project = new Wick.Project();
+
+                var clip1 = new Wick.Clip({identifier: 'clip1'});
+                clip1.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                    from: new paper.Point(-50,-50),
+                    to: new paper.Point(50,50),
+                    fillColor: 'red',
+                })));
+
+                var clip2 = new Wick.Clip({identifier: 'clip2'});
+                clip2.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                    from: new paper.Point(-25,-40),
+                    to: new paper.Point(75,60),
+                    fillColor: 'red',
+                })));
+
+                project.activeFrame.addClip(clip1);
+                project.activeFrame.addClip(clip2);
+
+                clip1.addScript('load', 'this.__hits = this.hits(clip2, {mode: "RECTANGLE", overlap: true, offset: true})'); 
+
+                project.play({
+                    onBeforeTick: () => {
+                        project.view.render();
+                    },
+                    onAfterTick: () => {
+                        expect(Boolean(clip1.__hits)).to.equal(true);
+                        expect(clip1.__hits.overlapX).to.equal(-75);
+                        expect(clip1.__hits.overlapY).to.equal(0);
+                        expect(clip1.__hits.offsetX).to.equal(-75);
+                        expect(clip1.__hits.offsetY).to.equal(-30);
+                        project.stop();
+                        done();
+                    }
+                });
+            });
+
+            it('should have correct intersections (touching)', function (done) {
+                var project = new Wick.Project();
+
+                var clip1 = new Wick.Clip({identifier: 'clip1'});
+                clip1.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                    from: new paper.Point(-50,-50),
+                    to: new paper.Point(50,50),
+                    fillColor: 'red',
+                })));
+
+                var clip2 = new Wick.Clip({identifier: 'clip2'});
+                clip2.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                    from: new paper.Point(-25,-40),
+                    to: new paper.Point(75,60),
+                    fillColor: 'red',
+                })));
+
+                project.activeFrame.addClip(clip1);
+                project.activeFrame.addClip(clip2);
+
+                clip1.addScript('load', 'this.__hits = this.hits(clip2, {mode: "CONVEX", intersections: true})'); 
+
+                project.play({
+                    onBeforeTick: () => {
+                        project.view.render();
+                    },
+                    onAfterTick: () => {
+                        expect(Boolean(clip1.__hits)).to.equal(true);
+                        expect(clip1.__hits.intersections.length).to.equal(2);
+                        if (clip1.__hits.intersections[0].x === -25) {
+                            expect(clip1.__hits.intersections[0].y).to.equal(50);
+                            expect(clip1.__hits.intersections[1].x).to.equal(50);
+                            expect(clip1.__hits.intersections[1].y).to.equal(-40);
+                        }
+                        else {
+                            expect(clip1.__hits.intersections[0].x).to.equal(50);
+                            expect(clip1.__hits.intersections[0].y).to.equal(-40);
+                            expect(clip1.__hits.intersections[1].x).to.equal(-25);
+                            expect(clip1.__hits.intersections[1].y).to.equal(50);
+                        }
+                        project.stop();
+                        done();
+                    }
+                });
+            });
+
+            it('should behave correctly after updated transforms in script', function (done) {
+                var project = new Wick.Project();
+
+                var clip1 = new Wick.Clip({identifier: 'clip1'});
+                clip1.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                    from: new paper.Point(-50,-50),
+                    to: new paper.Point(50,50),
+                    fillColor: 'red',
+                })));
+
+                var clip2 = new Wick.Clip({identifier: 'clip2'});
+                clip2.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                    from: new paper.Point(-25,-40),
+                    to: new paper.Point(75,60),
+                    fillColor: 'red',
+                })));
+
+                project.activeFrame.addClip(clip1);
+                project.activeFrame.addClip(clip2);
+
+                clip1.addScript('load', 'this.__hits1 = this.hits(clip2); this.x = 1000; this.__hits2 = this.hits(clip2);'); 
+
+                project.play({
+                    onBeforeTick: () => {
+                        project.view.render();
+                    },
+                    onAfterTick: () => {
+                        expect(Boolean(clip1.__hits1)).to.equal(true);
+                        expect(Boolean(clip1.__hits2)).to.equal(false);
+                        project.stop();
+                        done();
+                    }
+                });
+            });
+        });
+
         describe('#hitTest', function() {
             it('should work with two basic clips (not touching)', function (done) {
                 var project = new Wick.Project();

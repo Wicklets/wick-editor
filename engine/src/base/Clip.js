@@ -68,6 +68,7 @@ Wick.Clip = class extends Wick.Tickable {
 
         this._clones = [];
 
+        //this._memoizedConvexHull = null;
     }
 
     _serialize(args) {
@@ -535,6 +536,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     set transformation(transformation) {
         this._transformation = transformation;
+        this._onDirtyTransform();
 
         // When the transformation changes, update the current tween, if one exists
         if (this.parentFrame) {
@@ -607,8 +609,10 @@ Wick.Clip = class extends Wick.Tickable {
      * @returns {object} Hit information
      */
     rectangleHits(other, options) {
-        let bounds1 = this.absoluteBounds;
-        let bounds2 = other.absoluteBounds;
+        let r1 = this.globalRectangleBound;
+        let r2 = other.globalRectangleBound;
+        let bounds1 = new paper.Rectangle(r1.x, r1.y, r1.width, r1.height); //this.absoluteBounds;
+        let bounds2 = new paper.Rectangle(r2.x, r2.y, r2.width, r2.height); //other.absoluteBounds;
 
         // TODO: write intersects so we don't rely on paper Rectangle objects
         if (bounds1.intersects(bounds2)) {
@@ -701,27 +705,9 @@ Wick.Clip = class extends Wick.Tickable {
         return cw >= 0; // colinear ?
     }
 
-    /**
-     * Perform convex hull hit test with other clip.
-     * @param {Wick.Clip} other - the clip to hit test with
-     * @param {object} options - Hit test options
-     * @returns {object} Hit information
-     */
-    convexHits(other, options) {
-        // Efficient check first
-        let bounds1 = this.absoluteBounds;
-        let bounds2 = other.absoluteBounds;
-        // TODO: write intersects so we don't rely on paper Rectangle objects
-        if (!bounds1.intersects(bounds2)) {
-            return null;
-        }
-        let c1 = bounds1.center;
-        let c2 = bounds2.center;
-
-        // clockwise arrays of points in format [[x1, y1], [x2, y2], ...]
-        let hull1 = this.convexHull;
-        let hull2 = other.convexHull;
-
+    // Return intersections in form [[x1,y1], [x2,y2], ...]
+    intersectHulls(hull1, hull2) {
+        if (hull1.length < 3 || hull2.length < 3) return [];
         let finished1 = false;
         let finished2 = false;
 
@@ -748,11 +734,24 @@ Wick.Clip = class extends Wick.Tickable {
             //a.y + (b.y - a.y) * (c.x + (d.x - c.x)t2 - a.x) / (b.x - a.x) = c.y + (d.y - c.y)t2
             //t2((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y)) = c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x)
             //t2 = (c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x))  /  ((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y))
-            let t2 = (c[1] - a[1] - (b[1] - a[1]) * (c[0] - a[0]) / (b[0] - a[0]))  /  ((b[1] - a[1]) * (d[0] - c[0]) / (b[0] - a[0]) - d[1] + c[1]);
-            let t1 = (c[0] + (d[0] - c[0]) * t2 - a[0]) / (b[0] - a[0]);
+            //t2 = ((b.x - a.x)*(c.y - a.y) - (b.y - a.y)*(c.x - a.x)) / ((b.y - a.y)(d.x - c.x) + (b.x - a.x)*(-d.y + c.y))
+            let t1, t2;
+            if ((b[1] - a[1]) * (d[0] - c[0]) - (b[0] - a[0])*(d[1] + c[1]) === 0) {
+                t2 = Infinity;
+                t1 = Infinity;
+            }
+            else {
+                t2 = ((c[1] - a[1])*(b[0] - a[0]) - (b[1] - a[1]) * (c[0] - a[0]))  /  ((b[1] - a[1]) * (d[0] - c[0]) + (b[0] - a[0]) * (-d[1] + c[1]));
+                if (b[0] === a[0]) {
+                    t1 = (c[1] + (d[1] - c[1]) * t2 - a[1]) / (b[1] - a[1]);
+                }
+                else {
+                    t1 = (c[0] + (d[0] - c[0]) * t2 - a[0]) / (b[0] - a[0]);
+                }
+            }
 
             if (0 <= t1 && t1 <= 1 && 0 <= t2 && t2 <= 1) {
-                intersections.push({x: a[0] + (b[0] - a[0])*t1, y: a[1] + (b[1] - a[1]) * t1});
+                intersections.push([a[0] + (b[0] - a[0])*t1, a[1] + (b[1] - a[1]) * t1]);
             }
 
             let APointingToB = t1 > 1;
@@ -794,24 +793,60 @@ Wick.Clip = class extends Wick.Tickable {
                 }
             }
         }
-        // Ok, we have all the intersections now
-        let avgIntersection = {x: 0, y: 0};
+        return intersections;
+    }
+
+    /**
+     * Perform convex hull hit test with other clip.
+     * @param {Wick.Clip} other - the clip to hit test with
+     * @param {object} options - Hit test options
+     * @returns {object} Hit information
+     */
+    convexHits(other, options) {
+        // TODO: Efficient check first
+        let bounds1 = this.absoluteBounds;
+        let bounds2 = other.absoluteBounds;
+        if ((bounds1.width === 0 && bounds1.height === 0) ||
+            (bounds2.width === 0 && bounds2.height === 0)) {
+            // These cases cause trouble, and often show up just for a single frame after a
+            // clip is cloned.
+            return null;
+        }
+        //local to global transforms
+        let m1 = this.parentClip.view.group.globalMatrix; // TODO: stop reliance on view
+        let m2 = other.parentClip.view.group.globalMatrix;
+        let c1 = m1.transform(bounds1.center);
+        let c2 = m2.transform(bounds2.center);
+
+        // clockwise arrays of points in format [[x1, y1], [x2, y2], ...]
+        let hull1 = this.convexHull;
+        let hull2 = other.convexHull;
+
+        let intersections = this.intersectHulls(hull1, hull2);
+
         if (intersections.length === 0) {
-            avgIntersection.x = bounds1.width < bounds2.width ? c1.x : c2.x;
-            avgIntersection.y = bounds1.width < bounds2.width ? c1.y : c2.y;
+            // TODO: check if one is totally inside the other
+            return null;
         }
-        else {
-            for (let i = 0; i < intersections.length; i++) {
-                avgIntersection.x += intersections[i].x;
-                avgIntersection.y += intersections[i].y;
-            }
-            avgIntersection.x /= intersections.length;
-            avgIntersection.y /= intersections.length;
+        let avgIntersection = {x: 0, y: 0};
+
+        for (let i = 0; i < intersections.length; i++) {
+            avgIntersection.x += intersections[i][0];
+            avgIntersection.y += intersections[i][1];
         }
+        avgIntersection.x /= intersections.length;
+        avgIntersection.y /= intersections.length;
+
+        let m1i = m1.inverted(); //global to local matrix
 
         let result = {};
+
         if (options.intersections) {
-            result.intersections = intersections;
+            let local = this.globalToLocal(intersections);
+            result.intersections = [];
+            for (let i = 0; i < local.length; i++) {
+                result.intersections.push({x: local[i][0], y: local[i][1]});
+            }
         }
         if (options.offset) {
             // Calculate offset by taking the center of mass of the intersection, call it P,
@@ -830,8 +865,8 @@ Wick.Clip = class extends Wick.Tickable {
             let mag = Math.sqrt(directionX*directionX + directionY*directionY);
             directionX *= r / mag;
             directionY *= r / mag;
-            result.offsetX = directionX;
-            result.offsetY = directionY;
+            result.offsetX = m1i.a * directionX + m1i.c * directionY; // rotate to local space
+            result.offsetY = m1i.b * directionX + m1i.d * directionY;
         }
         if (options.overlap) {
             //same as offset except instead of center to center, 
@@ -844,23 +879,27 @@ Wick.Clip = class extends Wick.Tickable {
                 directionY = c2.y - c1.y;
             }
             else {
+                // Find longest distance between two intersections i and j, then take vector orthogonal to ij
                 let max_d = 0;
-                for (let i = 1; i < intersections.length; i++) {
-                    let d = (intersections[i].y - intersections[0].y) * (intersections[i].y - intersections[0].y) +
-                        (intersections[i].x - intersections[0].x) * (intersections[i].x - intersections[0].x);
-                    if (d > max_d) {
-                        max_d = d;
-                        directionX = -(intersections[i].y - intersections[0].y);
-                        directionY = intersections[i].x - intersections[0].x;
-                        if (directionX * (c1.x - avgIntersection.x) + directionY * (c1.y - avgIntersection.y) > 0) {
-                            directionX = -directionX;
-                            directionY = -directionY;
+                for (let j = 0; j < intersections.length - 1; j++) {
+                    for (let i = j + 1; i < intersections.length; i++) {
+                        let y = intersections[i][1] - intersections[j][1];
+                        let x = intersections[i][0] - intersections[j][0];
+                        let d = x * x + y * y;
+                        if (d > max_d) {
+                            max_d = d;
+                            directionX = -y;
+                            directionY = x;
+                            if (directionX * (c1.x - avgIntersection.x) + directionY * (c1.y - avgIntersection.y) > 0) {
+                                directionX = -directionX;
+                                directionY = -directionY;
+                            }
                         }
                     }
                 }
             }
 
-            let targetTheta = Math.atan2(directionY, directionX); 
+            let targetTheta = Math.atan2(directionY, directionX);
             let r = this.radiusAtPointInDirection(hull1, avgIntersection, targetTheta);
             targetTheta = (targetTheta + Math.PI) % (2 * Math.PI);
             r += this.radiusAtPointInDirection(hull2, avgIntersection, targetTheta);
@@ -879,8 +918,8 @@ Wick.Clip = class extends Wick.Tickable {
             let mag = Math.sqrt(directionX*directionX + directionY*directionY);
             directionX *= -r / mag;
             directionY *= -r / mag;
-            result.overlapX = directionX;
-            result.overlapY = directionY;
+            result.overlapX = m1i.a * directionX + m1i.c * directionY; // rotate to local space
+            result.overlapY = m1i.b * directionX + m1i.d * directionY;
         }
         return result;
     }
@@ -888,14 +927,14 @@ Wick.Clip = class extends Wick.Tickable {
     /**
      * Casts a ray from p in the direction targetTheta and intersects it with the hull ch,
      * returns the distance from p to the surface of ch.
-     * @param {list} ch - the convex hull to intersect a ray with
-     * @param {object} p - the point of origin of the ray
+     * @param {list} ch - the convex hull to intersect a ray with [[x1,y1], [x2,y2], ...]
+     * @param {object} p - the point of origin of the ray {x, y}
      * @param {number} targetTheta - the direction of the ray
      * @returns {number} the distance to the surface of the convex hull from the point in the direction theta
      */
     radiusAtPointInDirection(ch, p, targetTheta) {
         let minThetaDiff = Infinity;
-        let index;
+        let index = 0;
         for (let i = 0; i < ch.length; i++) {
             let theta = Math.atan2(ch[i][1] - p.y, ch[i][0] - p.x);
             let thetaDiff = ((targetTheta - theta) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI); //positive mod
@@ -916,47 +955,97 @@ Wick.Clip = class extends Wick.Tickable {
         //a.y + (b.y - a.y) * (c.x + (d.x - c.x)t2 - a.x) / (b.x - a.x) = c.y + (d.y - c.y)t2
         //t2((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y)) = c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x)
         //t2 = (c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x))  /  ((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y))
-        let t2 = (c[1] - a[1] - (b[1] - a[1]) * (c[0] - a[0]) / (b[0] - a[0]))  /  ((b[1] - a[1]) * (d[0] - c[0]) / (b[0] - a[0]) - d[1] + c[1]);
-        let t1 = (c[0] + (d[0] - c[0]) * t2 - a[0]) / (b[0] - a[0]);
+        let t1, t2;
+        if ((b[1] - a[1]) * (d[0] - c[0]) - (b[0] - a[0])*(d[1] + c[1]) === 0) {
+            t2 = Infinity;
+            t1 = Infinity;
+        }
+        else {
+            t2 = ((c[1] - a[1])*(b[0] - a[0]) - (b[1] - a[1]) * (c[0] - a[0]))  /  ((b[1] - a[1]) * (d[0] - c[0]) + (b[0] - a[0]) * (-d[1] + c[1]));
+            if (b[0] === a[0]) {
+                t1 = (c[1] + (d[1] - c[1]) * t2 - a[1]) / (b[1] - a[1]);
+            }
+            else {
+                t1 = (c[0] + (d[0] - c[0]) * t2 - a[0]) / (b[0] - a[0]);
+            }
+        }
         return Math.hypot(a[0] + (b[0] - a[0])*t1 - p.x, a[1] + (b[1] - a[1]) * t1 - p.y);
     }
 
     /**
      * Perform hit test with other clip.
-     * @param {Wick.Clip} other - the clip to hit test with
-     * @param {object} options - Hit test options
      * @returns {object} Hit information
      */
-    hits(other, options) {
+    hits(arg1, arg2) {
+        // Interpretations of arg1 and arg2
+        // (clip), (clip, options) -> hit clip
+        // (), (options) -> hit all
+        // (string), (string, options) -> hit all with tag
+        let other = null, tag = null, options = null, all = false;
+
+        if (arg1 === null) {
+            all = true;
+        }
+        else if (arg1 instanceof Wick.Clip) {
+            other = arg1;
+            options = arg2;
+        }
+        else {
+            all = true;
+            options = arg1;
+        }
+
+        if (typeof arg1 === "string") {
+            tag = arg1;
+            options = arg2;
+        }
+
         // Get hit options
         let finalOptions = {...this.project.hitTestOptions};
         if (options) {
-            if (options.mode === 'CIRCLE' || options.mode === 'RECTANGLE' || options.mode === 'CONVEX') {
+            if (options.mode === 'RECTANGLE' || options.mode === 'CONVEX') {
                 finalOptions.mode = options.mode;
             }
-            if (typeof options.offset === "boolean") {
-                finalOptions.offset = options.offset;
+            if (options.offset !== undefined) {
+                finalOptions.offset = Boolean(options.offset);
             }
-            if (typeof options.overlap === "boolean") {
-                finalOptions.overlap = options.overlap;
+            if (options.overlap !== undefined) {
+                finalOptions.overlap = Boolean(options.overlap);
             }
-            if (typeof options.intersections === "boolean") {
-                finalOptions.intersections = options.intersections;
+            if (options.intersections !== undefined) {
+                finalOptions.intersections = Boolean(options.intersections);
             }
-            if (options.radius) {
+            if (typeof options.radius === "number") {
                 finalOptions.radius = options.radius;
             }
         }
 
-        if (finalOptions.mode === 'CIRCLE') {
-            return this.circleHits(other, finalOptions);
+        if (other) {
+            if (finalOptions.mode === 'CONVEX') {
+                return this.convexHits(other, finalOptions);
+            }
+            else {
+                return this.rectangleHits(other, finalOptions);
+            }
         }
-        else if (finalOptions.mode === 'CONVEX') {
-            return this.convexHits(other, finalOptions);
+        
+        let hits = this.project.quadtreeHit(this);
+        let results = [];
+        for (let h = 0; h < hits.length; h++) {
+            other = hits[h];
+            // TODO after tag system is implemented, 
+            // check either all==true or the tag condition is satisfied
+            if (other !== this) {
+                let hit = finalOptions.mode === 'CONVEX' ? 
+                    this.convexHits(other, finalOptions) :
+                    this.rectangleHits(other, finalOptions);
+                if (hit) {
+                    hit.clip = other;
+                    results.push(hit);
+                }
+            }
         }
-        else {
-            return this.rectangleHits(other, finalOptions);
-        }
+        return results;
     }
 
     /**
@@ -967,6 +1056,57 @@ Wick.Clip = class extends Wick.Tickable {
     hitTest(other) {
         // TODO: write intersects so we don't rely on paper Rectangle objects
         return this.absoluteBounds.intersects(other.absoluteBounds);
+    }
+
+    // Returns a rectangle in the coordinate space of the root clip
+    // guaranteed to bound the object
+    get globalRectangleBound() {
+        let b = this.absoluteBounds;
+        let m = this.parentClip.view.group.globalMatrix; //local to global
+        
+        let ps = [b.left, b.top, b.right, b.top, b.right, b.bottom, b.left, b.bottom];
+
+        let newps = [];
+
+        m.transform(ps, newps, 4);
+
+        let minX = newps[0], maxX = newps[0], minY = newps[1], maxY = newps[1];
+        for (let i = 2; i < newps.length; i+=2) {
+            let x = newps[i];
+            let y = newps[i + 1];
+            if (x < minX) {
+                minX = x;
+            }
+            else if (x > maxX) {
+                maxX = x;
+            }
+
+            if (y < minY) {
+                minY = y;
+            }
+            else if (y > maxY) {
+                maxY = y;
+            }
+        }
+
+        return {x: minX, y: minY, width: maxX - minX, height: maxY - minY, uuid: this.uuid};
+    }
+
+    /**
+     * Transforms points from global space (relative to the top level clip)
+     * to local space (relative to the parent clip)
+     * @param {list} points - input points [[x1,y1],  [x2,y2], ...] 
+     * @returns {list} transformed points [[x1',y1'],  [x2',y2'], ...]
+     */
+    globalToLocal(points) {
+        let out = [];
+        let n = points.length;
+        this.parentClip.view.group.globalMatrix.inverted().transform(points.flat(), out, n);
+        let format = [];
+        for (let i = 0; i < n; i++) {
+            format.push([out[2*i], out[2*i + 1]]);
+        }
+        return format;
     }
 
     /**
@@ -1010,15 +1150,22 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     // Gives clockwise in screen space, which is ccw in regular axes
+    // Points are in global coordinates
     get convexHull () {
-        let points = this.points;
+        // TODO: implement memoization
+        /*if (this._memoizedConvexHull) {
+            return this._memoizedConvexHull;
+        }*/
 
+        let points = this.points;
+        
         // Infinity gets us the convex hull
         let ch = hull(points, Infinity);
-
         let removedDuplicates = [];
         let epsilon = 0.01;
         for (let i = 0; i < ch.length; i++) {
+            if (ch[i] === undefined) {continue;} // This is weird, but prevents a bug
+            
             if (removedDuplicates.length > 0) {
                 if ((Math.abs(ch[i][0] - removedDuplicates[removedDuplicates.length - 1][0]) > epsilon ||
                     Math.abs(ch[i][1] - removedDuplicates[removedDuplicates.length - 1][1]) > epsilon) && 
@@ -1031,7 +1178,8 @@ Wick.Clip = class extends Wick.Tickable {
                 removedDuplicates.push(ch[i]);
             }
         }
-
+        // TODO: implement memoization
+        //this._memoizedConvexHull = removedDuplicates; 
         return removedDuplicates;
     }
 
@@ -1045,6 +1193,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     set x(x) {
         this.transformation.x = x;
+        this._onDirtyTransform();
     }
 
     /**
@@ -1057,6 +1206,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     set y(y) {
         this.transformation.y = y;
+        this._onDirtyTransform();
     }
 
     /**
@@ -1070,6 +1220,7 @@ Wick.Clip = class extends Wick.Tickable {
     set scaleX(scaleX) {
         if (scaleX === 0) scaleX = 0.001; // Protects against NaN issues
         this.transformation.scaleX = scaleX;
+        this._onDirtyTransform();
     }
 
     /**
@@ -1083,6 +1234,7 @@ Wick.Clip = class extends Wick.Tickable {
     set scaleY(scaleY) {
         if (scaleY === 0) scaleY = 0.001; // Protects against NaN issues
         this.transformation.scaleY = scaleY;
+        this._onDirtyTransform();
     }
 
     /**
@@ -1095,6 +1247,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     set width(width) {
         this.scaleX = width / this.width * this.scaleX;
+        this._onDirtyTransform();
     }
 
     /**
@@ -1107,6 +1260,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     set height(height) {
         this.scaleY = height / this.height * this.scaleY;
+        this._onDirtyTransform();
     }
 
     /**
@@ -1119,6 +1273,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     set rotation(rotation) {
         this.transformation.rotation = rotation;
+        this._onDirtyTransform();
     }
 
     /**
@@ -1236,6 +1391,26 @@ Wick.Clip = class extends Wick.Tickable {
         }
     }
 
+    // called when transforms changed
+    _onDirtyTransform() {
+        this._onVisualDirty();
+    }
+
+    // called when transform changed, transform of child changed, 
+    // or frame of any recursive children timeline changes
+    _onVisualDirty() {
+        //this._memoizedConvexHull = null;
+        this._onQuadtreeDirty();
+        if (this.parentClip) {this.parentClip._onVisualDirty();}
+    }
+
+    // called when need to be re-added to quadtree
+    _onQuadtreeDirty() {
+        if (!this.isRoot && this.project) {
+            this.project.markClipQuadtreeDirty(this);
+        }
+    }
+
     _onInactive () {
         super._onInactive();
         this._tickChildren();
@@ -1245,11 +1420,12 @@ Wick.Clip = class extends Wick.Tickable {
         super._onActivated();
         this._tickChildren();
 
+        this._onQuadtreeDirty();
+
         if (this.animationType === 'playOnce') {
             this.playedOnce = false;
             this.timeline.playheadPosition = 1;
         }
-
     }
 
     _onActive() {

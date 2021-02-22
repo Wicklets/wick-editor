@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2021.1.22.14.13.2";
+var WICK_ENGINE_BUILD_VERSION = "2021.2.22.12.16.14";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -44422,6 +44422,9 @@ var potrace;
     }
     potrace.fromFunction = fromFunction;
 })(potrace || (potrace = {}));
+!function(e,t){"function"==typeof define&&define.amd?define([],t):"object"==typeof exports&&module.exports?module.exports=t():e.Quadtree=t()}(this,function(){return function(){function e(t){var n,i;if(this.x=t.x,this.y=t.y,this.width=t.width,this.height=t.height,this.maxElements=t.maxElements,null==this.width||null==this.height)throw new Error("Missing quadtree dimensions.");if(null==this.x&&(this.x=0),null==this.y&&(this.y=0),null==this.maxElements&&(this.maxElements=1),this.contents=[],this.oversized=[],this.size=0,this.width<1||this.height<1)throw new Error("Dimensions must be positive integers.");if(!Number.isInteger(this.x)||!Number.isInteger(this.y))throw new Error("Coordinates must be integers");if(this.maxElements<1)throw new Error("The maximum number of elements before a split must be a positive integer.");i=this,this.children={NW:{create:function(){return new e({x:i.x,y:i.y,width:Math.max(Math.floor(i.width/2),1),height:Math.max(Math.floor(i.height/2),1),maxElements:i.maxElements})},tree:null},NE:{create:function(){return new e({x:i.x+Math.max(Math.floor(i.width/2),1),y:i.y,width:Math.ceil(i.width/2),height:Math.max(Math.floor(i.height/2),1),maxElements:i.maxElements})},tree:null},SW:{create:function(){return new e({x:i.x,y:i.y+Math.max(Math.floor(i.height/2),1),width:Math.max(Math.floor(i.width/2),1),height:Math.ceil(i.height/2),maxElements:i.maxElements})},tree:null},SE:{create:function(){return new e({x:i.x+Math.max(Math.floor(i.width/2),1),y:i.y+Math.max(Math.floor(i.height/2),1),width:Math.ceil(i.width/2),height:Math.ceil(i.height/2),maxElements:i.maxElements})},tree:null}};for(n in this.children)this.children[n].get=function(){return null!=this.tree?this.tree:(this.tree=this.create(),this.tree)}}var t,n,i,r,h,l,o,s;return r=function(e){var t,n;return{x:Math.floor((null!=(t=e.width)?t:1)/2)+e.x,y:Math.floor((null!=(n=e.height)?n:1)/2)+e.y}},t=function(e,t){var n,i,r,h;return!(e.x>=t.x+(null!=(n=t.width)?n:1)||e.x+(null!=(i=e.width)?i:1)<=t.x||e.y>=t.y+(null!=(r=t.height)?r:1)||e.y+(null!=(h=e.height)?h:1)<=t.y)},n=function(e,t){var n;return n=r(t),e.x<n.x?e.y<n.y?"NW":"SW":e.y<n.y?"NE":"SE"},s=function(e){if("object"!=typeof e)throw new Error("Element must be an Object.");if(null==e.x||null==e.y)throw new Error("Coordinates properties are missing.");if((null!=e?e.width:void 0)<0||(null!=e?e.height:void 0)<0)throw new Error("Width and height must be positive integers.")},l=function(e){var t,n,i,r;return n=Math.max(Math.floor(e.width/2),1),i=Math.ceil(e.width/2),r=Math.max(Math.floor(e.height/2),1),t=Math.ceil(e.height/2),{NW:{x:e.x,y:e.y,width:n,height:r},NE:{x:e.x+n,y:e.y,width:i,height:r},SW:{x:e.x,y:e.y+r,width:n,height:t},SE:{x:e.x+n,y:e.y+r,width:i,height:t}}},i=function(e,n){var i,r,h,o;o=[],h=l(n);for(r in h)i=h[r],t(e,i)&&o.push(r);return o},h=function(e,t){var n;return(n=function(n){return e["_"+n]=e[n],Object.defineProperty(e,n,{set:function(e){return t.remove(this,!0),this["_"+n]=e,t.push(this)},get:function(){return this["_"+n]},configurable:!0})})("x"),n("y"),n("width"),n("height")},o=function(e){var t;return(t=function(t){if(null!=e["_"+t])return delete e[t],e[t]=e["_"+t],delete e["_"+t]})("x"),t("y"),t("width"),t("height")},e.prototype.clear=function(){var e,t;this.contents=[],this.oversized=[],this.size=0,t=[];for(e in this.children)t.push(this.children[e].tree=null);return t},e.prototype.push=function(e,t){return this.pushAll([e],t)},e.prototype.pushAll=function(e,t){var n,r,l,o,u,f,c,d,a,g,p,m,x,y,v,w,E,z,M,b;for(p=0,y=e.length;p<y;p++)g=e[p],s(g),t&&h(g,this);for(c=[{tree:this,elements:e}];c.length>0;){for(b=(E=c.shift()).tree,d={NW:null,NE:null,SW:null,SE:null},m=0,v=(f=E.elements).length;m<v;m++)if(u=f[m],b.size++,1!==(a=i(u,b)).length||1===b.width||1===b.height)b.oversized.push(u);else if(b.size-b.oversized.length<=b.maxElements)b.contents.push(u);else{for(o=a[0],M=b.children[o],null==d[o]&&(d[o]={tree:M.get(),elements:[]}),d[o].elements.push(u),x=0,w=(z=b.contents).length;x<w;x++)r=z[x],null==d[l=i(r,b)[0]]&&(d[l]={tree:b.children[l].get(),elements:[]}),d[l].elements.push(r);b.contents=[]}for(o in d)null!=(n=d[o])&&c.push(n)}return this},e.prototype.remove=function(e,t){var i,r;return s(e),(i=this.oversized.indexOf(e))>-1?(this.oversized.splice(i,1),this.size--,t||o(e),!0):(i=this.contents.indexOf(e))>-1?(this.contents.splice(i,1),this.size--,t||o(e),!0):!(null==(r=this.children[n(e,this)]).tree||!r.tree.remove(e,t)||(this.size--,0===r.tree.size&&(r.tree=null),0))},e.prototype.colliding=function(e,n){var r,h,l,o,u,f,c,d,a,g,p,m,x,y;for(null==n&&(n=t),s(e),u=[],l=[this];l.length>0;){for(f=0,a=(m=(y=l.shift()).oversized).length;f<a;f++)(h=m[f])!==e&&n(e,h)&&u.push(h);for(c=0,g=(x=y.contents).length;c<g;c++)(h=x[c])!==e&&n(e,h)&&u.push(h);for(0===(o=i(e,y)).length&&(o=[],e.x>=y.x+y.width&&o.push("NE"),e.y>=y.y+y.height&&o.push("SW"),o.length>0&&(1===o.length?o.push("SE"):o=["SE"])),d=0,p=o.length;d<p;d++)r=o[d],null!=y.children[r].tree&&l.push(y.children[r].tree)}return u},e.prototype.onCollision=function(e,n,r){var h,l,o,u,f,c,d,a,g,p,m,x,y;for(null==r&&(r=t),s(e),o=[this];o.length>0;){for(f=0,a=(m=(y=o.shift()).oversized).length;f<a;f++)(l=m[f])!==e&&r(e,l)&&n(l);for(c=0,g=(x=y.contents).length;c<g;c++)(l=x[c])!==e&&r(e,l)&&n(l);for(0===(u=i(e,y)).length&&(u=[],e.x>=y.x+y.width&&u.push("NE"),e.y>=y.y+y.height&&u.push("SW"),u.length>0&&(1===u.length?u.push("SE"):u=["SE"])),d=0,p=u.length;d<p;d++)h=u[d],null!=y.children[h].tree&&o.push(y.children[h].tree)}return null},e.prototype.get=function(e){return this.where(e)},e.prototype.where=function(e){var t,i,r,h,l,o,u,f,c,d,a,g,p;if("object"==typeof e&&(null==e.x||null==e.y))return this.find(function(t){var n,i;n=!0;for(i in e)e[i]!==t[i]&&(n=!1);return n});for(s(e),h=[],r=[this];r.length>0;){for(l=0,f=(d=(p=r.shift()).oversized).length;l<f;l++){i=d[l],t=!0;for(u in e)e[u]!==i[u]&&(t=!1);t&&h.push(i)}for(o=0,c=(a=p.contents).length;o<c;o++){i=a[o],t=!0;for(u in e)e[u]!==i[u]&&(t=!1);t&&h.push(i)}null!=(g=p.children[n(e,p)]).tree&&r.push(g.tree)}return h},e.prototype.each=function(e){var t,n,i,r,h,l,o,s,u,f;for(n=[this];n.length>0;){for(r=0,l=(s=(f=n.shift()).oversized).length;r<l;r++)i=s[r],"function"==typeof e&&e(i);for(h=0,o=(u=f.contents).length;h<o;h++)i=u[h],"function"==typeof e&&e(i);for(t in f.children)null!=f.children[t].tree&&n.push(f.children[t].tree)}return this},e.prototype.find=function(e){var t,n,i,r,h,l,o,s,u,f,c;for(n=[this],r=[];n.length>0;){for(h=0,o=(u=(c=n.shift()).oversized).length;h<o;h++)i=u[h],("function"==typeof e?e(i):void 0)&&r.push(i);for(l=0,s=(f=c.contents).length;l<s;l++)i=f[l],("function"==typeof e?e(i):void 0)&&r.push(i);for(t in c.children)null!=c.children[t].tree&&n.push(c.children[t].tree)}return r},e.prototype.filter=function(t){var n;return(n=function(i){var r,h,l,o,s,u,f,c,d,a,g;(h=new e({x:i.x,y:i.y,width:i.width,height:i.height,maxElements:i.maxElements})).size=0;for(r in i.children)null!=i.children[r].tree&&(h.children[r].tree=n(i.children[r].tree),h.size+=null!=(c=null!=(d=h.children[r].tree)?d.size:void 0)?c:0);for(o=0,u=(a=i.oversized).length;o<u;o++)l=a[o],(null==t||("function"==typeof t?t(l):void 0))&&h.oversized.push(l);for(s=0,f=(g=i.contents).length;s<f;s++)l=g[s],(null==t||("function"==typeof t?t(l):void 0))&&h.contents.push(l);return h.size+=h.oversized.length+h.contents.length,0===h.size?null:h})(this)},e.prototype.reject=function(e){return this.filter(function(t){return!("function"==typeof e?e(t):void 0)})},e.prototype.visit=function(e){var t,n,i;for(n=[this];n.length>0;){i=n.shift(),e.bind(i)();for(t in i.children)null!=i.children[t].tree&&n.push(i.children[t].tree)}return this},e.prototype.pretty=function(){var e,t,n,i,r,h,l;for(h="",n=function(e){var t,n,i;for(i="",t=n=e;n<=0?t<0:t>0;n<=0?++t:--t)i+="   ";return i},t=[{label:"ROOT",tree:this,level:0}];t.length>0;){h+=(i=n((l=t.shift()).level))+"| "+l.label+"\n"+i+"| ------------\n",l.tree.oversized.length>0&&(h+=i+"| * Oversized elements *\n"+i+"|   "+l.tree.oversized+"\n"),l.tree.contents.length>0&&(h+=i+"| * Leaf content *\n"+i+"|   "+l.tree.contents+"\n"),r=!1;for(e in l.tree.children)null!=l.tree.children[e].tree&&(r=!0,t.unshift({label:e,tree:l.tree.children[e].tree,level:l.level+1}));r&&(h+=i+"└──┐\n")}return h},e}()});
+//# sourceMappingURL=quadtree.min.js.map
+
 /*
 The MIT License (MIT)
 
@@ -45951,6 +45954,78 @@ Wick.Clipboard = class {
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/* Quadtree wrapper */
+// this.quadtree: 
+//   - quadtree-lib data structure (https://github.com/elbywan/quadtree-lib#readme) 
+//   - elements in form {x, y, width, height, uuid, inTree}
+// this.dirty:
+//   - set of quadtree elements ({x, y, width, height, uuid, inTree})
+// this.elements:
+//   - dictionary of elements {uuid1: element1, uuid2: element2}
+//   - these are the exact objects that go into this.quadtree by reference 
+Wick.Quadtree = class {
+  constructor(width, height) {
+    this._quadtree = new Quadtree({
+      width: width,
+      height: height
+    });
+    this.dirty = new Set();
+    this.elements = {};
+  }
+
+  get quadtree() {
+    return this._quadtree;
+  }
+
+  clean() {
+    let to_remove = [];
+
+    this._quadtree.each(function (element) {
+      let clip = Wick.ObjectCache.getObjectByUUID(element.uuid);
+
+      if (!clip || !clip.onScreen) {
+        to_remove.push(element);
+        element.inTree = false;
+      }
+    });
+
+    for (let i = 0; i < to_remove.length; i++) {
+      this._quadtree.remove(to_remove[i]);
+    }
+  }
+
+  resize(width, height) {
+    this._quadtree.each(function (element) {
+      element.inTree = false;
+      this.dirty.add(element.uuid);
+    });
+
+    this._quadtree = new Quadtree({
+      width: width,
+      height: height
+    });
+  }
+
+};
+/*
+ * Copyright 2020 WICKLETS LLC
+ *
+ * This file is part of Wick Engine.
+ *
+ * Wick Engine is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Engine is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 /* Small utility class for colors. */
 Wick.Color = class {
   /**
@@ -46575,7 +46650,9 @@ WickObjectCache = class {
     var object = this._objects[uuid];
 
     if (!object) {
-      console.error("Warning: object with uuid " + uuid + " was not found in the cache.");
+      // This warning is removed because it shows up a lot when the hit test quadtree is used,
+      // which slows things down a lot.
+      //console.error("Warning: object with uuid " + uuid + " was not found in the cache.");
       return null;
     } else {
       return object;
@@ -49986,6 +50063,7 @@ Wick.Project = class extends Wick.Base {
       text: new Wick.Tools.Text(),
       zoom: new Wick.Tools.Zoom()
     };
+    this._quadtree = new Wick.Quadtree(this.width, this.height);
 
     for (var toolName in this._tools) {
       this._tools[toolName].project = this;
@@ -50007,6 +50085,69 @@ Wick.Project = class extends Wick.Base {
     this._error = null;
     this.history.project = this;
     this.history.pushState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
+  }
+
+  markClipQuadtreeDirty(clip) {
+    this._quadtree.dirty.add(clip.uuid);
+  } // Return array of clips whose global bounding rectangles overlap with clip
+
+
+  quadtreeHit(clip) {
+    // TODO  quadtree update
+    // update quadtree with dirty elements
+    let elements = [];
+    let q = this._quadtree;
+
+    this._quadtree.dirty.forEach(function (uuid) {
+      let clip = Wick.ObjectCache.getObjectByUUID(uuid);
+
+      if (!clip) {
+        return;
+      }
+
+      let element = q.elements[uuid];
+
+      if (element === undefined) {
+        element = {
+          x: 0,
+          y: 0,
+          width: 0,
+          height: 0,
+          uuid: uuid,
+          inTree: true
+        };
+        q.elements[uuid] = element;
+      } else if (element.inTree) {
+        q.quadtree.remove(element);
+      }
+
+      let bounds = clip.globalRectangleBound;
+      element.x = bounds.x;
+      element.y = bounds.y;
+      element.width = bounds.width;
+      element.height = bounds.height;
+      elements.push(element);
+    });
+
+    this._quadtree.quadtree.pushAll(elements);
+
+    this._quadtree.dirty.clear();
+
+    let b = clip.globalRectangleBound;
+
+    let colliding = this._quadtree.quadtree.colliding(b);
+
+    let colliding_clips = [];
+
+    for (let c = 0; c < colliding.length; c++) {
+      let clip = Wick.ObjectCache.getObjectByUUID(colliding[c].uuid);
+
+      if (clip) {
+        colliding_clips.push(clip);
+      }
+    }
+
+    return colliding_clips;
   }
   /**
    * Prepares the project to be used in an editor.
@@ -50131,6 +50272,8 @@ Wick.Project = class extends Wick.Base {
     if (width < 1) width = 1;
     if (width > 200000) width = 200000;
     this._width = width;
+
+    this._quadtree.resize(this.width, this.height);
   }
   /**
    * The height of the project.
@@ -50147,6 +50290,8 @@ Wick.Project = class extends Wick.Base {
     if (height < 1) height = 1;
     if (height > 200000) height = 200000;
     this._height = height;
+
+    this._quadtree.resize(this.width, this.height);
   }
   /**
    * The framerate of the project.
@@ -50184,21 +50329,13 @@ Wick.Project = class extends Wick.Base {
 
   set hitTestOptions(options) {
     if (options) {
-      if (options.mode === 'CIRCLE' || options.mode === 'RECTANGLE' || options.mode === 'CONVEX') {
+      if (options.mode === 'RECTANGLE' || options.mode === 'CONVEX') {
         this._hitTestOptions.mode = options.mode;
       }
 
-      if (typeof options.offset === 'boolean') {
-        this._hitTestOptions.offset = options.offset;
-      }
-
-      if (typeof options.overlap === 'boolean') {
-        this._hitTestOptions.overlap = options.overlap;
-      }
-
-      if (typeof options.intersections === 'boolean') {
-        this._hitTestOptions.intersections = options.intersections;
-      }
+      this._hitTestOptions.offset = Boolean(options.offset);
+      this._hitTestOptions.overlap = Boolean(options.overlap);
+      this._hitTestOptions.intersections = Boolean(options.intersections);
     }
   }
   /**
@@ -51510,7 +51647,11 @@ Wick.Project = class extends Wick.Base {
 
     this.focus._attachChildClipReferences();
 
-    this.focus.tick();
+    this.focus.tick(); // TODO  quadtree clean
+    // Update quadtree
+
+    this._quadtree.clean();
+
     this.runScheduledScripts(); // Save the current keysDown
 
     this._lastMousePosition = {
@@ -53151,7 +53292,8 @@ Wick.Timeline = class extends Wick.Base {
   }
 
   set playheadPosition(playheadPosition) {
-    // Automatically clear selection when any playhead in the project moves
+    let changed = this._playheadPosition !== playheadPosition; // Automatically clear selection when any playhead in the project moves
+
     if (this.project && this._playheadPosition !== playheadPosition && this.parentClip.isFocus) {
       this.project.selection.clear('Canvas');
       this.project.resetTools();
@@ -53168,6 +53310,10 @@ Wick.Timeline = class extends Wick.Base {
       frame.applyTweenTransforms();
       frame.updateClipTimelinesForAnimationType();
     });
+
+    if (changed && this.parentClip) {
+      this.parentClip._onVisualDirty();
+    }
   }
   /**
    * Forces timeline to move to the next frame.
@@ -57112,7 +57258,7 @@ Wick.Clip = class extends Wick.Tickable {
       this.addObjects(args.objects);
     }
 
-    this._clones = [];
+    this._clones = []; //this._memoizedConvexHull = null;
   }
 
   _serialize(args) {
@@ -57599,7 +57745,10 @@ Wick.Clip = class extends Wick.Tickable {
   }
 
   set transformation(transformation) {
-    this._transformation = transformation; // When the transformation changes, update the current tween, if one exists
+    this._transformation = transformation;
+
+    this._onDirtyTransform(); // When the transformation changes, update the current tween, if one exists
+
 
     if (this.parentFrame) {
       // This tween must only ever be the tween over the current playhead position.
@@ -57682,8 +57831,12 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   rectangleHits(other, options) {
-    let bounds1 = this.absoluteBounds;
-    let bounds2 = other.absoluteBounds; // TODO: write intersects so we don't rely on paper Rectangle objects
+    let r1 = this.globalRectangleBound;
+    let r2 = other.globalRectangleBound;
+    let bounds1 = new paper.Rectangle(r1.x, r1.y, r1.width, r1.height); //this.absoluteBounds;
+
+    let bounds2 = new paper.Rectangle(r2.x, r2.y, r2.width, r2.height); //other.absoluteBounds;
+    // TODO: write intersects so we don't rely on paper Rectangle objects
 
     if (bounds1.intersects(bounds2)) {
       let result = {};
@@ -57777,29 +57930,11 @@ Wick.Clip = class extends Wick.Tickable {
   cw(x1, y1, x2, y2, x3, y3) {
     const cw = (y3 - y1) * (x2 - x1) - (y2 - y1) * (x3 - x1);
     return cw >= 0; // colinear ?
-  }
-  /**
-   * Perform convex hull hit test with other clip.
-   * @param {Wick.Clip} other - the clip to hit test with
-   * @param {object} options - Hit test options
-   * @returns {object} Hit information
-   */
+  } // Return intersections in form [[x1,y1], [x2,y2], ...]
 
 
-  convexHits(other, options) {
-    // Efficient check first
-    let bounds1 = this.absoluteBounds;
-    let bounds2 = other.absoluteBounds; // TODO: write intersects so we don't rely on paper Rectangle objects
-
-    if (!bounds1.intersects(bounds2)) {
-      return null;
-    }
-
-    let c1 = bounds1.center;
-    let c2 = bounds2.center; // clockwise arrays of points in format [[x1, y1], [x2, y2], ...]
-
-    let hull1 = this.convexHull;
-    let hull2 = other.convexHull;
+  intersectHulls(hull1, hull2) {
+    if (hull1.length < 3 || hull2.length < 3) return [];
     let finished1 = false;
     let finished2 = false;
     let i1 = hull1.length - 1;
@@ -57821,15 +57956,25 @@ Wick.Clip = class extends Wick.Tickable {
       //a.y + (b.y - a.y) * (c.x + (d.x - c.x)t2 - a.x) / (b.x - a.x) = c.y + (d.y - c.y)t2
       //t2((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y)) = c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x)
       //t2 = (c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x))  /  ((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y))
+      //t2 = ((b.x - a.x)*(c.y - a.y) - (b.y - a.y)*(c.x - a.x)) / ((b.y - a.y)(d.x - c.x) + (b.x - a.x)*(-d.y + c.y))
 
-      let t2 = (c[1] - a[1] - (b[1] - a[1]) * (c[0] - a[0]) / (b[0] - a[0])) / ((b[1] - a[1]) * (d[0] - c[0]) / (b[0] - a[0]) - d[1] + c[1]);
-      let t1 = (c[0] + (d[0] - c[0]) * t2 - a[0]) / (b[0] - a[0]);
+      let t1, t2;
+
+      if ((b[1] - a[1]) * (d[0] - c[0]) - (b[0] - a[0]) * (d[1] + c[1]) === 0) {
+        t2 = Infinity;
+        t1 = Infinity;
+      } else {
+        t2 = ((c[1] - a[1]) * (b[0] - a[0]) - (b[1] - a[1]) * (c[0] - a[0])) / ((b[1] - a[1]) * (d[0] - c[0]) + (b[0] - a[0]) * (-d[1] + c[1]));
+
+        if (b[0] === a[0]) {
+          t1 = (c[1] + (d[1] - c[1]) * t2 - a[1]) / (b[1] - a[1]);
+        } else {
+          t1 = (c[0] + (d[0] - c[0]) * t2 - a[0]) / (b[0] - a[0]);
+        }
+      }
 
       if (0 <= t1 && t1 <= 1 && 0 <= t2 && t2 <= 1) {
-        intersections.push({
-          x: a[0] + (b[0] - a[0]) * t1,
-          y: a[1] + (b[1] - a[1]) * t1
-        });
+        intersections.push([a[0] + (b[0] - a[0]) * t1, a[1] + (b[1] - a[1]) * t1]);
       }
 
       let APointingToB = t1 > 1;
@@ -57871,31 +58016,71 @@ Wick.Clip = class extends Wick.Tickable {
           }
         }
       }
-    } // Ok, we have all the intersections now
+    }
 
+    return intersections;
+  }
+  /**
+   * Perform convex hull hit test with other clip.
+   * @param {Wick.Clip} other - the clip to hit test with
+   * @param {object} options - Hit test options
+   * @returns {object} Hit information
+   */
+
+
+  convexHits(other, options) {
+    // TODO: Efficient check first
+    let bounds1 = this.absoluteBounds;
+    let bounds2 = other.absoluteBounds;
+
+    if (bounds1.width === 0 && bounds1.height === 0 || bounds2.width === 0 && bounds2.height === 0) {
+      // These cases cause trouble, and often show up just for a single frame after a
+      // clip is cloned.
+      return null;
+    } //local to global transforms
+
+
+    let m1 = this.parentClip.view.group.globalMatrix; // TODO: stop reliance on view
+
+    let m2 = other.parentClip.view.group.globalMatrix;
+    let c1 = m1.transform(bounds1.center);
+    let c2 = m2.transform(bounds2.center); // clockwise arrays of points in format [[x1, y1], [x2, y2], ...]
+
+    let hull1 = this.convexHull;
+    let hull2 = other.convexHull;
+    let intersections = this.intersectHulls(hull1, hull2);
+
+    if (intersections.length === 0) {
+      // TODO: check if one is totally inside the other
+      return null;
+    }
 
     let avgIntersection = {
       x: 0,
       y: 0
     };
 
-    if (intersections.length === 0) {
-      avgIntersection.x = bounds1.width < bounds2.width ? c1.x : c2.x;
-      avgIntersection.y = bounds1.width < bounds2.width ? c1.y : c2.y;
-    } else {
-      for (let i = 0; i < intersections.length; i++) {
-        avgIntersection.x += intersections[i].x;
-        avgIntersection.y += intersections[i].y;
-      }
-
-      avgIntersection.x /= intersections.length;
-      avgIntersection.y /= intersections.length;
+    for (let i = 0; i < intersections.length; i++) {
+      avgIntersection.x += intersections[i][0];
+      avgIntersection.y += intersections[i][1];
     }
+
+    avgIntersection.x /= intersections.length;
+    avgIntersection.y /= intersections.length;
+    let m1i = m1.inverted(); //global to local matrix
 
     let result = {};
 
     if (options.intersections) {
-      result.intersections = intersections;
+      let local = this.globalToLocal(intersections);
+      result.intersections = [];
+
+      for (let i = 0; i < local.length; i++) {
+        result.intersections.push({
+          x: local[i][0],
+          y: local[i][1]
+        });
+      }
     }
 
     if (options.offset) {
@@ -57914,8 +58099,9 @@ Wick.Clip = class extends Wick.Tickable {
       let mag = Math.sqrt(directionX * directionX + directionY * directionY);
       directionX *= r / mag;
       directionY *= r / mag;
-      result.offsetX = directionX;
-      result.offsetY = directionY;
+      result.offsetX = m1i.a * directionX + m1i.c * directionY; // rotate to local space
+
+      result.offsetY = m1i.b * directionX + m1i.d * directionY;
     }
 
     if (options.overlap) {
@@ -57928,19 +58114,24 @@ Wick.Clip = class extends Wick.Tickable {
         directionX = c2.x - c1.x;
         directionY = c2.y - c1.y;
       } else {
+        // Find longest distance between two intersections i and j, then take vector orthogonal to ij
         let max_d = 0;
 
-        for (let i = 1; i < intersections.length; i++) {
-          let d = (intersections[i].y - intersections[0].y) * (intersections[i].y - intersections[0].y) + (intersections[i].x - intersections[0].x) * (intersections[i].x - intersections[0].x);
+        for (let j = 0; j < intersections.length - 1; j++) {
+          for (let i = j + 1; i < intersections.length; i++) {
+            let y = intersections[i][1] - intersections[j][1];
+            let x = intersections[i][0] - intersections[j][0];
+            let d = x * x + y * y;
 
-          if (d > max_d) {
-            max_d = d;
-            directionX = -(intersections[i].y - intersections[0].y);
-            directionY = intersections[i].x - intersections[0].x;
+            if (d > max_d) {
+              max_d = d;
+              directionX = -y;
+              directionY = x;
 
-            if (directionX * (c1.x - avgIntersection.x) + directionY * (c1.y - avgIntersection.y) > 0) {
-              directionX = -directionX;
-              directionY = -directionY;
+              if (directionX * (c1.x - avgIntersection.x) + directionY * (c1.y - avgIntersection.y) > 0) {
+                directionX = -directionX;
+                directionY = -directionY;
+              }
             }
           }
         }
@@ -57963,8 +58154,9 @@ Wick.Clip = class extends Wick.Tickable {
       let mag = Math.sqrt(directionX * directionX + directionY * directionY);
       directionX *= -r / mag;
       directionY *= -r / mag;
-      result.overlapX = directionX;
-      result.overlapY = directionY;
+      result.overlapX = m1i.a * directionX + m1i.c * directionY; // rotate to local space
+
+      result.overlapY = m1i.b * directionX + m1i.d * directionY;
     }
 
     return result;
@@ -57972,8 +58164,8 @@ Wick.Clip = class extends Wick.Tickable {
   /**
    * Casts a ray from p in the direction targetTheta and intersects it with the hull ch,
    * returns the distance from p to the surface of ch.
-   * @param {list} ch - the convex hull to intersect a ray with
-   * @param {object} p - the point of origin of the ray
+   * @param {list} ch - the convex hull to intersect a ray with [[x1,y1], [x2,y2], ...]
+   * @param {object} p - the point of origin of the ray {x, y}
    * @param {number} targetTheta - the direction of the ray
    * @returns {number} the distance to the surface of the convex hull from the point in the direction theta
    */
@@ -57981,7 +58173,7 @@ Wick.Clip = class extends Wick.Tickable {
 
   radiusAtPointInDirection(ch, p, targetTheta) {
     let minThetaDiff = Infinity;
-    let index;
+    let index = 0;
 
     for (let i = 0; i < ch.length; i++) {
       let theta = Math.atan2(ch[i][1] - p.y, ch[i][0] - p.x);
@@ -58005,52 +58197,106 @@ Wick.Clip = class extends Wick.Tickable {
     //t2((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y)) = c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x)
     //t2 = (c.y - a.y - (b.y - a.y)*(c.x - a.x)/(b.x - a.x))  /  ((b.y - a.y)(d.x - c.x)/(b.x - a.x) - (d.y - c.y))
 
-    let t2 = (c[1] - a[1] - (b[1] - a[1]) * (c[0] - a[0]) / (b[0] - a[0])) / ((b[1] - a[1]) * (d[0] - c[0]) / (b[0] - a[0]) - d[1] + c[1]);
-    let t1 = (c[0] + (d[0] - c[0]) * t2 - a[0]) / (b[0] - a[0]);
+    let t1, t2;
+
+    if ((b[1] - a[1]) * (d[0] - c[0]) - (b[0] - a[0]) * (d[1] + c[1]) === 0) {
+      t2 = Infinity;
+      t1 = Infinity;
+    } else {
+      t2 = ((c[1] - a[1]) * (b[0] - a[0]) - (b[1] - a[1]) * (c[0] - a[0])) / ((b[1] - a[1]) * (d[0] - c[0]) + (b[0] - a[0]) * (-d[1] + c[1]));
+
+      if (b[0] === a[0]) {
+        t1 = (c[1] + (d[1] - c[1]) * t2 - a[1]) / (b[1] - a[1]);
+      } else {
+        t1 = (c[0] + (d[0] - c[0]) * t2 - a[0]) / (b[0] - a[0]);
+      }
+    }
+
     return Math.hypot(a[0] + (b[0] - a[0]) * t1 - p.x, a[1] + (b[1] - a[1]) * t1 - p.y);
   }
   /**
    * Perform hit test with other clip.
-   * @param {Wick.Clip} other - the clip to hit test with
-   * @param {object} options - Hit test options
    * @returns {object} Hit information
    */
 
 
-  hits(other, options) {
-    // Get hit options
+  hits(arg1, arg2) {
+    // Interpretations of arg1 and arg2
+    // (clip), (clip, options) -> hit clip
+    // (), (options) -> hit all
+    // (string), (string, options) -> hit all with tag
+    let other = null,
+        tag = null,
+        options = null,
+        all = false;
+
+    if (arg1 === null) {
+      all = true;
+    } else if (arg1 instanceof Wick.Clip) {
+      other = arg1;
+      options = arg2;
+    } else {
+      all = true;
+      options = arg1;
+    }
+
+    if (typeof arg1 === "string") {
+      tag = arg1;
+      options = arg2;
+    } // Get hit options
+
+
     let finalOptions = { ...this.project.hitTestOptions
     };
 
     if (options) {
-      if (options.mode === 'CIRCLE' || options.mode === 'RECTANGLE' || options.mode === 'CONVEX') {
+      if (options.mode === 'RECTANGLE' || options.mode === 'CONVEX') {
         finalOptions.mode = options.mode;
       }
 
-      if (typeof options.offset === "boolean") {
-        finalOptions.offset = options.offset;
+      if (options.offset !== undefined) {
+        finalOptions.offset = Boolean(options.offset);
       }
 
-      if (typeof options.overlap === "boolean") {
-        finalOptions.overlap = options.overlap;
+      if (options.overlap !== undefined) {
+        finalOptions.overlap = Boolean(options.overlap);
       }
 
-      if (typeof options.intersections === "boolean") {
-        finalOptions.intersections = options.intersections;
+      if (options.intersections !== undefined) {
+        finalOptions.intersections = Boolean(options.intersections);
       }
 
-      if (options.radius) {
+      if (typeof options.radius === "number") {
         finalOptions.radius = options.radius;
       }
     }
 
-    if (finalOptions.mode === 'CIRCLE') {
-      return this.circleHits(other, finalOptions);
-    } else if (finalOptions.mode === 'CONVEX') {
-      return this.convexHits(other, finalOptions);
-    } else {
-      return this.rectangleHits(other, finalOptions);
+    if (other) {
+      if (finalOptions.mode === 'CONVEX') {
+        return this.convexHits(other, finalOptions);
+      } else {
+        return this.rectangleHits(other, finalOptions);
+      }
     }
+
+    let hits = this.project.quadtreeHit(this);
+    let results = [];
+
+    for (let h = 0; h < hits.length; h++) {
+      other = hits[h]; // TODO after tag system is implemented, 
+      // check either all==true or the tag condition is satisfied
+
+      if (other !== this) {
+        let hit = finalOptions.mode === 'CONVEX' ? this.convexHits(other, finalOptions) : this.rectangleHits(other, finalOptions);
+
+        if (hit) {
+          hit.clip = other;
+          results.push(hit);
+        }
+      }
+    }
+
+    return results;
   }
   /**
    * Returns true if this clip collides with another clip.
@@ -58062,6 +58308,66 @@ Wick.Clip = class extends Wick.Tickable {
   hitTest(other) {
     // TODO: write intersects so we don't rely on paper Rectangle objects
     return this.absoluteBounds.intersects(other.absoluteBounds);
+  } // Returns a rectangle in the coordinate space of the root clip
+  // guaranteed to bound the object
+
+
+  get globalRectangleBound() {
+    let b = this.absoluteBounds;
+    let m = this.parentClip.view.group.globalMatrix; //local to global
+
+    let ps = [b.left, b.top, b.right, b.top, b.right, b.bottom, b.left, b.bottom];
+    let newps = [];
+    m.transform(ps, newps, 4);
+    let minX = newps[0],
+        maxX = newps[0],
+        minY = newps[1],
+        maxY = newps[1];
+
+    for (let i = 2; i < newps.length; i += 2) {
+      let x = newps[i];
+      let y = newps[i + 1];
+
+      if (x < minX) {
+        minX = x;
+      } else if (x > maxX) {
+        maxX = x;
+      }
+
+      if (y < minY) {
+        minY = y;
+      } else if (y > maxY) {
+        maxY = y;
+      }
+    }
+
+    return {
+      x: minX,
+      y: minY,
+      width: maxX - minX,
+      height: maxY - minY,
+      uuid: this.uuid
+    };
+  }
+  /**
+   * Transforms points from global space (relative to the top level clip)
+   * to local space (relative to the parent clip)
+   * @param {list} points - input points [[x1,y1],  [x2,y2], ...] 
+   * @returns {list} transformed points [[x1',y1'],  [x2',y2'], ...]
+   */
+
+
+  globalToLocal(points) {
+    let out = [];
+    let n = points.length;
+    this.parentClip.view.group.globalMatrix.inverted().transform(points.flat(), out, n);
+    let format = [];
+
+    for (let i = 0; i < n; i++) {
+      format.push([out[2 * i], out[2 * i + 1]]);
+    }
+
+    return format;
   }
   /**
    * The bounding box of the clip.
@@ -58102,9 +58408,15 @@ Wick.Clip = class extends Wick.Tickable {
      return Math.sqrt(max_r);
     */
   } // Gives clockwise in screen space, which is ccw in regular axes
+  // Points are in global coordinates
 
 
   get convexHull() {
+    // TODO: implement memoization
+
+    /*if (this._memoizedConvexHull) {
+        return this._memoizedConvexHull;
+    }*/
     let points = this.points; // Infinity gets us the convex hull
 
     let ch = hull(points, Infinity);
@@ -58112,6 +58424,11 @@ Wick.Clip = class extends Wick.Tickable {
     let epsilon = 0.01;
 
     for (let i = 0; i < ch.length; i++) {
+      if (ch[i] === undefined) {
+        continue;
+      } // This is weird, but prevents a bug
+
+
       if (removedDuplicates.length > 0) {
         if ((Math.abs(ch[i][0] - removedDuplicates[removedDuplicates.length - 1][0]) > epsilon || Math.abs(ch[i][1] - removedDuplicates[removedDuplicates.length - 1][1]) > epsilon) && (Math.abs(ch[i][0] - removedDuplicates[0][0]) > epsilon || Math.abs(ch[i][1] - removedDuplicates[0][1]) > epsilon)) {
           removedDuplicates.push(ch[i]);
@@ -58119,7 +58436,9 @@ Wick.Clip = class extends Wick.Tickable {
       } else {
         removedDuplicates.push(ch[i]);
       }
-    }
+    } // TODO: implement memoization
+    //this._memoizedConvexHull = removedDuplicates; 
+
 
     return removedDuplicates;
   }
@@ -58135,6 +58454,8 @@ Wick.Clip = class extends Wick.Tickable {
 
   set x(x) {
     this.transformation.x = x;
+
+    this._onDirtyTransform();
   }
   /**
    * The Y position of the clip.
@@ -58148,6 +58469,8 @@ Wick.Clip = class extends Wick.Tickable {
 
   set y(y) {
     this.transformation.y = y;
+
+    this._onDirtyTransform();
   }
   /**
    * The X scale of the clip.
@@ -58163,6 +58486,8 @@ Wick.Clip = class extends Wick.Tickable {
     if (scaleX === 0) scaleX = 0.001; // Protects against NaN issues
 
     this.transformation.scaleX = scaleX;
+
+    this._onDirtyTransform();
   }
   /**
    * The Y scale of the clip.
@@ -58178,6 +58503,8 @@ Wick.Clip = class extends Wick.Tickable {
     if (scaleY === 0) scaleY = 0.001; // Protects against NaN issues
 
     this.transformation.scaleY = scaleY;
+
+    this._onDirtyTransform();
   }
   /**
    * The width of the clip.
@@ -58191,6 +58518,8 @@ Wick.Clip = class extends Wick.Tickable {
 
   set width(width) {
     this.scaleX = width / this.width * this.scaleX;
+
+    this._onDirtyTransform();
   }
   /**
    * The height of the clip.
@@ -58204,6 +58533,8 @@ Wick.Clip = class extends Wick.Tickable {
 
   set height(height) {
     this.scaleY = height / this.height * this.scaleY;
+
+    this._onDirtyTransform();
   }
   /**
    * The rotation of the clip.
@@ -58217,6 +58548,8 @@ Wick.Clip = class extends Wick.Tickable {
 
   set rotation(rotation) {
     this.transformation.rotation = rotation;
+
+    this._onDirtyTransform();
   }
   /**
    * The opacity of the clip.
@@ -58346,6 +58679,29 @@ Wick.Clip = class extends Wick.Tickable {
         isPlaceholder: true
       }));
     }
+  } // called when transforms changed
+
+
+  _onDirtyTransform() {
+    this._onVisualDirty();
+  } // called when transform changed, transform of child changed, 
+  // or frame of any recursive children timeline changes
+
+
+  _onVisualDirty() {
+    //this._memoizedConvexHull = null;
+    this._onQuadtreeDirty();
+
+    if (this.parentClip) {
+      this.parentClip._onVisualDirty();
+    }
+  } // called when need to be re-added to quadtree
+
+
+  _onQuadtreeDirty() {
+    if (!this.isRoot && this.project) {
+      this.project.markClipQuadtreeDirty(this);
+    }
   }
 
   _onInactive() {
@@ -58358,6 +58714,8 @@ Wick.Clip = class extends Wick.Tickable {
     super._onActivated();
 
     this._tickChildren();
+
+    this._onQuadtreeDirty();
 
     if (this.animationType === 'playOnce') {
       this.playedOnce = false;
@@ -63542,43 +63900,7 @@ Wick.View.Clip = class extends Wick.View {
 
   get absoluteBounds() {
     return this.group.bounds;
-  } // get radius () {
-  //     if (this._radius) {
-  //         return this._radius;
-  //     }
-  //     let center = this.absoluteBounds.center;
-  //     let convert = (point) => point.getDistance(center, true);
-  //     let compare = (a, b) => Math.max(a,b);
-  //     let initial = 0;
-  //     this._radius = Math.sqrt(this.reducePointsFromGroup(this.group, initial, convert, compare));
-  //     return this._radius;
-  // }
-  // get convexHull () {
-  //     let group = this.group;
-  //     let initial = [];
-  //     let convert = (point) => [[point.x, point.y]];
-  //     let compare = (list1, list2) => list1.concat(list2);
-  //     let points = this.reducePointsFromGroup(group, initial, convert, compare);
-  //     // Infinity gets us the convex hull
-  //     let ch = hull(points, Infinity);
-  //     let removedDuplicates = [];
-  //     let epsilon = 0.01;
-  //     for (let i = 0; i < ch.length; i++) {
-  //         if (removedDuplicates.length > 0) {
-  //             if ((Math.abs(ch[i][0] - removedDuplicates[removedDuplicates.length - 1][0]) > epsilon ||
-  //                 Math.abs(ch[i][1] - removedDuplicates[removedDuplicates.length - 1][1]) > epsilon) && 
-  //                 (Math.abs(ch[i][0] - removedDuplicates[0][0]) > epsilon ||
-  //                 Math.abs(ch[i][1] - removedDuplicates[0][1]) > epsilon)) {
-  //                 removedDuplicates.push(ch[i]);
-  //             }
-  //         }
-  //         else {
-  //             removedDuplicates.push(ch[i]);
-  //         }
-  //     }
-  //     return removedDuplicates;
-  // }
-
+  }
 
   get points() {
     let group = this.group;
