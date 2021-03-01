@@ -863,6 +863,11 @@ class Editor extends EditorCore {
 
   handleAssetFileImport = (e) => {
     this.createAssets(e.target.files, []);
+    //resetting event so onchange can fire again
+    //this was causing bug reported via bug 311 on github
+    //this issue will happen even if you don't delete and try to reload the file
+    e.target.value="";
+    //end for bug id 311
   }
 
   openProjectFileDialog = () => {
