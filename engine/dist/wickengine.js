@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2021.1.21.3.27.20";
+var WICK_ENGINE_BUILD_VERSION = "2021.3.12.8.44.7";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -17464,7 +17464,7 @@ function convertRange( value, r1, r2 ) {
 }
 /* @license croquis.js */
 /* https://github.com/disjukr/croquis.js/tree/master */
-
+var drawSpacings = [];
 function Croquis(imageDataList, properties) {
     var self = this;
     if (properties != null)
@@ -18280,6 +18280,7 @@ function Croquis(imageDataList, properties) {
         cacheLayer(self.getCurrentLayerIndex());
     }
     self.down = function (x, y, pressure) {
+        drawSpacings = [];
         if (isDrawing || isStabilizing)
             throw 'still drawing';
         isDrawing = true;
@@ -18973,6 +18974,7 @@ Croquis.Brush = function () {
         delta += d;
         var midScale = (prevScale + scale) * 0.5;
         var drawSpacing = size * spacing * midScale;
+        drawSpacings.push(drawSpacing);
         var ldx = x - lastX;
         var ldy = y - lastY;
         var ld = sqrt(ldx * ldx + ldy * ldy);
@@ -19009,6 +19011,7 @@ Croquis.Brush = function () {
     this.up = function (x, y, scale) {
         dir = atan2(y - lastY, x - lastX);
         drawReserved();
+        console.log(drawSpacings);
         return dirtyRect;
     };
 };
