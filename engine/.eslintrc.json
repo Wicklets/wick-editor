@@ -1,0 +1,37 @@
+{
+  "extends": "eslint:recommended",
+  "globals": { 
+    "Wick": true,
+    "JSZip": true,
+    "Base64ArrayBuffer": true,
+    "convertRange": true,
+    "Croquis": true,
+    "floodfill": true,
+    "HowlerGlobal": true,
+    "hull": true,
+    "invert": true,
+    "isVarName": true,
+    "$": true,
+    "jQuery": true,
+    "lerp": true,
+    "paper": true,
+    "potrace": true,
+    "reserved": true,
+    "SCWF": true,
+    "Timestamp": true,
+    "TWEEN": true
+  },
+  "rules": {
+    "indent": ["error", 4],
+    "semi": ["error", "always"],
+    "quotes": ["error", "single"],
+    "no-console": "warn",
+    "comma-dangle": ["error", "always-multiline"],
+    "brace-style": ["error", "1tbs", { "allowSingleLine": true }],
+    "keyword-spacing": ["error", { "before": true, "after": true }],
+    "curly": ["error", "all"],
+    "no-trailing-spaces": "error",
+    "space-infix-ops": "error",
+    "no-param-reassign": [ "error", { "props": true } ]
+  }
+}

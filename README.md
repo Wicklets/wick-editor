@@ -18,7 +18,7 @@
     <img src="https://img.shields.io/twitter/follow/wickeditor?style=social&logo=twitter" alt="follow on Twitter"></a>
 </p>
 
-<h1>Wick Editor</h1>
+# Wick Editor
 
 The Wick Editor is a free and open-source tool for creating games, animations, and everything in-between. It's designed to be the most accessible tool for creating multimedia projects on the web.
 
@@ -94,14 +94,12 @@ Wick Editor is under the GNU v3 Public License. See the [LICENSE](LICENSE.md) fo
 
 ## Links
 
-* [Wick Editor Site](https://www.wickeditor.com)
-* [Wick Editor Community Forum](https://forum.wickeditor.com/)
-* [Follow on Twitter](https://twitter.com/wickeditor)
-* [Follow on Facebook](https://www.facebook.com/wickeditor/)
+- [Wick Editor Site](https://www.wickeditor.com)
+- [Wick Editor Community Forum](https://forum.wickeditor.com/)
+- [Follow on Twitter](https://twitter.com/wickeditor)
+- [Follow on Facebook](https://www.facebook.com/wickeditor/)
 
-
-
-## Building and Releasing the Desktop App 
+## Building and Releasing the Desktop App
 
 Please refer to this Wiki entry for information on our dektop build processes! [https://github.com/Wicklets/wick-editor/wiki/Building-Desktop-Editors-for-Release](https://github.com/Wicklets/wick-editor/wiki/Building-Desktop-Editors-for-Release).
 
@@ -121,8 +119,6 @@ If you are familiar with electron-builder, electron-packager, or have experience
 	<img src="https://www.wickeditor.com/static/media/cosa_logo.9af883a9.png" alt="Clinic for Open Source Arts" height="100px"/>
 </a>
 
-
 ## Testing Support From
 
 <a href="https://www.browserstack.com/"><img src=".github/images/browserstack.svg" alt="Browser Stack" width="25%"></a>
-

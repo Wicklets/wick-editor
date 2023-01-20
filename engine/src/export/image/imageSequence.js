@@ -34,6 +34,7 @@ Wick.ImageSequence = class {
         let buildZip = (files) => {
             let index = 0;
             files.forEach((file) => {
+                // console.log(file);
                 var blob = Wick.ExportUtils.dataURItoBlob(file.src);
 
                 let paddedNum = (index + '').padStart(12, '0');
@@ -43,12 +44,12 @@ Wick.ImageSequence = class {
 
             zip.generateAsync({
                 type: 'blob',
-                compression: "DEFLATE",
+                compression: 'DEFLATE',
                 compressionOptions: {
-                    level: 9
+                    level: 9,
                 },
             }).then(onFinish);
-        }
+        };
 
         project.generateImageSequence({
             width: args.width,
@@ -57,4 +58,4 @@ Wick.ImageSequence = class {
             onProgress: onProgress,
         });
     }
-}
+};

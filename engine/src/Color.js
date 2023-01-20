@@ -24,7 +24,7 @@ Wick.Color = class {
      * @param {string} color - (Optional) Hex or Rgba color to create a Wick.Color from.
      */
     constructor (color) {
-        if(color) {
+        if (color) {
             this._color = new paper.Color(color);
         } else {
             this._color = new paper.Color();
@@ -129,4 +129,4 @@ Wick.Color = class {
     static average (colorA, colorB) {
         return colorA.multiply(0.5).add(colorB.multiply(0.5));
     }
-}
+};
