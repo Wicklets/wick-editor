@@ -29,8 +29,13 @@ Wick.Project = class extends Wick.Base {
      * @param {number} framerate - Project framerate in frames-per-second. Default 12.
      * @param {Color} backgroundColor - Project background color in hex. Default #ffffff.
      */
-    constructor(args) {
-        if (!args) args = {};
+    constructor(paramArgs) {
+        let args = {};
+        if (paramArgs) {
+            args = {
+                ...paramArgs,
+            };
+        }
         super(args);
 
         this._name = args.name || 'My Project';
@@ -146,7 +151,7 @@ Wick.Project = class extends Wick.Base {
      * Resets the cache and removes all unlinked items from the project.
      */
     resetCache () {
-      Wick.ObjectCache.removeUnusedObjects(this);
+        Wick.ObjectCache.removeUnusedObjects(this);
     }
 
     /**
@@ -187,7 +192,7 @@ Wick.Project = class extends Wick.Base {
         data.backgroundColor = this.backgroundColor.rgba;
         data.framerate = this.framerate;
 
-        data.onionSkinEnabled = this.onionSkinEnabled
+        data.onionSkinEnabled = this.onionSkinEnabled;
         data.onionSkinSeekForwards = this.onionSkinSeekForwards;
         data.onionSkinSeekBackwards = this.onionSkinSeekBackwards;
 
@@ -221,7 +226,9 @@ Wick.Project = class extends Wick.Base {
      * @param {String} message - the message to display for the error
      */
     errorOccured (message) {
-        if (this._userErrorCallback) this._userErrorCallback(message);
+        if (this._userErrorCallback) {
+            this._userErrorCallback(message);
+        }
         this._internalErrorMessages.push(message);
     }
 
@@ -234,10 +241,17 @@ Wick.Project = class extends Wick.Base {
     }
 
     set width(width) {
-        if (typeof width !== 'number') return;
-        if (width < 1) width = 1;
-        if (width > 200000) width = 200000;
-        this._width = width;
+        let newWidth = width;
+        if (typeof newWidth !== 'number') {
+            return;
+        }
+        if (newWidth < 1) {
+            newWidth = 1;
+        }
+        if (newWidth > 200000) {
+            newWidth = 200000;
+        }
+        this._width = newWidth;
     }
 
     /**
@@ -668,7 +682,7 @@ Wick.Project = class extends Wick.Base {
             type = 'application/json';
         }
         
-        var extension = "";
+        var extension = '';
         
         if (file.name) {
             extension = file.name.split('.').pop();
@@ -692,11 +706,11 @@ Wick.Project = class extends Wick.Base {
         if (asset === undefined) {
             console.warn('importFile(): Could not import file ' + file.name + ', filetype: "' + file.type + '" is not supported.');
             console.warn('Supported File Types Are:', {
-                image: imageTypes, 
+                image: imageTypes,
                 sound: soundTypes,
                 font: fontTypes,
                 clip: clipTypes,
-                svg: svgTypes
+                svg: svgTypes,
             });
             console.warn('Supported File Extensions Are', {
                 image: imageExtensions,
@@ -704,7 +718,7 @@ Wick.Project = class extends Wick.Base {
                 font: fontExtensions,
                 clip: clipExtensions,
                 svg: svgExtensions,
-            })
+            });
             callback(null);
             return;
         }
@@ -720,7 +734,7 @@ Wick.Project = class extends Wick.Base {
             asset.load(() => {
                 callback(asset);
             });
-        }
+        };
 
         reader.readAsDataURL(file);
     }
@@ -733,7 +747,7 @@ Wick.Project = class extends Wick.Base {
     }
 
     set onionSkinEnabled (bool) {
-        if (typeof bool !== "boolean") return;
+        if (typeof bool !== 'boolean') return;
 
         // Get all onion skinned frames, if we're turning off onion skinning.
         let onionSkinnedFrames = [];
@@ -776,8 +790,7 @@ Wick.Project = class extends Wick.Base {
         objects.forEach(object => {
             if (object.remove) {
                 object.remove();
-            }
-            else if (['ImageAsset', 'SoundAsset', 'ClipAsset', 'FontAsset', 'SVGAsset'].indexOf(object.classname) !== -1) {
+            } else if (['ImageAsset', 'SoundAsset', 'ClipAsset', 'FontAsset', 'SVGAsset'].indexOf(object.classname) !== -1) {
                 this.removeAsset(object);
             }
         });
@@ -866,28 +879,26 @@ Wick.Project = class extends Wick.Base {
                 let parent = obj.parent;
                 if (parent.classname === 'Frame') {
                     indices.unshift(parent.getChildren().length - 1 - parent.getChildren().indexOf(obj));
-                }
-                else {
+                } else {
                     indices.unshift(parent.getChildren().indexOf(obj));
                 }
                 obj = parent;
             }
             return indices;
-        }
+        };
         // Assumes i1, i2 same length, ordering same as outliner
         let compare_indices = (i1, i2) => {
             for (let i = 0; i < i1.length; i++) {
                 if (i1[i] < i2[i]) {
                     return 1;
-                }
-                else if (i1[i] > i2[i]) {
+                } else if (i1[i] > i2[i]) {
                     return -1;
                 }
             }
             return 0;
-        }
+        };
 
-        let selection = this.selection.getSelectedObjects()
+        let selection = this.selection.getSelectedObjects();
         if (selection.length === 0) {
             return false;
         }
@@ -899,8 +910,10 @@ Wick.Project = class extends Wick.Base {
                 return false;
             }
         }
-        let zip = selection_indices.map((o, i) => {return [o, selection[i]]});
-        zip.sort(([i1,], [i2,]) => compare_indices(i1,i2));
+        let zip = selection_indices.map((o, i) => {
+            return [o, selection[i]];
+        });
+        zip.sort(([i1], [i2]) => compare_indices(i1, i2));
         if (target.classname === 'Frame') {
             // Render order is reversed for children of frames
             zip.reverse();
@@ -960,10 +973,8 @@ Wick.Project = class extends Wick.Base {
         var selectedFrames = this.selection.getSelectedObjects('Frame');
         if (selectedFrames.length > 0) {
             // Make sure you can only create tweens on contentful frames
-            if (selectedFrames.find(frame => {
-                    return !frame.contentful;
-                })) {
-                return false
+            if (selectedFrames.find(frame => { return !frame.contentful; })) {
+                return false;
             } else {
                 return true;
             }
@@ -1121,8 +1132,8 @@ Wick.Project = class extends Wick.Base {
      * @param {function} callback - the function to call after the path is created.
      */
     createClipInstanceFromAsset(asset, x, y, callback) {
-		let playheadPosition = this.focus.timeline.playheadPosition;
-		if (!this.activeFrame)
+        let playheadPosition = this.focus.timeline.playheadPosition;
+        if (!this.activeFrame)
 			this.activeLayer.insertBlankFrame(playheadPosition);
         asset.createInstance(clip => {
             this.activeFrame.addPath(clip);
@@ -1160,7 +1171,7 @@ Wick.Project = class extends Wick.Base {
     createClipFromSelection(args) {
         if (!args) {
             args = {};
-        };
+        }
 
         if (args.type !== 'Clip' && args.type !== 'Button') {
             console.error('createClipFromSelection: invalid type: ' + args.type);
@@ -1903,7 +1914,7 @@ Wick.Project = class extends Wick.Base {
             var currentPos = renderCopy.focus.timeline.playheadPosition;
             args.onProgress(currentPos, numMaxFrameImages);
 
-            if(currentPos >= numMaxFrameImages) {
+            if (currentPos >= numMaxFrameImages) {
                 // reset autoUpdate back to normal
                 renderCopy.view.paper.view.autoUpdate = true;
 
@@ -1922,7 +1933,7 @@ Wick.Project = class extends Wick.Base {
                 renderCopy.activeTimeline.playheadPosition = oldPlayhead + 1;
                 renderFrame();
             }
-        }
+        };
 
         this.resetSoundsPlayed();
         renderFrame();
@@ -1947,7 +1958,7 @@ Wick.Project = class extends Wick.Base {
                 offset: frame.soundStart,
                 src: frame.sound.src,
                 filetype: frame.sound.fileExtension,
-            }
+            };
         });
     }
 
@@ -1991,8 +2002,7 @@ Wick.Project = class extends Wick.Base {
      * @type {boolean}
      */
     get canDraw() {
-        return !this.activeLayer.locked &&
-            !this.activeLayer.hidden;
+        return !this.activeLayer.locked && !this.activeLayer.hidden;
     }
 
     /**
@@ -2021,9 +2031,9 @@ Wick.Project = class extends Wick.Base {
      */
     cleanupUnusedAssets () {
         this.assets.forEach(asset => {
-            if(!asset.hasInstances()) {
+            if (!asset.hasInstances()) {
                 asset.remove();
             }
         });
     }
-}
+};
