@@ -1765,6 +1765,130 @@ Wick.Project = class extends Wick.Base {
     /**
      * Create a sequence of images from every frame in the project.
      * @param {object} args - Options for generating the image sequence
+     * @param {string} imageType - MIMEtype to use for rendered image. Defaults to 'image/png'.
+     * @param {function} onProgress - Function to call for image loaded, useful for progress bars?
+     * @param {function} onFinish - Function to call when the image is loaded.
+     */
+    generateImageFile (args) {
+        let options = {};
+
+        if (args) {
+            options = {
+                ...args,
+            };
+        }
+
+        if (!options.imageType) {
+            options.imageType = 'image/png';
+        }
+        if (!options.onProgress) {
+            options.onProgress = () => {};
+        }
+        if (!options.onFinish) {
+            options.onFinish = () => {};
+        }
+        if (!options.width) {
+            options.width = this.width;
+        }
+        if (!options.height) {
+            options.height = this.height;
+        }
+
+        // console.log('generateImageFile', options);
+
+        var renderCopy = this;
+
+        console.log('renderCopy/project', renderCopy);
+
+        renderCopy.renderBlackBars = false; // Turn off black bars (removes black lines)
+
+        var oldBackgroundColor = renderCopy._backgroundColor;
+
+        renderCopy._backgroundColor = new Wick.Color('#00000000');
+
+        var oldCanvasContainer = this.view.canvasContainer;
+
+        this.history.saveSnapshot('before-gif-render');
+        this.mute();
+        this.selection.clear();
+        // this.publishedMode = 'imageSequence';
+        // this.tick();
+
+        // Put the project canvas inside a div that's the same size as the project
+        // so the frames render at the correct resolution.
+        let container = window.document.createElement('div');
+
+        container.style.width  = (options.width / window.devicePixelRatio) + 'px';
+        container.style.height = (options.height / window.devicePixelRatio) + 'px';
+        window.document.body.appendChild(container);
+        renderCopy.view.canvasContainer = container;
+        renderCopy.view.resize();
+
+        let oldZoom = renderCopy.zoom;
+
+        // Calculate the zoom needed to fit the project into the requested container width/height
+        var zoom = 1;
+        if (options.height < options.width) {
+            zoom = options.height / this.height;
+        } else {
+            zoom = options.width / this.width;
+        }
+
+        // Set the initial state of the project.
+        renderCopy.focus = renderCopy.root;
+        // renderCopy.focus.timeline.playheadPosition = 1;
+        renderCopy.onionSkinEnabled = false;
+        renderCopy.zoom = zoom / window.devicePixelRatio;
+        renderCopy.pan = {x: 0, y: 0};
+
+        // renderCopy.tick();
+
+        // We need full control over when paper.js renders,
+        // if we leave autoUpdate on, it's possible to lose frames if paper.js doesnt automatically
+        // render as fast as we are generating the images.
+        // (See paper.js docs for info about autoUpdate)
+        renderCopy.view.paper.view.autoUpdate = false;
+
+        // var frameImages = [];
+        // var numMaxFrameImages = renderCopy.focus.timeline.length;
+
+        this.resetSoundsPlayed();
+
+        // Do the image render
+        var image = new Image();
+
+        image.onload = () => {
+            // console.log('Image onload', image);
+            options.onProgress(1, 1);
+
+            // reset autoUpdate back to normal
+            renderCopy.view.paper.view.autoUpdate = true;
+
+            this.view.canvasContainer = oldCanvasContainer;
+            this.view.resize();
+
+            this.history.loadSnapshot('before-gif-render');
+            // this.publishedMode = false;
+            this.view.render();
+
+            renderCopy._backgroundColor = oldBackgroundColor;
+            renderCopy.zoom = oldZoom;
+
+            window.document.body.removeChild(container);
+
+            options.onFinish(image);
+        };
+
+        // console.log('Image src render()', image);
+        renderCopy.view.render();
+        renderCopy.view.paper.view.update();
+        image.src = renderCopy.view.canvas.toDataURL(options.imageType);
+    }
+
+
+    /**
+     * Create a sequence of images from every frame in the project.
+     * @param {object} args - Options for generating the image sequence
      * @param {string} imageType - MIMEtype to use for rendered images. Defaults to 'image/png'.
      * @param {function} onProgress - Function to call for each image loaded, useful for progress bars
      * @param {function} onFinish - Function to call when the images are all loaded.

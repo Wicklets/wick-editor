@@ -979,6 +979,70 @@ class EditorCore extends Component {
   }
 
   /**
+   * Export the current frame as a transparent PNG
+   */
+  quickExport = (args) => {
+    this.openModal('ExportMedia');
+    this.setState({
+      renderProgress: 0,
+      renderType: "single image",
+      renderStatusMessage: "Creating image.",
+      exporting: true,
+    });
+
+    let toastID = this.toast('Exporting image...', 'info');
+
+    let onProgress = (completed, maxFrames) => {
+      let message = "Rendered " + completed + "/" + maxFrames + " frames";
+      let percentage = 10 + (90 * (completed/maxFrames));
+      this.setState({
+        renderStatusMessage: message,
+        renderProgress: percentage,
+      });
+    }
+
+    let onError = (message) => {
+      console.error("Image Render had an error with message: ", message);
+    }
+
+    let onFinish = (file) => {
+
+      let success = () => {
+        this.updateToast(toastID, {
+          type: 'success',
+          text: "Successfully saved image." });
+      }
+
+      let fail = () => {
+        this.updateToast(toastID, {
+          type: 'error',
+          text: "Error saving image. Please try again." });
+      }
+
+      window.saveFileFromWick(file, this.project.name+'_frame', '.png', success, fail);
+
+      this.setState({
+        exporting: false,
+      })
+    }
+
+    window.Wick.ImageFile.toPNGFile({
+      project: this.project,
+      width: args.width,
+      height: args.height,
+      onProgress: onProgress,
+      onError: () => {
+        this.hideWaitOverlay();
+        onError();
+      },
+      onFinish: (file) => {
+        this.hideWaitOverlay();
+        onFinish(file);
+      },
+    });
+  }
+
+  /**
    * Export the current project as a Wick File using the save as dialog.
    */
   exportProjectAsWickFile = () => {

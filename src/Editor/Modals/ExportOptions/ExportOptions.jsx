@@ -102,6 +102,8 @@ class ExportOptions extends Component {
       this.props.toggle();
     } else if (type === 'IMAGE_SEQUENCE') {
       this.props.exportProjectAsImageSequence(args);
+    } else if (type === 'SINGLE_IMAGE') {
+      this.props.quickExport(args);
     } else if (type === 'AUDIO_TRACK') {
       this.props.exportProjectAsAudioTrack(args);
       this.props.toggle();
@@ -384,11 +386,18 @@ class ExportOptions extends Component {
                   },
                 ]} />
               <div className="export-modal-button-container">
-              <ActionButton
-                color='gray-green'
-                action={() => { this.createAndToggle('IMAGE_SEQUENCE') }}
-                text="Export Image Sequence"
-                />
+                <ActionButton
+                  color='gray-green'
+                  action={() => { this.createAndToggle('IMAGE_SEQUENCE') }}
+                  text="Export Image Sequence"
+                  />
+              </div>
+              <div className="export-modal-button-container">
+                <ActionButton
+                  color='gray-green'
+                  action={() => { this.createAndToggle('SINGLE_IMAGE') }}
+                  text="Export Single Image"
+                  />
               </div>
             </div>
             <div className={classNames("export-info-item", this.props.isMobile && "mobile")}>
