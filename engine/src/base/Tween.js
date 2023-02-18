@@ -22,7 +22,44 @@
  */
 Wick.Tween = class extends Wick.Base {
     static get VALID_EASING_TYPES () {
-        return ['none', 'in', 'out', 'in-out'];
+        /**
+        * First three of the tween options would not appear because they're only used by older versions.
+        */
+        return ['in', 
+            'out', 
+            'in-out',
+            "none",
+            "quad-in",
+            "quad-out",
+            "quad-in-out",
+            "cubic-in",
+            "cubic-out",
+            "cubic-in-out",
+            "quart-in",
+            "quart-out",
+            "quart-in-out",
+            "quint-in",
+            "quint-out",
+            "quint-in-out",
+            "sine-in",
+            "sine-out",
+            "sine-in-out",
+            "expo-in",
+            "expo-out",
+            "expo-in-out",
+            "circ-in",
+            "circ-out",
+            "circ-in-out",
+            "back-in",
+            "back-out",
+            "back-in-out",
+            "elastic-in",
+            "elastic-out",
+            "elastic-in-out",
+            "bounce-in",
+            "bounce-out",
+            "bounce-in-out"
+        ];
     }
 
     static _calculateTimeValue (tweenA, tweenB, playheadPosition) {
@@ -212,10 +249,40 @@ Wick.Tween = class extends Wick.Base {
      /* retrieve Tween.js easing functions by name */
     _getTweenFunction () {
         return {
-            'none': TWEEN.Easing.Linear.None,
             'in': TWEEN.Easing.Quadratic.In,
             'out': TWEEN.Easing.Quadratic.Out,
             'in-out': TWEEN.Easing.Quadratic.InOut,
+            'none': TWEEN.Easing.Linear.None,
+            'quad-in': TWEEN.Easing.Quadratic.In,
+            'quad-out': TWEEN.Easing.Quadratic.Out,
+            'quad-in-out': TWEEN.Easing.Quadratic.InOut,
+            'cubic-in': TWEEN.Easing.Cubic.In,
+            'cubic-out': TWEEN.Easing.Cubic.Out,
+            'cubic-in-out': TWEEN.Easing.Cubic.InOut,
+            'quart-in': TWEEN.Easing.Quartic.In,
+            'quart-out': TWEEN.Easing.Quartic.Out,
+            'quart-in-out': TWEEN.Easing.Quartic.InOut,
+            'quint-in': TWEEN.Easing.Quintic.In,
+            'quint-out': TWEEN.Easing.Quintic.Out,
+            'quint-in-out': TWEEN.Easing.Quintic.InOut,
+            'sine-in': TWEEN.Easing.Sinusoidal.In,
+            'sine-out': TWEEN.Easing.Sinusoidal.Out,
+            'sine-in-out': TWEEN.Easing.Sinusoidal.InOut,
+            'expo-in': TWEEN.Easing.Exponential.In,
+            'expo-out': TWEEN.Easing.Exponential.Out,
+            'expo-in-out': TWEEN.Easing.Exponential.InOut,
+            'circ-in': TWEEN.Easing.Circular.In,
+            'circ-out': TWEEN.Easing.Circular.Out,
+            'circ-in-out': TWEEN.Easing.Circular.InOut,
+            'back-in': TWEEN.Easing.Back.In,
+            'back-out': TWEEN.Easing.Back.Out,
+            'back-in-out': TWEEN.Easing.Back.InOut,
+            'elastic-in': TWEEN.Easing.Elastic.In,
+            'elastic-out': TWEEN.Easing.Elastic.Out,
+            'elastic-in-out': TWEEN.Easing.Elastic.InOut,
+            'bounce-in': TWEEN.Easing.Bounce.In,
+            'bounce-out': TWEEN.Easing.Bounce.Out,
+            'bounce-in-out': TWEEN.Easing.Bounce.InOut,
         }[this.easingType];
     }
 }
