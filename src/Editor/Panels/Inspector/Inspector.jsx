@@ -600,7 +600,7 @@ class Inspector extends Component {
   }
 
   renderTweenEasingType = () => {
-    let options = window.Wick.Tween.VALID_EASING_TYPES;
+    let options = window.Wick.Tween.VALID_EASING_TYPES.slice(3); // Leave behind the old tweening options from 1.19.3
     let optionLabels = [];
     options.forEach((option) => {
       optionLabels.push({label: option, value: option});
