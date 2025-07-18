@@ -22,7 +22,12 @@
  */
 Wick.Tween = class extends Wick.Base {
     static get VALID_EASING_TYPES () {
-        return ['none', 'in', 'out', 'in-out'];
+        return [
+               'Linear',
+               'Quad-in', 'Quad-out', 'Quad-in-out', 
+               'Cubic-in', 'Cubic-out', 'Cubic-in-out',
+               'Elastic-in', 'Elastic-out', 'Elastic-in-out'
+            ];
     }
 
     static _calculateTimeValue (tweenA, tweenB, playheadPosition) {
@@ -212,10 +217,16 @@ Wick.Tween = class extends Wick.Base {
      /* retrieve Tween.js easing functions by name */
     _getTweenFunction () {
         return {
-            'none': TWEEN.Easing.Linear.None,
-            'in': TWEEN.Easing.Quadratic.In,
-            'out': TWEEN.Easing.Quadratic.Out,
-            'in-out': TWEEN.Easing.Quadratic.InOut,
+            'Linear': TWEEN.Easing.Linear.None,
+            'Quad-in': TWEEN.Easing.Quadratic.In,
+            'Quad-out': TWEEN.Easing.Quadratic.Out,
+            'Quad-in-out': TWEEN.Easing.Quadratic.InOut,
+            'Cubic-in': TWEEN.Easing.Cubic.In,
+            'Cubic-out': TWEEN.Easing.Cubic.Out,
+            'Cubic-in-out': TWEEN.Easing.Cubic.InOut,
+            'Elastic-in': TWEEN.Easing.Elastic.In,
+            'Elastic-out': TWEEN.Easing.Elastic.Out,
+            'Elastic-in-out': TWEEN.Easing.Elastic.InOut,
         }[this.easingType];
     }
 }
