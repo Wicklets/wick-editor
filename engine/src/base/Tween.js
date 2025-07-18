@@ -223,10 +223,10 @@ Wick.Tween = class extends Wick.Base {
             'Quad-in-out': TWEEN.Easing.Quadratic.InOut,
             'Cubic-in': TWEEN.Easing.Cubic.In,
             'Cubic-out': TWEEN.Easing.Cubic.Out,
-            'Cubic-in-out' TWEEN.Easing.Cubic.InOut,
-            'Elastic-in' TWEEN.Easing.Elastic.In,
-            'Elastic-out' TWEEN.Easing.Elastic.Out,
-            'Elastic-in-out' TWEEN.Easing.Elastic.InOut,
+            'Cubic-in-out': TWEEN.Easing.Cubic.InOut,
+            'Elastic-in': TWEEN.Easing.Elastic.In,
+            'Elastic-out': TWEEN.Easing.Elastic.Out,
+            'Elastic-in-out': TWEEN.Easing.Elastic.InOut,
         }[this.easingType];
     }
 }
