@@ -22,7 +22,12 @@
  */
 Wick.Tween = class extends Wick.Base {
     static get VALID_EASING_TYPES () {
-        return ['none', 'in', 'out', 'in-out'];
+        return [
+               'Linear',
+               'Quad-in', 'Quad-out', 'Quad-in-out', 
+               'Cubic-in', 'Cubic-out', 'Cubic-in-out,
+               'Elastic-in', 'Elastic-out', 'Elastic-in-out'
+            ];
     }
 
     static _calculateTimeValue (tweenA, tweenB, playheadPosition) {
