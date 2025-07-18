@@ -25,7 +25,7 @@ Wick.Tween = class extends Wick.Base {
         return [
                'Linear',
                'Quad-in', 'Quad-out', 'Quad-in-out', 
-               'Cubic-in', 'Cubic-out', 'Cubic-in-out,
+               'Cubic-in', 'Cubic-out', 'Cubic-in-out',
                'Elastic-in', 'Elastic-out', 'Elastic-in-out'
             ];
     }
