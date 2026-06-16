@@ -27,7 +27,7 @@ Wick.Clipboard = class {
 
     static get PASTE_OFFSET () {
         // how many pixels should we shift objects over when we paste (canvas only)
-        return 20;
+        return 0; // idk
     }
 
     /**
@@ -58,7 +58,7 @@ Wick.Clipboard = class {
      * @param {Wick.Base[]} objects - the objects to copy to the clipboard
      */
     copyObjectsToClipboard (project, objects) {
-        if(!project || (!project instanceof Wick.Project)) console.error('copyObjectsToClipboard(): project is required');
+        if(!project || (!project instanceof Wick.Project)) console.error('copyObjectsToClipboard(): not found project');
 
         // Get the playhead position of the "first" frame in the list of objects
         var playheadCopyOffset = null;
