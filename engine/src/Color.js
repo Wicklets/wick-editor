@@ -104,6 +104,7 @@ Wick.Color = class {
         newColor.r = this.r + color.r;
         newColor.g = this.g + color.g;
         newColor.b = this.b + color.b;
+        newColor.a = this.a + color.a;
         return newColor;
     }
 
